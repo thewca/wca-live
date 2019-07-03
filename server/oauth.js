@@ -1,6 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const { PRODUCTION, WCA_OAUTH_CLIENT_ID, WCA_OAUTH_SECRET, WCA_ORIGIN, WCA_OAUTH_REDIRECT_URI } = require('./config');
+const { getMe }  = require('./utils/wca-api');
 
 const userJsonToUser = userJson => ({
   wcaUserId: userJson['id'],
@@ -35,10 +36,7 @@ module.exports = ({ Users }) => {
     });
     const tokenResponse = await fetch(`${WCA_ORIGIN}/oauth/token?${params.toString()}`, { method: 'POST' });
     const { access_token: accessToken } = await tokenResponse.json();
-    const meResponse = await fetch(`${WCA_ORIGIN}/api/v0/me`, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-    const { me } = await meResponse.json();
+    const me = await getMe(accessToken);
     const user = {
       ...userJsonToUser(me),
       oauth: { accessToken },

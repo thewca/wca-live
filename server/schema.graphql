@@ -2,6 +2,10 @@ type Query {
   me: User
 }
 
+type Mutation {
+  importCompetition(competitionId: ID!): Competition
+}
+
 type User {
   id: ID!
   # WCA attributes
