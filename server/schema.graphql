@@ -1,0 +1,18 @@
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  # WCA attributes
+  wcaUserId: Int!
+  wcaId: String
+  name: String!
+  avatar: Avatar!
+  # Additional attributes
+}
+
+type Avatar {
+  url: String
+  thumbUrl: String
+}
