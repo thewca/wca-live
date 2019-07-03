@@ -1,0 +1,20 @@
+{
+  "name": "wca-live-server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon ./index.js"
+  },
+  "dependencies": {
+    "apollo-server-express": "^2.6.7",
+    "express": "^4.17.1",
+    "graphql": "^14.4.2",
+    "mongodb": "^3.2.7",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
