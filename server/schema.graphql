@@ -10,9 +10,15 @@ type User {
   name: String!
   avatar: Avatar!
   # Additional attributes
+  importableCompetitions: [Competition!]!
 }
 
 type Avatar {
   url: String
   thumbUrl: String
+}
+
+type Competition {
+  id: ID!
+  name: String!
 }

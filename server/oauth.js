@@ -20,7 +20,7 @@ module.exports = ({ Users }) => {
       client_id: WCA_OAUTH_CLIENT_ID,
       redirect_uri: WCA_OAUTH_REDIRECT_URI,
       response_type: 'code',
-      scope: 'public',
+      scope: 'public manage_competitions',
     });
     res.redirect(`${WCA_ORIGIN}/oauth/authorize?${params.toString()}`);
   });
@@ -39,7 +39,10 @@ module.exports = ({ Users }) => {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     const { me } = await meResponse.json();
-    const user = userJsonToUser(me);
+    const user = {
+      ...userJsonToUser(me),
+      oauth: { accessToken },
+    };
     const { value: dbUser } = await Users.findOneAndUpdate(
       { wcaUserId: user.wcaUserId },
       { $set: user },
