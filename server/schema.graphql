@@ -15,6 +15,7 @@ type User {
   avatar: Avatar!
   # Additional attributes
   importableCompetitions: [Competition!]!
+  manageableCompetitions: [Competition!]!
 }
 
 type Avatar {
