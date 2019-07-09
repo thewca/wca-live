@@ -1,6 +1,7 @@
 type Query {
   me: User
   competition(id: ID!): Competition
+  round(competitionId: ID!, roundId: ID!): Round
 }
 
 type Mutation {
