@@ -4,7 +4,7 @@ type Query {
 }
 
 type Mutation {
-  importCompetition(competitionId: ID!): Competition
+  importCompetition(id: ID!): Competition
 }
 
 type User {

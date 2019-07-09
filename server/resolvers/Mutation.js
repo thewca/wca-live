@@ -8,14 +8,14 @@ const getDocument = ({ value }) => {
 
 module.exports = {
   importCompetition: withAuthentication(
-    async (parent, { competitionId }, { user, mongo: { Competitions } }) => {
-      const wcif = await getWcif(competitionId, user.oauth.accessToken);
+    async (parent, { id }, { user, mongo: { Competitions } }) => {
+      const wcif = await getWcif(id, user.oauth.accessToken);
       const managerWcaUserIds = wcif.persons.filter(
         person => person.roles.some(role => ['delegate', 'organizer', 'staff-dataentry'].includes(role))
       ).map(person => person.wcaUserId);
       const competition = getDocument(
         await Competitions.findOneAndUpdate(
-          { 'wcif.id': competitionId },
+          { 'wcif.id': id },
           { $setOnInsert: { wcif, managerWcaUserIds } },
           { upsert: true, returnOriginal: false },
         )
