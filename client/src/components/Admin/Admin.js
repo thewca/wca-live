@@ -1,7 +1,7 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Link, Switch, Route, Redirect } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -9,6 +9,8 @@ import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+
+import AdminCompetitionList from './AdminCompetitionList/AdminCompetitionList';
 
 const USER_QUERY = gql`
   query UserQuery {
@@ -58,8 +60,8 @@ const Admin = () => {
                 </Toolbar>
               </AppBar>
               <Switch>
-                <Route exact path="/admin" render={() => "Admin dashboard"} />
-                <Redirect to="/admin" />
+                <Route exact path="/admin/competitions" component={AdminCompetitionList} />
+                <Redirect to="/admin/competitions" />
               </Switch>
             </div>
           );
