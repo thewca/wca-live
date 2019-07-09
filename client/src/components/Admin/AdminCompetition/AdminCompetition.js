@@ -2,6 +2,7 @@ import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Typography from '@material-ui/core/Typography';
 
 const COMPETITION_QUERY = gql`
   query CompetitionQuery($id: ID!) {
@@ -20,8 +21,11 @@ const AdminCompetition = ({ match }) => {
         if (loading) return <LinearProgress />;
         const { competition } = data;
         return (
-          <div style={{ padding: 24 }}>
-            {competition.name}
+          <div>
+            <div style={{ padding: 24 }}>
+              <Typography variant="h5">{competition.name}</Typography>
+              Welcome to the competition
+            </div>
           </div>
         );
       }}

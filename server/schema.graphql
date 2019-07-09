@@ -27,4 +27,45 @@ type Avatar {
 type Competition {
   id: ID!
   name: String!
+  events: [Event!]!
+}
+
+type Event {
+  id: ID!
+  rounds: [Round!]!
+}
+
+type Round {
+  id: ID!
+  format: String!
+  # timeLimit: TimeLimit
+  # cutoff: Cutoff
+  # advancementCondition: AdvancementCondition
+  results: [Result!]!
+}
+
+type Result {
+  person: Person!
+  ranking: Int
+  attempts: [Int]!
+}
+
+type Person {
+  registrantId: ID!
+  name: String!
+  wcaId: String
+  countryIso2: String!
+  avatar: Avatar
+  roles: [String!]!
+  # registration: Registration!
+  personalBests: [PersonalBest!]!
+}
+
+type PersonalBest {
+  eventId: String!
+  best: Int!
+  worldRanking: Int!
+  continentalRanking: Int!
+  nationalRanking: Int!
+  type: String!
 }
