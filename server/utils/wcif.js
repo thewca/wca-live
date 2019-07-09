@@ -8,6 +8,13 @@ const parseActivityCode = activityCode => {
   };
 };
 
+const roundById = (wcif, roundId) => {
+  const { eventId } = parseActivityCode(roundId);
+  const event = wcif.events.find(event => event.id === eventId);
+  return event.rounds.find(round => round.id === roundId);
+};
+
 module.exports = {
-  parseActivityCode
+  parseActivityCode,
+  roundById,
 };

@@ -6,6 +6,7 @@ type Query {
 
 type Mutation {
   importCompetition(id: ID!): Competition
+  setResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
 }
 
 type User {
@@ -49,6 +50,7 @@ type Result {
   person: Person!
   ranking: Int
   attempts: [Int]!
+  advancable: Boolean!
 }
 
 type Person {
@@ -69,4 +71,11 @@ type PersonalBest {
   continentalRanking: Int!
   nationalRanking: Int!
   type: String!
+}
+
+# Inputs
+
+input ResultInput {
+  personId: ID!
+  attempts: [Int!]!
 }

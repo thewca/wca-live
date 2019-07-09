@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 
 import AdminCompetitionList from './AdminCompetitionList/AdminCompetitionList';
 import AdminCompetition from './AdminCompetition/AdminCompetition';
+import AdminRound from './AdminRound/AdminRound';
 
 const USER_QUERY = gql`
   query UserQuery {
@@ -63,6 +64,7 @@ const Admin = () => {
               <Switch>
                 <Route exact path="/admin/competitions" component={AdminCompetitionList} />
                 <Route exact path="/admin/competitions/:id" component={AdminCompetition} />
+                <Route exact path="/admin/competitions/:competitionId/rounds/:roundId" component={AdminRound} />
                 <Redirect to="/admin/competitions" />
               </Switch>
             </div>

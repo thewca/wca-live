@@ -21,11 +21,8 @@ const AdminCompetition = ({ match }) => {
         if (loading) return <LinearProgress />;
         const { competition } = data;
         return (
-          <div>
-            <div style={{ padding: 24 }}>
-              <Typography variant="h5">{competition.name}</Typography>
-              Welcome to the competition
-            </div>
+          <div style={{ padding: 24 }}>
+            <Typography variant="h5">{competition.name}</Typography>
           </div>
         );
       }}
