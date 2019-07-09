@@ -11,6 +11,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 import AdminCompetitionList from './AdminCompetitionList/AdminCompetitionList';
+import AdminCompetition from './AdminCompetition/AdminCompetition';
 
 const USER_QUERY = gql`
   query UserQuery {
@@ -61,6 +62,7 @@ const Admin = () => {
               </AppBar>
               <Switch>
                 <Route exact path="/admin/competitions" component={AdminCompetitionList} />
+                <Route exact path="/admin/competitions/:id" component={AdminCompetition} />
                 <Redirect to="/admin/competitions" />
               </Switch>
             </div>
