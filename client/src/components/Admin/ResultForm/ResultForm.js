@@ -5,8 +5,8 @@ import TextField from '@material-ui/core/TextField';
 
 import { toInt, setAt } from '../../../logic/utils';
 
-const ResultForm = () => {
-  const [competitorId, setCompetitorId] = useState(null);
+const ResultForm = ({ onSubmit }) => {
+  const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState([null, null, null, null, null]);
   return (
     <Grid container spacing={1}>
@@ -15,8 +15,8 @@ const ResultForm = () => {
           fullWidth
           variant="outlined"
           label="Competitor ID"
-          value={competitorId || ""}
-          onChange={event => setCompetitorId(toInt(event.target.value))}
+          value={personId || ""}
+          onChange={event => setPersonId(toInt(event.target.value))}
         />
       </Grid>
       {[1, 2, 3, 4, 5].map(n => (
@@ -31,8 +31,13 @@ const ResultForm = () => {
         </Grid>
       ))}
       <Grid item xs={12}>
-        <Button variant="outlined" color="primary" disabled={!competitorId}>
-          Save
+        <Button
+          variant="outlined"
+          color="primary"
+          disabled={!personId}
+          onClick={() => onSubmit({ personId, attempts })}
+        >
+          Submit
         </Button>
       </Grid>
     </Grid>

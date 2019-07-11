@@ -1,5 +1,5 @@
 import React from 'react';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -26,6 +26,14 @@ const ROUND_QUERY = gql`
   }
 `;
 
+const SET_RESULT_MUTATION = gql`
+  mutation SetResult($competitionId: ID!, $roundId: ID!, $result: ResultInput!) {
+    setResult(competitionId: $competitionId, roundId: $roundId, result: $result) {
+      id
+    }
+  }
+`;
+
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   return (
@@ -39,7 +47,14 @@ const AdminRound = ({ match }) => {
             <Typography variant="h5">{round.id}</Typography>
             <Grid container direction="row" spacing={2}>
               <Grid item md={3}>
-                <ResultForm />
+                <Mutation
+                  mutation={SET_RESULT_MUTATION}
+                  variables={{ competitionId, roundId }}
+                >
+                  {(setResult) => (
+                    <ResultForm onSubmit={result => setResult({ variables: { result } })} />
+                  )}
+                </Mutation>
               </Grid>
               <Grid item md={9}>
                 <ResultsTable results={round.results} />
