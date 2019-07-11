@@ -30,6 +30,14 @@ const SET_RESULT_MUTATION = gql`
   mutation SetResult($competitionId: ID!, $roundId: ID!, $result: ResultInput!) {
     setResult(competitionId: $competitionId, roundId: $roundId, result: $result) {
       id
+      results {
+        ranking
+        person {
+          registrantId
+        }
+        attempts
+        advancable
+      }
     }
   }
 `;
@@ -52,7 +60,10 @@ const AdminRound = ({ match }) => {
                   variables={{ competitionId, roundId }}
                 >
                   {(setResult) => (
-                    <ResultForm onSubmit={result => setResult({ variables: { result } })} />
+                    <ResultForm
+                      results={round.results}
+                      onSubmit={result => setResult({ variables: { result } })}
+                    />
                   )}
                 </Mutation>
               </Grid>
