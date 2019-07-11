@@ -11,3 +11,8 @@ export const centisecondsToClockFormat = centiseconds => {
   if (centiseconds === -2) return 'DNS';
   return new Date(centiseconds * 10).toISOString().substr(11, 11).replace(/^[0:]*(?!\.)/g, '');
 }
+
+export const preventDefault = fn => event => {
+  event.preventDefault();
+  fn();
+};
