@@ -40,7 +40,29 @@ const sortResults = (results, wcif) => {
   ]);
 };
 
+const satisfiesAdvancementCondition = (result, advancementCondition, resultCount) => {
+  const { type, level } = advancementCondition;
+  if (type === 'ranking') return result.ranking <= level;
+  if (type === 'percent') return result.ranking <= Math.floor(resultCount * level * 0.01);
+  if (type === 'attemptResult') return result.attempts.some(attempt => attempt.result > 0 && attempt.result < level);
+  throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
+};
+
+const setAdvancable = (results, advancementCondition) => {
+  results.forEach(result => result.advancable = false);
+  /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
+  const maxAdvanceable = Math.floor(results.length * 0.75);
+  const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
+  const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
+  results
+    /* Note: this ensures that people who tied either advance altogether or not. */
+    .filter(result => result.ranking && result.ranking < firstNonAdvancingRank)
+    .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
+    .forEach(result => result.advancable = true);
+};
+
 module.exports = {
   setRankings,
   sortResults,
+  setAdvancable,
 };

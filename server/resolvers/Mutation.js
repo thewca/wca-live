@@ -1,7 +1,7 @@
 const { withAuthentication, withCompetition } = require('./middleware');
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
-const { setRankings, sortResults } = require('../utils/results');
+const { setRankings, sortResults, setAdvancable } = require('../utils/results');
 
 const getDocument = ({ value }) => {
   if (!value) throw new Error('Document not found.');
@@ -51,9 +51,9 @@ module.exports = {
         ({ personId }) => personId === parseInt(result.personId, 10)
       );
       currentResult.attempts = result.attempts.map(attempt => ({ result: attempt }));
-      setRankings(round.results, ['average', 'best']);
+      setRankings(round.results, ['average', 'best']); // TODO: change second argument
       round.results = sortResults(round.results, competition.wcif);
-      currentResult.advancable = true; // TODO: determine that
+      setAdvancable(round.results, round.advancementCondition); /* TODO: handle noshows */
       await Competitions.findOneAndUpdate(
         { 'wcif.id': competition.wcif.id },
         { $set: { wcif: competition.wcif } }
