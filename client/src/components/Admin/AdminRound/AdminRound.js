@@ -15,7 +15,7 @@ const ROUND_QUERY = gql`
       results {
         ranking
         person {
-          registrantId
+          id
           name
           countryIso2
         }
@@ -33,7 +33,7 @@ const SET_RESULT_MUTATION = gql`
       results {
         ranking
         person {
-          registrantId
+          id
         }
         attempts
         advancable

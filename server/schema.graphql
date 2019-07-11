@@ -54,7 +54,7 @@ type Result {
 }
 
 type Person {
-  registrantId: ID!
+  id: ID!
   name: String!
   wcaId: String
   countryIso2: String!

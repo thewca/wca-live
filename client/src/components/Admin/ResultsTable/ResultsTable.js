@@ -25,7 +25,7 @@ const ResultsTable = ({ results }) => {
       </TableHead>
       <TableBody>
         {results.map(result => (
-          <TableRow key={result.person.registrantId} hover>
+          <TableRow key={result.person.id} hover>
             <TableCell
               align="right"
               style={result.advancable ? { backgroundColor: 'lightgreen' } : {}}

@@ -8,7 +8,7 @@ import { toInt, setAt } from '../../../logic/utils';
 const ResultForm = ({ onSubmit, results }) => {
   const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState([0, 0, 0, 0, 0]);
-  const result = personId && results.find(result => result.person.registrantId === personId.toString());
+  const result = personId && results.find(result => result.person.id === personId.toString());
 
   return (
     <Grid container spacing={1}>
@@ -21,7 +21,7 @@ const ResultForm = ({ onSubmit, results }) => {
           helperText={result ? result.person.name : ' '}
           onChange={event => {
             const personId = toInt(event.target.value);
-            const result = personId && results.find(result => result.person.registrantId === personId.toString());
+            const result = personId && results.find(result => result.person.id === personId.toString());
             setPersonId(personId);
             setAttempts(result ? result.attempts : [0, 0, 0, 0, 0]);
           }}
