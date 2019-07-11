@@ -17,7 +17,9 @@ const ROUND_QUERY = gql`
         person {
           id
           name
-          countryIso2
+          country {
+            name
+          }
         }
         attempts
         advancable

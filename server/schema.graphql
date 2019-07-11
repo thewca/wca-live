@@ -57,11 +57,16 @@ type Person {
   id: ID!
   name: String!
   wcaId: String
-  countryIso2: String!
+  country: Country!
   avatar: Avatar
   roles: [String!]!
   # registration: Registration!
   personalBests: [PersonalBest!]!
+}
+
+type Country {
+  iso2: String!
+  name: String!
 }
 
 type PersonalBest {

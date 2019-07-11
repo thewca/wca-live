@@ -1,0 +1,629 @@
+const countries = [{
+  name: 'Afghanistan',
+  iso2: 'AF',
+}, {
+  name: 'Albania',
+  iso2: 'AL',
+}, {
+  name: 'Algeria',
+  iso2: 'DZ',
+}, {
+  name: 'Andorra',
+  iso2: 'AD',
+}, {
+  name: 'Angola',
+  iso2: 'AO',
+}, {
+  name: 'Antigua and Barbuda',
+  iso2: 'AG',
+}, {
+  name: 'Argentina',
+  iso2: 'AR',
+}, {
+  name: 'Armenia',
+  iso2: 'AM',
+}, {
+  name: 'Australia',
+  iso2: 'AU',
+}, {
+  name: 'Austria',
+  iso2: 'AT',
+}, {
+  name: 'Azerbaijan',
+  iso2: 'AZ',
+}, {
+  name: 'Bahamas',
+  iso2: 'BS',
+}, {
+  name: 'Bahrain',
+  iso2: 'BH',
+}, {
+  name: 'Bangladesh',
+  iso2: 'BD',
+}, {
+  name: 'Barbados',
+  iso2: 'BB',
+}, {
+  name: 'Belarus',
+  iso2: 'BY',
+}, {
+  name: 'Belgium',
+  iso2: 'BE',
+}, {
+  name: 'Belize',
+  iso2: 'BZ',
+}, {
+  name: 'Benin',
+  iso2: 'BJ',
+}, {
+  name: 'Bhutan',
+  iso2: 'BT',
+}, {
+  name: 'Bolivia',
+  iso2: 'BO',
+}, {
+  name: 'Bosnia and Herzegovina',
+  iso2: 'BA',
+}, {
+  name: 'Botswana',
+  iso2: 'BW',
+}, {
+  name: 'Brazil',
+  iso2: 'BR',
+}, {
+  name: 'Brunei',
+  iso2: 'BN',
+}, {
+  name: 'Bulgaria',
+  iso2: 'BG',
+}, {
+  name: 'Burkina Faso',
+  iso2: 'BF',
+}, {
+  name: 'Burundi',
+  iso2: 'BI',
+}, {
+  name: 'Cabo Verde',
+  iso2: 'CV',
+}, {
+  name: 'Cambodia',
+  iso2: 'KH',
+}, {
+  name: 'Cameroon',
+  iso2: 'CM',
+}, {
+  name: 'Canada',
+  iso2: 'CA',
+}, {
+  name: 'Central African Republic',
+  iso2: 'CF',
+}, {
+  name: 'Chad',
+  iso2: 'TD',
+}, {
+  name: 'Chile',
+  iso2: 'CL',
+}, {
+  name: 'China',
+  iso2: 'CN',
+}, {
+  name: 'Colombia',
+  iso2: 'CO',
+}, {
+  name: 'Comoros',
+  iso2: 'KM',
+}, {
+  name: 'Congo',
+  iso2: 'CG',
+}, {
+  name: 'Costa Rica',
+  iso2: 'CR',
+}, {
+  name: 'Côte d\'Ivoire',
+  iso2: 'CI',
+}, {
+  name: 'Croatia',
+  iso2: 'HR',
+}, {
+  name: 'Cuba',
+  iso2: 'CU',
+}, {
+  name: 'Cyprus',
+  iso2: 'CY',
+}, {
+  name: 'Czech Republic',
+  iso2: 'CZ',
+}, {
+  name: 'Democratic People’s Republic of Korea',
+  iso2: 'KP',
+}, {
+  name: 'Democratic Republic of the Congo',
+  iso2: 'CD',
+}, {
+  name: 'Denmark',
+  iso2: 'DK',
+}, {
+  name: 'Djibouti',
+  iso2: 'DJ',
+}, {
+  name: 'Dominica',
+  iso2: 'DM',
+}, {
+  name: 'Dominican Republic',
+  iso2: 'DO',
+}, {
+  name: 'Ecuador',
+  iso2: 'EC',
+}, {
+  name: 'Egypt',
+  iso2: 'EG',
+}, {
+  name: 'El Salvador',
+  iso2: 'SV',
+}, {
+  name: 'Equatorial Guinea',
+  iso2: 'GQ',
+}, {
+  name: 'Eritrea',
+  iso2: 'ER',
+}, {
+  name: 'Estonia',
+  iso2: 'EE',
+}, {
+  name: 'Ethiopia',
+  iso2: 'ET',
+}, {
+  name: 'Fiji',
+  iso2: 'FJ',
+}, {
+  name: 'Finland',
+  iso2: 'FI',
+}, {
+  name: 'France',
+  iso2: 'FR',
+}, {
+  name: 'Gabon',
+  iso2: 'GA',
+}, {
+  name: 'Gambia',
+  iso2: 'GM',
+}, {
+  name: 'Georgia',
+  iso2: 'GE',
+}, {
+  name: 'Germany',
+  iso2: 'DE',
+}, {
+  name: 'Ghana',
+  iso2: 'GH',
+}, {
+  name: 'Greece',
+  iso2: 'GR',
+}, {
+  name: 'Grenada',
+  iso2: 'GD',
+}, {
+  name: 'Guatemala',
+  iso2: 'GT',
+}, {
+  name: 'Guinea',
+  iso2: 'GN',
+}, {
+  name: 'Guinea Bissau',
+  iso2: 'GW',
+}, {
+  name: 'Guyana',
+  iso2: 'GY',
+}, {
+  name: 'Haiti',
+  iso2: 'HT',
+}, {
+  name: 'Holy See',
+  iso2: 'VA',
+}, {
+  name: 'Honduras',
+  iso2: 'HN',
+}, {
+  name: 'Hong Kong',
+  iso2: 'HK',
+}, {
+  name: 'Hungary',
+  iso2: 'HU',
+}, {
+  name: 'Iceland',
+  iso2: 'IS',
+}, {
+  name: 'India',
+  iso2: 'IN',
+}, {
+  name: 'Indonesia',
+  iso2: 'ID',
+}, {
+  name: 'Iran',
+  iso2: 'IR',
+}, {
+  name: 'Iraq',
+  iso2: 'IQ',
+}, {
+  name: 'Ireland',
+  iso2: 'IE',
+}, {
+  name: 'Israel',
+  iso2: 'IL',
+}, {
+  name: 'Italy',
+  iso2: 'IT',
+}, {
+  name: 'Jamaica',
+  iso2: 'JM',
+}, {
+  name: 'Japan',
+  iso2: 'JP',
+}, {
+  name: 'Jordan',
+  iso2: 'JO',
+}, {
+  name: 'Kazakhstan',
+  iso2: 'KZ',
+}, {
+  name: 'Kenya',
+  iso2: 'KE',
+}, {
+  name: 'Kiribati',
+  iso2: 'KI',
+}, {
+  name: 'Kosovo',
+  iso2: 'XK',
+}, {
+  name: 'Kuwait',
+  iso2: 'KW',
+}, {
+  name: 'Kyrgyzstan',
+  iso2: 'KG',
+}, {
+  name: 'Laos',
+  iso2: 'LA',
+}, {
+  name: 'Latvia',
+  iso2: 'LV',
+}, {
+  name: 'Lebanon',
+  iso2: 'LB',
+}, {
+  name: 'Lesotho',
+  iso2: 'LS',
+}, {
+  name: 'Liberia',
+  iso2: 'LR',
+}, {
+  name: 'Libya',
+  iso2: 'LY',
+}, {
+  name: 'Liechtenstein',
+  iso2: 'LI',
+}, {
+  name: 'Lithuania',
+  iso2: 'LT',
+}, {
+  name: 'Luxembourg',
+  iso2: 'LU',
+}, {
+  name: 'Macau',
+  iso2: 'MO',
+}, {
+  name: 'Madagascar',
+  iso2: 'MG',
+}, {
+  name: 'Malawi',
+  iso2: 'MW',
+}, {
+  name: 'Malaysia',
+  iso2: 'MY',
+}, {
+  name: 'Maldives',
+  iso2: 'MV',
+}, {
+  name: 'Mali',
+  iso2: 'ML',
+}, {
+  name: 'Malta',
+  iso2: 'MT',
+}, {
+  name: 'Marshall Islands',
+  iso2: 'MH',
+}, {
+  name: 'Mauritania',
+  iso2: 'MR',
+}, {
+  name: 'Mauritius',
+  iso2: 'MU',
+}, {
+  name: 'Mexico',
+  iso2: 'MX',
+}, {
+  name: 'Federated States of Micronesia',
+  iso2: 'FM',
+}, {
+  name: 'Monaco',
+  iso2: 'MC',
+}, {
+  name: 'Mongolia',
+  iso2: 'MN',
+}, {
+  name: 'Montenegro',
+  iso2: 'ME',
+}, {
+  name: 'Morocco',
+  iso2: 'MA',
+}, {
+  name: 'Mozambique',
+  iso2: 'MZ',
+}, {
+  name: 'Myanmar',
+  iso2: 'MM',
+}, {
+  name: 'Namibia',
+  iso2: 'NA',
+}, {
+  name: 'Nauru',
+  iso2: 'NR',
+}, {
+  name: 'Nepal',
+  iso2: 'NP',
+}, {
+  name: 'Netherlands',
+  iso2: 'NL',
+}, {
+  name: 'New Zealand',
+  iso2: 'NZ',
+}, {
+  name: 'Nicaragua',
+  iso2: 'NI',
+}, {
+  name: 'Niger',
+  iso2: 'NE',
+}, {
+  name: 'Nigeria',
+  iso2: 'NG',
+}, {
+  name: 'Norway',
+  iso2: 'NO',
+}, {
+  name: 'Oman',
+  iso2: 'OM',
+}, {
+  name: 'Pakistan',
+  iso2: 'PK',
+}, {
+  name: 'Palau',
+  iso2: 'PW',
+}, {
+  name: 'Palestine',
+  iso2: 'PS',
+}, {
+  name: 'Panama',
+  iso2: 'PA',
+}, {
+  name: 'Papua New Guinea',
+  iso2: 'PG',
+}, {
+  name: 'Paraguay',
+  iso2: 'PY',
+}, {
+  name: 'Peru',
+  iso2: 'PE',
+}, {
+  name: 'Philippines',
+  iso2: 'PH',
+}, {
+  name: 'Poland',
+  iso2: 'PL',
+}, {
+  name: 'Portugal',
+  iso2: 'PT',
+}, {
+  name: 'Qatar',
+  iso2: 'QA',
+}, {
+  name: 'Republic of Korea',
+  iso2: 'KR',
+}, {
+  name: 'Moldova',
+  iso2: 'MD',
+}, {
+  name: 'Romania',
+  iso2: 'RO',
+}, {
+  name: 'Russia',
+  iso2: 'RU',
+}, {
+  name: 'Rwanda',
+  iso2: 'RW',
+}, {
+  name: 'Saint Kitts and Nevis',
+  iso2: 'KN',
+}, {
+  name: 'Saint Lucia',
+  iso2: 'LC',
+}, {
+  name: 'Saint Vincent and the Grenadines',
+  iso2: 'VC',
+}, {
+  name: 'Samoa',
+  iso2: 'WS',
+}, {
+  name: 'San Marino',
+  iso2: 'SM',
+}, {
+  name: 'São Tomé and Príncipe',
+  iso2: 'ST',
+}, {
+  name: 'Saudi Arabia',
+  iso2: 'SA',
+}, {
+  name: 'Senegal',
+  iso2: 'SN',
+}, {
+  name: 'Serbia',
+  iso2: 'RS',
+}, {
+  name: 'Seychelles',
+  iso2: 'SC',
+}, {
+  name: 'Sierra Leone',
+  iso2: 'SL',
+}, {
+  name: 'Singapore',
+  iso2: 'SG',
+}, {
+  name: 'Slovakia',
+  iso2: 'SK',
+}, {
+  name: 'Slovenia',
+  iso2: 'SI',
+}, {
+  name: 'Solomon Islands',
+  iso2: 'SB',
+}, {
+  name: 'Somalia',
+  iso2: 'SO',
+}, {
+  name: 'South Africa',
+  iso2: 'ZA',
+}, {
+  name: 'South Sudan',
+  iso2: 'SS',
+}, {
+  name: 'Spain',
+  iso2: 'ES',
+}, {
+  name: 'Sri Lanka',
+  iso2: 'LK',
+}, {
+  name: 'Sudan',
+  iso2: 'SD',
+}, {
+  name: 'Suriname',
+  iso2: 'SR',
+}, {
+  name: 'Swaziland',
+  iso2: 'SZ',
+}, {
+  name: 'Sweden',
+  iso2: 'SE',
+}, {
+  name: 'Switzerland',
+  iso2: 'CH',
+}, {
+  name: 'Syria',
+  iso2: 'SY',
+}, {
+  name: 'Taiwan',
+  iso2: 'TW',
+}, {
+  name: 'Tajikistan',
+  iso2: 'TJ',
+}, {
+  name: 'Thailand',
+  iso2: 'TH',
+}, {
+  name: 'Macedonia',
+  iso2: 'MK',
+}, {
+  name: 'Timor-Leste',
+  iso2: 'TL',
+}, {
+  name: 'Togo',
+  iso2: 'TG',
+}, {
+  name: 'Tonga',
+  iso2: 'TO',
+}, {
+  name: 'Trinidad and Tobago',
+  iso2: 'TT',
+}, {
+  name: 'Tunisia',
+  iso2: 'TN',
+}, {
+  name: 'Turkey',
+  iso2: 'TR',
+}, {
+  name: 'Turkmenistan',
+  iso2: 'TM',
+}, {
+  name: 'Tuvalu',
+  iso2: 'TV',
+}, {
+  name: 'Uganda',
+  iso2: 'UG',
+}, {
+  name: 'Ukraine',
+  iso2: 'UA',
+}, {
+  name: 'United Arab Emirates',
+  iso2: 'AE',
+}, {
+  name: 'United Kingdom',
+  iso2: 'GB',
+}, {
+  name: 'Tanzania',
+  iso2: 'TZ',
+}, {
+  name: 'United States',
+  iso2: 'US',
+}, {
+  name: 'Uruguay',
+  iso2: 'UY',
+}, {
+  name: 'Uzbekistan',
+  iso2: 'UZ',
+}, {
+  name: 'Vanuatu',
+  iso2: 'VU',
+}, {
+  name: 'Venezuela',
+  iso2: 'VE',
+}, {
+  name: 'Vietnam',
+  iso2: 'VN',
+}, {
+  name: 'Yemen',
+  iso2: 'YE',
+}, {
+  name: 'Zambia',
+  iso2: 'ZM',
+}, {
+  name: 'Zimbabwe',
+  iso2: 'ZW',
+}, { /* Multiple countries. */
+  name: 'Multiple Countries (Africa)',
+  iso2: 'XF',
+}, {
+  name: 'Multiple Countries (Americas)',
+  iso2: 'XM',
+}, {
+  name: 'Multiple Countries (Asia)',
+  iso2: 'XA',
+}, {
+  name: 'Multiple Countries (Europe)',
+  iso2: 'XE',
+}, {
+  name: 'Multiple Countries (North America)',
+  iso2: 'XN',
+}, {
+  name: 'Multiple Countries (Oceania)',
+  iso2: 'XO',
+}, {
+  name: 'Multiple Countries (South America)',
+  iso2: 'XS',
+}, {
+  name: 'Multiple Countries (World)',
+  iso2: 'XW',
+}];
+
+const countryByIso2 = iso2 =>
+  countries.find(country => country.iso2 === iso2);
+
+module.exports = {
+  countryByIso2,
+};

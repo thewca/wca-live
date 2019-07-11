@@ -25,7 +25,7 @@ const ResultsTable = ({ results }) => {
       </TableHead>
       <TableBody>
         {results.map(result => (
-          <TableRow key={result.person.id} hover>
+          <TableRow key={result.person.id} hover style={{ whiteSpace: 'nowrap' }}>
             <TableCell
               align="right"
               style={result.advancable ? { backgroundColor: 'lightgreen' } : {}}
@@ -33,7 +33,7 @@ const ResultsTable = ({ results }) => {
               {result.ranking}
             </TableCell>
             <TableCell>{result.person.name}</TableCell>
-            <TableCell>{result.person.countryIso2}</TableCell>
+            <TableCell>{result.person.country.name}</TableCell>
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
                 {centisecondsToClockFormat(attempt)}

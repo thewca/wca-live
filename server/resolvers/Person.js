@@ -1,3 +1,6 @@
+const { countryByIso2 } = require('../utils/countries');
+
 module.exports = {
-  id: (parent) => parent.registrantId,
+  id: ({ registrantId }) => registrantId,
+  country: ({ countryIso2 }) => countryByIso2(countryIso2),
 };
