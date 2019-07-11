@@ -14,7 +14,12 @@ const roundById = (wcif, roundId) => {
   return event.rounds.find(round => round.id === roundId);
 };
 
+const personById = (wcif, personId) => {
+  return wcif.persons.find(person => person.registrantId === personId);
+};
+
 module.exports = {
   parseActivityCode,
   roundById,
+  personById,
 };
