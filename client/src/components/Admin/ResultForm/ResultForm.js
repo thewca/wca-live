@@ -3,11 +3,12 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
-import { toInt, setAt, preventDefault } from '../../../logic/utils';
+import { toInt, setAt, preventDefault, times } from '../../../logic/utils';
 
-const ResultForm = ({ onSubmit, results }) => {
+const ResultForm = ({ onSubmit, results, format }) => {
+  const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
-  const [attempts, setAttempts] = useState([0, 0, 0, 0, 0]);
+  const [attempts, setAttempts] = useState(times(solveCount, () => 0));
   const result = personId && results.find(result => result.person.id === personId.toString());
 
   return (
@@ -24,7 +25,7 @@ const ResultForm = ({ onSubmit, results }) => {
               const personId = toInt(event.target.value);
               const result = personId && results.find(result => result.person.id === personId.toString());
               setPersonId(personId);
-              setAttempts(result ? result.attempts : [0, 0, 0, 0, 0]); // TODO: change hardcoded 5 attempts.
+              setAttempts(result ? result.attempts : times(solveCount, () => 0));
             }}
           />
         </Grid>

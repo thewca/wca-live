@@ -68,6 +68,7 @@ const AdminRound = ({ match }) => {
                   {(setResult) => (
                     <ResultForm
                       results={round.results}
+                      format={round.format}
                       onSubmit={result => setResult({ variables: { result } })}
                     />
                   )}
