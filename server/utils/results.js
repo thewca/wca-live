@@ -50,15 +50,22 @@ const satisfiesAdvancementCondition = (result, advancementCondition, resultCount
 
 const setAdvancable = (results, advancementCondition) => {
   results.forEach(result => result.advancable = false);
-  /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
-  const maxAdvanceable = Math.floor(results.length * 0.75);
-  const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
-  const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
-  results
-    /* Note: this ensures that people who tied either advance altogether or not. */
-    .filter(result => result.ranking && result.ranking < firstNonAdvancingRank)
-    .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
-    .forEach(result => result.advancable = true);
+  if (!advancementCondition) {
+    /* Mark top 3 in the finals. */
+    results
+      .filter(({ ranking }) => ranking && ranking <= 3)
+      .forEach(result => result.advancable = true);
+  } else {
+    /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
+    const maxAdvanceable = Math.floor(results.length * 0.75);
+    const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
+    const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
+    results
+      /* Note: this ensures that people who tied either advance altogether or not. */
+      .filter(({ ranking }) => ranking && ranking < firstNonAdvancingRank)
+      .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
+      .forEach(result => result.advancable = true);
+  }
 };
 
 module.exports = {
