@@ -14,6 +14,7 @@ const ROUND_QUERY = gql`
       id
       format {
         solveCount
+        sortBy
       }
       results {
         ranking

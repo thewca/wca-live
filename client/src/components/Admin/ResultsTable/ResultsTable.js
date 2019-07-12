@@ -8,7 +8,20 @@ import TableRow from '@material-ui/core/TableRow';
 import { centisecondsToClockFormat, times } from '../../../logic/utils';
 import { best, average } from '../../../logic/calculations';
 
+const statsToDisplay = format => {
+  const { solveCount, sortBy } = format;
+  const computeAverage = [3, 5].includes(solveCount);
+  if (!computeAverage) return { name: 'Best', fn: best };
+  const stats = [
+    { name: 'Best', fn: best },
+    { name: solveCount === 3 ? 'Mean' : 'Average', fn: average },
+  ];
+  return sortBy === 'best' ? stats : stats.reverse();
+};
+
 const ResultsTable = ({ results, format }) => {
+  const stats = statsToDisplay(format);
+
   return (
     <Table size="small">
       <TableHead>
@@ -21,8 +34,11 @@ const ResultsTable = ({ results, format }) => {
               {index + 1}
             </TableCell>
           ))}
-          <TableCell align="right">Average</TableCell>
-          <TableCell align="right">Best</TableCell>
+          {stats.map(({ name }) => (
+            <TableCell key={name} align="right">
+              {name}
+            </TableCell>
+          ))}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -41,12 +57,11 @@ const ResultsTable = ({ results, format }) => {
                 {centisecondsToClockFormat(attempt)}
               </TableCell>
             ))}
-            <TableCell align="right">
-              {centisecondsToClockFormat(average(result.attempts))}
-            </TableCell>
-            <TableCell align="right">
-              {centisecondsToClockFormat(best(result.attempts))}
-            </TableCell>
+            {stats.map(({ name, fn }, index) => (
+              <TableCell key={name} align="right" style={index === 0 ? { fontWeight: 600 } : {}}>
+                {centisecondsToClockFormat(fn(result.attempts))}
+              </TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>
