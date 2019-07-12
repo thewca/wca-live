@@ -34,7 +34,7 @@ module.exports = {
         ({ personId }) => personId === parseInt(result.personId, 10)
       );
       currentResult.attempts = result.attempts.map(attempt => ({ result: attempt }));
-      setRankings(round.results, ['average', 'best']); // TODO: change second argument
+      setRankings(round.results, round.format);
       round.results = sortResults(round.results, competition.wcif);
       setAdvancable(round.results, round.advancementCondition); /* TODO: handle noshows */
       await Competitions.findOneAndUpdate(

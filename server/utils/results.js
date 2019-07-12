@@ -1,8 +1,11 @@
 const { average, best } = require('./calculations');
 const { sortByArray } = require('./utils');
 const { personById } = require('./wcif');
+const { formatById } = require('./formats');
 
-const setRankings = (results, rankingOrder) => {
+const setRankings = (results, formatId) => {
+  const { sortBy } = formatById(formatId);
+  rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
   const cache = { average: {}, best: {} };
 
   results.forEach(result => result.ranking = null);
