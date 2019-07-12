@@ -12,6 +12,9 @@ const ROUND_QUERY = gql`
   query RoundQuery($competitionId: ID!, $roundId: ID!) {
     round(competitionId: $competitionId, roundId: $roundId) {
       id
+      format {
+        solveCount
+      }
       results {
         ranking
         person {
@@ -70,7 +73,7 @@ const AdminRound = ({ match }) => {
                 </Mutation>
               </Grid>
               <Grid item md={9}>
-                <ResultsTable results={round.results} />
+                <ResultsTable results={round.results} format={round.format} />
               </Grid>
             </Grid>
           </div>

@@ -12,7 +12,7 @@ const sortByArray = (arr, fn) => {
   return arr.slice().sort((x, y) =>
     firstResult(zip(values.get(x), values.get(y)), ([a, b]) => sortCompare(a, b))
   );
-}
+};
 
 module.exports = {
   zip,

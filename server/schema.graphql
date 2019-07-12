@@ -39,11 +39,19 @@ type Event {
 
 type Round {
   id: ID!
-  format: String!
+  format: Format!
   # timeLimit: TimeLimit
   # cutoff: Cutoff
   # advancementCondition: AdvancementCondition
   results: [Result!]!
+}
+
+type Format {
+  id: ID!
+  name: String!
+  shortName: String!
+  solveCount: Int!
+  sortBy: String!
 }
 
 type Result {

@@ -24,19 +24,19 @@ const ResultForm = ({ onSubmit, results }) => {
               const personId = toInt(event.target.value);
               const result = personId && results.find(result => result.person.id === personId.toString());
               setPersonId(personId);
-              setAttempts(result ? result.attempts : [0, 0, 0, 0, 0]);
+              setAttempts(result ? result.attempts : [0, 0, 0, 0, 0]); // TODO: change hardcoded 5 attempts.
             }}
           />
         </Grid>
-        {[1, 2, 3, 4, 5].map(n => (
-          <Grid item xs={12} key={n}>
+        {attempts.map((attempt, index) => (
+          <Grid item xs={12} key={index}>
             <TextField
               fullWidth
               variant="outlined"
-              label={`Attempt ${n}`}
-              value={attempts[n - 1] || ""}
+              label={`Attempt ${index + 1}`}
+              value={attempt || ""}
               disabled={!result}
-              onChange={event => setAttempts(setAt(attempts, n - 1, toInt(event.target.value) || 0))}
+              onChange={event => setAttempts(setAt(attempts, index, toInt(event.target.value) || 0))}
             />
           </Grid>
         ))}

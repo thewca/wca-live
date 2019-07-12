@@ -1,13 +1,15 @@
 const Query = require('./Query');
 const Mutation = require('./Mutation');
 const User = require('./User');
-const Result = require('./Result');
 const Person = require('./Person');
+const Round = require('./Round');
+const Result = require('./Result');
 
 module.exports = {
   Query,
   Mutation,
   User,
-  Result,
   Person,
+  Round,
+  Result,
 };

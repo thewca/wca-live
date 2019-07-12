@@ -5,10 +5,10 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
-import { centisecondsToClockFormat } from '../../../logic/utils';
+import { centisecondsToClockFormat, times } from '../../../logic/utils';
 import { best, average } from '../../../logic/calculations';
 
-const ResultsTable = ({ results }) => {
+const ResultsTable = ({ results, format }) => {
   return (
     <Table size="small">
       <TableHead>
@@ -16,8 +16,10 @@ const ResultsTable = ({ results }) => {
           <TableCell align="right">#</TableCell>
           <TableCell>Name</TableCell>
           <TableCell>Country</TableCell>
-          {[1, 2, 3, 4, 5].map(n => (
-            <TableCell key={n} align="right">{n}</TableCell>
+          {times(format.solveCount, index => (
+            <TableCell key={index} align="right">
+              {index + 1}
+            </TableCell>
           ))}
           <TableCell align="right">Average</TableCell>
           <TableCell align="right">Best</TableCell>
