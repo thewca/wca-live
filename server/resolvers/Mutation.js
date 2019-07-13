@@ -1,7 +1,7 @@
 const { withAuthentication, withCompetition } = require('./middleware');
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
-const { setRankings, sortResults, setAdvancable } = require('../utils/results');
+const { setRankings, sortResults, setAdvancable, finishRound } = require('../utils/results');
 const { processWcif } = require('../utils/competition');
 
 const getDocument = ({ value }) => {
@@ -37,6 +37,17 @@ module.exports = {
       setRankings(round.results, round.format);
       round.results = sortResults(round.results, competition.wcif);
       setAdvancable(round.results, round.advancementCondition); /* TODO: handle noshows */
+      await Competitions.findOneAndUpdate(
+        { 'wcif.id': competition.wcif.id },
+        { $set: { wcif: competition.wcif } }
+      );
+      return round;
+    }
+  )),
+  finishRound: withAuthentication(withCompetition( // TODO: authorize user-competition
+    async (parent, { roundId, result }, { competition, mongo: { Competitions } }) => {
+      const round = roundById(competition.wcif, roundId);
+      finishRound(round, competition.wcif);
       await Competitions.findOneAndUpdate(
         { 'wcif.id': competition.wcif.id },
         { $set: { wcif: competition.wcif } }

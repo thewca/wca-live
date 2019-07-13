@@ -1,6 +1,6 @@
 const { average, best } = require('./calculations');
 const { sortByArray } = require('./utils');
-const { personById } = require('./wcif');
+const { personById, parseActivityCode } = require('./wcif');
 const { formatById } = require('./formats');
 
 const setRankings = (results, formatId) => {
@@ -71,8 +71,32 @@ const setAdvancable = (results, advancementCondition) => {
   }
 };
 
+const finishRound = (round, wcif) => {
+  round.results = round.results.filter(result =>
+    result.attempts.some(({ result }) => result !== 0)
+  );
+  setAdvancable(round.results, round.advancementCondition); /* TODO: handle noshows */
+  const { eventId, roundNumber } = parseActivityCode(round.id);
+  const event = wcif.events.find(event => event.id === eventId);
+  const nextRound = event.rounds.find(
+    ({ id }) => parseActivityCode(id).roundNumber === roundNumber + 1
+  );
+  if (nextRound) {
+    const format = formatById(nextRound.format);
+    nextRound.results = round.results
+      .filter(({ advancable }) => advancable)
+      .map(({ personId }) => ({
+        personId: personId,
+        ranking: null,
+        attempts: Array.from({ length: format.solveCount }, () => ({ result: 0 })),
+        advancable: false,
+      }));
+  }
+};
+
 module.exports = {
   setRankings,
   sortResults,
   setAdvancable,
+  finishRound,
 };
