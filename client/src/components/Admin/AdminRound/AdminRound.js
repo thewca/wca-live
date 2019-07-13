@@ -3,6 +3,7 @@ import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import ResultForm from '../ResultForm/ResultForm';
@@ -48,6 +49,17 @@ const SET_RESULT_MUTATION = gql`
   }
 `;
 
+const FINISH_ROUND_MUTATION = gql`
+  mutation FinishRound($competitionId: ID!, $roundId: ID!) {
+    finishRound(competitionId: $competitionId, roundId: $roundId) {
+      id
+      results {
+        advancable
+      }
+    }
+  }
+`;
+
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   return (
@@ -71,6 +83,21 @@ const AdminRound = ({ match }) => {
                       format={round.format}
                       onSubmit={result => setResult({ variables: { result } })}
                     />
+                  )}
+                </Mutation>
+                <Mutation
+                  mutation={FINISH_ROUND_MUTATION}
+                  variables={{ competitionId, roundId }}
+                >
+                  {(finishRound, { loading }) => (
+                    <Button
+                      variant="outlined"
+                      onClick={finishRound}
+                      disabled={loading}
+                      style={{ marginTop: 64 }}
+                    >
+                      Finish round
+                    </Button>
                   )}
                 </Mutation>
               </Grid>
