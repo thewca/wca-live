@@ -16,7 +16,18 @@ const withCompetition = resolver => async (parent, args, context) => {
   return resolver(parent, args, context);
 };
 
+const withCompetitionAuthorization = resolver => withAuthentication(withCompetition(
+  async (parent, args, context) => {
+    const { user, competition } = context;
+    if (!competition.managerWcaUserIds.includes(user.wcaUserId)) {
+      throw new AuthenticationError('Not authorized.');
+    }
+    return resolver(parent, args, context);
+  }
+));
+
 module.exports = {
   withAuthentication,
   withCompetition,
+  withCompetitionAuthorization,
 };

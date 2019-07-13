@@ -1,4 +1,4 @@
-const { withAuthentication, withCompetition } = require('./middleware');
+const { withAuthentication, withCompetition, withCompetitionAuthorization } = require('./middleware');
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
 const { setRankings, sortResults, setAdvancable, finishRound } = require('../utils/results');
@@ -27,7 +27,7 @@ module.exports = {
       return competition.wcif;
     }
   ),
-  setResult: withAuthentication(withCompetition( // TODO: authorize user-competition
+  setResult: withCompetitionAuthorization(
     async (parent, { roundId, result }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
       const currentResult = round.results.find(
@@ -43,8 +43,8 @@ module.exports = {
       );
       return round;
     }
-  )),
-  finishRound: withAuthentication(withCompetition( // TODO: authorize user-competition
+  ),
+  finishRound: withCompetitionAuthorization(
     async (parent, { roundId, result }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
       finishRound(round, competition.wcif);
@@ -54,5 +54,5 @@ module.exports = {
       );
       return round;
     }
-  )),
+  ),
 };
