@@ -11,7 +11,7 @@ import Paper from '@material-ui/core/Paper';
 import withConfirm from 'material-ui-confirm';
 
 const COMPETITIONS_QUERY = gql`
-  query CompetitionsQuery {
+  query Competitions {
     me {
       id
       manageableCompetitions {

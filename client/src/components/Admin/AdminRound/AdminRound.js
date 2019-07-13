@@ -10,7 +10,7 @@ import ResultForm from '../ResultForm/ResultForm';
 import ResultsTable from '../ResultsTable/ResultsTable';
 
 const ROUND_QUERY = gql`
-  query RoundQuery($competitionId: ID!, $roundId: ID!) {
+  query Round($competitionId: ID!, $roundId: ID!) {
     round(competitionId: $competitionId, roundId: $roundId) {
       id
       format {

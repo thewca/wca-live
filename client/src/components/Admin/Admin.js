@@ -15,7 +15,7 @@ import AdminCompetition from './AdminCompetition/AdminCompetition';
 import AdminRound from './AdminRound/AdminRound';
 
 const USER_QUERY = gql`
-  query UserQuery {
+  query User {
     me {
       id
       name
