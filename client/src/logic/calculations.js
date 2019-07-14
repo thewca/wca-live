@@ -15,7 +15,7 @@ const roundOver10Mins = average => {
 
 const ao5 = attempts => {
   if (attempts.length !== 5) return null;
-  if (attempts.every(skipped)) return 0;
+  if (attempts.some(skipped)) return 0;
   const [, a, b, c, ] = attempts.slice().sort(compareAttempts);
   if (!completed(c)) return -1;
   return roundOver10Mins(
@@ -25,7 +25,7 @@ const ao5 = attempts => {
 
 const mo3 = attempts => {
   if (attempts.length !== 3) return null;
-  if (attempts.every(skipped)) return 0;
+  if (attempts.some(skipped)) return 0;
   if (!attempts.every(completed)) return -1;
   return roundOver10Mins(
     Math.round(attempts.reduce((x, y) => x + y) / 3)
