@@ -95,6 +95,7 @@ const AdminRound = ({ match }) => {
                       onClick={finishRound}
                       disabled={loading}
                       style={{ marginTop: 64 }}
+                      tabIndex="-1"
                     >
                       Finish round
                     </Button>

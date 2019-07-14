@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -31,64 +31,83 @@ const centisecondsToInput = centiseconds => {
 
 const normalize = input => centisecondsToInput(inputToCentiseconds(input));
 
+const TimeField = ({ initialValue, onChange, ...props }) => {
+  const [input, setInput] = useState(centisecondsToInput(initialValue));
+
+  useEffect(() => {
+    setInput(centisecondsToInput(initialValue));
+  }, [initialValue]);
+
+  return (
+    <TextField
+      {...props}
+      /* inputProps={{ style: { textAlign: 'right', fontSize: '2em' }}} */
+      fullWidth
+      variant="outlined"
+      value={input}
+      onChange={event => setInput(reformatInput(event.target.value))}
+      onBlur={() => {
+        const attempt = input === normalize(input) ? inputToCentiseconds(input) : 0;
+        onChange(attempt);
+        setInput(centisecondsToInput(attempt));
+      }}
+    />
+  );
+};
+
 const ResultForm = ({ onSubmit, results, format }) => {
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
-  const [attemptInputs, setAttemptInputs] = useState(times(solveCount, () => ''));
+  const [attempts, setAttempts] = useState(times(solveCount, () => 0));
+  const personInputRef = useRef(null);
   const result = personId && results.find(result => result.person.id === personId.toString());
 
   const handleSubmit = preventDefault(() => {
-    onSubmit({
-      personId,
-      attempts: attemptInputs.map(inputToCentiseconds),
-    })
+    onSubmit({ personId, attempts });
+    personInputRef.current.focus();
   });
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Grid container spacing={1}>
-        <Grid item xs={12} style={{ marginBottom: 16 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            label="Competitor ID"
-            value={personId || ""}
-            helperText={result ? result.person.name : ' '}
-            onChange={event => {
-              const personId = toInt(event.target.value);
-              const result = personId && results.find(result => result.person.id === personId.toString());
-              setPersonId(personId);
-              setAttemptInputs(result ? result.attempts.map(centisecondsToInput) : times(solveCount, () => ''));
-            }}
+    <Grid container spacing={1}>
+      <Grid item xs={12} style={{ marginBottom: 16 }}>
+        <TextField
+          inputRef={personInputRef}
+          autoFocus
+          fullWidth
+          variant="outlined"
+          label="Competitor ID"
+          value={personId || ""}
+          helperText={result ? result.person.name : ' '}
+          onChange={event => {
+            const personId = toInt(event.target.value);
+            const result = personId && results.find(result => result.person.id === personId.toString());
+            setPersonId(personId);
+            setAttempts(result ? result.attempts : times(solveCount, () => 0));
+          }}
+        />
+      </Grid>
+      {attempts.map((attempt, index) => (
+        <Grid item xs={12} key={index}>
+          <TimeField
+            label={`Attempt ${index + 1}`}
+            initialValue={attempt}
+            disabled={!result}
+            onChange={value => setAttempts(setAt(attempts, index, value))}
           />
         </Grid>
-        {attemptInputs.map((attemptInput, index) => (
-          <Grid item xs={12} key={index}>
-            <TextField
-              /* inputProps={{ style: { textAlign: 'right', fontSize: '2em' }}} */
-              fullWidth
-              variant="outlined"
-              label={`Attempt ${index + 1}`}
-              value={attemptInput || ""}
-              disabled={!result}
-              onChange={event => setAttemptInputs(setAt(attemptInputs, index, reformatInput(event.target.value)))}
-              /* onBlur={() => setAttemptInputs(setAt(attemptInputs, index, normalize(attemptInput)))} */
-              error={attemptInput !== normalize(attemptInput)}
-            />
-          </Grid>
-        ))}
-        <Grid item xs={12}>
-          <Button
-            type="submit"
-            variant="outlined"
-            color="primary"
-            disabled={!result}
-          >
-            Submit
-          </Button>
-        </Grid>
+      ))}
+      <Grid item xs={12}>
+        <Button
+          type="submit"
+          variant="outlined"
+          color="primary"
+          disabled={!result}
+          onClick={handleSubmit}
+        >
+          Submit
+        </Button>
       </Grid>
-    </form>
+    </Grid>
   );
 };
 
