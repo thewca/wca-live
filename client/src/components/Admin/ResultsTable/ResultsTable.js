@@ -11,7 +11,7 @@ import { best, average } from '../../../logic/calculations';
 const statsToDisplay = format => {
   const { solveCount, sortBy } = format;
   const computeAverage = [3, 5].includes(solveCount);
-  if (!computeAverage) return { name: 'Best', fn: best };
+  if (!computeAverage) return [{ name: 'Best', fn: best }];
   const stats = [
     { name: 'Best', fn: best },
     { name: solveCount === 3 ? 'Mean' : 'Average', fn: average },
