@@ -81,6 +81,7 @@ const AdminRound = ({ match }) => {
                     <ResultForm
                       results={round.results}
                       format={round.format}
+                      eventId={round.id.split('-')[0] /* TODO: get eventId from query instead */}
                       onSubmit={result => setResult({ variables: { result } })}
                     />
                   )}
@@ -103,7 +104,11 @@ const AdminRound = ({ match }) => {
                 </Mutation>
               </Grid>
               <Grid item md={9}>
-                <ResultsTable results={round.results} format={round.format} />
+                <ResultsTable
+                  results={round.results}
+                  format={round.format}
+                  eventId={round.id.split('-')[0] /* TODO: get eventId from query instead */}
+                />
               </Grid>
             </Grid>
           </div>
