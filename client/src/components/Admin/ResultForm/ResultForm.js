@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -59,19 +59,43 @@ const ResultForm = ({ onSubmit, results, format }) => {
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
-  const personInputRef = useRef(null);
+  const refs = useMemo(() =>
+    times(solveCount + 2, () => React.createRef())
+  , [solveCount]);
   const result = personId && results.find(result => result.person.id === personId.toString());
 
   const handleSubmit = preventDefault(() => {
     onSubmit({ personId, attempts });
-    personInputRef.current.focus();
+    refs[0].current.focus();
+  });
+
+  useEffect(() => {
+    const handleKeyPress = event => {
+      const mod = n => (n + refs.length) % refs.length;
+      const index = refs.findIndex(ref => event.target === ref.current);
+      if (index === -1) return;
+      if (event.key === 'ArrowUp') {
+        const previousElement = refs[mod(index - 1)].current;
+        previousElement.focus();
+        previousElement.select && previousElement.select();
+      } else if (event.key === 'ArrowDown') {
+        const nextElement = refs[mod(index + 1)].current;
+        nextElement.focus();
+        nextElement.select && nextElement.select();
+      } else {
+        return;
+      }
+      event.preventDefault();
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   });
 
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} style={{ marginBottom: 16 }}>
         <TextField
-          inputRef={personInputRef}
+          inputRef={refs[0]}
           autoFocus
           fullWidth
           variant="outlined"
@@ -89,6 +113,7 @@ const ResultForm = ({ onSubmit, results, format }) => {
       {attempts.map((attempt, index) => (
         <Grid item xs={12} key={index}>
           <TimeField
+            inputRef={refs[index + 1]}
             label={`Attempt ${index + 1}`}
             initialValue={attempt}
             disabled={!result}
@@ -98,6 +123,7 @@ const ResultForm = ({ onSubmit, results, format }) => {
       ))}
       <Grid item xs={12}>
         <Button
+          buttonRef={refs[solveCount + 1]}
           type="submit"
           variant="outlined"
           color="primary"
