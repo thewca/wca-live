@@ -44,11 +44,13 @@ const mbldResultToClockFormat = result => {
   return `${solved}/${attempted} ${clockFormat}`;
 };
 
-export const resultToClockFormat = (result, eventId) => {
+export const resultToClockFormat = (result, eventId, type) => {
   if (result === 0) return '';
   if (result === -1) return 'DNF';
   if (result === -2) return 'DNS';
-  if (eventId === '333fm') return `${result}`; // TODO: handle FMC averages
+  if (eventId === '333fm') {
+    return type === 'single' ? result.toString() : (result / 100).toFixed(2);
+  }
   if (eventId === '333mbf') return mbldResultToClockFormat(result);
   return centisecondsToClockFormat(result);
 };
