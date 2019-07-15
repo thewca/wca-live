@@ -40,7 +40,7 @@ export const validateMbldResult = ({ attempted, solved, centiseconds }) => {
 
 const mbldResultToClockFormat = result => {
   const { solved, attempted, centiseconds } = decodeMbldResult(result);
-  const clockFormat = new Date(centiseconds * 10).toISOString().substr(11, 8).replace(/^[0:]*(?!\.)/g, '');;
+  const clockFormat = new Date(centiseconds * 10).toISOString().substr(11, 8).replace(/^[0:]*(?!\.)/g, '');
   return `${solved}/${attempted} ${clockFormat}`;
 };
 

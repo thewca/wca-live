@@ -8,7 +8,7 @@ const compareAttempts = (attempt1, attempt2) => {
 }
 
 /* See: https://www.worldcubeassociation.org/regulations/#9f2 */
-const roundOver10Mins = average => {
+export const roundOver10Mins = average => {
   if (average <= 10 * 6000) return average;
   return Math.round(average / 100) * 100;
 }

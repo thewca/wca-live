@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 
 import { toInt } from '../../../../logic/utils';
+import { roundOver10Mins } from '../../../../logic/calculations';
 
 const reformatInput = input => {
   if (input.includes('f') || input.includes('/')) return 'DNF';
@@ -27,6 +28,10 @@ const centisecondsToInput = centiseconds => {
   return new Date(centiseconds * 10).toISOString().substr(11, 11).replace(/^[0:]*(?!\.)/g, '');
 };
 
+const validateTimeResult = centiseconds => {
+  return roundOver10Mins(centiseconds);
+};
+
 const normalize = input => centisecondsToInput(inputToCentiseconds(input));
 
 const TimeField = ({ initialValue, onValue, ...props }) => {
@@ -45,7 +50,7 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       value={input}
       onChange={event => setInput(reformatInput(event.target.value))}
       onBlur={() => {
-        const attempt = input === normalize(input) ? inputToCentiseconds(input) : 0;
+        const attempt = input === normalize(input) ? validateTimeResult(inputToCentiseconds(input)) : 0;
         onValue(attempt);
         setInput(centisecondsToInput(attempt));
       }}

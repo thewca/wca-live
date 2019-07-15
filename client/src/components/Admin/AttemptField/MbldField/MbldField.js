@@ -1,12 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
 
-import NumberField from '../NumberField/NumberField';
 import TimeField from '../TimeField/TimeField';
-
+import { toInt } from '../../../../logic/utils';
 import { decodeMbldResult, encodeMbldResult, validateMbldResult } from '../../../../logic/results';
 
-const MbldField = ({ initialValue, onValue, disabled, ...props }) => {
+const CubesField = ({ initialValue, onValue, ...props }) => {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  return (
+    <TextField
+      {...props}
+      fullWidth
+      variant="outlined"
+      value={value || ''}
+      onChange={event => {
+        const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
+        if (newValue <= 99) setValue(newValue);
+      }}
+      onBlur={() => onValue(value)}
+    />
+  );
+};
+
+const MbldField = ({ initialValue, onValue, disabled, label, ...props }) => {
   const [result, setResult] = useState(decodeMbldResult(initialValue));
 
   useEffect(() => {
@@ -19,17 +41,26 @@ const MbldField = ({ initialValue, onValue, disabled, ...props }) => {
     onValue(encodeMbldResult(updatedResult));
   };
 
+  const handleAnyInputChange = event => {
+    const input = event.target.value;
+    if (input.includes('f') || input.includes('/')) {
+      handleValue({ solved: 0, attempted: 0, centiseconds: -1 });
+    } else if (input.includes('s') || input.includes('*')) {
+      handleValue({ solved: 0, attempted: 0, centiseconds: -2 });
+    }
+  };
+
   return (
-    <Grid container direction="row" spacing={1}>
+    <Grid container direction="row" spacing={1} onChange={handleAnyInputChange}>
       <Grid item xs={2}>
-        <NumberField
+        <CubesField
           initialValue={result.solved}
           onValue={solved => handleValue({ ...result, solved })}
           disabled={disabled}
         />
       </Grid>
       <Grid item xs={2}>
-        <NumberField
+        <CubesField
           initialValue={result.attempted}
           onValue={attempted => handleValue({ ...result, attempted })}
           disabled={disabled}
@@ -37,6 +68,7 @@ const MbldField = ({ initialValue, onValue, disabled, ...props }) => {
       </Grid>
       <Grid item xs={8}>
         <TimeField
+          label={label}
           initialValue={result.centiseconds}
           onValue={centiseconds => handleValue({ ...result, centiseconds })}
           disabled={disabled}
