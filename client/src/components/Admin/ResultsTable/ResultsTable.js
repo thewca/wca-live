@@ -9,9 +9,9 @@ import { times } from '../../../logic/utils';
 import { resultToClockFormat } from '../../../logic/results';
 import { best, average } from '../../../logic/calculations';
 
-const statsToDisplay = format => {
+const statsToDisplay = (format, eventId) => {
   const { solveCount, sortBy } = format;
-  const computeAverage = [3, 5].includes(solveCount);
+  const computeAverage = [3, 5].includes(solveCount) && eventId !== '333mbf';
   if (!computeAverage) return [{ name: 'Best', fn: best }];
   const stats = [
     { name: 'Best', fn: best },
@@ -21,7 +21,7 @@ const statsToDisplay = format => {
 };
 
 const ResultsTable = ({ results, format, eventId }) => {
-  const stats = statsToDisplay(format);
+  const stats = statsToDisplay(format, eventId);
 
   return (
     <Table size="small">
