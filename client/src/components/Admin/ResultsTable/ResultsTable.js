@@ -6,7 +6,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 import { times } from '../../../logic/utils';
-import { resultToClockFormat } from '../../../logic/results';
+import { formatResult } from '../../../logic/results';
 import { best, average } from '../../../logic/calculations';
 
 const statsToDisplay = (format, eventId) => {
@@ -55,12 +55,12 @@ const ResultsTable = ({ results, format, eventId }) => {
             <TableCell>{result.person.country.name}</TableCell>
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
-                {resultToClockFormat(attempt, eventId)}
+                {formatResult(attempt, eventId)}
               </TableCell>
             ))}
             {stats.map(({ name, type, fn }, index) => (
               <TableCell key={name} align="right" style={index === 0 ? { fontWeight: 600 } : {}}>
-                {resultToClockFormat(fn(result.attempts, eventId), eventId, fn === average)}
+                {formatResult(fn(result.attempts, eventId), eventId, fn === average)}
               </TableCell>
             ))}
           </TableRow>

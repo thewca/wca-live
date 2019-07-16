@@ -38,19 +38,19 @@ export const validateMbldResult = ({ attempted, solved, centiseconds }) => {
   return { solved, attempted, centiseconds };
 };
 
-const mbldResultToClockFormat = result => {
+const formatMbldResult = result => {
   const { solved, attempted, centiseconds } = decodeMbldResult(result);
   const clockFormat = new Date(centiseconds * 10).toISOString().substr(11, 8).replace(/^[0:]*(?!\.)/g, '');
   return `${solved}/${attempted} ${clockFormat}`;
 };
 
-export const resultToClockFormat = (result, eventId, isAverage = false) => {
+export const formatResult = (result, eventId, isAverage = false) => {
   if (result === 0) return '';
   if (result === -1) return 'DNF';
   if (result === -2) return 'DNS';
   if (eventId === '333fm') {
     return isAverage ? (result / 100).toFixed(2) : result.toString();
   }
-  if (eventId === '333mbf') return mbldResultToClockFormat(result);
+  if (eventId === '333mbf') return formatMbldResult(result);
   return centisecondsToClockFormat(result);
 };
