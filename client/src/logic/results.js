@@ -44,12 +44,12 @@ const mbldResultToClockFormat = result => {
   return `${solved}/${attempted} ${clockFormat}`;
 };
 
-export const resultToClockFormat = (result, eventId, type) => {
+export const resultToClockFormat = (result, eventId, isAverage = false) => {
   if (result === 0) return '';
   if (result === -1) return 'DNF';
   if (result === -2) return 'DNS';
   if (eventId === '333fm') {
-    return type === 'single' ? result.toString() : (result / 100).toFixed(2);
+    return isAverage ? (result / 100).toFixed(2) : result.toString();
   }
   if (eventId === '333mbf') return mbldResultToClockFormat(result);
   return centisecondsToClockFormat(result);

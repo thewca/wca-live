@@ -55,12 +55,12 @@ const ResultsTable = ({ results, format, eventId }) => {
             <TableCell>{result.person.country.name}</TableCell>
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
-                {resultToClockFormat(attempt, eventId, 'single')}
+                {resultToClockFormat(attempt, eventId)}
               </TableCell>
             ))}
-            {stats.map(({ name, fn }, index) => (
+            {stats.map(({ name, type, fn }, index) => (
               <TableCell key={name} align="right" style={index === 0 ? { fontWeight: 600 } : {}}>
-                {resultToClockFormat(fn(result.attempts, eventId), eventId, 'average')}
+                {resultToClockFormat(fn(result.attempts, eventId), eventId, fn === average)}
               </TableCell>
             ))}
           </TableRow>
