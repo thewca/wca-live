@@ -35,11 +35,14 @@ type Competition {
 
 type Event {
   id: ID!
+  name: String!
   rounds: [Round!]!
 }
 
 type Round {
   id: ID!
+  name: String!
+  event: Event!
   format: Format!
   timeLimit: TimeLimit
   cutoff: Cutoff
