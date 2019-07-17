@@ -20,23 +20,23 @@ const ao5 = attempts => {
   if (attempts.some(skipped)) return 0;
   const [, a, b, c, ] = attempts.slice().sort(compareAttempts);
   if (!completed(c)) return -1;
-  return roundOver10Mins(
-    Math.round((a + b + c) / 3)
-  );
+  return Math.round((a + b + c) / 3);
 };
 
 const mo3 = attempts => {
   if (attempts.length !== 3) return null;
   if (attempts.some(skipped)) return 0;
   if (!attempts.every(completed)) return -1;
-  return roundOver10Mins(
-    Math.round(attempts.reduce((x, y) => x + y) / 3)
-  );
+  return Math.round(attempts.reduce((x, y) => x + y) / 3);
 };
 
-const average = attempts => {
-  /* TODO: use either average based on format instead (?) */
-  return attempts.length === 5 ? ao5(attempts) : mo3(attempts);
+const average = (attempts, eventId) => {
+  if (eventId === '333fm') {
+    return mo3(attempts.map(attempt => attempt * 100));
+  }
+  return roundOver10Mins(
+    attempts.length === 5 ? ao5(attempts) : mo3(attempts)
+  );
 };
 
 const best = attempts => {
