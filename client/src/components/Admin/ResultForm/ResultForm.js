@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 
 import AttemptField from '../AttemptField/AttemptField';
 import { toInt, setAt, preventDefault, times } from '../../../logic/utils';
-import { meetsCutoff } from '../../../logic/results';
+import { meetsCutoff, formatResult } from '../../../logic/results';
+import { best, average } from '../../../logic/calculations';
 
 const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) => {
   const { solveCount } = format;
@@ -13,6 +15,8 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
   const rootRef = useRef(null);
   const result = personId && results.find(result => result.person.id === personId.toString());
+
+  const computeAverage = [3, 5].includes(format.solveCount) && eventId !== '333mbf';
 
   const handleSubmit = preventDefault(() => {
     onSubmit({ personId, attempts });
@@ -81,6 +85,18 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
           />
         </Grid>
       ))}
+      <Grid item xs={6}>
+        <Typography variant="body2">
+          Best: {formatResult(best(attempts), eventId)}
+        </Typography>
+      </Grid>
+      <Grid item xs={6}>
+        {computeAverage && (
+          <Typography variant="body2">
+            Average: {formatResult(average(attempts), eventId, true)}
+          </Typography>
+        )}
+      </Grid>
       <Grid item xs={12}>
         <Button
           type="submit"
