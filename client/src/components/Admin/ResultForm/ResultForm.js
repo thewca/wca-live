@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -11,28 +11,28 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
-  const refs = useMemo(() =>
-    times(solveCount + 2, () => React.createRef())
-  , [solveCount]);
+  const rootRef = useRef(null);
   const result = personId && results.find(result => result.person.id === personId.toString());
 
   const handleSubmit = preventDefault(() => {
     onSubmit({ personId, attempts });
-    refs[0].current.focus();
-    refs[0].current.select();
+    const personIdInput = rootRef.current.getElementsByTagName('input')[0];
+    personIdInput.focus();
+    personIdInput.select();
   });
 
   useEffect(() => {
     const handleKeyPress = event => {
-      const mod = n => (n + refs.length) % refs.length;
-      const index = refs.findIndex(ref => event.target === ref.current);
+      const inputs = Array.from(rootRef.current.querySelectorAll('input, button'));
+      const mod = n => (n + inputs.length) % inputs.length;
+      const index = inputs.findIndex(input => event.target === input);
       if (index === -1) return;
       if (event.key === 'ArrowUp') {
-        const previousElement = refs[mod(index - 1)].current;
+        const previousElement = inputs[mod(index - 1)];
         previousElement.focus();
         previousElement.select && previousElement.select();
       } else if (event.key === 'ArrowDown') {
-        const nextElement = refs[mod(index + 1)].current;
+        const nextElement = inputs[mod(index + 1)];
         nextElement.focus();
         nextElement.select && nextElement.select();
       } else {
@@ -45,10 +45,9 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
   });
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} ref={rootRef}>
       <Grid item xs={12} style={{ marginBottom: 16 }}>
         <TextField
-          inputRef={refs[0]}
           autoFocus
           fullWidth
           variant="outlined"
@@ -67,7 +66,6 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
         <Grid item xs={12} key={index}>
           <AttemptField
             eventId={eventId}
-            inputRef={refs[index + 1]}
             label={`Attempt ${index + 1}`}
             initialValue={attempt}
             disabled={!result}
@@ -85,7 +83,6 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
       ))}
       <Grid item xs={12}>
         <Button
-          buttonRef={refs[solveCount + 1]}
           type="submit"
           variant="outlined"
           color="primary"
