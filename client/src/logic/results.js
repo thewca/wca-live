@@ -29,13 +29,35 @@ export const validateMbldResult = ({ attempted, solved, centiseconds }) => {
   if (!attempted || solved > attempted) {
     return { solved, attempted: solved, centiseconds };
   }
-  if (solved < attempted / 2 || solved === 1) {
+  if (solved < attempted / 2 || solved <= 1) {
     return { solved: 0, attempted: 0, centiseconds: -1 };
   }
   if (centiseconds > 10 * 60 * 100 * Math.min(6, attempted)) {
     return { solved: 0, attempted: 0, centiseconds: -1 };
   }
   return { solved, attempted, centiseconds };
+};
+
+const mbldResultToPoints = result => {
+  const { solved, attempted } = decodeMbldResult(result);
+  const missed = attempted - solved;
+  return solved - missed;
+};
+
+const betterThan = (result, otherResult, eventId) => {
+  if (result <= 0) return false;
+  if (eventId === '333mbf') {
+    return mbldResultToPoints(result) > mbldResultToPoints(otherResult);
+  }
+  return result < otherResult;
+};
+
+export const meetsCutoff = (attempts, cutoff, eventId) => {
+  if (!cutoff) return true;
+  const { numberOfAttempts, attemptResult } = cutoff;
+  return attempts.slice(0, numberOfAttempts).some(
+    attempt => betterThan(attempt, attemptResult, eventId)
+  );
 };
 
 const formatMbldResult = result => {

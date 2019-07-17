@@ -52,7 +52,8 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       onBlur={() => {
         const attempt = input === normalize(input) ? validateTimeResult(inputToCentiseconds(input)) : 0;
         onValue(attempt);
-        setInput(centisecondsToInput(attempt));
+        /* Once we emit the change, reflect the initial state. */
+        setInput(centisecondsToInput(initialValue));
       }}
     />
   );

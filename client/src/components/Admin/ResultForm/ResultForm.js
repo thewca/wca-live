@@ -5,8 +5,9 @@ import TextField from '@material-ui/core/TextField';
 
 import AttemptField from '../AttemptField/AttemptField';
 import { toInt, setAt, preventDefault, times } from '../../../logic/utils';
+import { meetsCutoff } from '../../../logic/results';
 
-const ResultForm = ({ onSubmit, results, format, eventId }) => {
+const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) => {
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
@@ -70,7 +71,15 @@ const ResultForm = ({ onSubmit, results, format, eventId }) => {
             label={`Attempt ${index + 1}`}
             initialValue={attempt}
             disabled={!result}
-            onValue={value => setAttempts(setAt(attempts, index, value))}
+            onValue={value => {
+              const updatedValue = timeLimit && value > timeLimit.centiseconds ? -1 : value;
+              const updatedAttempts = setAt(attempts, index, updatedValue);
+              setAttempts(
+                meetsCutoff(updatedAttempts, cutoff, eventId)
+                  ? updatedAttempts
+                  : updatedAttempts.map((attempt, index) => index < cutoff.numberOfAttempts ? attempt : 0)
+              );
+            }}
           />
         </Grid>
       ))}

@@ -41,8 +41,8 @@ type Event {
 type Round {
   id: ID!
   format: Format!
-  # timeLimit: TimeLimit
-  # cutoff: Cutoff
+  timeLimit: TimeLimit
+  cutoff: Cutoff
   # advancementCondition: AdvancementCondition
   results: [Result!]!
 }
@@ -53,6 +53,16 @@ type Format {
   shortName: String!
   solveCount: Int!
   sortBy: String!
+}
+
+type TimeLimit {
+  centiseconds: Int!
+  # cumulativeRoundIds: [String!]!
+}
+
+type Cutoff {
+  numberOfAttempts: Int!
+  attemptResult: Int!
 }
 
 type Result {

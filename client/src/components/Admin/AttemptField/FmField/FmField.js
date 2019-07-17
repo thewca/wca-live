@@ -39,7 +39,11 @@ const FmField = ({ initialValue, onValue, ...props }) => {
           setValue(newValue);
         }
       }}
-      onBlur={() => onValue(validateFmResult(value))}
+      onBlur={() => {
+        onValue(validateFmResult(value));
+        /* Once we emit the change, reflect the initial state. */
+        setValue(initialValue);
+      }}
     />
   );
 };

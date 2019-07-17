@@ -17,6 +17,13 @@ const ROUND_QUERY = gql`
         solveCount
         sortBy
       }
+      timeLimit {
+        centiseconds
+      }
+      cutoff {
+        numberOfAttempts
+        attemptResult
+      }
       results {
         ranking
         person {
@@ -82,6 +89,8 @@ const AdminRound = ({ match }) => {
                       results={round.results}
                       format={round.format}
                       eventId={round.id.split('-')[0] /* TODO: get eventId from query instead */}
+                      timeLimit={round.timeLimit}
+                      cutoff={round.cutoff}
                       onSubmit={result => setResult({ variables: { result } })}
                     />
                   )}
