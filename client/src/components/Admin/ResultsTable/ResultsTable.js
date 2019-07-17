@@ -20,7 +20,7 @@ const statsToDisplay = (format, eventId) => {
   return sortBy === 'best' ? stats : stats.reverse();
 };
 
-const ResultsTable = ({ results, format, eventId }) => {
+const ResultsTable = ({ results, format, eventId, displayCountry = true, displayId = false }) => {
   const stats = statsToDisplay(format, eventId);
 
   return (
@@ -28,8 +28,13 @@ const ResultsTable = ({ results, format, eventId }) => {
       <TableHead>
         <TableRow>
           <TableCell align="right">#</TableCell>
+          {displayId && (
+            <TableCell align="right">ID</TableCell>
+          )}
           <TableCell>Name</TableCell>
-          <TableCell>Country</TableCell>
+          {displayCountry && (
+            <TableCell>Country</TableCell>
+          )}
           {times(format.solveCount, index => (
             <TableCell key={index} align="right">
               {index + 1}
@@ -51,8 +56,13 @@ const ResultsTable = ({ results, format, eventId }) => {
             >
               {result.ranking}
             </TableCell>
+            {displayId && (
+              <TableCell align="right">{result.person.id}</TableCell>
+            )}
             <TableCell>{result.person.name}</TableCell>
-            <TableCell>{result.person.country.name}</TableCell>
+            {displayCountry && (
+              <TableCell>{result.person.country.name}</TableCell>
+            )}
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
                 {formatResult(attempt, eventId)}

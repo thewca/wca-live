@@ -34,9 +34,6 @@ const ROUND_QUERY = gql`
         person {
           id
           name
-          country {
-            name
-          }
         }
         attempts
         advancable
@@ -124,6 +121,8 @@ const AdminRound = ({ match }) => {
                   results={round.results}
                   format={round.format}
                   eventId={round.event.id}
+                  displayCountry={false}
+                  displayId={true}
                 />
               </Grid>
             </Grid>
