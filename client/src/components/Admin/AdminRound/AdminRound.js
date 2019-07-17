@@ -13,6 +13,11 @@ const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
     round(competitionId: $competitionId, roundId: $roundId) {
       id
+      name
+      event {
+        id
+        name
+      }
       format {
         solveCount
         sortBy
@@ -77,7 +82,9 @@ const AdminRound = ({ match }) => {
         const { round } = data;
         return (
           <div style={{ padding: 24 }}>
-            <Typography variant="h5">{round.id}</Typography>
+            <Typography variant="h5" style={{ marginBottom: 16 }}>
+              {round.event.name} - {round.name}
+            </Typography>
             <Grid container direction="row" spacing={2}>
               <Grid item md={3}>
                 <Mutation
@@ -88,7 +95,7 @@ const AdminRound = ({ match }) => {
                     <ResultForm
                       results={round.results}
                       format={round.format}
-                      eventId={round.id.split('-')[0] /* TODO: get eventId from query instead */}
+                      eventId={round.event.id}
                       timeLimit={round.timeLimit}
                       cutoff={round.cutoff}
                       onSubmit={result => setResult({ variables: { result } })}
@@ -116,7 +123,7 @@ const AdminRound = ({ match }) => {
                 <ResultsTable
                   results={round.results}
                   format={round.format}
-                  eventId={round.id.split('-')[0] /* TODO: get eventId from query instead */}
+                  eventId={round.event.id}
                 />
               </Grid>
             </Grid>
