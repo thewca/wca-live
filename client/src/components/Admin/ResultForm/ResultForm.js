@@ -30,8 +30,12 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
       const inputs = Array.from(rootRef.current.querySelectorAll('input, button'));
       const mod = n => (n + inputs.length) % inputs.length;
       const index = inputs.findIndex(input => event.target === input);
-      if (index === -1) return;
-      if (event.key === 'ArrowUp') {
+      if (index === -1) {
+        if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
+          inputs[0].focus();
+          inputs[0].select();
+        }
+      } else if (event.key === 'ArrowUp') {
         const previousElement = inputs[mod(index - 1)];
         previousElement.focus();
         previousElement.select && previousElement.select();
@@ -46,7 +50,7 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  });
+  }, []);
 
   return (
     <Grid container spacing={1} ref={rootRef}>
