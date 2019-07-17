@@ -44,7 +44,6 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
   return (
     <TextField
       {...props}
-      /* inputProps={{ style: { textAlign: 'right', fontSize: '2em' }}} */
       fullWidth
       variant="outlined"
       value={input}

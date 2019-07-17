@@ -5,7 +5,7 @@ import TimeField from '../TimeField/TimeField';
 import CubesField from '../CubesField/CubesField';
 import { decodeMbldResult, encodeMbldResult, validateMbldResult } from '../../../../logic/results';
 
-const MbldField = ({ initialValue, onValue, disabled, label, ...props }) => {
+const MbldField = ({ initialValue, onValue, disabled, label }) => {
   const [result, setResult] = useState(decodeMbldResult(initialValue));
 
   useEffect(() => {
