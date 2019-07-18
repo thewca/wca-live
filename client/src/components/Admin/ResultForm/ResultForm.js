@@ -34,19 +34,19 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
         if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
           inputs[0].focus();
           inputs[0].select();
+          event.preventDefault();
         }
       } else if (event.key === 'ArrowUp') {
         const previousElement = inputs[mod(index - 1)];
         previousElement.focus();
         previousElement.select && previousElement.select();
+        event.preventDefault();
       } else if (event.key === 'ArrowDown') {
         const nextElement = inputs[mod(index + 1)];
         nextElement.focus();
         nextElement.select && nextElement.select();
-      } else {
-        return;
+        event.preventDefault();
       }
-      event.preventDefault();
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
