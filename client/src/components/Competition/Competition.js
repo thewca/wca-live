@@ -10,6 +10,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Loading from '../Loading/Loading';
 import EventList from '../EventList/EventList';
 import Round from '../Round/Round';
+import Competitor from '../Competitor/Competitor';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -68,6 +69,7 @@ const Competition = ({ match }) => {
             <div className={classes.content}>
               <Switch>
                 <Route exact path="/competitions/:competitionId/rounds/:roundId" component={Round} />
+                <Route exact path="/competitions/:competitionId/competitors/:competitorId" component={Competitor} />
               </Switch>
             </div>
           </Fragment>

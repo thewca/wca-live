@@ -1,3 +1,6 @@
+const flatMap = (arr, fn) =>
+  arr.reduce((xs, x) => xs.concat(fn(x)), []);
+
 const zip = (...arrs) =>
   arrs.length === 0 ? [] : arrs[0].map((_, i) => arrs.map(arr => arr[i]));
 
@@ -15,6 +18,7 @@ const sortByArray = (arr, fn) => {
 };
 
 module.exports = {
+  flatMap,
   zip,
   sortByArray,
 };

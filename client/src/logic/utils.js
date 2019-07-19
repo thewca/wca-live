@@ -6,3 +6,13 @@ export const times = (n, fn) =>
 
 export const toInt = string =>
   parseInt(string, 10) || null;
+
+export const updateIn = (object, [property, ...properyChain], updater) =>
+  properyChain.length === 0
+    ? { ...object, [property]: updater(object[property]) }
+    : { ...object, [property]: updateIn(object[property], properyChain, updater) };
+
+export const groupBy = (arr, fn) =>
+  arr.reduce((obj, x) =>
+    updateIn(obj, [fn(x)], xs => (xs || []).concat(x))
+  , {});

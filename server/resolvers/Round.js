@@ -13,5 +13,8 @@ module.exports = {
     const event = eventById(competition.wcif, eventId);
     return roundName(roundNumber, event.rounds.length, cutoff);
   },
+  results: (parent) => {
+    return parent.results.map(result => ({ ...result, round: parent }));
+  },
   open: ({ results }) => results.length > 0,
 };

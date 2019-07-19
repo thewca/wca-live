@@ -2,6 +2,7 @@ type Query {
   me: User
   competition(id: ID!): Competition
   round(competitionId: ID!, roundId: ID!): Round
+  competitor(competitionId: ID!, competitorId: ID!): Person
 }
 
 type Mutation {
@@ -74,6 +75,7 @@ type Result {
   ranking: Int
   attempts: [Int]!
   advancable: Boolean!
+  round: Round!
 }
 
 type Person {
@@ -84,7 +86,8 @@ type Person {
   avatar: Avatar
   roles: [String!]!
   # registration: Registration!
-  personalBests: [PersonalBest!]!
+  # personalBests: [PersonalBest!]!
+  results: [Result!]!
 }
 
 type Country {
@@ -92,14 +95,14 @@ type Country {
   name: String!
 }
 
-type PersonalBest {
-  eventId: String!
-  best: Int!
-  worldRanking: Int!
-  continentalRanking: Int!
-  nationalRanking: Int!
-  type: String!
-}
+# type PersonalBest {
+#   eventId: String!
+#   best: Int!
+#   worldRanking: Int!
+#   continentalRanking: Int!
+#   nationalRanking: Int!
+#   type: String!
+# }
 
 # Inputs
 

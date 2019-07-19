@@ -1,6 +1,6 @@
 const { withAuthentication, withCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
-const { roundById } = require('../utils/wcif');
+const { roundById, personById } = require('../utils/wcif');
 
 module.exports = {
   me: async (parent, args, { session, mongo: { Users } }) => {
@@ -14,6 +14,11 @@ module.exports = {
   round: withCompetition(
     async (parent, { roundId }, { competition }) => {
       return roundById(competition.wcif, roundId);
+    }
+  ),
+  competitor: withCompetition(
+    async (parent, { competitorId }, { competition }) => {
+      return personById(competition.wcif, parseInt(competitorId, 10));
     }
   ),
 };
