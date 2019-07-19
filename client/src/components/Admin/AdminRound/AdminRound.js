@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import ResultForm from '../ResultForm/ResultForm';
-import ResultsTable from '../ResultsTable/ResultsTable';
+import ResultsTable from '../../ResultsTable/ResultsTable';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {

@@ -5,9 +5,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
-import { times } from '../../../logic/utils';
-import { formatResult } from '../../../logic/results';
-import { best, average } from '../../../logic/calculations';
+import { times } from '../../logic/utils';
+import { formatResult } from '../../logic/results';
+import { best, average } from '../../logic/calculations';
 
 const statsToDisplay = (format, eventId) => {
   const { solveCount, sortBy } = format;

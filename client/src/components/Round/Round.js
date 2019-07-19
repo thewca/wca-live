@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
 
-import ResultsTable from '../Admin/ResultsTable/ResultsTable';
+import ResultsTable from '../ResultsTable/ResultsTable';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -24,6 +24,9 @@ const ROUND_QUERY = gql`
         person {
           id
           name
+          country {
+            name
+          }
         }
         attempts
         advancable
@@ -49,8 +52,8 @@ const Round = ({ match }) => {
               results={round.results}
               format={round.format}
               eventId={round.event.id}
-              displayCountry={false}
-              displayId={true}
+              displayCountry={true}
+              displayId={false}
             />
           </div>
         );
