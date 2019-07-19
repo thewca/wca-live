@@ -1,9 +1,9 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
 
+import Loading from '../Loading/Loading';
 import ResultsTable from '../ResultsTable/ResultsTable';
 
 const ROUND_QUERY = gql`
@@ -41,7 +41,7 @@ const Round = ({ match }) => {
     <Query query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
-        if (loading) return <LinearProgress />;
+        if (loading) return <Loading />;
         const { round } = data;
         return (
           <div>

@@ -4,10 +4,10 @@ import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
+import Loading from '../Loading/Loading';
 import EventList from '../EventList/EventList';
 import Round from '../Round/Round';
 
@@ -48,7 +48,7 @@ const Competition = ({ match }) => {
     <Query query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
-        if (loading) return <LinearProgress />;
+        if (loading) return <Loading />;
         const { competition } = data;
         return (
           <Fragment>

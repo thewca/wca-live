@@ -6,10 +6,10 @@ import Avatar from '@material-ui/core/Avatar';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
+import Loading from '../Loading/Loading';
 import AdminCompetitionList from './AdminCompetitionList/AdminCompetitionList';
 import AdminCompetition from './AdminCompetition/AdminCompetition';
 import AdminRound from './AdminRound/AdminRound';
@@ -31,7 +31,7 @@ const Admin = () => {
     <Query query={USER_QUERY}>
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
-        if (loading) return <LinearProgress />;
+        if (loading) return <Loading />;
         const { me } = data;
         if (!me) {
           return (

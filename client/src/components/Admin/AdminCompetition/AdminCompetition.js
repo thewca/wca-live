@@ -1,8 +1,9 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
+
+import Loading from '../../Loading/Loading';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -18,7 +19,7 @@ const AdminCompetition = ({ match }) => {
     <Query query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
-        if (loading) return <LinearProgress />;
+        if (loading) return <Loading />;
         const { competition } = data;
         return (
           <div style={{ padding: 24 }}>

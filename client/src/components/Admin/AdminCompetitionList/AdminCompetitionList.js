@@ -2,13 +2,14 @@ import React from 'react';
 import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Link } from 'react-router-dom';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Paper from '@material-ui/core/Paper';
 import withConfirm from 'material-ui-confirm';
+
+import Loading from '../../Loading/Loading';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {
@@ -40,7 +41,7 @@ const AdminCompetitionList = ({ confirm, history }) => {
     <Query query={COMPETITIONS_QUERY}>
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
-        if (loading) return <LinearProgress />;
+        if (loading) return <Loading />;
         const { me: { importableCompetitions, manageableCompetitions } } = data;
         return (
           <div style={{ padding: 24 }}>
