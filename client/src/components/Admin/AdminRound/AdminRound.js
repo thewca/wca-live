@@ -59,10 +59,16 @@ const SET_RESULT_MUTATION = gql`
 `;
 
 const FINISH_ROUND_MUTATION = gql`
-  mutation FinishRound($competitionId: ID!, $roundId: ID!) {
-    finishRound(competitionId: $competitionId, roundId: $roundId) {
+  mutation openRound($competitionId: ID!, $roundId: ID!) {
+    openRound(competitionId: $competitionId, roundId: $roundId) {
       id
       results {
+        ranking
+        person {
+          id
+          name
+        }
+        attempts
         advancable
       }
     }
@@ -103,15 +109,15 @@ const AdminRound = ({ match }) => {
                   mutation={FINISH_ROUND_MUTATION}
                   variables={{ competitionId, roundId }}
                 >
-                  {(finishRound, { loading }) => (
+                  {(openRound, { loading }) => (
                     <Button
                       variant="outlined"
-                      onClick={finishRound}
+                      onClick={openRound}
                       disabled={loading}
                       style={{ marginTop: 64 }}
                       tabIndex="-1"
                     >
-                      Finish round
+                      Open round
                     </Button>
                   )}
                 </Mutation>

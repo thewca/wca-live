@@ -1,6 +1,6 @@
 const { average, best } = require('./calculations');
 const { sortByArray } = require('./utils');
-const { personById, parseActivityCode } = require('./wcif');
+const { personById, parseActivityCode, eventById } = require('./wcif');
 const { formatById } = require('./formats');
 
 const setRankings = (results, formatId) => {
@@ -71,32 +71,39 @@ const setAdvancable = (results, advancementCondition) => {
   }
 };
 
-const finishRound = (round, wcif) => {
-  round.results = round.results.filter(result =>
-    result.attempts.some(({ result }) => result !== 0)
-  );
-  setAdvancable(round.results, round.advancementCondition); /* TODO: handle noshows */
+const advancingPersonIds = (round, wcif) => {
   const { eventId, roundNumber } = parseActivityCode(round.id);
-  const event = wcif.events.find(event => event.id === eventId);
-  const nextRound = event.rounds.find(
-    ({ id }) => parseActivityCode(id).roundNumber === roundNumber + 1
-  );
-  if (nextRound) {
-    const format = formatById(nextRound.format);
-    nextRound.results = round.results
+  if (roundNumber === 1) {
+    const registeredPeople = wcif.persons.filter(({ registration }) =>
+      registration && registration.status === 'accepted' && registration.eventIds.includes(eventId)
+    );
+    return registeredPeople.map(({ registrantId }) => registrantId);
+  } else {
+    const previousRound = eventById(wcif, eventId).rounds.find(
+      ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
+    );
+    return previousRound.results
       .filter(({ advancable }) => advancable)
-      .map(({ personId }) => ({
-        personId: personId,
-        ranking: null,
-        attempts: Array.from({ length: format.solveCount }, () => ({ result: 0 })),
-        advancable: false,
-      }));
+      .map(({ personId }) => personId);
   }
+
+};
+
+const openRound = (round, wcif) => {
+  const format = formatById(round.format);
+  /* TODO: validate whether the round actually can be open (?), see cubecomps populate.php */
+  round.results = advancingPersonIds(round, wcif).map(personId => ({
+    personId,
+    ranking: null,
+    attempts: Array.from({ length: format.solveCount }, () => ({ result: 0 })),
+    advancable: false,
+  }));
+  round.results = sortResults(round.results, wcif);
 };
 
 module.exports = {
   setRankings,
   sortResults,
   setAdvancable,
-  finishRound,
+  openRound,
 };

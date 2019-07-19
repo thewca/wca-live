@@ -1,8 +1,7 @@
 const { withAuthentication, withCompetition, withCompetitionAuthorization } = require('./middleware');
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
-const { setRankings, sortResults, setAdvancable, finishRound } = require('../utils/results');
-const { processWcif } = require('../utils/competition');
+const { setRankings, sortResults, setAdvancable, openRound } = require('../utils/results');
 
 const getDocument = ({ value }) => {
   if (!value) throw new Error('Document not found.');
@@ -13,7 +12,6 @@ module.exports = {
   importCompetition: withAuthentication(
     async (parent, { id }, { user, mongo: { Competitions } }) => {
       const wcif = await getWcif(id, user.oauth.accessToken);
-      processWcif(wcif);
       const managerWcaUserIds = wcif.persons.filter(
         person => person.roles.some(role => ['delegate', 'organizer', 'staff-dataentry'].includes(role))
       ).map(person => person.wcaUserId);
@@ -36,7 +34,7 @@ module.exports = {
       currentResult.attempts = result.attempts.map(attempt => ({ result: attempt }));
       setRankings(round.results, round.format);
       round.results = sortResults(round.results, competition.wcif);
-      setAdvancable(round.results, round.advancementCondition); /* TODO: handle noshows */
+      setAdvancable(round.results, round.advancementCondition);
       await Competitions.findOneAndUpdate(
         { 'wcif.id': competition.wcif.id },
         { $set: { wcif: competition.wcif } }
@@ -44,10 +42,10 @@ module.exports = {
       return round;
     }
   ),
-  finishRound: withCompetitionAuthorization(
+  openRound: withCompetitionAuthorization(
     async (parent, { roundId, result }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
-      finishRound(round, competition.wcif);
+      openRound(round, competition.wcif);
       await Competitions.findOneAndUpdate(
         { 'wcif.id': competition.wcif.id },
         { $set: { wcif: competition.wcif } }

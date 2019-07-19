@@ -7,7 +7,7 @@ type Query {
 type Mutation {
   importCompetition(id: ID!): Competition
   setResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
-  finishRound(competitionId: ID!, roundId: ID!): Round
+  openRound(competitionId: ID!, roundId: ID!): Round
 }
 
 type User {
