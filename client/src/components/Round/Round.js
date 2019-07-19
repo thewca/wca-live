@@ -1,9 +1,7 @@
 import React from 'react';
-import { Query, Mutation } from 'react-apollo';
+import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
-import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import ResultsTable from '../Admin/ResultsTable/ResultsTable';

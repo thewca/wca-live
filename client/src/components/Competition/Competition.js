@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import Drawer from '@material-ui/core/Drawer';
