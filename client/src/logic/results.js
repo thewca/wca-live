@@ -80,7 +80,7 @@ export const formatResult = (result, eventId, isAverage = false) => {
 export const attemptsWarning = (attempts, eventId) => {
   if (eventId === '333mbf') {
     const lowTimeIndex = attempts.findIndex(attempt => {
-      const { solved, attempted, centiseconds } = decodeMbldResult(attempt);
+      const { attempted, centiseconds } = decodeMbldResult(attempt);
       return attempt > 0 && centiseconds / attempted < 30 * 100;
     });
     if (lowTimeIndex !== -1) {

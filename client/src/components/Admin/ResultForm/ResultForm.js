@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import withConfirm from 'material-ui-confirm';
 
 import AttemptField from '../AttemptField/AttemptField';
-import { toInt, setAt, preventDefault, times } from '../../../logic/utils';
+import { toInt, setAt, times } from '../../../logic/utils';
 import { meetsCutoff, formatResult, attemptsWarning } from '../../../logic/results';
 import { best, average } from '../../../logic/calculations';
 
