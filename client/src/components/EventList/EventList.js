@@ -20,6 +20,7 @@ const EventList = ({ events, competitionId }) => {
             onClick={() => setSelectedEvent(
               selectedEvent === event.id ? null : event.id
             )}
+            disabled={event.rounds.every(round => !round.open)}
           >
             <ListItemIcon>
               <CubingIcon eventId={event.id} />
@@ -34,6 +35,7 @@ const EventList = ({ events, competitionId }) => {
                   button
                   component={Link}
                   to={`/competitions/${competitionId}/rounds/${round.id}`}
+                  disabled={!round.open}
                 >
                   <ListItemText primary={round.name} />
                 </ListItem>

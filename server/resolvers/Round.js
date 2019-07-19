@@ -13,4 +13,5 @@ module.exports = {
     const event = eventById(competition.wcif, eventId);
     return roundName(roundNumber, event.rounds.length, cutoff);
   },
+  open: ({ results }) => results.length > 0,
 };

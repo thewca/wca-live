@@ -48,6 +48,7 @@ type Round {
   cutoff: Cutoff
   # advancementCondition: AdvancementCondition
   results: [Result!]!
+  open: Boolean!
 }
 
 type Format {
