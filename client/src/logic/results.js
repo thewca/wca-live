@@ -76,3 +76,35 @@ export const formatResult = (result, eventId, isAverage = false) => {
   if (eventId === '333mbf') return formatMbldResult(result);
   return centisecondsToClockFormat(result);
 };
+
+export const attemptsWarning = (attempts, eventId) => {
+  if (eventId === '333mbf') {
+    const lowTimeIndex = attempts.findIndex(attempt => {
+      const { solved, attempted, centiseconds } = decodeMbldResult(attempt);
+      return attempt > 0 && centiseconds / attempted < 30 * 100;
+    });
+    if (lowTimeIndex !== -1) {
+      return `
+        The results you're trying to submit seem to be impossible:
+        attempt ${lowTimeIndex + 1} is done in less than 30 seconds per cube tried.
+        If you want to enter minutes, don't forget to add two zeros for centiseconds at the end of the score.
+      `
+    }
+  } else {
+    const completedAttempts = attempts.filter(attempt => attempt > 0);
+    if (completedAttempts.length > 0) {
+      const bestSingle = Math.min(...completedAttempts);
+      const worstSingle = Math.max(...completedAttempts);
+      const inconsistent = worstSingle > bestSingle * 4;
+      if (inconsistent) {
+        return `
+        The results you're trying to submit seem to be inconsistent.
+        There's a big difference between the best single (${formatResult(bestSingle, eventId)})
+        and the worst single (${formatResult(worstSingle, eventId)}).
+        Please check that the results are accurate.
+        `;
+      }
+    }
+  }
+  return null;
+};

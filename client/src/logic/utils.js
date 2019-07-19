@@ -6,8 +6,3 @@ export const times = (n, fn) =>
 
 export const toInt = string =>
   parseInt(string, 10) || null;
-
-export const preventDefault = fn => event => {
-  event.preventDefault();
-  fn();
-};

@@ -3,13 +3,14 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import withConfirm from 'material-ui-confirm';
 
 import AttemptField from '../AttemptField/AttemptField';
 import { toInt, setAt, preventDefault, times } from '../../../logic/utils';
-import { meetsCutoff, formatResult } from '../../../logic/results';
+import { meetsCutoff, formatResult, attemptsWarning } from '../../../logic/results';
 import { best, average } from '../../../logic/calculations';
 
-const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) => {
+const ResultForm = ({ confirm, onSubmit, results, format, eventId, timeLimit, cutoff }) => {
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
@@ -18,12 +19,16 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
 
   const computeAverage = [3, 5].includes(format.solveCount) && eventId !== '333mbf';
 
-  const handleSubmit = preventDefault(() => {
+  const submissionWarning = attemptsWarning(attempts, eventId);
+  const submitResult = () => {
     onSubmit({ personId, attempts });
     const personIdInput = rootRef.current.getElementsByTagName('input')[0];
     personIdInput.focus();
     personIdInput.select();
-  });
+  };
+  const handleSubmit = submissionWarning
+    ? confirm(submitResult, { description: submissionWarning, confirmationText: 'Submit' })
+    : submitResult;
 
   useEffect(() => {
     const handleKeyPress = event => {
@@ -116,4 +121,4 @@ const ResultForm = ({ onSubmit, results, format, eventId, timeLimit, cutoff }) =
   );
 };
 
-export default ResultForm;
+export default withConfirm(ResultForm);
