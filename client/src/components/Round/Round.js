@@ -54,6 +54,7 @@ const Round = ({ match }) => {
               eventId={round.event.id}
               displayCountry={true}
               displayId={false}
+              competitionId={competitionId}
             />
           </div>
         );

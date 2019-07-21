@@ -129,6 +129,7 @@ const AdminRound = ({ match }) => {
                   eventId={round.event.id}
                   displayCountry={false}
                   displayId={true}
+                  competitionId={competitionId}
                 />
               </Grid>
             </Grid>

@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import Link from '@material-ui/core/Link';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -20,7 +22,7 @@ const statsToDisplay = (format, eventId) => {
   return sortBy === 'best' ? stats : stats.reverse();
 };
 
-const ResultsTable = ({ results, format, eventId, displayCountry = true, displayId = false }) => {
+const ResultsTable = ({ results, format, eventId, competitionId, displayCountry = true, displayId = false }) => {
   const stats = statsToDisplay(format, eventId);
 
   return (
@@ -59,9 +61,18 @@ const ResultsTable = ({ results, format, eventId, displayCountry = true, display
             {displayId && (
               <TableCell align="right">{result.person.id}</TableCell>
             )}
-            <TableCell>{result.person.name}</TableCell>
+            <TableCell>
+              <Link
+                component={RouterLink}
+                to={`/competitions/${competitionId}/competitors/${result.person.id}`}
+              >
+                {result.person.name}
+              </Link>
+            </TableCell>
             {displayCountry && (
-              <TableCell>{result.person.country.name}</TableCell>
+              <TableCell>
+                {result.person.country.name}
+              </TableCell>
             )}
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
