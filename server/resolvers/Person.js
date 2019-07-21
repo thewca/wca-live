@@ -9,6 +9,7 @@ module.exports = {
       flatMap(event.rounds, round =>
         round.results
           .filter(({ personId }) => personId === registrantId)
+          .filter(({ attempts }) => attempts.some(({ result }) => result !== 0))
           .map(result => ({ ...result, round }))
       )
     );
