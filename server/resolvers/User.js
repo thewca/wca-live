@@ -8,11 +8,22 @@ module.exports = {
     const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
     return competitions
       .filter(competition => !importedCompetitionIds.includes(competition.id))
-      .map(({ id, name }) => ({
-        wcif: { id, name, events: [] }
+      .map(({ id, name, start_date, end_date }) => ({
+        wcif: {
+          id,
+          name,
+          events: [],
+          schedule: {
+            startDate: start_date,
+            numberOfDays: new Date(end_date).getDate() - new Date(start_date).getDate() + 1,
+          }
+        },
       }));
   },
   manageableCompetitions: async (parent, args, { mongo: { Competitions } }) => {
-    return await Competitions.find({ managerWcaUserIds: parent.wcaUserId }).toArray();
+    return await Competitions
+      .find({ managerWcaUserIds: parent.wcaUserId })
+      .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1 })
+      .toArray();
   },
 };

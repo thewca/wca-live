@@ -10,5 +10,5 @@ module.exports = {
     );
   },
   startDate: ({ wcif }) => wcif.schedule.startDate,
-  endDate: ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays),
+  endDate: ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1),
 };

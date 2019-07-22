@@ -32,10 +32,10 @@ module.exports = {
       ({ wcif }) => wcif.schedule.startDate > today
     );
     const inProgress = competitions.filter(
-      ({ wcif }) => wcif.schedule.startDate <= today && today <= addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays)
+      ({ wcif }) => wcif.schedule.startDate <= today && today <= addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1)
     );
     const past = competitions.filter(
-      ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays) < today
+      ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1) < today
     ).reverse();
     return {
       upcoming,

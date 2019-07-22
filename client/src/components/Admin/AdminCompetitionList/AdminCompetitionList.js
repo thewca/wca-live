@@ -10,20 +10,26 @@ import Paper from '@material-ui/core/Paper';
 import withConfirm from 'material-ui-confirm';
 
 import Loading from '../../Loading/Loading';
+import { formatDateRange } from '../../../logic/utils';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {
     me {
       id
       manageableCompetitions {
-        id
-        name
+        ...competitionInfo
       }
       importableCompetitions {
-        id
-        name
+        ...competitionInfo
       }
     }
+  }
+
+  fragment competitionInfo on Competition {
+    id
+    name
+    startDate
+    endDate
   }
 `;
 
@@ -46,7 +52,7 @@ const AdminCompetitionList = ({ confirm, history }) => {
         return (
           <div style={{ padding: 24 }}>
             <Paper>
-              <List>
+              <List dense={true}>
                 <ListSubheader disableSticky>Manageable competitions</ListSubheader>
                 {manageableCompetitions.map(competition => (
                   <ListItem
@@ -55,7 +61,10 @@ const AdminCompetitionList = ({ confirm, history }) => {
                     component={Link}
                     to={`/admin/competitions/${competition.id}`}
                   >
-                    <ListItemText primary={competition.name} />
+                    <ListItemText
+                      primary={competition.name}
+                      secondary={formatDateRange(competition.startDate, competition.endDate)}
+                    />
                   </ListItem>
                 ))}
                 <ListSubheader disableSticky>Importable competitions</ListSubheader>
@@ -87,7 +96,10 @@ const AdminCompetitionList = ({ confirm, history }) => {
                         })}
                         disabled={loading}
                       >
-                        <ListItemText primary={competition.name} />
+                        <ListItemText
+                          primary={competition.name}
+                          secondary={formatDateRange(competition.startDate, competition.endDate)}
+                        />
                       </ListItem>
                     )}
                   </Mutation>
