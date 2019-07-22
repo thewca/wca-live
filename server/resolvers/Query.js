@@ -24,7 +24,10 @@ module.exports = {
   ),
   competitions: async (parent, args, { mongo: { Competitions } }) => {
     const today = dateToString(new Date());
-    const competitions = await Competitions.find({}).toArray();
+    const competitions = await Competitions
+      .find({})
+      .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1 })
+      .toArray();
     const upcoming = competitions.filter(
       ({ wcif }) => wcif.schedule.startDate > today
     );
@@ -33,7 +36,7 @@ module.exports = {
     );
     const past = competitions.filter(
       ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays) < today
-    );
+    ).reverse();
     return {
       upcoming,
       inProgress,
