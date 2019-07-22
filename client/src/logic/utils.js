@@ -16,3 +16,24 @@ export const groupBy = (arr, fn) =>
   arr.reduce((obj, x) =>
     updateIn(obj, [fn(x)], xs => (xs || []).concat(x))
   , {});
+
+export const formatDateRange = (startString, endString) => {
+  const start = new Date(startString);
+  const end = new Date(endString);
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+  const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
+  const endMonth = end.toLocaleDateString('en-US', { month: 'short' });
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
+
+  const firstPart = startYear === endYear
+    ? `${startMonth} ${startDay}`
+    : `${startMonth} ${startDay}, ${startYear}`;
+
+  const secondPart = startMonth === endMonth
+    ? `${endDay}, ${endYear}`
+    : `${endMonth} ${endDay}, ${endYear}`;
+
+  return `${firstPart} - ${secondPart}`;
+};

@@ -47,7 +47,7 @@ const AdminCompetitionList = ({ confirm, history }) => {
           <div style={{ padding: 24 }}>
             <Paper>
               <List>
-                <ListSubheader>Manageable competitions</ListSubheader>
+                <ListSubheader disableSticky>Manageable competitions</ListSubheader>
                 {manageableCompetitions.map(competition => (
                   <ListItem
                     key={competition.id}
@@ -58,7 +58,7 @@ const AdminCompetitionList = ({ confirm, history }) => {
                     <ListItemText primary={competition.name} />
                   </ListItem>
                 ))}
-                <ListSubheader>Importable competitions</ListSubheader>
+                <ListSubheader disableSticky>Importable competitions</ListSubheader>
                 {importableCompetitions.map(competition => (
                   <Mutation
                     key={competition.id}

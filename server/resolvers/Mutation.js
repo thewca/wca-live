@@ -22,7 +22,7 @@ module.exports = {
           { upsert: true, returnOriginal: false },
         )
       );
-      return competition.wcif;
+      return competition;
     }
   ),
   setResult: withCompetitionAuthorization(

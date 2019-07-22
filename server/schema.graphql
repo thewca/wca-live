@@ -1,5 +1,6 @@
 type Query {
   me: User
+  competitions: Competitions!
   competition(id: ID!): Competition
   round(competitionId: ID!, roundId: ID!): Round
   competitor(competitionId: ID!, competitorId: ID!): Person
@@ -9,6 +10,12 @@ type Mutation {
   importCompetition(id: ID!): Competition
   setResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
   openRound(competitionId: ID!, roundId: ID!): Round
+}
+
+type Competitions {
+  upcoming: [Competition!]!
+  inProgress: [Competition!]!
+  past: [Competition!]!
 }
 
 type User {
@@ -31,6 +38,8 @@ type Avatar {
 type Competition {
   id: ID!
   name: String!
+  startDate: String!
+  endDate: String!
   events: [Event!]!
   competitors: [Person!]!
 }

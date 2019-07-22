@@ -8,12 +8,11 @@ module.exports = {
     const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
     return competitions
       .filter(competition => !importedCompetitionIds.includes(competition.id))
-      .map(({ id, name }) => ({ id, name, events: [] }));
+      .map(({ id, name }) => ({
+        wcif: { id, name, events: [] }
+      }));
   },
   manageableCompetitions: async (parent, args, { mongo: { Competitions } }) => {
-    const competitions = await Competitions.find({
-      managerWcaUserIds: parent.wcaUserId,
-    }).toArray();
-    return competitions.map(competition => competition.wcif);
+    return await Competitions.find({ managerWcaUserIds: parent.wcaUserId }).toArray();
   },
 };
