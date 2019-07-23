@@ -36,7 +36,9 @@ const ResultsTable = ({
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell align="right">#</TableCell>
+          <TableCell align="right" style={{ width: 75 }}>
+            #
+          </TableCell>
           {displayId && <TableCell align="right">ID</TableCell>}
           <TableCell>Name</TableCell>
           {displayCountry && <TableCell>Country</TableCell>}
@@ -61,7 +63,11 @@ const ResultsTable = ({
           >
             <TableCell
               align="right"
-              style={result.advancable ? { backgroundColor: 'lightgreen' } : {}}
+              style={
+                result.advancable
+                  ? { backgroundColor: 'lightgreen', width: 75 }
+                  : { width: 75 }
+              }
             >
               {result.ranking}
             </TableCell>
