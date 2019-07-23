@@ -29,10 +29,11 @@ const USER_QUERY = gql`
 const Admin = () => {
   return (
     <Query query={USER_QUERY}>
-      {({ data, error, loading }) => {
+      {({ data, error, loading, client }) => {
         if (error) return <div>Error</div>;
         if (loading) return <Loading />;
         const { me } = data;
+        console.log(me);
         if (!me) {
           return (
             <Grid
@@ -64,7 +65,16 @@ const Admin = () => {
                   />
                   <Typography>{me.name}</Typography>
                   <div style={{ flexGrow: 1 }} />
-                  <Button color="inherit">Sign out</Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => {
+                      fetch('/oauth/sign-out', {
+                        credentials: 'same-origin',
+                      }).then(() => client.resetStore());
+                    }}
+                  >
+                    Sign out
+                  </Button>
                 </Toolbar>
               </AppBar>
               <Switch>
