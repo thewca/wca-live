@@ -86,6 +86,8 @@ type Result {
   attempts: [Int]!
   advancable: Boolean!
   round: Round!
+  singleRecord: String
+  averageRecord: String
 }
 
 type Person {

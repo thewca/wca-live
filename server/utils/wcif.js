@@ -23,6 +23,12 @@ const personById = (wcif, personId) => {
   return wcif.persons.find(person => person.registrantId === personId);
 };
 
+const acceptedPeople = wcif => {
+  return wcif.persons.filter(
+    ({ registration }) => registration && registration.status === 'accepted'
+  );
+}
+
 const startDate = wcif => {
   return wcif.schedule.startDate;
 };
@@ -36,6 +42,7 @@ module.exports = {
   eventById,
   roundById,
   personById,
+  acceptedPeople,
   startDate,
   endDate,
 };

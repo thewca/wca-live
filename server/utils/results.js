@@ -1,7 +1,9 @@
 const { average, best } = require('./calculations');
 const { sortByArray } = require('./utils');
-const { personById, parseActivityCode, eventById } = require('./wcif');
+const { personById, parseActivityCode, eventById, acceptedPeople } = require('./wcif');
 const { formatById } = require('./formats');
+const { cloneRecords, recordId } = require('./records');
+const { countryByIso2 } = require('./countries');
 
 const setRankings = (results, formatId) => {
   const { sortBy } = formatById(formatId);
@@ -71,11 +73,82 @@ const setAdvancable = (results, advancementCondition) => {
   }
 };
 
+const tagsWithRecordId = (wcif, personId, eventId, type) => {
+  const person = personById(wcif, personId);
+  const country = countryByIso2(person.countryIso2);
+  return [
+    { tag: 'WR', recordId: recordId(eventId, type, 'world') },
+    { tag: 'CR', recordId: recordId(eventId, type, country.continentId) },
+    { tag: 'NR', recordId: recordId(eventId, type, country.id) },
+    { tag: 'PB', recordId: recordId(eventId, type, person.registrantId) },
+  ];
+};
+
+const setRecordMarkers = (round, wcif) => {
+  const { eventId, roundNumber } = parseActivityCode(round.id);
+  const event = eventById(wcif, eventId);
+  const recordById = cloneRecords();
+  /* Add personal records to recordById. */
+  acceptedPeople(wcif).forEach(person => {
+    person.personalBests.forEach(({ eventId, type, best }) => {
+      recordById[recordId(eventId, type, person.registrantId)] = best;
+    });
+  });
+  /* Updates recordById taking the given round results into account. */
+  const updateRecords = round => {
+    round.results.forEach(result => {
+      const attempts = result.attempts.map(({ result }) => result);
+      const stats = {
+        single: best(attempts),
+        average: average(attempts),
+      };
+      ['single', 'average'].forEach(type => {
+        if (stats[type] > 0) {
+          tagsWithRecordId(wcif, result.personId, eventId, type)
+            .forEach(({ recordId }) => {
+              recordById[recordId] = Math.min(recordById[recordId] || Infinity, stats[type]);
+            });
+        }
+      });
+    });
+  };
+  const previousRounds = event.rounds.filter(
+    round => parseActivityCode(round.id).roundNumber < roundNumber
+  );
+  previousRounds.forEach(updateRecords);
+  /* Changing result may affect records in current and further rounds. */
+  const affectedRounds = event.rounds.filter(
+    round => parseActivityCode(round.id).roundNumber >= roundNumber
+  );
+  affectedRounds.forEach(round => {
+    updateRecords(round);
+    round.results.forEach(result => {
+      const attempts = result.attempts.map(({ result }) => result);
+      const stats = {
+        single: best(attempts),
+        average: average(attempts),
+      };
+      ['single', 'average'].forEach(type => {
+        const tagWithRecordId = tagsWithRecordId(wcif, result.personId, eventId, type)
+          .find(({ recordId }) => recordById[recordId] === stats[type]);
+        result[`${type}Record`] = tagWithRecordId ? tagWithRecordId.tag : null;
+      });
+    });
+  });
+};
+
+const processRoundResults = (round, wcif) => {
+  setRankings(round.results, round.format);
+  round.results = sortResults(round.results, competition.wcif);
+  setAdvancable(round.results, round.advancementCondition);
+  setRecordMarkers(round, competition.wcif);
+};
+
 const advancingPersonIds = (round, wcif) => {
   const { eventId, roundNumber } = parseActivityCode(round.id);
   if (roundNumber === 1) {
-    const registeredPeople = wcif.persons.filter(({ registration }) =>
-      registration && registration.status === 'accepted' && registration.eventIds.includes(eventId)
+    const registeredPeople = acceptedPeople(wcif).filter(
+      ({ registration }) => registration.eventIds.includes(eventId)
     );
     return registeredPeople.map(({ registrantId }) => registrantId);
   } else {
@@ -86,7 +159,6 @@ const advancingPersonIds = (round, wcif) => {
       .filter(({ advancable }) => advancable)
       .map(({ personId }) => personId);
   }
-
 };
 
 const openRound = (round, wcif) => {
@@ -102,8 +174,7 @@ const openRound = (round, wcif) => {
 };
 
 module.exports = {
-  setRankings,
-  sortResults,
-  setAdvancable,
+  processRoundResults,
   openRound,
+  setRecordMarkers,
 };

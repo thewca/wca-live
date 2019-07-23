@@ -33,7 +33,6 @@ const Admin = () => {
         if (error) return <div>Error</div>;
         if (loading) return <Loading />;
         const { me } = data;
-        console.log(me);
         if (!me) {
           return (
             <Grid
