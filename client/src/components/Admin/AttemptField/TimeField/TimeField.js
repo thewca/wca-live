@@ -10,10 +10,8 @@ const reformatInput = input => {
   const number = toInt(input.replace(/\D/g, '')) || 0;
   if (number === 0) return '';
   const str = '00000000' + number.toString().slice(0, 8);
-  return `${str.slice(-8, -6)}:${str.slice(-6, -4)}:${str.slice(
-    -4,
-    -2
-  )}.${str.slice(-2)}`.replace(/^[0:]*(?!\.)/g, '');
+  const [, hh, mm, ss, cc] = str.match(/(\d\d)(\d\d)(\d\d)(\d\d)$/);
+  return `${hh}:${mm}:${ss}.${cc}`.replace(/^[0:]*(?!\.)/g, '');
 };
 
 const inputToCentiseconds = input => {
