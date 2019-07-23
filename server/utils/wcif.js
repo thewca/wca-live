@@ -1,3 +1,5 @@
+const { addDays } = require('../utils/date');
+
 const parseActivityCode = activityCode => {
   const [, e, r, g, a] = activityCode.match(/(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?/);
   return {
@@ -21,9 +23,19 @@ const personById = (wcif, personId) => {
   return wcif.persons.find(person => person.registrantId === personId);
 };
 
+const startDate = wcif => {
+  return wcif.schedule.startDate;
+};
+
+const endDate = wcif => {
+  return addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1);
+};
+
 module.exports = {
   parseActivityCode,
   eventById,
   roundById,
   personById,
+  startDate,
+  endDate,
 };

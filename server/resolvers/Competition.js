@@ -1,4 +1,4 @@
-const { addDays } = require('../utils/date');
+const { startDate, endDate } = require('../utils/wcif');
 
 module.exports = {
   id: ({ wcif }) => wcif.id,
@@ -9,6 +9,6 @@ module.exports = {
       registration && registration.status === 'accepted'
     );
   },
-  startDate: ({ wcif }) => wcif.schedule.startDate,
-  endDate: ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1),
+  startDate: ({ wcif }) => startDate(wcif),
+  endDate: ({ wcif }) => endDate(wcif),
 };

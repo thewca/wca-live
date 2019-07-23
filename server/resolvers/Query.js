@@ -1,7 +1,7 @@
 const { withAuthentication, withCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
-const { roundById, personById } = require('../utils/wcif');
-const { dateToString, addDays } = require('../utils/date');
+const { roundById, personById, startDate, endDate } = require('../utils/wcif');
+const { dateToString } = require('../utils/date');
 
 module.exports = {
   me: async (parent, args, { session, mongo: { Users } }) => {
@@ -29,18 +29,15 @@ module.exports = {
       .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1 })
       .toArray();
     const upcoming = competitions.filter(
-      ({ wcif }) => wcif.schedule.startDate > today
+      ({ wcif }) => startDate(wcif) > today
     );
     const inProgress = competitions.filter(
-      ({ wcif }) => wcif.schedule.startDate <= today && today <= addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1)
+      ({ wcif }) => startDate(wcif) <= today && today <= endDate(wcif)
     );
     const past = competitions.filter(
-      ({ wcif }) => addDays(wcif.schedule.startDate, wcif.schedule.numberOfDays - 1) < today
+      ({ wcif }) => endDate(wcif) < today
     ).reverse();
-    return {
-      upcoming,
-      inProgress,
-      past,
-    };
+
+    return { upcoming, inProgress, past };
   },
 };
