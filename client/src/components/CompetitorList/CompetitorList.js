@@ -6,8 +6,11 @@ import IconButton from '@material-ui/core/IconButton';
 import InputBase from '@material-ui/core/InputBase';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
+
+import FlagIcon from '../FlagIcon/FlagIcon';
 
 const CompetitorList = ({ competitors, competitionId }) => {
   const [filter, setFilter] = useState('');
@@ -42,6 +45,9 @@ const CompetitorList = ({ competitors, competitionId }) => {
               component={Link}
               to={`/competitions/${competitionId}/competitors/${competitor.id}`}
             >
+              <ListItemIcon>
+                <FlagIcon code={competitor.country.iso2.toLowerCase()} size="lg" />
+              </ListItemIcon>
               <ListItemText primary={competitor.name} />
             </ListItem>
           ))}

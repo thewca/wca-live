@@ -12,6 +12,9 @@ const COMPETITION_QUERY = gql`
       competitors {
         id
         name
+        country {
+          iso2
+        }
       }
     }
   }
