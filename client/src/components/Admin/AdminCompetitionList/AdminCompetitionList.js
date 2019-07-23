@@ -48,12 +48,16 @@ const AdminCompetitionList = ({ confirm, history }) => {
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
         if (loading) return <Loading />;
-        const { me: { importableCompetitions, manageableCompetitions } } = data;
+        const {
+          me: { importableCompetitions, manageableCompetitions },
+        } = data;
         return (
           <div style={{ padding: 24 }}>
             <Paper>
               <List dense={true}>
-                <ListSubheader disableSticky>Manageable competitions</ListSubheader>
+                <ListSubheader disableSticky>
+                  Manageable competitions
+                </ListSubheader>
                 {manageableCompetitions.map(competition => (
                   <ListItem
                     key={competition.id}
@@ -63,28 +67,42 @@ const AdminCompetitionList = ({ confirm, history }) => {
                   >
                     <ListItemText
                       primary={competition.name}
-                      secondary={formatDateRange(competition.startDate, competition.endDate)}
+                      secondary={formatDateRange(
+                        competition.startDate,
+                        competition.endDate
+                      )}
                     />
                   </ListItem>
                 ))}
-                <ListSubheader disableSticky>Importable competitions</ListSubheader>
+                <ListSubheader disableSticky>
+                  Importable competitions
+                </ListSubheader>
                 {importableCompetitions.map(competition => (
                   <Mutation
                     key={competition.id}
                     mutation={IMPORT_COMPETITION_MUTATION}
                     variables={{ id: competition.id }}
-                    onCompleted={() => history.push(`/admin/competitions/${competition.id}`)}
+                    onCompleted={() =>
+                      history.push(`/admin/competitions/${competition.id}`)
+                    }
                     update={(cache, { data: { importCompetition } }) => {
-                      const { me } = cache.readQuery({ query: COMPETITIONS_QUERY });
+                      const { me } = cache.readQuery({
+                        query: COMPETITIONS_QUERY,
+                      });
                       cache.writeQuery({
                         query: COMPETITIONS_QUERY,
-                        data: { me: {
-                          ...me,
-                          manageableCompetitions: me.manageableCompetitions
-                            .concat(importCompetition),
-                          importableCompetitions: me.importableCompetitions
-                            .filter(importable => importable.id !== importCompetition.id),
-                        }},
+                        data: {
+                          me: {
+                            ...me,
+                            manageableCompetitions: me.manageableCompetitions.concat(
+                              importCompetition
+                            ),
+                            importableCompetitions: me.importableCompetitions.filter(
+                              importable =>
+                                importable.id !== importCompetition.id
+                            ),
+                          },
+                        },
                       });
                     }}
                   >
@@ -98,7 +116,10 @@ const AdminCompetitionList = ({ confirm, history }) => {
                       >
                         <ListItemText
                           primary={competition.name}
-                          secondary={formatDateRange(competition.startDate, competition.endDate)}
+                          secondary={formatDateRange(
+                            competition.startDate,
+                            competition.endDate
+                          )}
                         />
                       </ListItem>
                     )}
@@ -110,7 +131,7 @@ const AdminCompetitionList = ({ confirm, history }) => {
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default withConfirm(AdminCompetitionList);

@@ -65,20 +65,35 @@ const Competition = ({ match }) => {
                 </Typography>
               </div>
               <Divider />
-              <EventList events={competition.events} competitionId={competition.id} />
+              <EventList
+                events={competition.events}
+                competitionId={competition.id}
+              />
             </Drawer>
             <div className={classes.content}>
               <Switch>
-                <Route exact path="/competitions/:competitionId/rounds/:roundId" component={Round} />
-                <Route exact path="/competitions/:competitionId/competitors" component={Competitors} />
-                <Route exact path="/competitions/:competitionId/competitors/:competitorId" component={Competitor} />
+                <Route
+                  exact
+                  path="/competitions/:competitionId/rounds/:roundId"
+                  component={Round}
+                />
+                <Route
+                  exact
+                  path="/competitions/:competitionId/competitors"
+                  component={Competitors}
+                />
+                <Route
+                  exact
+                  path="/competitions/:competitionId/competitors/:competitorId"
+                  component={Competitor}
+                />
               </Switch>
             </div>
           </Fragment>
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default Competition;

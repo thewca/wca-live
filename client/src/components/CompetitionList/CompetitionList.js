@@ -25,7 +25,10 @@ const CompetitionList = ({ title, competitions }) => {
           </ListItemIcon>
           <ListItemText
             primary={competition.name}
-            secondary={formatDateRange(competition.startDate, competition.endDate)}
+            secondary={formatDateRange(
+              competition.startDate,
+              competition.endDate
+            )}
           />
         </ListItem>
       ))}

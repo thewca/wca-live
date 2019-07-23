@@ -24,16 +24,23 @@ const statsToDisplay = (format, eventId) => {
 };
 
 const CompetitorResultsTable = ({ results, competitionId }) => {
-  const { format, event } = results[0].round; /* Assume every round has the same format. */
+  const {
+    format,
+    event,
+  } = results[0].round; /* Assume every round has the same format. */
   const stats = statsToDisplay(format, event.id);
 
-  const solveCount = Math.max(results.map(result => result.round.format.solveCount));
+  const solveCount = Math.max(
+    results.map(result => result.round.format.solveCount)
+  );
 
   return (
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell align="right" style={{ width: 75 }}>#</TableCell>
+          <TableCell align="right" style={{ width: 75 }}>
+            #
+          </TableCell>
           <TableCell>Round</TableCell>
           {times(solveCount, index => (
             <TableCell key={index} align="right">
@@ -49,15 +56,26 @@ const CompetitorResultsTable = ({ results, competitionId }) => {
       </TableHead>
       <TableBody>
         {results.map(result => (
-          <TableRow key={result.round.id} hover style={{ whiteSpace: 'nowrap' }}>
+          <TableRow
+            key={result.round.id}
+            hover
+            style={{ whiteSpace: 'nowrap' }}
+          >
             <TableCell
               align="right"
-              style={result.advancable ? { backgroundColor: 'lightgreen', width: 75 } : { width: 75 }}
+              style={
+                result.advancable
+                  ? { backgroundColor: 'lightgreen', width: 75 }
+                  : { width: 75 }
+              }
             >
               {result.ranking}
             </TableCell>
             <TableCell>
-              <Link component={RouterLink} to={`/competitions/${competitionId}/rounds/${result.round.id}`}>
+              <Link
+                component={RouterLink}
+                to={`/competitions/${competitionId}/rounds/${result.round.id}`}
+              >
                 {result.round.name}
               </Link>
             </TableCell>
@@ -67,8 +85,16 @@ const CompetitorResultsTable = ({ results, competitionId }) => {
               </TableCell>
             ))}
             {stats.map(({ name, type, fn }, index) => (
-              <TableCell key={name} align="right" style={index === 0 ? { fontWeight: 600 } : {}}>
-                {formatResult(fn(result.attempts, event.id), event.id, fn === average)}
+              <TableCell
+                key={name}
+                align="right"
+                style={index === 0 ? { fontWeight: 600 } : {}}
+              >
+                {formatResult(
+                  fn(result.attempts, event.id),
+                  event.id,
+                  fn === average
+                )}
               </TableCell>
             ))}
           </TableRow>

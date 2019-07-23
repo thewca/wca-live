@@ -3,7 +3,11 @@ import Grid from '@material-ui/core/Grid';
 
 import TimeField from '../TimeField/TimeField';
 import CubesField from '../CubesField/CubesField';
-import { decodeMbldResult, encodeMbldResult, validateMbldResult } from '../../../../logic/results';
+import {
+  decodeMbldResult,
+  encodeMbldResult,
+  validateMbldResult,
+} from '../../../../logic/results';
 
 const MbldField = ({ initialValue, onValue, disabled, label }) => {
   const [result, setResult] = useState(decodeMbldResult(initialValue));

@@ -28,7 +28,7 @@ const AdminCompetition = ({ match }) => {
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default AdminCompetition;

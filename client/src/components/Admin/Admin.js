@@ -35,7 +35,12 @@ const Admin = () => {
         const { me } = data;
         if (!me) {
           return (
-            <Grid container justify="center" alignItems="center" style={{ height: '100vh'}}>
+            <Grid
+              container
+              justify="center"
+              alignItems="center"
+              style={{ height: '100vh' }}
+            >
               <Grid item>
                 <Button
                   size="large"
@@ -53,18 +58,31 @@ const Admin = () => {
             <div>
               <AppBar position="static">
                 <Toolbar variant="dense">
-                  <Avatar src={me.avatar.thumbUrl} style={{ marginRight: 16 }} />
+                  <Avatar
+                    src={me.avatar.thumbUrl}
+                    style={{ marginRight: 16 }}
+                  />
                   <Typography>{me.name}</Typography>
                   <div style={{ flexGrow: 1 }} />
-                  <Button color="inherit">
-                    Sign out
-                  </Button>
+                  <Button color="inherit">Sign out</Button>
                 </Toolbar>
               </AppBar>
               <Switch>
-                <Route exact path="/admin/competitions" component={AdminCompetitionList} />
-                <Route exact path="/admin/competitions/:id" component={AdminCompetition} />
-                <Route exact path="/admin/competitions/:competitionId/rounds/:roundId" component={AdminRound} />
+                <Route
+                  exact
+                  path="/admin/competitions"
+                  component={AdminCompetitionList}
+                />
+                <Route
+                  exact
+                  path="/admin/competitions/:id"
+                  component={AdminCompetition}
+                />
+                <Route
+                  exact
+                  path="/admin/competitions/:competitionId/rounds/:roundId"
+                  component={AdminRound}
+                />
                 <Redirect to="/admin/competitions" />
               </Switch>
             </div>
@@ -72,7 +90,7 @@ const Admin = () => {
         }
       }}
     </Query>
-  )
+  );
 };
 
 export default Admin;

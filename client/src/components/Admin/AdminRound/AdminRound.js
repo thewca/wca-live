@@ -43,8 +43,16 @@ const ROUND_QUERY = gql`
 `;
 
 const SET_RESULT_MUTATION = gql`
-  mutation SetResult($competitionId: ID!, $roundId: ID!, $result: ResultInput!) {
-    setResult(competitionId: $competitionId, roundId: $roundId, result: $result) {
+  mutation SetResult(
+    $competitionId: ID!
+    $roundId: ID!
+    $result: ResultInput!
+  ) {
+    setResult(
+      competitionId: $competitionId
+      roundId: $roundId
+      result: $result
+    ) {
       id
       results {
         ranking
@@ -94,7 +102,7 @@ const AdminRound = ({ match }) => {
                   mutation={SET_RESULT_MUTATION}
                   variables={{ competitionId, roundId }}
                 >
-                  {(setResult) => (
+                  {setResult => (
                     <ResultForm
                       results={round.results}
                       format={round.format}
@@ -137,7 +145,7 @@ const AdminRound = ({ match }) => {
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default AdminRound;

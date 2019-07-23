@@ -5,18 +5,18 @@ const skipped = attempt => attempt === 0;
 const compareAttempts = (attempt1, attempt2) => {
   if (attempt1 <= 0 || attempt2 <= 0) return attempt2 - attempt1;
   return attempt1 - attempt2;
-}
+};
 
 /* See: https://www.worldcubeassociation.org/regulations/#9f2 */
 export const roundOver10Mins = average => {
   if (average <= 10 * 6000) return average;
   return Math.round(average / 100) * 100;
-}
+};
 
 const ao5 = attempts => {
   if (attempts.length !== 5) return null;
   if (attempts.some(skipped)) return 0;
-  const [, a, b, c, ] = attempts.slice().sort(compareAttempts);
+  const [, a, b, c] = attempts.slice().sort(compareAttempts);
   if (!completed(c)) return -1;
   return Math.round((a + b + c) / 3);
 };
@@ -32,9 +32,7 @@ export const average = (attempts, eventId) => {
   if (eventId === '333fm') {
     return mo3(attempts.map(attempt => attempt * 100));
   }
-  return roundOver10Mins(
-    attempts.length === 5 ? ao5(attempts) : mo3(attempts)
-  );
+  return roundOver10Mins(attempts.length === 5 ? ao5(attempts) : mo3(attempts));
 };
 
 export const best = attempts => {

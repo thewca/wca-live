@@ -9,7 +9,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { BrowserRouter } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme } from '@material-ui/core/styles';
-import { ThemeProvider } from "@material-ui/styles";
+import { ThemeProvider } from '@material-ui/styles';
 
 import Navigation from '../Navigation/Navigation';
 
@@ -18,13 +18,13 @@ const theme = createMuiTheme({
     primary: {
       light: '#63a4ff',
       main: '#1976d2',
-      dark : '#004ba0',
+      dark: '#004ba0',
       contrastText: '#fff',
     },
     secondary: {
       light: '#484848',
       main: '#212121',
-      dark : '#000000',
+      dark: '#000000',
       contrastText: '#fff',
     },
   },
@@ -39,7 +39,10 @@ const httpLink = createHttpLink(
 );
 
 const wsLink = new WebSocketLink({
-  uri: process.env.NODE_ENV === 'production' ? `wss://${window.location.host}/api` : 'ws://localhost:4000/api',
+  uri:
+    process.env.NODE_ENV === 'production'
+      ? `wss://${window.location.host}/api`
+      : 'ws://localhost:4000/api',
   options: {
     reconnect: true,
   },
@@ -54,7 +57,7 @@ const link = split(
     );
   },
   wsLink,
-  httpLink,
+  httpLink
 );
 
 const client = new ApolloClient({

@@ -37,7 +37,9 @@ const Home = () => {
       {({ data, error, loading }) => {
         if (error) return <div>Error</div>;
         if (loading) return <Loading />;
-        const { competitions: { upcoming, inProgress, past } } = data;
+        const {
+          competitions: { upcoming, inProgress, past },
+        } = data;
         return (
           <div style={{ padding: 24 }}>
             <Grid container spacing={2}>
@@ -47,7 +49,10 @@ const Home = () => {
               {inProgress.length > 0 && (
                 <Grid item xs={12}>
                   <Paper>
-                    <CompetitionList title="Happening right now!" competitions={inProgress} />
+                    <CompetitionList
+                      title="Happening right now!"
+                      competitions={inProgress}
+                    />
                   </Paper>
                 </Grid>
               )}
@@ -70,7 +75,7 @@ const Home = () => {
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default Home;

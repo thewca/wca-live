@@ -45,29 +45,30 @@ const Competitor = ({ match }) => {
         if (error) return <div>Error</div>;
         if (loading) return <Loading />;
         const { competitor } = data;
-        const resultsByEvent = groupBy(competitor.results,
+        const resultsByEvent = groupBy(
+          competitor.results,
           result => result.round.event.name
         );
         return (
           <div>
             <Typography variant="h5" style={{ marginBottom: 16 }}>
-              {competitor.name}
-              {' '}
+              {competitor.name}{' '}
               <FlagIcon code={competitor.country.iso2.toLowerCase()} />
             </Typography>
             {Object.entries(resultsByEvent).map(([eventName, results]) => (
               <div style={{ marginBottom: 32 }}>
-                <Typography variant="subtitle1">
-                  {eventName}
-                </Typography>
-                <CompetitorResultsTable results={results} competitionId={competitionId} />
+                <Typography variant="subtitle1">{eventName}</Typography>
+                <CompetitorResultsTable
+                  results={results}
+                  competitionId={competitionId}
+                />
               </div>
             ))}
           </div>
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default Competitor;

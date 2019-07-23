@@ -13,7 +13,7 @@ const Navigation = () => {
       <Route path="/competitions/:id" component={Competition} />
       <Redirect to="/" />
     </Switch>
-  )
+  );
 };
 
 export default Navigation;

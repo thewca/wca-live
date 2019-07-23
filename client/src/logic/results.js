@@ -3,7 +3,10 @@ export const centisecondsToClockFormat = centiseconds => {
   if (centiseconds === 0) return '';
   if (centiseconds === -1) return 'DNF';
   if (centiseconds === -2) return 'DNS';
-  return new Date(centiseconds * 10).toISOString().substr(11, 11).replace(/^[0:]*(?!\.)/g, '');
+  return new Date(centiseconds * 10)
+    .toISOString()
+    .substr(11, 11)
+    .replace(/^[0:]*(?!\.)/g, '');
 };
 
 export const decodeMbldResult = value => {
@@ -21,7 +24,9 @@ export const encodeMbldResult = ({ solved, attempted, centiseconds }) => {
   if (centiseconds <= 0) return centiseconds;
   const missed = attempted - solved;
   const dd = 99 - (solved - missed);
-  const seconds = Math.round((centiseconds || 9999900) / 100); /* 99999 seconds is used for unknown time. */
+  const seconds = Math.round(
+    (centiseconds || 9999900) / 100
+  ); /* 99999 seconds is used for unknown time. */
   return dd * 1e7 + seconds * 1e2 + missed;
 };
 
@@ -55,14 +60,17 @@ const betterThan = (result, otherResult, eventId) => {
 export const meetsCutoff = (attempts, cutoff, eventId) => {
   if (!cutoff) return true;
   const { numberOfAttempts, attemptResult } = cutoff;
-  return attempts.slice(0, numberOfAttempts).some(
-    attempt => betterThan(attempt, attemptResult, eventId)
-  );
+  return attempts
+    .slice(0, numberOfAttempts)
+    .some(attempt => betterThan(attempt, attemptResult, eventId));
 };
 
 const formatMbldResult = result => {
   const { solved, attempted, centiseconds } = decodeMbldResult(result);
-  const clockFormat = new Date(centiseconds * 10).toISOString().substr(11, 8).replace(/^[0:]*(?!\.)/g, '');
+  const clockFormat = new Date(centiseconds * 10)
+    .toISOString()
+    .substr(11, 8)
+    .replace(/^[0:]*(?!\.)/g, '');
   return `${solved}/${attempted} ${clockFormat}`;
 };
 
@@ -86,9 +94,11 @@ export const attemptsWarning = (attempts, eventId) => {
     if (lowTimeIndex !== -1) {
       return `
         The results you're trying to submit seem to be impossible:
-        attempt ${lowTimeIndex + 1} is done in less than 30 seconds per cube tried.
-        If you want to enter minutes, don't forget to add two zeros for centiseconds at the end of the score.
-      `
+        attempt ${lowTimeIndex + 1} is done in
+        less than 30 seconds per cube tried.
+        If you want to enter minutes, don't forget to add two zeros
+        for centiseconds at the end of the score.
+      `;
     }
   } else {
     const completedAttempts = attempts.filter(attempt => attempt > 0);
@@ -98,10 +108,11 @@ export const attemptsWarning = (attempts, eventId) => {
       const inconsistent = worstSingle > bestSingle * 4;
       if (inconsistent) {
         return `
-        The results you're trying to submit seem to be inconsistent.
-        There's a big difference between the best single (${formatResult(bestSingle, eventId)})
-        and the worst single (${formatResult(worstSingle, eventId)}).
-        Please check that the results are accurate.
+          The results you're trying to submit seem to be inconsistent.
+          There's a big difference between the best single
+          (${formatResult(bestSingle, eventId)}) and the worst single
+          (${formatResult(worstSingle, eventId)}).
+          Please check that the results are accurate.
         `;
       }
     }

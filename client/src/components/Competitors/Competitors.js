@@ -38,7 +38,7 @@ const Competitors = ({ match }) => {
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default Competitors;

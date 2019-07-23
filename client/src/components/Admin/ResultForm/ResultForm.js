@@ -7,17 +7,32 @@ import withConfirm from 'material-ui-confirm';
 
 import AttemptField from '../AttemptField/AttemptField';
 import { toInt, setAt, times } from '../../../logic/utils';
-import { meetsCutoff, formatResult, attemptsWarning } from '../../../logic/results';
+import {
+  meetsCutoff,
+  formatResult,
+  attemptsWarning,
+} from '../../../logic/results';
 import { best, average } from '../../../logic/calculations';
 
-const ResultForm = ({ confirm, onSubmit, results, format, eventId, timeLimit, cutoff }) => {
+const ResultForm = ({
+  confirm,
+  onSubmit,
+  results,
+  format,
+  eventId,
+  timeLimit,
+  cutoff,
+}) => {
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
   const rootRef = useRef(null);
-  const result = personId && results.find(result => result.person.id === personId.toString());
+  const result =
+    personId &&
+    results.find(result => result.person.id === personId.toString());
 
-  const computeAverage = [3, 5].includes(format.solveCount) && eventId !== '333mbf';
+  const computeAverage =
+    [3, 5].includes(format.solveCount) && eventId !== '333mbf';
 
   const submissionWarning = attemptsWarning(attempts, eventId);
   const submitResult = () => {
@@ -27,12 +42,17 @@ const ResultForm = ({ confirm, onSubmit, results, format, eventId, timeLimit, cu
     personIdInput.select();
   };
   const handleSubmit = submissionWarning
-    ? confirm(submitResult, { description: submissionWarning, confirmationText: 'Submit' })
+    ? confirm(submitResult, {
+        description: submissionWarning,
+        confirmationText: 'Submit',
+      })
     : submitResult;
 
   useEffect(() => {
     const handleKeyPress = event => {
-      const inputs = Array.from(rootRef.current.querySelectorAll('input, button'));
+      const inputs = Array.from(
+        rootRef.current.querySelectorAll('input, button')
+      );
       const mod = n => (n + inputs.length) % inputs.length;
       const index = inputs.findIndex(input => event.target === input);
       if (index === -1) {
@@ -65,11 +85,13 @@ const ResultForm = ({ confirm, onSubmit, results, format, eventId, timeLimit, cu
           fullWidth
           variant="outlined"
           label="Competitor ID"
-          value={personId || ""}
+          value={personId || ''}
           helperText={result ? result.person.name : ' '}
           onChange={event => {
             const personId = toInt(event.target.value);
-            const result = personId && results.find(result => result.person.id === personId.toString());
+            const result =
+              personId &&
+              results.find(result => result.person.id === personId.toString());
             setPersonId(personId);
             setAttempts(result ? result.attempts : times(solveCount, () => 0));
           }}
@@ -83,12 +105,15 @@ const ResultForm = ({ confirm, onSubmit, results, format, eventId, timeLimit, cu
             initialValue={attempt}
             disabled={!result}
             onValue={value => {
-              const updatedValue = timeLimit && value > timeLimit.centiseconds ? -1 : value;
+              const updatedValue =
+                timeLimit && value > timeLimit.centiseconds ? -1 : value;
               const updatedAttempts = setAt(attempts, index, updatedValue);
               setAttempts(
                 meetsCutoff(updatedAttempts, cutoff, eventId)
                   ? updatedAttempts
-                  : updatedAttempts.map((attempt, index) => index < cutoff.numberOfAttempts ? attempt : 0)
+                  : updatedAttempts.map((attempt, index) =>
+                      index < cutoff.numberOfAttempts ? attempt : 0
+                    )
               );
             }}
           />

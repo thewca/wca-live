@@ -22,7 +22,14 @@ const statsToDisplay = (format, eventId) => {
   return sortBy === 'best' ? stats : stats.reverse();
 };
 
-const ResultsTable = ({ results, format, eventId, competitionId, displayCountry = true, displayId = false }) => {
+const ResultsTable = ({
+  results,
+  format,
+  eventId,
+  competitionId,
+  displayCountry = true,
+  displayId = false,
+}) => {
   const stats = statsToDisplay(format, eventId);
 
   return (
@@ -30,13 +37,9 @@ const ResultsTable = ({ results, format, eventId, competitionId, displayCountry 
       <TableHead>
         <TableRow>
           <TableCell align="right">#</TableCell>
-          {displayId && (
-            <TableCell align="right">ID</TableCell>
-          )}
+          {displayId && <TableCell align="right">ID</TableCell>}
           <TableCell>Name</TableCell>
-          {displayCountry && (
-            <TableCell>Country</TableCell>
-          )}
+          {displayCountry && <TableCell>Country</TableCell>}
           {times(format.solveCount, index => (
             <TableCell key={index} align="right">
               {index + 1}
@@ -51,7 +54,11 @@ const ResultsTable = ({ results, format, eventId, competitionId, displayCountry 
       </TableHead>
       <TableBody>
         {results.map(result => (
-          <TableRow key={result.person.id} hover style={{ whiteSpace: 'nowrap' }}>
+          <TableRow
+            key={result.person.id}
+            hover
+            style={{ whiteSpace: 'nowrap' }}
+          >
             <TableCell
               align="right"
               style={result.advancable ? { backgroundColor: 'lightgreen' } : {}}
@@ -70,9 +77,7 @@ const ResultsTable = ({ results, format, eventId, competitionId, displayCountry 
               </Link>
             </TableCell>
             {displayCountry && (
-              <TableCell>
-                {result.person.country.name}
-              </TableCell>
+              <TableCell>{result.person.country.name}</TableCell>
             )}
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
@@ -80,8 +85,16 @@ const ResultsTable = ({ results, format, eventId, competitionId, displayCountry 
               </TableCell>
             ))}
             {stats.map(({ name, type, fn }, index) => (
-              <TableCell key={name} align="right" style={index === 0 ? { fontWeight: 600 } : {}}>
-                {formatResult(fn(result.attempts, eventId), eventId, fn === average)}
+              <TableCell
+                key={name}
+                align="right"
+                style={index === 0 ? { fontWeight: 600 } : {}}
+              >
+                {formatResult(
+                  fn(result.attempts, eventId),
+                  eventId,
+                  fn === average
+                )}
               </TableCell>
             ))}
           </TableRow>

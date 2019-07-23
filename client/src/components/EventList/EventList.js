@@ -17,9 +17,9 @@ const EventList = ({ events, competitionId }) => {
         <Fragment key={event.id}>
           <ListItem
             button
-            onClick={() => setSelectedEvent(
-              selectedEvent === event.id ? null : event.id
-            )}
+            onClick={() =>
+              setSelectedEvent(selectedEvent === event.id ? null : event.id)
+            }
             disabled={event.rounds.every(round => !round.open)}
           >
             <ListItemIcon>
@@ -27,7 +27,11 @@ const EventList = ({ events, competitionId }) => {
             </ListItemIcon>
             <ListItemText primary={event.name} />
           </ListItem>
-          <Collapse in={selectedEvent === event.id} timeout="auto" unmountOnExit>
+          <Collapse
+            in={selectedEvent === event.id}
+            timeout="auto"
+            unmountOnExit
+          >
             <List dense={true}>
               {event.rounds.map(round => (
                 <ListItem

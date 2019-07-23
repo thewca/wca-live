@@ -15,11 +15,13 @@ import FlagIcon from '../FlagIcon/FlagIcon';
 const CompetitorList = ({ competitors, competitionId }) => {
   const [filter, setFilter] = useState('');
 
-  const filteredCompetitors = competitors.filter(
-    ({ name }) => filter.split(/\s+/).every(
-      part => name.toLowerCase().includes(part.toLowerCase())
+  const filteredCompetitors = competitors
+    .filter(({ name }) =>
+      filter
+        .split(/\s+/)
+        .every(part => name.toLowerCase().includes(part.toLowerCase()))
     )
-  ).sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <Grid container spacing={1}>
@@ -46,7 +48,10 @@ const CompetitorList = ({ competitors, competitionId }) => {
               to={`/competitions/${competitionId}/competitors/${competitor.id}`}
             >
               <ListItemIcon>
-                <FlagIcon code={competitor.country.iso2.toLowerCase()} size="lg" />
+                <FlagIcon
+                  code={competitor.country.iso2.toLowerCase()}
+                  size="lg"
+                />
               </ListItemIcon>
               <ListItemText primary={competitor.name} />
             </ListItem>

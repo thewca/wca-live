@@ -60,7 +60,7 @@ const Round = ({ match }) => {
         );
       }}
     </Query>
-  )
+  );
 };
 
 export default Round;
