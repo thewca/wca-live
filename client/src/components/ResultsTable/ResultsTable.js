@@ -10,22 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../logic/utils';
 import { formatResult } from '../../logic/results';
-import { best, average } from '../../logic/calculations';
-
-const statsToDisplay = (format, eventId) => {
-  const { solveCount, sortBy } = format;
-  const computeAverage = [3, 5].includes(solveCount) && eventId !== '333mbf';
-  if (!computeAverage) return [{ name: 'Best', fn: best }];
-  const stats = [
-    { name: 'Best', fn: best, type: 'single' },
-    {
-      name: solveCount === 3 ? 'Mean' : 'Average',
-      fn: average,
-      type: 'average',
-    },
-  ];
-  return sortBy === 'best' ? stats : stats.reverse();
-};
+import { statsToDisplay } from '../../logic/results-table-utils';
 
 const ResultsTable = ({
   results,
