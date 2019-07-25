@@ -37,6 +37,10 @@ const ROUND_QUERY = gql`
         }
         attempts
         advancable
+        recordTags {
+          single
+          average
+        }
       }
     }
   }
@@ -61,6 +65,10 @@ const SET_RESULT_MUTATION = gql`
         }
         attempts
         advancable
+        recordTags {
+          single
+          average
+        }
       }
     }
   }

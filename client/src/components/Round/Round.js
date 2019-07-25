@@ -30,6 +30,10 @@ const ROUND_QUERY = gql`
         }
         attempts
         advancable
+        recordTags {
+          single
+          average
+        }
       }
     }
   }

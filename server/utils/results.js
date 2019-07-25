@@ -84,7 +84,7 @@ const tagsWithRecordId = (wcif, personId, eventId, type) => {
   ];
 };
 
-const setRecordMarkers = (round, wcif) => {
+const setRecordTags = (round, wcif) => {
   const { eventId, roundNumber } = parseActivityCode(round.id);
   const event = eventById(wcif, eventId);
   const recordById = cloneRecords();
@@ -128,10 +128,11 @@ const setRecordMarkers = (round, wcif) => {
         single: best(attempts),
         average: average(attempts),
       };
+      result.recordTags = {};
       ['single', 'average'].forEach(type => {
         const tagWithRecordId = tagsWithRecordId(wcif, result.personId, eventId, type)
           .find(({ recordId }) => recordById[recordId] === stats[type]);
-        result[`${type}Record`] = tagWithRecordId ? tagWithRecordId.tag : null;
+        result.recordTags[type] = tagWithRecordId ? tagWithRecordId.tag : null;
       });
     });
   });
@@ -139,9 +140,9 @@ const setRecordMarkers = (round, wcif) => {
 
 const processRoundResults = (round, wcif) => {
   setRankings(round.results, round.format);
-  round.results = sortResults(round.results, competition.wcif);
+  round.results = sortResults(round.results, wcif);
   setAdvancable(round.results, round.advancementCondition);
-  setRecordMarkers(round, competition.wcif);
+  setRecordTags(round, wcif);
 };
 
 const advancingPersonIds = (round, wcif) => {
@@ -176,5 +177,5 @@ const openRound = (round, wcif) => {
 module.exports = {
   processRoundResults,
   openRound,
-  setRecordMarkers,
+  setRecordTags,
 };

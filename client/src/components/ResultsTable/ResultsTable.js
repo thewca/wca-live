@@ -7,6 +7,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
+import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../logic/utils';
 import { formatResult } from '../../logic/results';
 import { best, average } from '../../logic/calculations';
@@ -16,8 +17,12 @@ const statsToDisplay = (format, eventId) => {
   const computeAverage = [3, 5].includes(solveCount) && eventId !== '333mbf';
   if (!computeAverage) return [{ name: 'Best', fn: best }];
   const stats = [
-    { name: 'Best', fn: best },
-    { name: solveCount === 3 ? 'Mean' : 'Average', fn: average },
+    { name: 'Best', fn: best, type: 'single' },
+    {
+      name: solveCount === 3 ? 'Mean' : 'Average',
+      fn: average,
+      type: 'average',
+    },
   ];
   return sortBy === 'best' ? stats : stats.reverse();
 };
@@ -90,17 +95,21 @@ const ResultsTable = ({
                 {formatResult(attempt, eventId)}
               </TableCell>
             ))}
-            {stats.map(({ name, type, fn }, index) => (
+            {stats.map(({ name, fn, type }, index) => (
               <TableCell
                 key={name}
                 align="right"
                 style={index === 0 ? { fontWeight: 600 } : {}}
               >
-                {formatResult(
-                  fn(result.attempts, eventId),
-                  eventId,
-                  fn === average
-                )}
+                <ResultWithRecordTag
+                  result={formatResult(
+                    fn(result.attempts, eventId),
+                    eventId,
+                    type === 'average'
+                  )}
+                  recordTag={result.recordTags[type]}
+                  showPb={false}
+                />
               </TableCell>
             ))}
           </TableRow>

@@ -20,6 +20,10 @@ const COMPETITOR_QUERY = gql`
         ranking
         advancable
         attempts
+        recordTags {
+          single
+          average
+        }
         round {
           id
           name
