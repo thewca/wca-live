@@ -170,6 +170,7 @@ const openRound = (round, wcif) => {
     ranking: null,
     attempts: Array.from({ length: format.solveCount }, () => ({ result: 0 })),
     advancable: false,
+    recordTags: { single: null, average: null },
   }));
   round.results = sortResults(round.results, wcif);
 };

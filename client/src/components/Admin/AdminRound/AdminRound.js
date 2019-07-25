@@ -2,7 +2,6 @@ import React from 'react';
 import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import Loading from '../../Loading/Loading';
@@ -74,23 +73,6 @@ const SET_RESULT_MUTATION = gql`
   }
 `;
 
-const FINISH_ROUND_MUTATION = gql`
-  mutation openRound($competitionId: ID!, $roundId: ID!) {
-    openRound(competitionId: $competitionId, roundId: $roundId) {
-      id
-      results {
-        ranking
-        person {
-          id
-          name
-        }
-        attempts
-        advancable
-      }
-    }
-  }
-`;
-
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   return (
@@ -119,22 +101,6 @@ const AdminRound = ({ match }) => {
                       cutoff={round.cutoff}
                       onSubmit={result => setResult({ variables: { result } })}
                     />
-                  )}
-                </Mutation>
-                <Mutation
-                  mutation={FINISH_ROUND_MUTATION}
-                  variables={{ competitionId, roundId }}
-                >
-                  {(openRound, { loading }) => (
-                    <Button
-                      variant="outlined"
-                      onClick={openRound}
-                      disabled={loading}
-                      style={{ marginTop: 64 }}
-                      tabIndex="-1"
-                    >
-                      Open round
-                    </Button>
                   )}
                 </Mutation>
               </Grid>

@@ -4,12 +4,22 @@ import gql from 'graphql-tag';
 import Typography from '@material-ui/core/Typography';
 
 import Loading from '../../Loading/Loading';
+import AdminEvents from '../AdminEvents/AdminEvents';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
     competition(id: $id) {
       id
       name
+      events {
+        id
+        name
+        rounds {
+          id
+          name
+          open
+        }
+      }
     }
   }
 `;
@@ -23,7 +33,13 @@ const AdminCompetition = ({ match }) => {
         const { competition } = data;
         return (
           <div style={{ padding: 24 }}>
-            <Typography variant="h5">{competition.name}</Typography>
+            <Typography variant="h5" gutterBottom>
+              {competition.name}
+            </Typography>
+            <AdminEvents
+              events={competition.events}
+              competitionId={competition.id}
+            />
           </div>
         );
       }}
