@@ -83,9 +83,6 @@ const AdminRound = ({ match }) => {
         const { round } = data;
         return (
           <div style={{ padding: 24 }}>
-            <Typography variant="h5" style={{ marginBottom: 16 }}>
-              {round.event.name} - {round.name}
-            </Typography>
             <Grid container direction="row" spacing={2}>
               <Grid item md={3}>
                 <Mutation
@@ -105,6 +102,13 @@ const AdminRound = ({ match }) => {
                 </Mutation>
               </Grid>
               <Grid item md={9}>
+                <Typography
+                  variant="h5"
+                  align="center"
+                  style={{ marginBottom: 16 }}
+                >
+                  {round.event.name} - {round.name}
+                </Typography>
                 <ResultsTable
                   results={round.results}
                   format={round.format}
