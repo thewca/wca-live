@@ -13,6 +13,7 @@ import {
   attemptsWarning,
 } from '../../../logic/results';
 import { best, average } from '../../../logic/calculations';
+import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
 
 const ResultForm = ({
   confirm,
@@ -79,7 +80,17 @@ const ResultForm = ({
 
   return (
     <Grid container spacing={1} ref={rootRef}>
-      <Grid item xs={12} style={{ marginBottom: 16 }}>
+      <Grid item xs={12}>
+        <Typography variant="body2">
+          Time limit: {timeLimitToString(timeLimit, eventId)}
+        </Typography>
+      </Grid>
+      <Grid item xs={6}>
+        <Typography variant="body2">
+          Cutoff: {cutoffToString(cutoff, eventId)}
+        </Typography>
+      </Grid>
+      <Grid item xs={12} style={{ marginBottom: 16, marginTop: 16 }}>
         <TextField
           autoFocus
           fullWidth

@@ -73,7 +73,7 @@ type Format {
 
 type TimeLimit {
   centiseconds: Int!
-  # cumulativeRoundIds: [String!]!
+  cumulativeRoundIds: [String!]!
 }
 
 type Cutoff {

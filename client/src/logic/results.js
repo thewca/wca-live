@@ -43,7 +43,7 @@ export const validateMbldResult = ({ attempted, solved, centiseconds }) => {
   return { solved, attempted, centiseconds };
 };
 
-const mbldResultToPoints = result => {
+export const mbldResultToPoints = result => {
   const { solved, attempted } = decodeMbldResult(result);
   const missed = attempted - solved;
   return solved - missed;

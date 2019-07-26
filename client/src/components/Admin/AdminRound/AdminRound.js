@@ -23,6 +23,7 @@ const ROUND_QUERY = gql`
       }
       timeLimit {
         centiseconds
+        cumulativeRoundIds
       }
       cutoff {
         numberOfAttempts
