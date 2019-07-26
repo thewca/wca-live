@@ -1,10 +1,10 @@
 import React from 'react';
-import { Query, Mutation } from 'react-apollo';
+import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
-import Loading from '../../Loading/Loading';
+import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
 import ResultsTable from '../../ResultsTable/ResultsTable';
 
@@ -77,53 +77,48 @@ const SET_RESULT_MUTATION = gql`
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   return (
-    <Query query={ROUND_QUERY} variables={{ competitionId, roundId }}>
-      {({ data, error, loading }) => {
-        if (error) return <div>Error</div>;
-        if (loading) return <Loading />;
-        const { round } = data;
-        return (
-          <div style={{ padding: 24 }}>
-            <Grid container direction="row" spacing={2}>
-              <Grid item md={3}>
-                <Mutation
-                  mutation={SET_RESULT_MUTATION}
-                  variables={{ competitionId, roundId }}
-                >
-                  {setResult => (
-                    <ResultForm
-                      results={round.results}
-                      format={round.format}
-                      eventId={round.event.id}
-                      timeLimit={round.timeLimit}
-                      cutoff={round.cutoff}
-                      onSubmit={result => setResult({ variables: { result } })}
-                    />
-                  )}
-                </Mutation>
-              </Grid>
-              <Grid item md={9}>
-                <Typography
-                  variant="h5"
-                  align="center"
-                  style={{ marginBottom: 16 }}
-                >
-                  {round.event.name} - {round.name}
-                </Typography>
-                <ResultsTable
-                  results={round.results}
-                  format={round.format}
-                  eventId={round.event.id}
-                  displayCountry={false}
-                  displayId={true}
-                  competitionId={competitionId}
-                />
-              </Grid>
+    <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
+      {({ data: { round } }) => (
+        <div style={{ padding: 24 }}>
+          <Grid container direction="row" spacing={2}>
+            <Grid item md={3}>
+              <Mutation
+                mutation={SET_RESULT_MUTATION}
+                variables={{ competitionId, roundId }}
+              >
+                {setResult => (
+                  <ResultForm
+                    results={round.results}
+                    format={round.format}
+                    eventId={round.event.id}
+                    timeLimit={round.timeLimit}
+                    cutoff={round.cutoff}
+                    onSubmit={result => setResult({ variables: { result } })}
+                  />
+                )}
+              </Mutation>
             </Grid>
-          </div>
-        );
-      }}
-    </Query>
+            <Grid item md={9}>
+              <Typography
+                variant="h5"
+                align="center"
+                style={{ marginBottom: 16 }}
+              >
+                {round.event.name} - {round.name}
+              </Typography>
+              <ResultsTable
+                results={round.results}
+                format={round.format}
+                eventId={round.event.id}
+                displayCountry={false}
+                displayId={true}
+                competitionId={competitionId}
+              />
+            </Grid>
+          </Grid>
+        </div>
+      )}
+    </CustomQuery>
   );
 };
 

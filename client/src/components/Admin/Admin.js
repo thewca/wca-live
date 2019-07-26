@@ -1,5 +1,4 @@
 import React from 'react';
-import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
@@ -9,7 +8,7 @@ import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import Loading from '../Loading/Loading';
+import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminCompetitionList from './AdminCompetitionList/AdminCompetitionList';
 import AdminCompetition from './AdminCompetition/AdminCompetition';
 import AdminRound from './AdminRound/AdminRound';
@@ -28,10 +27,8 @@ const USER_QUERY = gql`
 
 const Admin = () => {
   return (
-    <Query query={USER_QUERY}>
-      {({ data, error, loading, client }) => {
-        if (error) return <div>Error</div>;
-        if (loading) return <Loading />;
+    <CustomQuery query={USER_QUERY}>
+      {({ data, client }) => {
         const { me } = data;
         if (!me) {
           return (
@@ -98,7 +95,7 @@ const Admin = () => {
           );
         }
       }}
-    </Query>
+    </CustomQuery>
   );
 };
 

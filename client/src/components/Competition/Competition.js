@@ -1,6 +1,5 @@
 import React, { Fragment, useState } from 'react';
 import { Switch, Route, Link } from 'react-router-dom';
-import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
@@ -12,7 +11,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Loading from '../Loading/Loading';
+import CustomQuery from '../CustomQuery/CustomQuery';
 import EventList from '../EventList/EventList';
 import Round from '../Round/Round';
 import Competitors from '../Competitors/Competitors';
@@ -86,10 +85,8 @@ const Competition = ({ match }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <Query query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
-      {({ data, error, loading }) => {
-        if (error) return <div>Error</div>;
-        if (loading) return <Loading />;
+    <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
+      {({ data }) => {
         const { competition } = data;
 
         const drawerContent = (
@@ -182,7 +179,7 @@ const Competition = ({ match }) => {
           </Fragment>
         );
       }}
-    </Query>
+    </CustomQuery>
   );
 };
 

@@ -1,9 +1,8 @@
 import React from 'react';
-import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import Typography from '@material-ui/core/Typography';
 
-import Loading from '../../Loading/Loading';
+import CustomQuery from '../../CustomQuery/CustomQuery';
 import AdminEvents from '../AdminEvents/AdminEvents';
 
 const COMPETITION_QUERY = gql`
@@ -26,24 +25,19 @@ const COMPETITION_QUERY = gql`
 
 const AdminCompetition = ({ match }) => {
   return (
-    <Query query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
-      {({ data, error, loading }) => {
-        if (error) return <div>Error</div>;
-        if (loading) return <Loading />;
-        const { competition } = data;
-        return (
-          <div style={{ padding: 24 }}>
-            <Typography variant="h5" gutterBottom>
-              {competition.name}
-            </Typography>
-            <AdminEvents
-              events={competition.events}
-              competitionId={competition.id}
-            />
-          </div>
-        );
-      }}
-    </Query>
+    <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
+      {({ data: { competition } }) => (
+        <div style={{ padding: 24 }}>
+          <Typography variant="h5" gutterBottom>
+            {competition.name}
+          </Typography>
+          <AdminEvents
+            events={competition.events}
+            competitionId={competition.id}
+          />
+        </div>
+      )}
+    </CustomQuery>
   );
 };
 

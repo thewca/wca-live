@@ -1,9 +1,8 @@
 import React from 'react';
-import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import Typography from '@material-ui/core/Typography';
 
-import Loading from '../Loading/Loading';
+import CustomQuery from '../CustomQuery/CustomQuery';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
 import { groupBy } from '../../logic/utils';
@@ -44,10 +43,11 @@ const COMPETITOR_QUERY = gql`
 const Competitor = ({ match }) => {
   const { competitionId, competitorId } = match.params;
   return (
-    <Query query={COMPETITOR_QUERY} variables={{ competitionId, competitorId }}>
-      {({ data, error, loading }) => {
-        if (error) return <div>Error</div>;
-        if (loading) return <Loading />;
+    <CustomQuery
+      query={COMPETITOR_QUERY}
+      variables={{ competitionId, competitorId }}
+    >
+      {({ data }) => {
         const { competitor } = data;
         const resultsByEvent = groupBy(
           competitor.results,
@@ -71,7 +71,7 @@ const Competitor = ({ match }) => {
           </div>
         );
       }}
-    </Query>
+    </CustomQuery>
   );
 };
 
