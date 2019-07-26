@@ -60,7 +60,7 @@ const Competitor = ({ match }) => {
               <FlagIcon code={competitor.country.iso2.toLowerCase()} />
             </Typography>
             {Object.entries(resultsByEvent).map(([eventName, results]) => (
-              <div style={{ marginBottom: 32 }}>
+              <div style={{ marginBottom: 32 }} key={eventName}>
                 <Typography variant="subtitle1">{eventName}</Typography>
                 <CompetitorResultsTable
                   results={results}

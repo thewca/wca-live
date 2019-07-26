@@ -17,9 +17,10 @@ const EventList = ({ events, competitionId }) => {
         <Fragment key={event.id}>
           <ListItem
             button
-            onClick={() =>
-              setSelectedEvent(selectedEvent === event.id ? null : event.id)
-            }
+            onClick={e => {
+              setSelectedEvent(selectedEvent === event.id ? null : event.id);
+              e.stopPropagation();
+            }}
             disabled={event.rounds.every(round => !round.open)}
           >
             <ListItemIcon>

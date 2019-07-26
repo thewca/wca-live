@@ -85,7 +85,7 @@ const ResultForm = ({
           Time limit: {timeLimitToString(timeLimit, eventId)}
         </Typography>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={12}>
         <Typography variant="body2">
           Cutoff: {cutoffToString(cutoff, eventId)}
         </Typography>
