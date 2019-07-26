@@ -10,6 +10,7 @@ type Mutation {
   importCompetition(id: ID!): Competition
   setResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
   openRound(competitionId: ID!, roundId: ID!): Round
+  clearRound(competitionId: ID!, roundId: ID!): Round
 }
 
 type Competitions {

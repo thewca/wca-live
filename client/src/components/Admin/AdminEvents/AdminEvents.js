@@ -11,12 +11,22 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
+import withConfirm from 'material-ui-confirm';
 
 import CubingIcon from '../../CubingIcon/CubingIcon';
 
 const OPEN_ROUND_MUTATION = gql`
   mutation OpenRound($competitionId: ID!, $roundId: ID!) {
     openRound(competitionId: $competitionId, roundId: $roundId) {
+      id
+      open
+    }
+  }
+`;
+
+const CLEAR_ROUND_MUTATION = gql`
+  mutation ClearRound($competitionId: ID!, $roundId: ID!) {
+    clearRound(competitionId: $competitionId, roundId: $roundId) {
       id
       open
     }
@@ -30,7 +40,14 @@ const roundOpenable = (round, rounds) => {
   return rounds[roundIndex - 1].open;
 };
 
-const AdminEvents = ({ events, competitionId }) => {
+const roundClearable = (round, rounds) => {
+  if (!round.open) return false;
+  const roundIndex = rounds.indexOf(round);
+  if (roundIndex === rounds.length - 1) return true;
+  return !rounds[roundIndex + 1].open;
+};
+
+const AdminEvents = ({ events, competitionId, confirm }) => {
   return (
     <Grid container spacing={2} direction="row">
       {events.map(event => (
@@ -71,6 +88,30 @@ const AdminEvents = ({ events, competitionId }) => {
                           )}
                         </Mutation>
                       )}
+                      {roundClearable(round, event.rounds) && (
+                        <Mutation
+                          mutation={CLEAR_ROUND_MUTATION}
+                          variables={{
+                            competitionId,
+                            roundId: round.id,
+                          }}
+                        >
+                          {(clearRound, { loading }) => (
+                            <Button
+                              size="small"
+                              onClick={confirm(clearRound, {
+                                description: `
+                                  This will irreversibly remove all results
+                                  from ${event.name} - ${round.name}.
+                                `,
+                              })}
+                              disabled={loading}
+                            >
+                              Clear
+                            </Button>
+                          )}
+                        </Mutation>
+                      )}
                     </ListItemSecondaryAction>
                   </ListItem>
                 ))}
@@ -83,4 +124,4 @@ const AdminEvents = ({ events, competitionId }) => {
   );
 };
 
-export default AdminEvents;
+export default withConfirm(AdminEvents);
