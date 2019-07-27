@@ -17,8 +17,12 @@ const sortByArray = (arr, fn) => {
   );
 };
 
+const sortBy = (arr, fn) =>
+  arr.slice().sort((x, y) => sortCompare(fn(x), fn(y)));
+
 module.exports = {
   flatMap,
   zip,
   sortByArray,
+  sortBy,
 };

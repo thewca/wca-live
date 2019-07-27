@@ -1,3 +1,5 @@
+const { sortBy } = require('./utils');
+
 const events = [{
   id: '333',
   name: '3x3x3 Cube',
@@ -57,6 +59,12 @@ const events = [{
 const eventNameById = eventId =>
   events.find(event => event.id === eventId).name;
 
+const sortWcifEvents = wcifEvents =>
+  sortBy(wcifEvents,
+    ({ id }) => events.findIndex(event => event.id === id)
+  );
+
 module.exports = {
   eventNameById,
+  sortWcifEvents,
 };
