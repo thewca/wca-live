@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
+import logo from './logo.svg';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import CompetitionList from '../CompetitionList/CompetitionList';
 
@@ -40,8 +41,12 @@ const Home = () => {
       }) => (
         <div style={{ padding: 24 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h4">Competitions</Typography>
+            <Grid item xs={12} style={{ textAlign: 'center' }}>
+              <img src={logo} height="128" width="128" />
+              <Typography variant="h4">WCA Live</Typography>
+              <Typography variant="subtitle1">
+                Live results from competitions all around the world!
+              </Typography>
             </Grid>
             {inProgress.length > 0 && (
               <Grid item xs={12}>
