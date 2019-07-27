@@ -8,10 +8,11 @@ module.exports = {
     const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
     return competitions
       .filter(competition => !importedCompetitionIds.includes(competition.id))
-      .map(({ id, name, start_date, end_date }) => ({
+      .map(({ id, name, short_name, start_date, end_date }) => ({
         wcif: {
           id,
-          name,
+          name: name,
+          shortName: short_name,
           events: [],
           schedule: {
             startDate: start_date,
