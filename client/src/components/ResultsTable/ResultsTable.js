@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import Hidden from '@material-ui/core/Hidden';
 import Link from '@material-ui/core/Link';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -31,12 +32,14 @@ const ResultsTable = ({
           </TableCell>
           {displayId && <TableCell align="right">ID</TableCell>}
           <TableCell>Name</TableCell>
-          {displayCountry && <TableCell>Country</TableCell>}
-          {times(format.solveCount, index => (
-            <TableCell key={index} align="right">
-              {index + 1}
-            </TableCell>
-          ))}
+          <Hidden smDown>
+            {displayCountry && <TableCell>Country</TableCell>}
+            {times(format.solveCount, index => (
+              <TableCell key={index} align="right">
+                {index + 1}
+              </TableCell>
+            ))}
+          </Hidden>
           {stats.map(({ name }) => (
             <TableCell key={name} align="right">
               {name}
@@ -72,14 +75,16 @@ const ResultsTable = ({
                 {result.person.name}
               </Link>
             </TableCell>
-            {displayCountry && (
-              <TableCell>{result.person.country.name}</TableCell>
-            )}
-            {result.attempts.map((attempt, index) => (
-              <TableCell key={index} align="right">
-                {formatResult(attempt, eventId)}
-              </TableCell>
-            ))}
+            <Hidden smDown>
+              {displayCountry && (
+                <TableCell>{result.person.country.name}</TableCell>
+              )}
+              {result.attempts.map((attempt, index) => (
+                <TableCell key={index} align="right">
+                  {formatResult(attempt, eventId)}
+                </TableCell>
+              ))}
+            </Hidden>
             {stats.map(({ name, fn, type }, index) => (
               <TableCell
                 key={name}

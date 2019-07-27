@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
+import Hidden from '@material-ui/core/Hidden';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -29,11 +30,13 @@ const CompetitorResultsTable = ({ results, competitionId }) => {
             #
           </TableCell>
           <TableCell>Round</TableCell>
-          {times(solveCount, index => (
-            <TableCell key={index} align="right">
-              {index + 1}
-            </TableCell>
-          ))}
+          <Hidden smDown>
+            {times(solveCount, index => (
+              <TableCell key={index} align="right">
+                {index + 1}
+              </TableCell>
+            ))}
+          </Hidden>
           {stats.map(({ name }) => (
             <TableCell key={name} align="right">
               {name}
@@ -66,11 +69,13 @@ const CompetitorResultsTable = ({ results, competitionId }) => {
                 {result.round.name}
               </Link>
             </TableCell>
-            {times(solveCount, index => (
-              <TableCell key={index} align="right">
-                {formatResult(result.attempts[index] || 0, event.id)}
-              </TableCell>
-            ))}
+            <Hidden smDown>
+              {times(solveCount, index => (
+                <TableCell key={index} align="right">
+                  {formatResult(result.attempts[index] || 0, event.id)}
+                </TableCell>
+              ))}
+            </Hidden>
             {stats.map(({ name, fn, type }, index) => (
               <TableCell
                 key={name}

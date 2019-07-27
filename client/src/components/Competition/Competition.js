@@ -50,7 +50,11 @@ const useStyles = makeStyles(theme => ({
     },
   },
   content: {
-    padding: 24,
+    overflowY: 'auto',
+    padding: '16px 8px',
+    [theme.breakpoints.up('md')]: {
+      padding: 24,
+    },
   },
   contentShift: {
     [theme.breakpoints.up('md')]: {
