@@ -8,17 +8,15 @@ module.exports = {
     return await Users.findOne({ _id: new ObjectId(session.userId) });
   },
   competition: withCompetition(
-    async (parent, args, { competition }) => {
-      return competition;
-    }
+    (parent, args, { competition }) => competition
   ),
   round: withCompetition(
-    async (parent, { roundId }, { competition }) => {
+    (parent, { roundId }, { competition }) => {
       return roundById(competition.wcif, roundId);
     }
   ),
   competitor: withCompetition(
-    async (parent, { competitorId }, { competition }) => {
+    (parent, { competitorId }, { competition }) => {
       return personById(competition.wcif, parseInt(competitorId, 10));
     }
   ),

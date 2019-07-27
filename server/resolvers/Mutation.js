@@ -8,6 +8,13 @@ const getDocument = ({ value }) => {
   return value;
 };
 
+const saveResults = async (Competitions, wcif) => {
+  return await Competitions.findOneAndUpdate(
+    { 'wcif.id': wcif.id },
+    { $set: { 'wcif.events': wcif.events } }
+  );
+};
+
 module.exports = {
   importCompetition: withAuthentication(
     async (parent, { id }, { user, mongo: { Competitions } }) => {
@@ -33,10 +40,7 @@ module.exports = {
       );
       currentResult.attempts = result.attempts.map(attempt => ({ result: attempt }));
       processRoundResults(round, competition.wcif);
-      await Competitions.findOneAndUpdate(
-        { 'wcif.id': competition.wcif.id },
-        { $set: { wcif: competition.wcif } }
-      );
+      await saveResults(Competitions, competition.wcif);
       return round;
     }
   ),
@@ -44,10 +48,7 @@ module.exports = {
     async (parent, { roundId }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
       openRound(round, competition.wcif);
-      await Competitions.findOneAndUpdate(
-        { 'wcif.id': competition.wcif.id },
-        { $set: { wcif: competition.wcif } }
-      );
+      await saveResults(Competitions, competition.wcif);
       return round;
     }
   ),
@@ -55,10 +56,7 @@ module.exports = {
     async (parent, { roundId }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
       round.results = [];
-      await Competitions.findOneAndUpdate(
-        { 'wcif.id': competition.wcif.id },
-        { $set: { wcif: competition.wcif } }
-      );
+      await saveResults(Competitions, competition.wcif);
       return round;
     }
   ),
