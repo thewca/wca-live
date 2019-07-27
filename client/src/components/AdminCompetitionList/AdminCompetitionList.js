@@ -1,6 +1,5 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
@@ -9,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import withConfirm from 'material-ui-confirm';
 
+import CustomMutation from '../CustomMutation/CustomMutation';
 import { formatDateRange } from '../../logic/utils';
 
 const IMPORT_COMPETITION_MUTATION = gql`
@@ -48,7 +48,7 @@ const AdminCompetitionList = ({
       ))}
       <ListSubheader disableSticky>Importable competitions</ListSubheader>
       {importableCompetitions.map(competition => (
-        <Mutation
+        <CustomMutation
           key={competition.id}
           mutation={IMPORT_COMPETITION_MUTATION}
           variables={{ id: competition.id }}
@@ -90,7 +90,7 @@ const AdminCompetitionList = ({
               />
             </ListItem>
           )}
-        </Mutation>
+        </CustomMutation>
       ))}
     </List>
   );

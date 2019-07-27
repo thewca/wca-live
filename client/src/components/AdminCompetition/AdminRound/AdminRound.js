@@ -1,10 +1,10 @@
 import React from 'react';
-import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
+import CustomMutation from '../../CustomMutation/CustomMutation';
 import ResultForm from '../ResultForm/ResultForm';
 import ResultsTable from '../../ResultsTable/ResultsTable';
 
@@ -82,7 +82,7 @@ const AdminRound = ({ match }) => {
         <div style={{ padding: 24 }}>
           <Grid container direction="row" spacing={2}>
             <Grid item md={3}>
-              <Mutation
+              <CustomMutation
                 mutation={SET_RESULT_MUTATION}
                 variables={{ competitionId, roundId }}
               >
@@ -96,7 +96,7 @@ const AdminRound = ({ match }) => {
                     onSubmit={result => setResult({ variables: { result } })}
                   />
                 )}
-              </Mutation>
+              </CustomMutation>
             </Grid>
             <Grid item md={9}>
               <Typography

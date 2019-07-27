@@ -1,5 +1,4 @@
 import React from 'react';
-import { Mutation } from 'react-apollo';
 import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
 import Button from '@material-ui/core/Button';
@@ -14,6 +13,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import withConfirm from 'material-ui-confirm';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
+import CustomMutation from '../../CustomMutation/CustomMutation';
 import CubingIcon from '../../CubingIcon/CubingIcon';
 
 const EVENTS_QUERY = gql`
@@ -96,7 +96,7 @@ const AdminEvents = ({ confirm, match }) => {
                           <ListItemText primary={round.name} />
                           <ListItemSecondaryAction>
                             {roundOpenable(round, event.rounds) && (
-                              <Mutation
+                              <CustomMutation
                                 mutation={OPEN_ROUND_MUTATION}
                                 variables={{
                                   competitionId,
@@ -112,10 +112,10 @@ const AdminEvents = ({ confirm, match }) => {
                                     Open
                                   </Button>
                                 )}
-                              </Mutation>
+                              </CustomMutation>
                             )}
                             {roundClearable(round, event.rounds) && (
-                              <Mutation
+                              <CustomMutation
                                 mutation={CLEAR_ROUND_MUTATION}
                                 variables={{
                                   competitionId,
@@ -136,7 +136,7 @@ const AdminEvents = ({ confirm, match }) => {
                                     Clear
                                   </Button>
                                 )}
-                              </Mutation>
+                              </CustomMutation>
                             )}
                           </ListItemSecondaryAction>
                         </ListItem>
