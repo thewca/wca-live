@@ -47,7 +47,7 @@ module.exports = ({ Users }) => {
       { upsert: true, returnOriginal: false }
     );
     req.session.userId = dbUser._id;
-    res.redirect('/');
+    res.redirect('/admin');
   });
 
   router.get('/sign-out', (req, res) => {

@@ -42,7 +42,7 @@ const Home = () => {
         <div style={{ padding: 24 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} style={{ textAlign: 'center' }}>
-              <img src={logo} height="128" width="128" />
+              <img src={logo} alt="" height="128" width="128" />
               <Typography variant="h4">WCA Live</Typography>
               <Typography variant="subtitle1">
                 Live results from competitions all around the world!
