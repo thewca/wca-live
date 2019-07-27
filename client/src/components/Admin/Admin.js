@@ -1,33 +1,42 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Switch, Route, Redirect } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
-import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import Toolbar from '@material-ui/core/Toolbar';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
-import AdminCompetitionList from './AdminCompetitionList/AdminCompetitionList';
-import AdminCompetition from './AdminCompetition/AdminCompetition';
-import AdminRound from './AdminRound/AdminRound';
+import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
 
-const USER_QUERY = gql`
-  query User {
+const ADMIN_QUERY = gql`
+  query Competitions {
     me {
       id
       name
       avatar {
         thumbUrl
       }
+      manageableCompetitions {
+        ...competitionInfo
+      }
+      importableCompetitions {
+        ...competitionInfo
+      }
     }
+  }
+
+  fragment competitionInfo on Competition {
+    id
+    name
+    startDate
+    endDate
   }
 `;
 
 const Admin = () => {
   return (
-    <CustomQuery query={USER_QUERY}>
+    <CustomQuery query={ADMIN_QUERY}>
       {({ data, client }) => {
         const { me } = data;
         if (!me) {
@@ -51,18 +60,42 @@ const Admin = () => {
             </Grid>
           );
         } else {
+          const {
+            name,
+            avatar,
+            manageableCompetitions,
+            importableCompetitions,
+          } = me;
           return (
-            <div>
-              <AppBar position="static">
-                <Toolbar variant="dense">
+            <div style={{ padding: 24 }}>
+              <Grid
+                container
+                direction="column"
+                alignItems="center"
+                spacing={3}
+              >
+                <Grid item>
                   <Avatar
-                    src={me.avatar.thumbUrl}
-                    style={{ marginRight: 16 }}
+                    src={avatar.thumbUrl}
+                    style={{ width: 64, height: 64 }}
                   />
-                  <Typography>{me.name}</Typography>
-                  <div style={{ flexGrow: 1 }} />
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5">Hello, {name}!</Typography>
+                </Grid>
+                <Grid item style={{ width: '100%' }}>
+                  <Paper>
+                    <AdminCompetitionList
+                      manageableCompetitions={manageableCompetitions}
+                      importableCompetitions={importableCompetitions}
+                      adminQuery={ADMIN_QUERY}
+                    />
+                  </Paper>
+                </Grid>
+                <Grid item>
                   <Button
-                    color="inherit"
+                    variant="outlined"
+                    color="default"
                     onClick={() => {
                       fetch('/oauth/sign-out', {
                         credentials: 'same-origin',
@@ -71,26 +104,8 @@ const Admin = () => {
                   >
                     Sign out
                   </Button>
-                </Toolbar>
-              </AppBar>
-              <Switch>
-                <Route
-                  exact
-                  path="/admin/competitions"
-                  component={AdminCompetitionList}
-                />
-                <Route
-                  exact
-                  path="/admin/competitions/:id"
-                  component={AdminCompetition}
-                />
-                <Route
-                  exact
-                  path="/admin/competitions/:competitionId/rounds/:roundId"
-                  component={AdminRound}
-                />
-                <Redirect to="/admin/competitions" />
-              </Switch>
+                </Grid>
+              </Grid>
             </div>
           );
         }
