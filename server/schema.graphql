@@ -11,6 +11,7 @@ type Mutation {
   setResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
   openRound(competitionId: ID!, roundId: ID!): Round
   clearRound(competitionId: ID!, roundId: ID!): Round
+  quitCompetitor(competitionId: ID!, roundId: ID!, competitorId: ID!, replace: Boolean!): Round
 }
 
 type Competitions {

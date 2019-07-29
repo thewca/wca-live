@@ -179,15 +179,19 @@ const advancingPersonIds = (round, wcif) => {
   }
 };
 
+const emptyResultsForPeople = (personIds, solveCount) => {
+  return personIds.map(personId => ({
+    personId,
+    ranking: null,
+    attempts: Array.from({ length: solveCount }, () => ({ result: 0 })), // TODO: use empty array
+    recordTags: { single: null, average: null },
+  }));
+};
+
 const openRound = (round, wcif) => {
   const format = formatById(round.format);
   /* TODO: validate whether the round actually can be open (?), see cubecomps populate.php */
-  round.results = advancingPersonIds(round, wcif).map(personId => ({
-    personId,
-    ranking: null,
-    attempts: Array.from({ length: format.solveCount }, () => ({ result: 0 })),
-    recordTags: { single: null, average: null },
-  }));
+  round.results = emptyResultsForPeople(advancingPersonIds(round, wcif), format.solveCount);
   round.results = sortResults(round.results, wcif);
 };
 
@@ -222,10 +226,30 @@ const nextAdvancableToRound = (round, wcif) => {
   return wouldAdvancePersonIds.map(personId => personById(wcif, personId));
 };
 
+const quitCompetitor = (competitorId, replace, round, wcif) => {
+  const advanced = round.results.some(
+    result => result.personId === parseInt(competitorId, 10)
+  );
+  if (!advanced) {
+    throw new Error(`Cannot quit competitor with id ${competitorId} as he's not in ${roundId}.`);
+  }
+  if (replace) {
+    round.results.push(
+      ...emptyResultsForPeople(
+        nextAdvancableToRound(round, wcif).map(({ registrantId }) => registrantId)
+      )
+    );
+  }
+  round.results = round.results.filter(
+    result => result.personId !== parseInt(competitorId, 10)
+  );
+  processRoundResults(round, wcif);
+};
+
 module.exports = {
   processRoundResults,
   openRound,
   setRecordTags,
   withAdvancable,
-  nextAdvancableToRound,
+  quitCompetitor,
 };

@@ -1,7 +1,7 @@
 const { withAuthentication, withCompetition, withCompetitionAuthorization } = require('./middleware');
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
-const { processRoundResults, openRound } = require('../utils/results');
+const { processRoundResults, openRound, quitCompetitor } = require('../utils/results');
 
 const getDocument = ({ value }) => {
   if (!value) throw new Error('Document not found.');
@@ -56,6 +56,14 @@ module.exports = {
     async (parent, { roundId }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
       round.results = [];
+      await saveResults(Competitions, competition.wcif);
+      return round;
+    }
+  ),
+  quitCompetitor: withCompetitionAuthorization(
+    async (parent, { roundId, competitorId, replace }, { competition, mongo: { Competitions } }) => {
+      const round = roundById(competition.wcif, roundId);
+      quitCompetitor(parseInt(competitorId, 10), replace, round, competition.wcif);
       await saveResults(Competitions, competition.wcif);
       return round;
     }
