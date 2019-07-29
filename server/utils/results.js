@@ -138,9 +138,12 @@ const withAdvancable = (round, wcif) => {
     });
   } else {
     results.forEach(result => result.advancable = false);
+    const completeResults = results.filter(
+      ({ attempts }) => attempts.some(({ result }) => result > 0)
+    );
     if (!advancementCondition) {
       /* Mark top 3 in the finals. */
-      results
+      completeResults
         .filter(({ ranking }) => ranking && ranking <= 3)
         .forEach(result => result.advancable = true);
     } else {
@@ -148,7 +151,7 @@ const withAdvancable = (round, wcif) => {
       const maxAdvanceable = Math.floor(results.length * 0.75);
       const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
       const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
-      results
+      completeResults
         /* Note: this ensures that people who tied either advance altogether or not. */
         .filter(({ ranking }) => ranking && ranking < firstNonAdvancingRank)
         .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
