@@ -45,6 +45,14 @@ const nextRound = (wcif, roundId) => {
   );
 };
 
+const previousRound = (wcif, roundId) => {
+  const { eventId, roundNumber } = parseActivityCode(roundId);
+  const event = eventById(wcif, eventId);
+  return event.rounds.find(
+    ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
+  );
+};
+
 module.exports = {
   parseActivityCode,
   eventById,
@@ -54,4 +62,5 @@ module.exports = {
   startDate,
   endDate,
   nextRound,
+  previousRound,
 };

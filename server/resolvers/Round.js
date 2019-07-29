@@ -1,7 +1,7 @@
 const { formatById } = require('../utils/formats');
 const { parseActivityCode, eventById } = require('../utils/wcif');
 const { roundName } = require('../utils/rounds');
-const { withAdvancable } = require('../utils/results');
+const { withAdvancable, nextAdvancableToRound } = require('../utils/results');
 
 module.exports = {
   format: ({ format }) => formatById(format),
@@ -15,8 +15,8 @@ module.exports = {
     return roundName(roundNumber, event.rounds.length, cutoff);
   },
   results: (parent, args, { competition }) => {
-    const round = withAdvancable(parent, competition.wcif);
-    return round.results.map(result => ({ ...result, round }));
+    const results = withAdvancable(parent.results, parent, competition.wcif);
+    return results.map(result => ({ ...result, round: parent }));
   },
   open: ({ results }) => results.length > 0,
 };

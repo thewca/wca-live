@@ -1,6 +1,6 @@
 const { average, best } = require('./calculations');
 const { sortByArray } = require('./utils');
-const { personById, parseActivityCode, eventById, acceptedPeople, nextRound } = require('./wcif');
+const { personById, parseActivityCode, eventById, acceptedPeople, nextRound, previousRound } = require('./wcif');
 const { formatById } = require('./formats');
 const { cloneRecords, recordId } = require('./records');
 const { countryByIso2 } = require('./countries');
@@ -124,41 +124,42 @@ const satisfiesAdvancementCondition = (result, advancementCondition, resultCount
   throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
 };
 
-const withAdvancable = (round, wcif) => {
-  const { advancementCondition } = round;
-  const results = round.results.map(result => ({ ...result })); /* Work on results copy. */
+const withAdvancableFromCondition = (results, advancementCondition) => {
+  const complete = ({ attempts }) => attempts.some(({ result }) => result > 0);
+  if (!advancementCondition) {
+    /* Mark top 3 in the finals. */
+    return results.map(result => ({
+      ...result,
+      advancable: complete(result) && !!result.ranking && result.ranking <= 3,
+    }));
+  } else {
+    /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
+    const maxAdvanceable = Math.floor(results.length * 0.75);
+    const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
+    const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
+    return results.map(result => ({
+      ...result,
+      /* Note: this ensures that people who tied either advance altogether or not. */
+      advancable: !!result.ranking && result.ranking < firstNonAdvancingRank
+        && complete(result) && satisfiesAdvancementCondition(result, advancementCondition, results.length)
+    }));
+  }
+};
+
+const withAdvancable = (results, round, wcif) => {
   const next = nextRound(wcif, round.id);
   if (next && next.results.length > 0) {
     /* If the next round is open use its results to determine who advanced. */
     const advancedByPersonId = Object.fromEntries(
       next.results.map(result => [result.personId, true])
     );
-    results.forEach(result => {
-      result.advancable = advancedByPersonId[result.personId] || false;
-    });
+    return results.map(result => ({
+      ...result,
+      advancable: advancedByPersonId[result.personId] || false,
+    }));
   } else {
-    results.forEach(result => result.advancable = false);
-    const completeResults = results.filter(
-      ({ attempts }) => attempts.some(({ result }) => result > 0)
-    );
-    if (!advancementCondition) {
-      /* Mark top 3 in the finals. */
-      completeResults
-        .filter(({ ranking }) => ranking && ranking <= 3)
-        .forEach(result => result.advancable = true);
-    } else {
-      /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
-      const maxAdvanceable = Math.floor(results.length * 0.75);
-      const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
-      const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
-      completeResults
-        /* Note: this ensures that people who tied either advance altogether or not. */
-        .filter(({ ranking }) => ranking && ranking < firstNonAdvancingRank)
-        .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
-        .forEach(result => result.advancable = true);
-    }
+    return withAdvancableFromCondition(results, round.advancementCondition);
   }
-  return { ...round, results };
 };
 
 const advancingPersonIds = (round, wcif) => {
@@ -172,7 +173,7 @@ const advancingPersonIds = (round, wcif) => {
     const previousRound = eventById(wcif, eventId).rounds.find(
       ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
     );
-    return withAdvancable(previousRound, wcif).results
+    return withAdvancable(previousRound.results, previousRound, wcif)
       .filter(({ advancable }) => advancable)
       .map(({ personId }) => personId);
   }
@@ -190,9 +191,41 @@ const openRound = (round, wcif) => {
   round.results = sortResults(round.results, wcif);
 };
 
+/* Returns people who could advance to the given round if one person quit. */
+const nextAdvancableToRound = (round, wcif) => {
+  const previous = previousRound(wcif, round.id);
+  if (!previous) return []; /* This is the first round, noone else could advance to it. */
+  const previousResults = withAdvancable(previous.results, previous, wcif);
+  const maxAdvancingRanking = Math.max(
+    ...previousResults.filter(({ advancable }) => advancable).map(({ ranking }) => ranking)
+  );
+  /* For previous round results remove attempts of people
+     who quitted the next round (gaps in advancable) and also for first advancable person.
+     Empty attempts rank those people at the end (so we don't treat them as advancable).
+     Then recompute rankings and see who else would advance as a result. */
+  previousResults
+    .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should be advancable... */
+    .filter(({ advancable }) => !advancable) /* ...but it's not, because it quitted the next round. */
+    .forEach(result => result.attempts = []);
+  const firstAdvancable = previousResults.find(({ advancable }) => advancable);
+  if (!firstAdvancable) return [];
+  firstAdvancable.attempts = [];
+  const potentiallyAdvancingPersonIds = previousResults
+    .filter(({ ranking }) => ranking > maxAdvancingRanking)
+    .map(({ personId }) => personId);
+  setRankings(previousResults, previous.format);
+  const previousResultsWithoutQuitted =
+    withAdvancableFromCondition(previousResults, previous.advancementCondition);
+  const wouldAdvancePersonIds = potentiallyAdvancingPersonIds.filter(
+    personId => previousResultsWithoutQuitted.find(result => result.personId === personId).advancable
+  );
+  return wouldAdvancePersonIds.map(personId => personById(wcif, personId));
+};
+
 module.exports = {
   processRoundResults,
   openRound,
   setRecordTags,
   withAdvancable,
+  nextAdvancableToRound,
 };
