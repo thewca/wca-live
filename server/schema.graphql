@@ -4,6 +4,7 @@ type Query {
   competition(id: ID!): Competition
   round(competitionId: ID!, roundId: ID!): Round
   competitor(competitionId: ID!, competitorId: ID!): Person
+  nextAdvancable(competitionId: ID!, roundId: ID!): [Person!]
 }
 
 type Mutation {

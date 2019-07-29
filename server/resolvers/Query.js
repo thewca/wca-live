@@ -2,6 +2,7 @@ const { withAuthentication, withCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
 const { roundById, personById, startDate, endDate } = require('../utils/wcif');
 const { dateToString } = require('../utils/date');
+const { nextAdvancableToRound } = require('../utils/results');
 
 module.exports = {
   me: async (parent, args, { session, mongo: { Users } }) => {
@@ -38,4 +39,10 @@ module.exports = {
 
     return { upcoming, inProgress, past };
   },
+  nextAdvancable: withCompetition(
+    (parent, { roundId }, { competition }) => {
+      const round = roundById(competition.wcif, roundId);
+      return nextAdvancableToRound(round, competition.wcif);
+    }
+  ),
 };

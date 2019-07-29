@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useState, Fragment } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
+import Icon from '@material-ui/core/Icon';
+import IconButton from '@material-ui/core/IconButton';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,7 +17,13 @@ import { times } from '../../../logic/utils';
 import { formatResult } from '../../../logic/results';
 import { statsToDisplay } from '../../../logic/results-table-utils';
 
-const AdminResultsTable = ({ results, format, eventId, competitionId }) => {
+const AdminResultsTable = ({
+  results,
+  format,
+  eventId,
+  competitionId,
+  onResultClick,
+}) => {
   const stats = statsToDisplay(format, eventId);
 
   return (
@@ -41,7 +52,8 @@ const AdminResultsTable = ({ results, format, eventId, competitionId }) => {
           <TableRow
             key={result.person.id}
             hover
-            style={{ whiteSpace: 'nowrap' }}
+            style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
+            onClick={event => onResultClick(event, result)}
           >
             <TableCell
               align="right"
@@ -54,14 +66,7 @@ const AdminResultsTable = ({ results, format, eventId, competitionId }) => {
               {result.ranking}
             </TableCell>
             <TableCell align="right">{result.person.id}</TableCell>
-            <TableCell>
-              <Link
-                component={RouterLink}
-                to={`/competitions/${competitionId}/competitors/${result.person.id}`}
-              >
-                {result.person.name}
-              </Link>
-            </TableCell>
+            <TableCell>{result.person.name}</TableCell>
             {result.attempts.map((attempt, index) => (
               <TableCell key={index} align="right">
                 {formatResult(attempt, eventId)}

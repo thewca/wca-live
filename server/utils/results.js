@@ -190,6 +190,8 @@ const emptyResultsForPeople = (personIds, solveCount) => {
 
 const openRound = (round, wcif) => {
   const format = formatById(round.format);
+  // const previous = previousRound(wcif, round.id);
+  // previous.results = previous.results.filter(r => r.attempts.some(a => a.result > 0))
   /* TODO: validate whether the round actually can be open (?), see cubecomps populate.php */
   round.results = emptyResultsForPeople(advancingPersonIds(round, wcif), format.solveCount);
   round.results = sortResults(round.results, wcif);
@@ -219,7 +221,7 @@ const nextAdvancableToRound = (round, wcif) => {
     .map(({ personId }) => personId);
   setRankings(previousResults, previous.format);
   const previousResultsWithoutQuitted =
-    withAdvancableFromCondition(previousResults, previous.advancementCondition);
+    withAdvancableFromCondition(sortResults(previousResults, wcif), previous.advancementCondition);
   const wouldAdvancePersonIds = potentiallyAdvancingPersonIds.filter(
     personId => previousResultsWithoutQuitted.find(result => result.personId === personId).advancable
   );
@@ -251,5 +253,6 @@ module.exports = {
   openRound,
   setRecordTags,
   withAdvancable,
+  nextAdvancableToRound,
   quitCompetitor,
 };

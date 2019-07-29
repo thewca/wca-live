@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -7,6 +7,7 @@ import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
 import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
+import ResultMenu from '../ResultMenu/ResultMenu';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -76,6 +77,8 @@ const SET_RESULT_MUTATION = gql`
 
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
+  const [resultMenuProps, setResultMenuProps] = useState({});
+
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round } }) => (
@@ -111,9 +114,22 @@ const AdminRound = ({ match }) => {
                 format={round.format}
                 eventId={round.event.id}
                 competitionId={competitionId}
+                onResultClick={(event, result) => {
+                  setResultMenuProps({
+                    position: { left: event.clientX, top: event.clientY },
+                    result,
+                  });
+                }}
               />
             </Grid>
           </Grid>
+          <ResultMenu
+            {...resultMenuProps}
+            onClose={() => setResultMenuProps({})}
+            competitionId={competitionId}
+            roundId={roundId}
+            setResultMutation={SET_RESULT_MUTATION}
+          />
         </div>
       )}
     </CustomQuery>
