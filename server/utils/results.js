@@ -1,6 +1,6 @@
 const { average, best } = require('./calculations');
 const { sortByArray } = require('./utils');
-const { personById, parseActivityCode, eventById, acceptedPeople } = require('./wcif');
+const { personById, parseActivityCode, eventById, acceptedPeople, nextRound } = require('./wcif');
 const { formatById } = require('./formats');
 const { cloneRecords, recordId } = require('./records');
 const { countryByIso2 } = require('./countries');
@@ -43,34 +43,6 @@ const sortResults = (results, wcif) => {
     result.ranking ? result.ranking : Infinity,
     personById(wcif, result.personId).name,
   ]);
-};
-
-const satisfiesAdvancementCondition = (result, advancementCondition, resultCount) => {
-  const { type, level } = advancementCondition;
-  if (type === 'ranking') return result.ranking <= level;
-  if (type === 'percent') return result.ranking <= Math.floor(resultCount * level * 0.01);
-  if (type === 'attemptResult') return result.attempts.some(attempt => attempt.result > 0 && attempt.result < level);
-  throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
-};
-
-const setAdvancable = (results, advancementCondition) => {
-  results.forEach(result => result.advancable = false);
-  if (!advancementCondition) {
-    /* Mark top 3 in the finals. */
-    results
-      .filter(({ ranking }) => ranking && ranking <= 3)
-      .forEach(result => result.advancable = true);
-  } else {
-    /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
-    const maxAdvanceable = Math.floor(results.length * 0.75);
-    const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
-    const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
-    results
-      /* Note: this ensures that people who tied either advance altogether or not. */
-      .filter(({ ranking }) => ranking && ranking < firstNonAdvancingRank)
-      .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
-      .forEach(result => result.advancable = true);
-  }
 };
 
 const tagsWithRecordId = (wcif, personId, eventId, type) => {
@@ -141,8 +113,49 @@ const setRecordTags = (round, wcif) => {
 const processRoundResults = (round, wcif) => {
   setRankings(round.results, round.format);
   round.results = sortResults(round.results, wcif);
-  setAdvancable(round.results, round.advancementCondition);
   setRecordTags(round, wcif);
+};
+
+const satisfiesAdvancementCondition = (result, advancementCondition, resultCount) => {
+  const { type, level } = advancementCondition;
+  if (type === 'ranking') return result.ranking <= level;
+  if (type === 'percent') return result.ranking <= Math.floor(resultCount * level * 0.01);
+  if (type === 'attemptResult') return result.attempts.some(attempt => attempt.result > 0 && attempt.result < level);
+  throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
+};
+
+const withAdvancable = (round, wcif) => {
+  const { advancementCondition } = round;
+  const results = round.results.map(result => ({ ...result })); /* Work on results copy. */
+  const next = nextRound(wcif, round.id);
+  if (next && next.results.length > 0) {
+    /* If the next round is open use its results to determine who advanced. */
+    const advancedByPersonId = Object.fromEntries(
+      next.results.map(result => [result.personId, true])
+    );
+    results.forEach(result => {
+      result.advancable = advancedByPersonId[result.personId] || false;
+    });
+  } else {
+    results.forEach(result => result.advancable = false);
+    if (!advancementCondition) {
+      /* Mark top 3 in the finals. */
+      results
+        .filter(({ ranking }) => ranking && ranking <= 3)
+        .forEach(result => result.advancable = true);
+    } else {
+      /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
+      const maxAdvanceable = Math.floor(results.length * 0.75);
+      const maxRank = Math.max(...results.map(({ ranking }) => ranking).filter(x => x));
+      const firstNonAdvancingRank = results[maxAdvanceable].ranking || maxRank + 1;
+      results
+        /* Note: this ensures that people who tied either advance altogether or not. */
+        .filter(({ ranking }) => ranking && ranking < firstNonAdvancingRank)
+        .filter(result => satisfiesAdvancementCondition(result, advancementCondition, results.length))
+        .forEach(result => result.advancable = true);
+    }
+  }
+  return { ...round, results };
 };
 
 const advancingPersonIds = (round, wcif) => {
@@ -156,7 +169,7 @@ const advancingPersonIds = (round, wcif) => {
     const previousRound = eventById(wcif, eventId).rounds.find(
       ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
     );
-    return previousRound.results
+    return withAdvancable(previousRound, wcif).results
       .filter(({ advancable }) => advancable)
       .map(({ personId }) => personId);
   }
@@ -169,7 +182,6 @@ const openRound = (round, wcif) => {
     personId,
     ranking: null,
     attempts: Array.from({ length: format.solveCount }, () => ({ result: 0 })),
-    advancable: false,
     recordTags: { single: null, average: null },
   }));
   round.results = sortResults(round.results, wcif);
@@ -179,4 +191,5 @@ module.exports = {
   processRoundResults,
   openRound,
   setRecordTags,
+  withAdvancable,
 };
