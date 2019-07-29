@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
 import ResultForm from '../ResultForm/ResultForm';
-import ResultsTable from '../../ResultsTable/ResultsTable';
+import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -106,12 +106,10 @@ const AdminRound = ({ match }) => {
               >
                 {round.event.name} - {round.name}
               </Typography>
-              <ResultsTable
+              <AdminResultsTable
                 results={round.results}
                 format={round.format}
                 eventId={round.event.id}
-                displayCountry={false}
-                displayId={true}
                 competitionId={competitionId}
               />
             </Grid>
