@@ -39,16 +39,13 @@ const ResultMenu = ({
         >
           Results
         </MenuItem>
-        {result.attempts.some(attempt => attempt > 0) ? (
+        {result.attempts.length > 0 ? (
           <CustomMutation
             mutation={setResultMutation}
             variables={{
               competitionId,
               roundId,
-              result: {
-                personId: result.person.id,
-                attempts: [0, 0, 0, 0, 0] /* TODO: change that */,
-              },
+              result: { personId: result.person.id, attempts: [] },
             }}
             onCompleted={onClose}
           >

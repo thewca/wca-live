@@ -29,6 +29,7 @@ const mo3 = attempts => {
 };
 
 export const average = (attempts, eventId) => {
+  if (![3, 5].includes(attempts.length)) return 0;
   if (eventId === '333fm') {
     return mo3(attempts.map(attempt => attempt * 100));
   }

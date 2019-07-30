@@ -66,9 +66,9 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
             </TableCell>
             <Hidden smDown>
               <TableCell>{result.person.country.name}</TableCell>
-              {result.attempts.map((attempt, index) => (
+              {times(format.solveCount, index => (
                 <TableCell key={index} align="right">
-                  {formatResult(attempt, eventId)}
+                  {formatResult(result.attempts[index] || 0, eventId)}
                 </TableCell>
               ))}
             </Hidden>

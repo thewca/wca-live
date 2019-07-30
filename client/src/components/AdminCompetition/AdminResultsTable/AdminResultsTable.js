@@ -67,9 +67,9 @@ const AdminResultsTable = ({
             </TableCell>
             <TableCell align="right">{result.person.id}</TableCell>
             <TableCell>{result.person.name}</TableCell>
-            {result.attempts.map((attempt, index) => (
+            {times(format.solveCount, index => (
               <TableCell key={index} align="right">
-                {formatResult(attempt, eventId)}
+                {formatResult(result.attempts[index] || 0, eventId)}
               </TableCell>
             ))}
             {stats.map(({ name, fn, type }, index) => (

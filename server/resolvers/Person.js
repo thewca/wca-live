@@ -14,7 +14,7 @@ module.exports = {
                  or compute only for the necessary ruonds here. */
         withAdvancable(round.results, round, competition.wcif)
           .filter(({ personId }) => personId === registrantId)
-          .filter(({ attempts }) => attempts.some(({ result }) => result !== 0))
+          .filter(({ attempts }) => attempts.length > 0)
           .map(result => ({ ...result, round }))
       )
     );

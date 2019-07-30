@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import withConfirm from 'material-ui-confirm';
 
 import AttemptField from '../AttemptField/AttemptField';
-import { toInt, setAt, times } from '../../../logic/utils';
+import { toInt, setAt, times, trimTrailingZeros } from '../../../logic/utils';
 import {
   meetsCutoff,
   formatResult,
@@ -37,7 +37,7 @@ const ResultForm = ({
 
   const submissionWarning = attemptsWarning(attempts, eventId);
   const submitResult = () => {
-    onSubmit({ personId, attempts });
+    onSubmit({ personId, attempts: trimTrailingZeros(attempts) });
     const personIdInput = rootRef.current.getElementsByTagName('input')[0];
     personIdInput.focus();
     personIdInput.select();
@@ -104,7 +104,12 @@ const ResultForm = ({
               personId &&
               results.find(result => result.person.id === personId.toString());
             setPersonId(personId);
-            setAttempts(result ? result.attempts : times(solveCount, () => 0));
+            setAttempts(
+              times(
+                solveCount,
+                index => (result && result.attempts[index]) || 0
+              )
+            );
           }}
         />
       </Grid>

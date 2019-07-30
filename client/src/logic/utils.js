@@ -45,3 +45,10 @@ export const formatDateRange = (startString, endString) => {
 
   return `${firstPart} - ${secondPart}`;
 };
+
+export const trimTrailingZeros = array => {
+  if (array.length === 0) return [];
+  return array[array.length - 1] === 0
+    ? trimTrailingZeros(array.slice(0, -1))
+    : array;
+};

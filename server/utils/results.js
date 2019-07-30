@@ -184,7 +184,7 @@ const emptyResultsForPeople = (personIds, solveCount) => {
   return personIds.map(personId => ({
     personId,
     ranking: null,
-    attempts: Array.from({ length: solveCount }, () => ({ result: 0 })), // TODO: use empty array
+    attempts: [],
     recordTags: { single: null, average: null },
   }));
 };
