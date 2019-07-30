@@ -13,6 +13,7 @@ type Mutation {
   openRound(competitionId: ID!, roundId: ID!): Round
   clearRound(competitionId: ID!, roundId: ID!): Round
   quitCompetitor(competitionId: ID!, roundId: ID!, competitorId: ID!, replace: Boolean!): Round
+  synchronize(competitionId: ID!): Competition
 }
 
 type Competitions {

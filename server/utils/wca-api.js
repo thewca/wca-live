@@ -30,7 +30,10 @@ const wcaApiFetch = async (path, accessToken, fetchOptions = {}) => {
   const baseApiUrl = `${WCA_ORIGIN}/api/v0`;
   const options = {
     ...fetchOptions,
-    headers: accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {},
+    headers: {
+      'Authorization': accessToken ? `Bearer ${accessToken}` : null,
+      'Content-Type': 'application/json',
+    },
   };
   const response = await fetch(`${baseApiUrl}${path}`, options);
   if (!response.ok) throw new Error(response.statusText);
@@ -42,4 +45,5 @@ module.exports = {
   getRecentManageableCompetitions,
   getWcif,
   getRecords,
+  updateWcif,
 };

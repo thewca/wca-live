@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminEvents from './AdminEvents/AdminEvents';
+import Synchronize from './Synchronize/Synchronize';
 import AdminRound from './AdminRound/AdminRound';
 
 const COMPETITION_QUERY = gql`
@@ -38,7 +39,11 @@ const AdminCompetition = ({ match }) => {
               >
                 <Icon>view_list</Icon>
               </IconButton>
-              <IconButton color="inherit">
+              <IconButton
+                color="inherit"
+                component={Link}
+                to={`/admin/competitions/${competition.id}/sync`}
+              >
                 <Icon>sync</Icon>
               </IconButton>
               <IconButton color="inherit">
@@ -54,6 +59,11 @@ const AdminCompetition = ({ match }) => {
               exact
               path="/admin/competitions/:competitionId"
               component={AdminEvents}
+            />
+            <Route
+              exact
+              path="/admin/competitions/:competitionId/sync"
+              component={Synchronize}
             />
             <Route
               exact

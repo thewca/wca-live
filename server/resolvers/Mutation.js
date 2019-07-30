@@ -2,6 +2,7 @@ const { withAuthentication, withCompetition, withCompetitionAuthorization } = re
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
 const { processRoundResults, openRound, quitCompetitor } = require('../utils/results');
+const { synchronize } = require('../utils/competition');
 
 const getDocument = ({ value }) => {
   if (!value) throw new Error('Document not found.');
@@ -9,10 +10,10 @@ const getDocument = ({ value }) => {
 };
 
 const saveResults = async (Competitions, wcif) => {
-  return await Competitions.findOneAndUpdate(
+  return getDocument(await Competitions.findOneAndUpdate(
     { 'wcif.id': wcif.id },
     { $set: { 'wcif.events': wcif.events } }
-  );
+  ));
 };
 
 module.exports = {
@@ -40,7 +41,7 @@ module.exports = {
       );
       currentResult.attempts = result.attempts.map(attempt => ({ result: attempt }));
       processRoundResults(round, competition.wcif);
-      await saveResults(Competitions, competition.wcif);
+      console.log(await saveResults(Competitions, competition.wcif));
       return round;
     }
   ),
@@ -66,6 +67,16 @@ module.exports = {
       quitCompetitor(parseInt(competitorId, 10), replace, round, competition.wcif);
       await saveResults(Competitions, competition.wcif);
       return round;
+    }
+  ),
+  synchronize: withCompetitionAuthorization(
+    async (parent, { roundId, result }, { competition, user, mongo: { Competitions } }) => {
+      competition.wcif = await synchronize(competition.wcif, user.oauth.accessToken);
+      await Competitions.findOneAndUpdate(
+        { 'wcif.id': competition.wcif.id },
+        { $set: { wcif: competition.wcif } }
+      );
+      return competition;
     }
   ),
 };
