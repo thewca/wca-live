@@ -95,7 +95,11 @@ const QuitCompetitorDialog = ({
                 <FormControlLabel
                   control={<Radio />}
                   value="false"
-                  label={`Yes, just remove ${competitor.name} and don't replace they.`}
+                  label={
+                    nextAdvancable.length > 0
+                      ? `Yes, just remove ${competitor.name} and don't replace they.`
+                      : `Yes, remove ${competitor.name}.`
+                  }
                 />
               </RadioGroup>
             </Fragment>
