@@ -46,7 +46,11 @@ const AdminCompetition = ({ match }) => {
               >
                 <Icon>sync</Icon>
               </IconButton>
-              <IconButton color="inherit">
+              <IconButton
+                color="inherit"
+                component={Link}
+                to={`/competitions/${competition.id}`}
+              >
                 <Icon>remove_red_eye</Icon>
               </IconButton>
               <IconButton color="inherit" component={Link} to="/admin">
