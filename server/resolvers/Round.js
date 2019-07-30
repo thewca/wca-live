@@ -19,4 +19,7 @@ module.exports = {
     return results.map(result => ({ ...result, round: parent }));
   },
   open: ({ results }) => results.length > 0,
+  finished: ({ results }) => {
+    return results.every(({ attempts }) => attempts.length > 0);
+  },
 };

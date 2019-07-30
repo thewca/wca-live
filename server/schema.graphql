@@ -64,6 +64,7 @@ type Round {
   # advancementCondition: AdvancementCondition
   results: [Result!]!
   open: Boolean!
+  finished: Boolean!
 }
 
 type Format {

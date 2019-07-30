@@ -27,6 +27,7 @@ const EVENTS_QUERY = gql`
           id
           name
           open
+          finished
         }
       }
     }
@@ -85,7 +86,7 @@ const AdminEvents = ({ confirm, match }) => {
                   />
                   <CardContent style={{ padding: 0 }}>
                     <List dense={true}>
-                      {event.rounds.map(round => (
+                      {event.rounds.map((round, index) => (
                         <ListItem
                           key={round.id}
                           button
@@ -106,7 +107,17 @@ const AdminEvents = ({ confirm, match }) => {
                                 {(openRound, { loading }) => (
                                   <Button
                                     size="small"
-                                    onClick={openRound}
+                                    onClick={
+                                      index > 0 &&
+                                      !event.rounds[index - 1].finished
+                                        ? confirm(openRound, {
+                                            description: `
+                                              There are some missing results in the previous round.
+                                              Opening this round will permanently remove them.
+                                            `,
+                                          })
+                                        : openRound
+                                    }
                                     disabled={loading}
                                   >
                                     Open

@@ -191,8 +191,13 @@ const emptyResultsForPeople = (personIds, solveCount) => {
 
 const openRound = (round, wcif) => {
   const format = formatById(round.format);
-  // const previous = previousRound(wcif, round.id);
-  // previous.results = previous.results.filter(r => r.attempts.some(a => a.result > 0))
+  /* Remove empty results from previous round, to correctly determine how many people to advance. */
+  const previous = previousRound(wcif, round.id);
+  if (previous) {
+    previous.results = previous.results.filter(
+      ({ attempts }) => attempts.length > 0
+    );
+  }
   /* TODO: validate whether the round actually can be open (?), see cubecomps populate.php */
   round.results = emptyResultsForPeople(advancingPersonIds(round, wcif), format.solveCount);
   round.results = sortResults(round.results, wcif);
