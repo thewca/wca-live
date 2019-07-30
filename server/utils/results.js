@@ -147,6 +147,7 @@ const withAdvancableFromCondition = (results, advancementCondition) => {
 };
 
 const withAdvancable = (results, round, wcif) => {
+  if (results.length === 0) return [];
   const next = nextRound(wcif, round.id);
   if (next && next.results.length > 0) {
     /* If the next round is open use its results to determine who advanced. */
