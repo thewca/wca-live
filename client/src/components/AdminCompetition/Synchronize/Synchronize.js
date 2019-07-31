@@ -63,7 +63,7 @@ const Synchronize = ({ match }) => {
             <ListItem
               button
               component="a"
-              href={`https://staging.worldcubeassociation.org/competitions/${competitionId}/events/edit`}
+              href={`https://www.worldcubeassociation.org/competitions/${competitionId}/events/edit`}
               target="_blank"
             >
               <ListItemIcon>
