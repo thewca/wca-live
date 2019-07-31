@@ -4,11 +4,30 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import { makeStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../../logic/utils';
 import { formatResult } from '../../../logic/results';
 import { statsToDisplay } from '../../../logic/results-table-utils';
+
+const useStyles = makeStyles(theme => ({
+  row: {
+    whiteSpace: 'nowrap',
+    cursor: 'pointer',
+  },
+  ranking: {
+    maxWidth: 75,
+  },
+  advancable: {
+    backgroundColor: green['A400'],
+  },
+  mainStat: {
+    fontWeight: 600,
+  },
+}));
 
 const AdminResultsTable = ({
   results,
@@ -17,13 +36,15 @@ const AdminResultsTable = ({
   competitionId,
   onResultClick,
 }) => {
+  const classes = useStyles();
+
   const stats = statsToDisplay(format, eventId);
 
   return (
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell align="right" style={{ width: 75 }}>
+          <TableCell align="right" className={classes.ranking}>
             #
           </TableCell>
           <TableCell align="right">ID</TableCell>
@@ -45,16 +66,14 @@ const AdminResultsTable = ({
           <TableRow
             key={result.person.id}
             hover
-            style={{ whiteSpace: 'nowrap', cursor: 'pointer' }}
+            className={classes.row}
             onClick={event => onResultClick(event, result)}
           >
             <TableCell
               align="right"
-              style={
-                result.advancable
-                  ? { backgroundColor: 'lightgreen', width: 75 }
-                  : { width: 75 }
-              }
+              className={classNames(classes.ranking, {
+                [classes.advancable]: result.advancable,
+              })}
             >
               {result.ranking}
             </TableCell>
@@ -69,7 +88,9 @@ const AdminResultsTable = ({
               <TableCell
                 key={name}
                 align="right"
-                style={index === 0 ? { fontWeight: 600 } : {}}
+                className={classNames({
+                  [classes.mainStat]: index === 0,
+                })}
               >
                 <ResultWithRecordTag
                   result={formatResult(

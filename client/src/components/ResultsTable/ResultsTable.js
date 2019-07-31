@@ -29,6 +29,15 @@ const useStyles = makeStyles(theme => ({
       paddingLeft: 10,
     },
   },
+  ranking: {
+    maxWidth: 75,
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 40,
+    },
+  },
+  advancable: {
+    backgroundColor: green['A400'],
+  },
   name: {
     [theme.breakpoints.down('sm')]: {
       maxWidth: 150,
@@ -36,9 +45,6 @@ const useStyles = makeStyles(theme => ({
       textOverflow: 'ellipsis',
       paddingRight: 0,
     },
-  },
-  advancable: {
-    backgroundColor: green['A400'],
   },
   mainStat: {
     fontWeight: 600,
@@ -58,7 +64,10 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell className={classes.cell} align="right">
+            <TableCell
+              className={classNames(classes.cell, classes.ranking)}
+              align="right"
+            >
               #
             </TableCell>
             <TableCell className={classes.cell}>Name</TableCell>
@@ -87,7 +96,7 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
             >
               <TableCell
                 align="right"
-                className={classNames(classes.cell, {
+                className={classNames(classes.cell, classes.ranking, {
                   [classes.advancable]: result.advancable,
                 })}
               >
@@ -106,9 +115,11 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
                 )}
               </TableCell>
               <Hidden smDown>
-                <TableCell>{result.person.country.name}</TableCell>
+                <TableCell className={classes.cell}>
+                  {result.person.country.name}
+                </TableCell>
                 {times(format.solveCount, index => (
-                  <TableCell key={index} align="right">
+                  <TableCell key={index} className={classes.cell} align="right">
                     {formatResult(result.attempts[index] || 0, eventId)}
                   </TableCell>
                 ))}

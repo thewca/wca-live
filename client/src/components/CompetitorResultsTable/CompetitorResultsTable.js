@@ -122,9 +122,10 @@ const CompetitorResultsTable = ({ results, competitionId }) => {
               {stats.map(({ name, fn, type }, index) => (
                 <TableCell
                   key={name}
-                  className={classes.cell}
                   align="right"
-                  style={index === 0 ? { fontWeight: 600 } : {}}
+                  className={classNames(classes.cell, {
+                    [classes.mainStat]: index === 0,
+                  })}
                 >
                   <ResultWithRecordTag
                     result={formatResult(
