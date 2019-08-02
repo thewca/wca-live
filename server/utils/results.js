@@ -191,15 +191,21 @@ const emptyResultsForPeople = (personIds, solveCount) => {
 
 const openRound = (round, wcif) => {
   const format = formatById(round.format);
-  /* Remove empty results from previous round, to correctly determine how many people to advance. */
   const previous = previousRound(wcif, round.id);
   if (previous) {
+    /* Remove empty results from previous round, to correctly determine how many people to advance. */
     previous.results = previous.results.filter(
       ({ attempts }) => attempts.length > 0
     );
+    if (previous.results.length < 8) {
+      throw new Error('Cannot open this round as the previous has less than 8 competitors.');
+    }
   }
-  /* TODO: validate whether the round actually can be open (?), see cubecomps populate.php */
-  round.results = emptyResultsForPeople(advancingPersonIds(round, wcif), format.solveCount);
+  const advancingIds = advancingPersonIds(round, wcif);
+  if (advancingIds.length === 0) {
+    throw new Error(`Cannot open this round as no one ${previous ? 'qualified' : 'registered'}.`);
+  }
+  round.results = emptyResultsForPeople(advancingIds, format.solveCount);
   round.results = sortResults(round.results, wcif);
 };
 
