@@ -8,6 +8,7 @@ import CustomMutation from '../../CustomMutation/CustomMutation';
 import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
+import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -32,12 +33,12 @@ const ROUND_QUERY = gql`
       }
       results {
         ranking
+        advancable
+        attempts
         person {
           id
           name
         }
-        attempts
-        advancable
         recordTags {
           single
           average
@@ -59,20 +60,10 @@ const SET_RESULT_MUTATION = gql`
       result: $result
     ) {
       id
-      results {
-        ranking
-        person {
-          id
-        }
-        attempts
-        advancable
-        recordTags {
-          single
-          average
-        }
-      }
+      ...resultsUpdate
     }
   }
+  ${RESULTS_UPDATE_FRAGMENT}
 `;
 
 const AdminRound = ({ match }) => {

@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import ResultsTable from '../ResultsTable/ResultsTable';
+import { RESULTS_UPDATE_FRAGMENT } from '../../logic/graphql-fragments';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -20,6 +21,8 @@ const ROUND_QUERY = gql`
       }
       results {
         ranking
+        advancable
+        attempts
         person {
           id
           name
@@ -27,8 +30,6 @@ const ROUND_QUERY = gql`
             name
           }
         }
-        attempts
-        advancable
         recordTags {
           single
           average
@@ -42,20 +43,10 @@ const ROUND_UPDATE_SUBSCRIPTION = gql`
   subscription RoundUpdate($competitionId: ID!, $roundId: ID!) {
     roundUpdate(competitionId: $competitionId, roundId: $roundId) {
       id
-      results {
-        ranking
-        person {
-          id
-        }
-        attempts
-        advancable
-        recordTags {
-          single
-          average
-        }
-      }
+      ...resultsUpdate
     }
   }
+  ${RESULTS_UPDATE_FRAGMENT}
 `;
 
 const Round = ({ match }) => {

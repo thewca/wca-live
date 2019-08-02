@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
+import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
 
 const ADMIN_QUERY = gql`
   query Competitions {
@@ -25,13 +26,7 @@ const ADMIN_QUERY = gql`
       }
     }
   }
-
-  fragment competitionInfo on Competition {
-    id
-    name
-    startDate
-    endDate
-  }
+  ${COMPETITION_INFO_FRAGMENT}
 `;
 
 const Admin = () => {

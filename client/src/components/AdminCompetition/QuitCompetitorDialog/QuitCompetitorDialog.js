@@ -12,6 +12,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
+import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const NEXT_ADVANCABLE_QUERY = gql`
   query NextAdvancable($competitionId: ID!, $roundId: ID!) {
@@ -36,21 +37,10 @@ const QUIT_COMPETITOR_MUTATION = gql`
       replace: $replace
     ) {
       id
-      results {
-        ranking
-        person {
-          id
-          name
-        }
-        attempts
-        advancable
-        recordTags {
-          single
-          average
-        }
-      }
+      ...resultsUpdate
     }
   }
+  ${RESULTS_UPDATE_FRAGMENT}
 `;
 
 const QuitCompetitorDialog = ({
