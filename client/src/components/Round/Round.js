@@ -38,25 +38,52 @@ const ROUND_QUERY = gql`
   }
 `;
 
+const ROUND_UPDATE_SUBSCRIPTION = gql`
+  subscription RoundUpdate($competitionId: ID!, $roundId: ID!) {
+    roundUpdate(competitionId: $competitionId, roundId: $roundId) {
+      id
+      results {
+        ranking
+        person {
+          id
+        }
+        attempts
+        advancable
+        recordTags {
+          single
+          average
+        }
+      }
+    }
+  }
+`;
+
 const Round = ({ match }) => {
   const { competitionId, roundId } = match.params;
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
-      {({ data: { round } }) => (
-        <div>
-          <Typography variant="h5" style={{ marginBottom: 16 }}>
-            {round.event.name} - {round.name}
-          </Typography>
-          <ResultsTable
-            results={round.results}
-            format={round.format}
-            eventId={round.event.id}
-            displayCountry={true}
-            displayId={false}
-            competitionId={competitionId}
-          />
-        </div>
-      )}
+      {({ data: { round }, subscribeToMore }) => {
+        subscribeToMore({
+          document: ROUND_UPDATE_SUBSCRIPTION,
+          variables: { competitionId, roundId },
+        });
+
+        return (
+          <div>
+            <Typography variant="h5" style={{ marginBottom: 16 }}>
+              {round.event.name} - {round.name}
+            </Typography>
+            <ResultsTable
+              results={round.results}
+              format={round.format}
+              eventId={round.event.id}
+              displayCountry={true}
+              displayId={false}
+              competitionId={competitionId}
+            />
+          </div>
+        );
+      }}
     </CustomQuery>
   );
 };

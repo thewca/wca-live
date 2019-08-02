@@ -16,6 +16,10 @@ type Mutation {
   synchronize(competitionId: ID!): Competition
 }
 
+type Subscription {
+  roundUpdate(competitionId: ID!, roundId: ID!): Round
+}
+
 type Competitions {
   upcoming: [Competition!]!
   inProgress: [Competition!]!

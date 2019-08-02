@@ -1,4 +1,5 @@
 const { withAuthentication, withCompetition, withCompetitionAuthorization } = require('./middleware');
+const pubsub = require('./pubsub');
 const { getWcif } = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
 const { processRoundResults, openRound, quitCompetitor } = require('../utils/results');
@@ -34,14 +35,15 @@ module.exports = {
     }
   ),
   setResult: withCompetitionAuthorization(
-    async (parent, { roundId, result }, { competition, mongo: { Competitions } }) => {
+    async (parent, { competitionId, roundId, result }, { competition, mongo: { Competitions } }) => {
       const round = roundById(competition.wcif, roundId);
       const currentResult = round.results.find(
         ({ personId }) => personId === parseInt(result.personId, 10)
       );
       currentResult.attempts = result.attempts.map(attempt => ({ result: attempt }));
       processRoundResults(round, competition.wcif);
-      console.log(await saveResults(Competitions, competition.wcif));
+      pubsub.publish('ROUND_UPDATE', { roundUpdate: round, competitionId, roundId });
+      await saveResults(Competitions, competition.wcif);
       return round;
     }
   ),
