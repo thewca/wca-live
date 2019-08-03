@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import withConfirm from 'material-ui-confirm';
 
+import CustomMutation from '../../CustomMutation/CustomMutation';
 import AttemptField from '../AttemptField/AttemptField';
 import { toInt, setAt, times, trimTrailingZeros } from '../../../logic/utils';
 import {
@@ -17,12 +18,14 @@ import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
 
 const ResultForm = ({
   confirm,
-  onSubmit,
   results,
   format,
   eventId,
   timeLimit,
   cutoff,
+  setResultMutation,
+  competitionId,
+  roundId,
 }) => {
   const { solveCount } = format;
   const [personId, setPersonId] = useState(null);
@@ -36,18 +39,6 @@ const ResultForm = ({
     [3, 5].includes(format.solveCount) && eventId !== '333mbf';
 
   const submissionWarning = attemptsWarning(attempts, eventId);
-  const submitResult = () => {
-    onSubmit({ personId, attempts: trimTrailingZeros(attempts) });
-    const personIdInput = rootRef.current.getElementsByTagName('input')[0];
-    personIdInput.focus();
-    personIdInput.select();
-  };
-  const handleSubmit = submissionWarning
-    ? confirm(submitResult, {
-        description: submissionWarning,
-        confirmationText: 'Submit',
-      })
-    : submitResult;
 
   useEffect(() => {
     const handleKeyPress = event => {
@@ -148,15 +139,40 @@ const ResultForm = ({
         )}
       </Grid>
       <Grid item xs={12}>
-        <Button
-          type="submit"
-          variant="outlined"
-          color="primary"
-          disabled={!result}
-          onClick={handleSubmit}
+        <CustomMutation
+          mutation={setResultMutation}
+          variables={{
+            competitionId,
+            roundId,
+            result: { personId, attempts: trimTrailingZeros(attempts) },
+          }}
+          onCompleted={() => {
+            const personIdInput = rootRef.current.getElementsByTagName(
+              'input'
+            )[0];
+            personIdInput.focus();
+            personIdInput.select();
+          }}
         >
-          Submit
-        </Button>
+          {(setResult, { loading }) => (
+            <Button
+              type="submit"
+              variant="outlined"
+              color="primary"
+              disabled={!result || loading}
+              onClick={
+                submissionWarning
+                  ? confirm(setResult, {
+                      description: submissionWarning,
+                      confirmationText: 'Submit',
+                    })
+                  : setResult
+              }
+            >
+              Submit
+            </Button>
+          )}
+        </CustomMutation>
       </Grid>
     </Grid>
   );

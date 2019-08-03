@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
-import CustomMutation from '../../CustomMutation/CustomMutation';
 import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
@@ -76,21 +75,16 @@ const AdminRound = ({ match }) => {
         <div style={{ padding: 24 }}>
           <Grid container direction="row" spacing={2}>
             <Grid item md={3}>
-              <CustomMutation
-                mutation={SET_RESULT_MUTATION}
-                variables={{ competitionId, roundId }}
-              >
-                {setResult => (
-                  <ResultForm
-                    results={round.results}
-                    format={round.format}
-                    eventId={round.event.id}
-                    timeLimit={round.timeLimit}
-                    cutoff={round.cutoff}
-                    onSubmit={result => setResult({ variables: { result } })}
-                  />
-                )}
-              </CustomMutation>
+              <ResultForm
+                results={round.results}
+                format={round.format}
+                eventId={round.event.id}
+                timeLimit={round.timeLimit}
+                cutoff={round.cutoff}
+                competitionId={competitionId}
+                roundId={roundId}
+                setResultMutation={SET_RESULT_MUTATION}
+              />
             </Grid>
             <Grid item md={9}>
               <Typography
