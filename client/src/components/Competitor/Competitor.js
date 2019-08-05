@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
+import Hidden from '@material-ui/core/Hidden';
 import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
+import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
 import { groupBy } from '../../logic/utils';
 
 const COMPETITOR_QUERY = gql`
@@ -42,6 +44,8 @@ const COMPETITOR_QUERY = gql`
 
 const Competitor = ({ match }) => {
   const { competitionId, competitorId } = match.params;
+  const [selectedResult, setSelectedResult] = useState(null);
+
   return (
     <CustomQuery
       query={COMPETITOR_QUERY}
@@ -65,9 +69,17 @@ const Competitor = ({ match }) => {
                 <CompetitorResultsTable
                   results={results}
                   competitionId={competitionId}
+                  onResultClick={result => setSelectedResult(result)}
                 />
               </div>
             ))}
+            <Hidden mdUp>
+              <CompetitorResultDialog
+                result={selectedResult}
+                competitionId={competitionId}
+                onClose={() => setSelectedResult(null)}
+              />
+            </Hidden>
           </div>
         );
       }}

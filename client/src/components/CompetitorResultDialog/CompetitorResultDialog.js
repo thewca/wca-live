@@ -11,76 +11,67 @@ import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatResult } from '../../logic/results';
+import { statsToDisplay } from '../../logic/results-table-utils';
 
-const CompetitorResultDialog = ({
-  result,
-  competitionId,
-  eventId,
-  stats,
-  onClose,
-}) => {
+const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
+  if (!result) return null;
+  const { round } = result;
+  const stats = statsToDisplay(round.format, round.event.id);
+
   return (
-    <Dialog open={!!result} fullWidth={true} onClose={onClose}>
-      {!!result && (
-        <Fragment>
-          <DialogTitle>#{result.ranking}</DialogTitle>
-          <DialogContent>
-            <Grid container direction="column" spacing={2}>
+    <Dialog open={true} fullWidth={true} onClose={onClose}>
+      <DialogTitle>#{result.ranking}</DialogTitle>
+      <DialogContent>
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Typography variant="subtitle2">Event</Typography>
+            <Typography variant="body2">{round.event.name}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle2">Round</Typography>
+            <Typography variant="body2">{round.name}</Typography>
+            <Link
+              component={RouterLink}
+              to={`/competitions/${competitionId}/rounds/${round.id}`}
+            >
+              All results
+            </Link>
+          </Grid>
+          {result.ranking && (
+            <Fragment>
               <Grid item>
-                <Typography variant="subtitle2">Event</Typography>
+                <Typography variant="subtitle2">Times</Typography>
                 <Typography variant="body2">
-                  {result.round.event.name}
+                  {result.attempts
+                    .map(attempt => formatResult(attempt, round.event.id))
+                    .join(', ')}
                 </Typography>
               </Grid>
-              <Grid item>
-                <Typography variant="subtitle2">Round</Typography>
-                <Typography variant="body2">{result.round.name}</Typography>
-                <Link
-                  component={RouterLink}
-                  to={`/competitions/${competitionId}/rounds/${result.round.id}`}
-                >
-                  All results
-                </Link>
-              </Grid>
-              {result.ranking && (
-                <Fragment>
-                  <Grid item>
-                    <Typography variant="subtitle2">Times</Typography>
-                    <Typography variant="body2">
-                      {result.attempts
-                        .map(attempt =>
-                          formatResult(attempt, result.round.event.id)
-                        )
-                        .join(', ')}
-                    </Typography>
-                  </Grid>
-                  {stats.map(({ name, fn, type }) => (
-                    <Grid item key={name}>
-                      <Typography variant="subtitle2">{name}</Typography>
-                      <Typography variant="body2">
-                        <ResultWithRecordTag
-                          result={formatResult(
-                            fn(result.attempts, result.round.event.id),
-                            eventId,
-                            type === 'average'
-                          )}
-                          recordTag={result.recordTags[type]}
-                          showPb={true}
-                        />
-                      </Typography>
-                    </Grid>
-                  ))}
-                </Fragment>
-              )}
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button color="primary" onClick={onClose}>
-              Close
-            </Button>
-          </DialogActions>
-        </Fragment>
-      )}
+              {stats.map(({ name, fn, type }) => (
+                <Grid item key={name}>
+                  <Typography variant="subtitle2">{name}</Typography>
+                  <Typography variant="body2">
+                    <ResultWithRecordTag
+                      result={formatResult(
+                        fn(result.attempts, round.event.id),
+                        round.event.id,
+                        type === 'average'
+                      )}
+                      recordTag={result.recordTags[type]}
+                      showPb={true}
+                    />
+                  </Typography>
+                </Grid>
+              ))}
+            </Fragment>
+          )}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button color="primary" onClick={onClose}>
+          Close
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };
