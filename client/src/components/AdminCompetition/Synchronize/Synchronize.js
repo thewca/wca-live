@@ -54,7 +54,12 @@ const Synchronize = ({ match }) => {
         </Grid>
         <Grid item style={{ width: '50%' }}>
           <List>
-            <ListItem button>
+            <ListItem
+              button
+              component="a"
+              href={`https://www.worldcubeassociation.org/competitions/${competitionId}/registrations/add`}
+              target="_blank"
+            >
               <ListItemIcon>
                 <Icon>person_add</Icon>
               </ListItemIcon>
