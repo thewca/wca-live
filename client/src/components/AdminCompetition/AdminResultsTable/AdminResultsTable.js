@@ -62,7 +62,7 @@ const AdminResultsTable = React.memo(
               key={result.person.id}
               hover
               className={classes.row}
-              onClick={event => onResultClick(event, result)}
+              onClick={event => onResultClick(result, event)}
             >
               <TableCell
                 align="right"

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import Hidden from '@material-ui/core/Hidden';
 import Link from '@material-ui/core/Link';
@@ -10,11 +10,8 @@ import TableRow from '@material-ui/core/TableRow';
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import green from '@material-ui/core/colors/green';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { useTheme } from '@material-ui/core/styles';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import ResultDialog from '../ResultDialog/ResultDialog';
 import { times } from '../../logic/utils';
 import { formatResult } from '../../logic/results';
 import { statsToDisplay } from '../../logic/results-table-utils';
@@ -51,16 +48,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ResultsTable = ({ results, format, eventId, competitionId }) => {
-  const classes = useStyles();
-  const theme = useTheme();
-  const smallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+const ResultsTable = React.memo(
+  ({ results, format, eventId, competitionId, onResultClick }) => {
+    const classes = useStyles();
+    const stats = statsToDisplay(format, eventId);
 
-  const [selectedResult, setSelectedResult] = useState(null);
-  const stats = statsToDisplay(format, eventId);
-
-  return (
-    <Fragment>
+    return (
       <Table size="small">
         <TableHead>
           <TableRow>
@@ -92,7 +85,7 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
               key={result.person.id}
               hover
               className={classes.row}
-              onClick={smallScreen ? () => setSelectedResult(result) : null}
+              onClick={event => onResultClick(result, event)}
             >
               <TableCell
                 align="right"
@@ -103,16 +96,15 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
                 {result.ranking}
               </TableCell>
               <TableCell className={classNames(classes.cell, classes.name)}>
-                {smallScreen ? (
-                  result.person.name
-                ) : (
+                <Hidden smDown>
                   <Link
                     component={RouterLink}
                     to={`/competitions/${competitionId}/competitors/${result.person.id}`}
                   >
                     {result.person.name}
                   </Link>
-                )}
+                </Hidden>
+                <Hidden mdUp>{result.person.name}</Hidden>
               </TableCell>
               <Hidden smDown>
                 <TableCell className={classes.cell}>
@@ -147,17 +139,8 @@ const ResultsTable = ({ results, format, eventId, competitionId }) => {
           ))}
         </TableBody>
       </Table>
-      {smallScreen && (
-        <ResultDialog
-          result={selectedResult}
-          competitionId={competitionId}
-          eventId={eventId}
-          stats={stats}
-          onClose={() => setSelectedResult(null)}
-        />
-      )}
-    </Fragment>
-  );
-};
+    );
+  }
+);
 
 export default ResultsTable;

@@ -11,8 +11,11 @@ import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatResult } from '../../logic/results';
+import { statsToDisplay } from '../../logic/results-table-utils';
 
-const ResultDialog = ({ result, competitionId, eventId, stats, onClose }) => {
+const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
+  const stats = statsToDisplay(format, eventId);
+
   return (
     <Dialog open={!!result} fullWidth={true} onClose={onClose}>
       {!!result && (

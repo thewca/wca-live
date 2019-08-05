@@ -69,7 +69,7 @@ const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   const [resultMenuProps, setResultMenuProps] = useState({});
 
-  const handleResultClick = useCallback((event, result) => {
+  const handleResultClick = useCallback((result, event) => {
     setResultMenuProps({
       position: { left: event.clientX, top: event.clientY },
       result,
