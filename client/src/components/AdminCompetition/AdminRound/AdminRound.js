@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -69,6 +69,13 @@ const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   const [resultMenuProps, setResultMenuProps] = useState({});
 
+  const handleResultClick = useCallback((event, result) => {
+    setResultMenuProps({
+      position: { left: event.clientX, top: event.clientY },
+      result,
+    });
+  }, []);
+
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round } }) => (
@@ -99,12 +106,7 @@ const AdminRound = ({ match }) => {
                 format={round.format}
                 eventId={round.event.id}
                 competitionId={competitionId}
-                onResultClick={(event, result) => {
-                  setResultMenuProps({
-                    position: { left: event.clientX, top: event.clientY },
-                    result,
-                  });
-                }}
+                onResultClick={handleResultClick}
               />
             </Grid>
           </Grid>
