@@ -1,21 +1,19 @@
 const { average, best } = require('./calculations');
-const { sortByArray } = require('./utils');
-const { personById, parseActivityCode, eventById, acceptedPeople, nextRound, previousRound } = require('./wcif');
+const { sortByArray, partition } = require('./utils');
+const { personById, parseActivityCode, eventById, roundById, acceptedPeople, nextRound,
+        previousRound, updateEvent, updateRound } = require('./wcif');
 const { formatById } = require('./formats');
 const { cloneRecords, recordId } = require('./records');
 const { countryByIso2 } = require('./countries');
 
-const setRankings = (results, formatId) => {
+const withRanking = (results, formatId) => {
   const { sortBy } = formatById(formatId);
   rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
   const cache = { average: {}, best: {} };
 
-  results.forEach(result => result.ranking = null);
-  results = results.filter(result =>
-    result.attempts.some(({ result }) => result !== 0)
-  );
+  const [completed, empty] = partition(results, ({ attempts }) => attempts.length > 0);
 
-  results.forEach(result => {
+  completed.forEach(result => {
     const attempts = result.attempts.map(({ result }) => result);
     if (rankingOrder.includes('average')) {
       const avg = average(attempts);
@@ -25,17 +23,23 @@ const setRankings = (results, formatId) => {
     cache.best[result.personId] = bst > 0 ? bst : Infinity;
   });
 
-  results = sortByArray(results, result =>
+  const sortedResults = sortByArray(completed, result =>
     rankingOrder.map(type => cache[type][result.personId])
   );
 
-  results.reduce((prevResult, result, index) => {
+  const completedWithRanking = sortedResults.reduce((results, result, index) => {
+    const prevResult = results[index - 1];
     const tiedPrevious = prevResult && rankingOrder.every(
       type => cache[type][result.personId] === cache[type][prevResult.personId]
     );
-    result.ranking = tiedPrevious ? prevResult.ranking : index + 1;
-    return result;
-  }, null);
+    const resultWithRanking = {
+      ...result,
+      ranking: tiedPrevious ? prevResult.ranking : index + 1
+    };
+    return [...results, resultWithRanking];
+  }, []);
+  const emptyWithRanking = empty.map(result => ({ ...result, ranking: null }));
+  return [...completedWithRanking, ...emptyWithRanking];
 };
 
 const sortResults = (results, wcif) => {
@@ -56,8 +60,8 @@ const tagsWithRecordId = (wcif, personId, eventId, type) => {
   ];
 };
 
-const setRecordTags = (round, wcif) => {
-  const { eventId, roundNumber } = parseActivityCode(round.id);
+const withRecordTags = (wcif, roundId) => {
+  const { eventId, roundNumber } = parseActivityCode(roundId);
   const event = eventById(wcif, eventId);
   const recordById = cloneRecords();
   /* Add personal records to recordById. */
@@ -84,36 +88,52 @@ const setRecordTags = (round, wcif) => {
       });
     });
   };
-  const previousRounds = event.rounds.filter(
-    round => parseActivityCode(round.id).roundNumber < roundNumber
+  /* Changing result may affect records in the given and further rounds. */
+  const [previousRounds, affectedRounds] = partition(
+    event.rounds,
+    round => parseActivityCode(roundId).roundNumber < roundNumber
   );
   previousRounds.forEach(updateRecords);
-  /* Changing result may affect records in current and further rounds. */
-  const affectedRounds = event.rounds.filter(
-    round => parseActivityCode(round.id).roundNumber >= roundNumber
-  );
-  affectedRounds.forEach(round => {
+  const updatedAffectedRounds = affectedRounds.map(round => {
     updateRecords(round);
-    round.results.forEach(result => {
+    const results = round.results.map(result => {
       const attempts = result.attempts.map(({ result }) => result);
       const stats = {
         single: best(attempts),
         average: average(attempts),
       };
-      result.recordTags = {};
+      const recordTags = {};
       ['single', 'average'].forEach(type => {
         const tagWithRecordId = tagsWithRecordId(wcif, result.personId, eventId, type)
           .find(({ recordId }) => recordById[recordId] === stats[type]);
-        result.recordTags[type] = tagWithRecordId ? tagWithRecordId.tag : null;
+        recordTags[type] = tagWithRecordId ? tagWithRecordId.tag : null;
       });
+      return { ...result, recordTags };
     });
+    return { ...round, results };
   });
+  const updatedEvent = { ...event, rounds: [...previousRounds, ...updatedAffectedRounds] };
+  return updateEvent(wcif, updatedEvent);
 };
 
-const processRoundResults = (round, wcif) => {
-  setRankings(round.results, round.format);
-  round.results = sortResults(round.results, wcif);
-  setRecordTags(round, wcif);
+const processRoundChange = (wcif, roundId) => {
+  const round = roundById(wcif, roundId);
+  const withRanks = withRanking(round.results, round.format);
+  const sorted = sortResults(withRanks, wcif);
+  const updated = updateRound(wcif, { ...round, results: sorted });
+  return withRecordTags(updated, roundId);
+};
+
+const updateResult = (wcif, roundId, personId, attempts) => {
+  const round = roundById(wcif, roundId);
+  const updatedWcif = updateRound(wcif, {
+    ...round,
+    results: round.results.map(current => ({
+      ...current,
+      attempts: current.personId === personId ? attempts : current.attempts,
+    }))
+  });
+  return processRoundChange(updatedWcif, roundId);
 };
 
 const satisfiesAdvancementCondition = (result, advancementCondition, resultCount) => {
@@ -180,7 +200,7 @@ const advancingPersonIds = (round, wcif) => {
   }
 };
 
-const emptyResultsForPeople = (personIds, solveCount) => {
+const emptyResultsForPeople = personIds => {
   return personIds.map(personId => ({
     personId,
     ranking: null,
@@ -189,81 +209,90 @@ const emptyResultsForPeople = (personIds, solveCount) => {
   }));
 };
 
-const openRound = (round, wcif) => {
-  const format = formatById(round.format);
-  const previous = previousRound(wcif, round.id);
+const openRound = (wcif, roundId) => {
+  const round = roundById(wcif, roundId);
+  const previous = previousRound(wcif, roundId);
   if (previous) {
     /* Remove empty results from previous round, to correctly determine how many people to advance. */
-    previous.results = previous.results.filter(
+    const previousResults = previous.results.filter(
       ({ attempts }) => attempts.length > 0
     );
-    if (previous.results.length < 8) {
+    if (previousResults.length < 8) {
       throw new Error('Cannot open this round as the previous has less than 8 competitors.');
     }
+    wcif = updateRound(wcif, { ...previous, results: previousResults });
   }
   const advancingIds = advancingPersonIds(round, wcif);
   if (advancingIds.length === 0) {
     throw new Error(`Cannot open this round as no one ${previous ? 'qualified' : 'registered'}.`);
   }
-  round.results = emptyResultsForPeople(advancingIds, format.solveCount);
-  round.results = sortResults(round.results, wcif);
+  const results = sortResults(emptyResultsForPeople(advancingIds), wcif);
+  return updateRound(wcif, { ...round, results });
+};
+
+const clearRound = (wcif, roundId) => {
+  const round = roundById(wcif, roundId);
+  return updateRound(wcif, { ...round, results: [] });
 };
 
 /* Returns people who could advance to the given round if one person quit. */
-const nextAdvancableToRound = (round, wcif) => {
-  const previous = previousRound(wcif, round.id);
+const nextAdvancableToRound = (wcif, roundId) => {
+  const previous = previousRound(wcif, roundId);
   if (!previous) return []; /* This is the first round, noone else could advance to it. */
   const previousResults = withAdvancable(previous.results, previous, wcif);
   const maxAdvancingRanking = Math.max(
     ...previousResults.filter(({ advancable }) => advancable).map(({ ranking }) => ranking)
   );
-  /* For previous round results remove attempts of people
-     who quitted the next round (gaps in advancable) and also for first advancable person.
-     Empty attempts rank those people at the end (so we don't treat them as advancable).
-     Then recompute rankings and see who else would advance as a result. */
-  previousResults
-    .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should be advancable... */
-    .filter(({ advancable }) => !advancable) /* ...but it's not, because it quitted the next round. */
-    .forEach(result => result.attempts = []);
-  const firstAdvancable = previousResults.find(({ advancable }) => advancable);
-  if (!firstAdvancable) return [];
-  firstAdvancable.attempts = [];
   const potentiallyAdvancingPersonIds = previousResults
     .filter(({ ranking }) => ranking > maxAdvancingRanking)
     .map(({ personId }) => personId);
-  setRankings(previousResults, previous.format);
-  const previousResultsWithoutQuitted =
-    withAdvancableFromCondition(sortResults(previousResults, wcif), previous.advancementCondition);
+  /* For previous round results ignore people who quitted the next round (gaps in advancable)
+     and also for first advancable person (by clearing their attempts).
+     Empty attempts rank those people at the end (so we don't treat them as advancable).
+     Then recompute rankings and see who else would advance as a result. */
+  const alreadyQuittedIds = previousResults
+    .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should be advancable... */
+    .filter(({ advancable }) => !advancable) /* ...but it's not, because they quitted the next round. */
+    .map(({ personId }) => personId);
+  const firstAdvancable = previousResults.find(({ advancable }) => advancable);
+  if (!firstAdvancable) return [];
+  const ignoredIds = [...alreadyQuittedIds, firstAdvancable.personId];
+  const resultsWithIgnored = previousResults.map(result =>
+    ignoredIds.includes(result.personId) ? { ...result, attempts: [] } : result
+  );
+  const resultsWithNewRanking = withRanking(resultsWithIgnored, previous.format);
+  const resultsWithNewAdvancable =
+    withAdvancableFromCondition(sortResults(resultsWithNewRanking, wcif), previous.advancementCondition);
   const wouldAdvancePersonIds = potentiallyAdvancingPersonIds.filter(
-    personId => previousResultsWithoutQuitted.find(result => result.personId === personId).advancable
+    personId => resultsWithNewAdvancable.find(result => result.personId === personId).advancable
   );
   return wouldAdvancePersonIds.map(personId => personById(wcif, personId));
 };
 
-const quitCompetitor = (competitorId, replace, round, wcif) => {
+const quitCompetitor = (wcif, roundId, competitorId, replace) => {
+  const round = roundById(wcif, roundId);
   const advanced = round.results.some(
-    result => result.personId === parseInt(competitorId, 10)
+    result => result.personId === competitorId
   );
   if (!advanced) {
     throw new Error(`Cannot quit competitor with id ${competitorId} as he's not in ${roundId}.`);
   }
-  if (replace) {
-    round.results.push(
-      ...emptyResultsForPeople(
-        nextAdvancableToRound(round, wcif).map(({ registrantId }) => registrantId)
-      )
-    );
-  }
-  round.results = round.results.filter(
-    result => result.personId !== parseInt(competitorId, 10)
-  );
-  processRoundResults(round, wcif);
+  const replacingResults = replace
+    ? emptyResultsForPeople(
+      nextAdvancableToRound(wcif, round.id).map(({ registrantId }) => registrantId)
+    )
+    : [];
+  const results = round.results
+    .filter(result => result.personId !== competitorId)
+    .concat(replacingResults);
+  const updatedWcif = updateRound(wcif, { ...round, results });
+  return processRoundChange(updatedWcif, round.id);
 };
 
 module.exports = {
-  processRoundResults,
+  updateResult,
   openRound,
-  setRecordTags,
+  clearRound,
   withAdvancable,
   nextAdvancableToRound,
   quitCompetitor,

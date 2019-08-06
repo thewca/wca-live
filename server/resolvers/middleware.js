@@ -9,10 +9,8 @@ const withAuthentication = resolver => async (parent, args, context) => {
 };
 
 const withCompetition = resolver => async (parent, args, context) => {
-  const { mongo: { Competitions } } = context;
-  context.competition = await Competitions.findOne({
-    'wcif.id': args.competitionId || args.id
-  });
+  const { competitionLoader } = context;
+  context.competition = await competitionLoader.get(args.competitionId || args.id);
   return resolver(parent, args, context);
 };
 

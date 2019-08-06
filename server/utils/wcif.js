@@ -53,6 +53,27 @@ const previousRound = (wcif, roundId) => {
   );
 };
 
+// TODO: use mapIn (https://github.com/jonatanklosko/groupifier-next/blob/5671626a1d8289f97ce76dbc8c8bef156f8e8934/src/logic/activities.js#L84)
+const updateRound = (wcif, updatedRound) => {
+  const { eventId } = parseActivityCode(updatedRound.id);
+  return {
+    ...wcif,
+    events: wcif.events.map(event => event.id !== eventId ? event : ({
+      ...event,
+      rounds: event.rounds.map(round => round.id === updatedRound.id ? updatedRound : round),
+    })),
+  };
+};
+
+const updateEvent = (wcif, updatedEvent) => {
+  return {
+    ...wcif,
+    events: wcif.events.map(
+      event => event.id === updatedEvent.id ? updatedEvent : event
+    ),
+  };
+};
+
 module.exports = {
   parseActivityCode,
   eventById,
@@ -63,4 +84,6 @@ module.exports = {
   endDate,
   nextRound,
   previousRound,
+  updateEvent,
+  updateRound,
 };

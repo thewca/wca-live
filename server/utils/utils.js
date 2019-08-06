@@ -20,9 +20,13 @@ const sortByArray = (arr, fn) => {
 const sortBy = (arr, fn) =>
   arr.slice().sort((x, y) => sortCompare(fn(x), fn(y)));
 
+const partition = (xs, fn) =>
+  [xs.filter(fn), xs.filter(x => !fn(x))];
+
 module.exports = {
   flatMap,
   zip,
   sortByArray,
   sortBy,
+  partition,
 };

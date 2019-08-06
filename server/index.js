@@ -12,12 +12,14 @@ const { ObjectId } = require('mongodb');
 const oauth = require('./oauth');
 const resolvers = require('./resolvers');
 const connectMongo = require('./mongo-connector');
+const competitionLoaderFactory = require('./competition-loader');
 const { PRODUCTION, PORT, SESSION_SECRET } = require('./config');
 
 const app = express();
 
 (async () => {
   const mongo = await connectMongo();
+  const competitionLoader = competitionLoaderFactory(mongo);
 
   app.use(session({
     secret: SESSION_SECRET,
@@ -46,11 +48,13 @@ const app = express();
         /* For subscriptions over websocket. */
         return {
           mongo,
+          competitionLoader,
         };
       } else {
         /* For queries and mutations over http. */
         return {
           mongo,
+          competitionLoader,
           session: req.session,
         };
       }
