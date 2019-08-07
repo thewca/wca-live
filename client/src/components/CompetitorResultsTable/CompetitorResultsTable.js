@@ -48,7 +48,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
   const stats = statsToDisplay(format, event.id);
 
   const solveCount = Math.max(
-    results.map(result => result.round.format.solveCount)
+    ...results.map(result => result.round.format.solveCount)
   );
 
   return (
