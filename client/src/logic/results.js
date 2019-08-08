@@ -49,20 +49,12 @@ export const mbldResultToPoints = result => {
   return solved - missed;
 };
 
-const betterThan = (result, otherResult, eventId) => {
-  if (result <= 0) return false;
-  if (eventId === '333mbf') {
-    return mbldResultToPoints(result) > mbldResultToPoints(otherResult);
-  }
-  return result < otherResult;
-};
-
-export const meetsCutoff = (attempts, cutoff, eventId) => {
+export const meetsCutoff = (attempts, cutoff) => {
   if (!cutoff) return true;
   const { numberOfAttempts, attemptResult } = cutoff;
   return attempts
     .slice(0, numberOfAttempts)
-    .some(attempt => betterThan(attempt, attemptResult, eventId));
+    .some(attempt => attempt > 0 && attempt < attemptResult);
 };
 
 const formatMbldResult = result => {
