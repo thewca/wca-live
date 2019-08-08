@@ -25,6 +25,7 @@ const app = express();
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
       httpOnly: true,
       secure: PRODUCTION,
