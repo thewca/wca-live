@@ -44,7 +44,11 @@ const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
               {result.ranking && (
                 <Fragment>
                   <Grid item>
-                    <Typography variant="subtitle2">Times</Typography>
+                    <Typography variant="subtitle2">
+                      {['333fm', '333mbf'].includes(eventId)
+                        ? 'Results'
+                        : 'Times'}
+                    </Typography>
                     <Typography variant="body2">
                       {result.attempts
                         .map(attempt => formatResult(attempt, eventId))
