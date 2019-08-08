@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Hidden from '@material-ui/core/Hidden';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
@@ -114,6 +115,10 @@ const Competition = ({ match }) => {
           </Fragment>
         );
 
+        /* See: https://material-ui.com/components/drawers/#swipeable-temporary-drawer */
+        const iOS =
+          process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
         return (
           <Fragment>
             <AppBar position="static" className={classes.appBarShift}>
@@ -141,23 +146,20 @@ const Competition = ({ match }) => {
               </Toolbar>
             </AppBar>
             <Hidden mdUp>
-              <Drawer
-                className={classes.drawer}
-                variant="temporary"
+              <SwipeableDrawer
                 open={mobileOpen}
+                onOpen={() => setMobileOpen(true)}
                 onClose={() => setMobileOpen(false)}
                 onClick={() => setMobileOpen(false)}
                 classes={{ paper: classes.drawer }}
+                disableBackdropTransition={!iOS}
+                disableDiscovery={iOS}
               >
                 {drawerContent}
-              </Drawer>
+              </SwipeableDrawer>
             </Hidden>
             <Hidden smDown>
-              <Drawer
-                className={classes.drawer}
-                variant="permanent"
-                classes={{ paper: classes.drawer }}
-              >
+              <Drawer variant="permanent" classes={{ paper: classes.drawer }}>
                 {drawerContent}
               </Drawer>
             </Hidden>
