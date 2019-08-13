@@ -34,6 +34,8 @@ const ROUND_QUERY = gql`
         ranking
         advancable
         attempts
+        best
+        average
         person {
           id
           name

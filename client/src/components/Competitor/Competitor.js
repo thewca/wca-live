@@ -21,6 +21,8 @@ const COMPETITOR_QUERY = gql`
         ranking
         advancable
         attempts
+        best
+        average
         recordTags {
           single
           average

@@ -110,7 +110,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
                 </TableCell>
               ))}
             </Hidden>
-            {stats.map(({ name, fn, type }, index) => (
+            {stats.map(({ name, type, recordType }, index) => (
               <TableCell
                 key={name}
                 align="right"
@@ -120,11 +120,11 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
               >
                 <ResultWithRecordTag
                   result={formatResult(
-                    fn(result.attempts, event.id),
+                    result[type],
                     event.id,
                     type === 'average'
                   )}
-                  recordTag={result.recordTags[type]}
+                  recordTag={result.recordTags[recordType]}
                   showPb={true}
                 />
               </TableCell>

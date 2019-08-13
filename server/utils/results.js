@@ -9,28 +9,17 @@ const { countryByIso2 } = require('./countries');
 const withRanking = (results, formatId) => {
   const { sortBy } = formatById(formatId);
   rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
-  const cache = { average: {}, best: {} };
 
   const [completed, empty] = partition(results, ({ attempts }) => attempts.length > 0);
 
-  completed.forEach(result => {
-    const attempts = result.attempts.map(({ result }) => result);
-    if (rankingOrder.includes('average')) {
-      const avg = average(attempts);
-      cache.average[result.personId] = avg > 0 ? avg : Infinity;
-    }
-    const bst = best(attempts);
-    cache.best[result.personId] = bst > 0 ? bst : Infinity;
-  });
-
   const sortedResults = sortByArray(completed, result =>
-    rankingOrder.map(type => cache[type][result.personId])
+    rankingOrder.map(type => result[type] > 0 ? result[type] : Infnity)
   );
 
   const completedWithRanking = sortedResults.reduce((results, result, index) => {
     const prevResult = results[index - 1];
     const tiedPrevious = prevResult && rankingOrder.every(
-      type => cache[type][result.personId] === cache[type][prevResult.personId]
+      type => result[type] === prevResult[type]
     );
     const resultWithRanking = {
       ...result,
@@ -73,10 +62,9 @@ const withRecordTags = (wcif, roundId) => {
   /* Updates recordById taking the given round results into account. */
   const updateRecords = round => {
     round.results.forEach(result => {
-      const attempts = result.attempts.map(({ result }) => result);
       const stats = {
-        single: best(attempts),
-        average: average(attempts),
+        single: result.best,
+        average: result.average,
       };
       ['single', 'average'].forEach(type => {
         if (stats[type] > 0) {
@@ -97,10 +85,9 @@ const withRecordTags = (wcif, roundId) => {
   const updatedAffectedRounds = affectedRounds.map(round => {
     updateRecords(round);
     const results = round.results.map(result => {
-      const attempts = result.attempts.map(({ result }) => result);
       const stats = {
-        single: best(attempts),
-        average: average(attempts),
+        single: result.best,
+        average: result.average,
       };
       const recordTags = {};
       ['single', 'average'].forEach(type => {
@@ -126,12 +113,14 @@ const processRoundChange = (wcif, roundId) => {
 
 const updateResult = (wcif, roundId, personId, attempts) => {
   const round = roundById(wcif, roundId);
+  const attemptResults = attempts.map(({ result }) => result);
   const updatedWcif = updateRound(wcif, {
     ...round,
-    results: round.results.map(current => ({
-      ...current,
-      attempts: current.personId === personId ? attempts : current.attempts,
-    }))
+    results: round.results.map(current =>
+      current.personId === personId
+        ? { ...current, attempts, best: best(attemptResults), average: average(attemptResults) }
+        : current
+    ),
   });
   return processRoundChange(updatedWcif, roundId);
 };
@@ -205,6 +194,8 @@ const emptyResultsForPeople = personIds => {
     personId,
     ranking: null,
     attempts: [],
+    best: 0,
+    average: 0,
     recordTags: { single: null, average: null },
   }));
 };

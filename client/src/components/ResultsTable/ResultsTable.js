@@ -116,7 +116,7 @@ const ResultsTable = React.memo(
                   </TableCell>
                 ))}
               </Hidden>
-              {stats.map(({ name, fn, type }, index) => (
+              {stats.map(({ name, type, recordType }, index) => (
                 <TableCell
                   key={name}
                   align="right"
@@ -126,11 +126,11 @@ const ResultsTable = React.memo(
                 >
                   <ResultWithRecordTag
                     result={formatResult(
-                      fn(result.attempts, eventId),
+                      result[type],
                       eventId,
                       type === 'average'
                     )}
-                    recordTag={result.recordTags[type]}
+                    recordTag={result.recordTags[recordType]}
                     showPb={false}
                   />
                 </TableCell>

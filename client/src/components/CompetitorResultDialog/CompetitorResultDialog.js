@@ -51,17 +51,17 @@ const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
                     .join(', ')}
                 </Typography>
               </Grid>
-              {stats.map(({ name, fn, type }) => (
+              {stats.map(({ name, type, recordType }) => (
                 <Grid item key={name}>
                   <Typography variant="subtitle2">{name}</Typography>
                   <Typography variant="body2">
                     <ResultWithRecordTag
                       result={formatResult(
-                        fn(result.attempts, round.event.id),
+                        result[type],
                         round.event.id,
                         type === 'average'
                       )}
-                      recordTag={result.recordTags[type]}
+                      recordTag={result.recordTags[recordType]}
                       showPb={true}
                     />
                   </Typography>

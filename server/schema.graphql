@@ -93,6 +93,8 @@ type Result {
   person: Person!
   ranking: Int
   attempts: [Int]!
+  best: Int!
+  average: Int!
   advancable: Boolean!
   round: Round!
   recordTags: RecordTags!
