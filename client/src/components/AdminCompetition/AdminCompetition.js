@@ -19,6 +19,7 @@ const COMPETITION_QUERY = gql`
       name
     }
     me {
+      id
       manageableCompetitions {
         id
       }

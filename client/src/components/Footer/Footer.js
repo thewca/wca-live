@@ -1,9 +1,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import Icon from '@material-ui/core/Icon';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
-import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({

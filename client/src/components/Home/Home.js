@@ -30,8 +30,8 @@ const COMPETITIONS_QUERY = gql`
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing.unit * 3,
-    paddingBottom: theme.spacing.unit * 2,
+    padding: theme.spacing(3),
+    paddingBottom: theme.spacing(2),
     display: 'flex',
     minHeight: '100vh',
   },
