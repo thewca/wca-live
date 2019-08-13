@@ -1,10 +1,11 @@
-const { getRecentManageableCompetitions } = require('../utils/wca-api');
+const { db } = require('../mongo-connector');
+const wcaApi = require('../utils/wca-api');
 
 module.exports = {
   id: (parent) => parent._id,
-  importableCompetitions: async (parent, args, { mongo: { Competitions } }) => {
-    const competitions = await getRecentManageableCompetitions(parent.oauth.accessToken);
-    const importedCompetitions = await Competitions.find({}).project({ 'wcif.id': 1 }).toArray();
+  importableCompetitions: async (parent, args) => {
+    const competitions = await wcaApi(parent).getRecentManageableCompetitions();
+    const importedCompetitions = await db.competitions.find({}).project({ 'wcif.id': 1 }).toArray();
     const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
     return competitions
       .filter(competition => !importedCompetitionIds.includes(competition.id))
@@ -21,8 +22,8 @@ module.exports = {
         },
       }));
   },
-  manageableCompetitions: async (parent, args, { mongo: { Competitions } }) => {
-    return await Competitions
+  manageableCompetitions: async (parent, args) => {
+    return await db.competitions
       .find({ managerWcaUserIds: parent.wcaUserId })
       .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1 })
       .toArray();

@@ -1,7 +1,9 @@
 const { MongoClient, Logger } = require('mongodb');
 const { MONGO_URI, PRODUCTION } = require('./config');
 
-module.exports = async () => {
+module.exports.db = {};
+
+module.exports.connect = async () => {
   const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true });
   const db = client.db();
   if (!PRODUCTION) {
@@ -12,9 +14,9 @@ module.exports = async () => {
       console.log(`${queryNumber++} ${message}\n`);
     });
   }
-  return {
+  Object.assign(module.exports.db, {
     client,
-    Users: db.collection('users'),
-    Competitions: db.collection('competitions'),
-  };
+    users: db.collection('users'),
+    competitions: db.collection('competitions'),
+  });
 };

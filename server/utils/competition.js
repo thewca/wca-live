@@ -1,8 +1,8 @@
-const { getWcif, updateWcif } = require ('./wca-api');
+const wcaApi= require ('./wca-api');
 
 /* Gets current WCIF from the WCA website and override results with the local ones. */
-const synchronize = async (wcif, accessToken) => {
-  const newWcif = await getWcif(wcif.id, accessToken);
+const synchronize = async (wcif, user) => {
+  const newWcif = await wcaApi(user).getWcif(wcif.id);
   newWcif.events.forEach(newEvent => {
     const event = wcif.events.find(event => event.id === newEvent.id);
     newEvent.rounds.forEach(newRound => {
@@ -10,7 +10,7 @@ const synchronize = async (wcif, accessToken) => {
       newRound.results = round.results;
     });
   });
-  await updateWcif(wcif.id, { events: newWcif.events }, accessToken);
+  await wcaApi(user).updateWcif(wcif.id, { events: newWcif.events });
   return newWcif;
 };
 

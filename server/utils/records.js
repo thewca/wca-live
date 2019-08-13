@@ -2,13 +2,13 @@
  * This module loads current records using WCA API and updates them periodically.
  */
 
-const { getRecords } = require('./wca-api');
+const wcaApi = require('./wca-api');
 
 const cache = { recordById: null };
 
 const updateRecords = async () => {
   try {
-    const recordsJson = await getRecords();
+    const recordsJson = await wcaApi().getRecords();
     cache.recordById = recordsJsonToRecordById(recordsJson);
   } catch (error) {
     console.log(`Failed to load records: ${error}`);

@@ -11,15 +11,14 @@ const { ApolloServer, gql } = require('apollo-server-express');
 const { ObjectId } = require('mongodb');
 const oauth = require('./oauth');
 const resolvers = require('./resolvers');
-const connectMongo = require('./mongo-connector');
+const mongo = require('./mongo-connector');
 const competitionLoaderFactory = require('./competition-loader');
 const { PRODUCTION, PORT, SESSION_SECRET } = require('./config');
 
 const app = express();
 
 (async () => {
-  const mongo = await connectMongo();
-  const competitionLoader = competitionLoaderFactory(mongo);
+  await mongo.connect();
 
   app.use(session({
     secret: SESSION_SECRET,
@@ -35,11 +34,11 @@ const app = express();
     proxy: true,
     store: new MongoStore({
       collection: 'cookieSessions',
-      client: mongo.client,
+      client: mongo.db.client,
     }),
   }));
 
-  app.use('/oauth', oauth(mongo));
+  app.use('/oauth', oauth);
 
   const server = new ApolloServer({
     typeDefs: gql(fs.readFileSync(__dirname.concat('/schema.graphql'), 'utf8')),
@@ -47,15 +46,10 @@ const app = express();
     context: ({ req, connection }) => {
       if (connection) {
         /* For subscriptions over websocket. */
-        return {
-          mongo,
-          competitionLoader,
-        };
+        return {};
       } else {
         /* For queries and mutations over http. */
         return {
-          mongo,
-          competitionLoader,
           session: req.session,
         };
       }
