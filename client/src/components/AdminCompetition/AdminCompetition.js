@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, Link } from 'react-router-dom';
+import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
 import Icon from '@material-ui/core/Icon';
@@ -18,65 +18,81 @@ const COMPETITION_QUERY = gql`
       id
       name
     }
+    me {
+      manageableCompetitions {
+        id
+      }
+    }
   }
 `;
 
-const AdminCompetition = ({ match }) => {
+const AdminCompetition = ({ match, location }) => {
   return (
     <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
-      {({ data: { competition } }) => (
-        <div>
-          <AppBar position="static">
-            <Toolbar>
-              <Typography variant="h6" color="inherit">
-                {competition.name}
-              </Typography>
-              <div style={{ flexGrow: 1 }} />
-              <IconButton
-                color="inherit"
-                component={Link}
-                to={`/admin/competitions/${competition.id}`}
-              >
-                <Icon>view_list</Icon>
-              </IconButton>
-              <IconButton
-                color="inherit"
-                component={Link}
-                to={`/admin/competitions/${competition.id}/sync`}
-              >
-                <Icon>sync</Icon>
-              </IconButton>
-              <IconButton
-                color="inherit"
-                component={Link}
-                to={`/competitions/${competition.id}`}
-              >
-                <Icon>remove_red_eye</Icon>
-              </IconButton>
-              <IconButton color="inherit" component={Link} to="/admin">
-                <Icon>account_circle</Icon>
-              </IconButton>
-            </Toolbar>
-          </AppBar>
-          <Switch>
-            <Route
-              exact
-              path="/admin/competitions/:competitionId"
-              component={AdminEvents}
-            />
-            <Route
-              exact
-              path="/admin/competitions/:competitionId/sync"
-              component={Synchronize}
-            />
-            <Route
-              exact
-              path="/admin/competitions/:competitionId/rounds/:roundId"
-              component={AdminRound}
-            />
-          </Switch>
-        </div>
-      )}
+      {({ data }) => {
+        const { competition, me } = data;
+        const manageableByCurrentUser =
+          me &&
+          me.manageableCompetitions.some(({ id }) => id === competition.id);
+        if (!manageableByCurrentUser) {
+          return <Redirect to={`/competitions/${competition.id}`} />;
+        }
+
+        return (
+          <div>
+            <AppBar position="static">
+              <Toolbar>
+                <Typography variant="h6" color="inherit">
+                  {competition.name}
+                </Typography>
+                <div style={{ flexGrow: 1 }} />
+                <IconButton
+                  color="inherit"
+                  component={Link}
+                  to={`/admin/competitions/${competition.id}`}
+                >
+                  <Icon>view_list</Icon>
+                </IconButton>
+                <IconButton
+                  color="inherit"
+                  component={Link}
+                  to={`/admin/competitions/${competition.id}/sync`}
+                >
+                  <Icon>sync</Icon>
+                </IconButton>
+                <IconButton
+                  color="inherit"
+                  component={Link}
+                  to={location.pathname.replace(/^\/admin/, '')}
+                >
+                  <Icon>remove_red_eye</Icon>
+                </IconButton>
+                <IconButton color="inherit" component={Link} to="/admin">
+                  <Icon>account_circle</Icon>
+                </IconButton>
+              </Toolbar>
+            </AppBar>
+            <Switch>
+              <Route
+                exact
+                path="/admin/competitions/:competitionId"
+                component={AdminEvents}
+              />
+              <Route
+                exact
+                path="/admin/competitions/:competitionId/sync"
+                component={Synchronize}
+              />
+              <Route
+                exact
+                path="/admin/competitions/:competitionId/rounds/:roundId"
+                component={AdminRound}
+              />
+              <Redirect to={`/admin/competitions/${competition.id}`} />
+            </Switch>
+          </div>
+        );
+      }}
     </CustomQuery>
   );
 };

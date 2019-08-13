@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Switch, Route, Link } from 'react-router-dom';
+import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
@@ -31,6 +31,11 @@ const COMPETITION_QUERY = gql`
           name
           open
         }
+      }
+    }
+    me {
+      manageableCompetitions {
+        id
       }
     }
   }
@@ -85,14 +90,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Competition = ({ match }) => {
+const Competition = ({ match, location }) => {
   const classes = useStyles();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
       {({ data }) => {
-        const { competition } = data;
+        const { competition, me } = data;
+        const manageableByCurrentUser =
+          me &&
+          me.manageableCompetitions.some(({ id }) => id === competition.id);
 
         const drawerContent = (
           <Fragment>
@@ -143,6 +151,16 @@ const Competition = ({ match }) => {
                     {competition.name}
                   </Link>
                 </Typography>
+                <div style={{ flexGrow: 1 }} />
+                {manageableByCurrentUser && (
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    to={`/admin${location.pathname}`}
+                  >
+                    <Icon>lock</Icon>
+                  </IconButton>
+                )}
               </Toolbar>
             </AppBar>
             <Hidden mdUp>
@@ -180,6 +198,7 @@ const Competition = ({ match }) => {
                   path="/competitions/:competitionId/competitors/:competitorId"
                   component={Competitor}
                 />
+                <Redirect to={`/competitions/${competition.id}`} />
               </Switch>
             </div>
           </Fragment>
