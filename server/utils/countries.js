@@ -1,4 +1,3 @@
-/* TODO: add multiple countries (?) */
 const countries = [
   {
     id: "Afghanistan",

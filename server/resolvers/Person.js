@@ -8,15 +8,16 @@ module.exports = {
   country: ({ countryIso2 }) => countryByIso2(countryIso2),
   results: ({ registrantId }, args, { competition }) => {
     const events = sortWcifEvents(competition.wcif.events);
-    return flatMap(events, event =>
-      flatMap(event.rounds, round =>
-        /* TODO: store advancable in the database again as cache (?)
-                 or compute only for the necessary ruonds here. */
-        withAdvancable(round.results, round, competition.wcif)
-          .filter(({ personId }) => personId === registrantId)
-          .filter(({ attempts }) => attempts.length > 0)
-          .map(result => ({ ...result, round }))
+    const rounds = flatMap(events, event => event.rounds);
+    const roundsWhereHasResult = rounds.filter(round =>
+      round.results.some(({ personId, attempts }) =>
+        personId === registrantId && attempts.length > 0
       )
     );
+    return roundsWhereHasResult.map(round => {
+      const result = withAdvancable(round.results, round, competition.wcif)
+        .find(({ personId }) => personId === registrantId)
+      return { ...result, round };
+    });
   },
 };

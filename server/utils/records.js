@@ -1,50 +1,62 @@
+/**
+ * This module loads current records using WCA API and updates them periodically.
+ */
+
 const { getRecords } = require('./wca-api');
 
-const recordId = (eventId, type, scopeId) => {
-  return `${eventId}-${type}-${scopeId}`;
-};
-
-const processRecordsResonse = ({
-  world_records: world,
-  continental_records: continental,
-  national_records: national,
-}) => {
-  const newRecords = {};
-  const setRecordsByEvent = (recordsByEvent, scopeId) => {
-    Object.entries(recordsByEvent).forEach(([eventId, { average, single }]) => {
-      newRecords[recordId(eventId, 'single', scopeId)] = single;
-      if (average) {
-        newRecords[recordId(eventId, 'average', scopeId)] = average;
-      }
-    });
-  };
-  setRecordsByEvent(world, 'world');
-  Object.entries(continental).forEach(([continentId, recordsByEvent]) => {
-    setRecordsByEvent(recordsByEvent, continentId);
-  });
-  Object.entries(national).forEach(([countryId, recordsByEvent]) => {
-    setRecordsByEvent(recordsByEvent, countryId);
-  });
-  return newRecords;
-};
-
-const cache = { records: null };
+const cache = { recordById: null };
 
 const updateRecords = async () => {
   try {
-    cache.records = processRecordsResonse(await getRecords());
+    const recordsJson = await getRecords();
+    cache.recordById = recordsJsonToRecordById(recordsJson);
   } catch (error) {
     console.log(`Failed to load records: ${error}`);
   }
 };
 
-const cloneRecords = () => ({ ...cache.records });
+const getRecordByIdCopy = () => {
+  /* If we don't have recordbyId, return proxy object that for any given reacord id
+     returns smallest posible result value to avoid false positives. */
+  return cache.recordById
+    ? { ...cache.recordById }
+    : new Proxy({}, { get: () => 1 });
+};
+
+const recordId = (eventId, type, scopeId) => {
+  return `${eventId}-${type}-${scopeId}`;
+};
+
+const recordsJsonToRecordById = ({
+  world_records: world,
+  continental_records: continental,
+  national_records: national,
+}) => {
+  const recordById = {};
+  const addRecordsByEvent = (recordsByEvent, scopeId) => {
+    Object.entries(recordsByEvent).forEach(([eventId, { average, single }]) => {
+      recordById[recordId(eventId, 'single', scopeId)] = single;
+      if (average) {
+        recordById[recordId(eventId, 'average', scopeId)] = average;
+      }
+    });
+  };
+  addRecordsByEvent(world, 'world');
+  Object.entries(continental).forEach(([continentId, recordsByEvent]) => {
+    addRecordsByEvent(recordsByEvent, continentId);
+  });
+  Object.entries(national).forEach(([countryId, recordsByEvent]) => {
+    addRecordsByEvent(recordsByEvent, countryId);
+  });
+  return recordById;
+};
 
 /* Initialization */
+
 updateRecords();
 setInterval(updateRecords, 10 * 60 * 1000); /* Update records every 10 minutes. */
 
 module.exports = {
-  cloneRecords,
   recordId,
+  getRecordByIdCopy,
 };

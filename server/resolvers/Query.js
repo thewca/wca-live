@@ -41,7 +41,9 @@ module.exports = {
   },
   nextAdvancable: withCompetition(
     (parent, { roundId }, { competition }) => {
-      return nextAdvancableToRound(competition.wcif, roundId);
+      return nextAdvancableToRound(competition.wcif, roundId).map(
+        personId => personById(competition.wcif, personId)
+      );
     }
   ),
 };
