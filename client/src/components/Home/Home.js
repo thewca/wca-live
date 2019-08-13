@@ -3,7 +3,9 @@ import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 
+import Footer from '../Footer/Footer';
 import logo from './logo.svg';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import CompetitionList from '../CompetitionList/CompetitionList';
@@ -26,7 +28,23 @@ const COMPETITIONS_QUERY = gql`
   ${COMPETITION_INFO_FRAGMENT}
 `;
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing.unit * 3,
+    paddingBottom: theme.spacing.unit * 2,
+    display: 'flex',
+    minHeight: '100vh',
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  center: {
+    textAlign: 'center',
+  },
+}));
+
 const Home = () => {
+  const classes = useStyles();
   return (
     <CustomQuery query={COMPETITIONS_QUERY}>
       {({
@@ -34,9 +52,14 @@ const Home = () => {
           competitions: { upcoming, inProgress, past },
         },
       }) => (
-        <div style={{ padding: 24 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} style={{ textAlign: 'center' }}>
+        <div className={classes.root}>
+          <Grid
+            container
+            spacing={2}
+            direction="column"
+            className={classes.grow}
+          >
+            <Grid item className={classes.center}>
               <img src={logo} alt="" height="128" width="128" />
               <Typography variant="h4">WCA Live</Typography>
               <Typography variant="subtitle1">
@@ -44,7 +67,7 @@ const Home = () => {
               </Typography>
             </Grid>
             {inProgress.length > 0 && (
-              <Grid item xs={12}>
+              <Grid item>
                 <Paper>
                   <CompetitionList
                     title="Happening right now!"
@@ -54,19 +77,23 @@ const Home = () => {
               </Grid>
             )}
             {upcoming.length > 0 && (
-              <Grid item xs={12}>
+              <Grid item>
                 <Paper>
                   <CompetitionList title="Upcoming" competitions={upcoming} />
                 </Paper>
               </Grid>
             )}
             {past.length > 0 && (
-              <Grid item xs={12}>
+              <Grid item>
                 <Paper>
                   <CompetitionList title="Past" competitions={past} />
                 </Paper>
               </Grid>
             )}
+            <Grid item className={classes.grow} />
+            <Grid item>
+              <Footer />
+            </Grid>
           </Grid>
         </div>
       )}
