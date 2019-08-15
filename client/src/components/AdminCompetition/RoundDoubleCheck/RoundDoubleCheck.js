@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
@@ -97,7 +98,7 @@ const RoundDoubleCheck = ({ match }) => {
               alignItems="center"
               spacing={2}
             >
-              <Grid item md={3} style={{ textAlign: 'center' }}>
+              <Grid item md={2} style={{ textAlign: 'center' }}>
                 <IconButton
                   ref={leftButtonRef}
                   onClick={() => setResultIndex(resultIndex - 1)}
@@ -125,7 +126,7 @@ const RoundDoubleCheck = ({ match }) => {
                   }}
                 />
               </Grid>
-              <Grid item md={3} style={{ textAlign: 'center' }}>
+              <Grid item md={2} style={{ textAlign: 'center' }}>
                 <IconButton
                   ref={rightButtonRef}
                   autoFocus
@@ -134,6 +135,21 @@ const RoundDoubleCheck = ({ match }) => {
                 >
                   <Icon>chevron_right</Icon>
                 </IconButton>
+              </Grid>
+              <Grid item md={5}>
+                <Typography variant="h5" align="center">
+                  {round.event.name} - {round.name}
+                </Typography>
+                <Typography variant="subtitle1" align="center" gutterBottom>
+                  Double-check
+                </Typography>
+                <Typography align="justify">
+                  {`Here you can iterate over results ordered by entry time (newest first).
+                    When doing double-check you can place a scorecard
+                    next to the form to quickly compare attempt results.
+                    For optimal experience make sure to always put entered/updated
+                    scorecard at the top of the pile.`}
+                </Typography>
               </Grid>
             </Grid>
           </div>

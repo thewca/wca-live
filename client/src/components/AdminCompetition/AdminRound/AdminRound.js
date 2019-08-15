@@ -1,6 +1,9 @@
 import React, { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
+import Icon from '@material-ui/core/Icon';
+import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
@@ -103,13 +106,19 @@ const AdminRound = ({ match }) => {
               />
             </Grid>
             <Grid item md={9}>
-              <Typography
-                variant="h5"
-                align="center"
-                style={{ marginBottom: 16 }}
-              >
-                {round.event.name} - {round.name}
-              </Typography>
+              <Grid container alignItems="center">
+                <Grid item>
+                  <Typography variant="h5" align="center">
+                    {round.event.name} - {round.name}
+                  </Typography>
+                </Grid>
+                <Grid item style={{ flexGrow: 1 }} />
+                <Grid item>
+                  <IconButton component={Link} to={`${match.url}/doublecheck`}>
+                    <Icon>check</Icon>
+                  </IconButton>
+                </Grid>
+              </Grid>
               <AdminResultsTable
                 results={round.results}
                 format={round.format}
