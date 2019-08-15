@@ -98,6 +98,7 @@ type Result {
   advancable: Boolean!
   round: Round!
   recordTags: RecordTags!
+  updatedAt: String!
 }
 
 type RecordTags {

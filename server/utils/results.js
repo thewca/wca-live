@@ -127,7 +127,13 @@ const updateResult = (wcif, roundId, personId, attempts) => {
     ...round,
     results: round.results.map(current =>
       current.personId === personId
-        ? { ...current, attempts, best: best(attemptResults), average: average(attemptResults) }
+        ? {
+          ...current,
+          attempts,
+          best: best(attemptResults),
+          average: average(attemptResults),
+          updatedAt: new Date(),
+        }
         : current
     ),
   });
@@ -215,6 +221,7 @@ const emptyResultsForPeople = personIds => {
     best: 0,
     average: 0,
     recordTags: { single: null, average: null },
+    updatedAt: new Date(),
   }));
 };
 

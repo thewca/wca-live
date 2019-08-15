@@ -7,4 +7,7 @@ module.exports = {
   attempts: ({ attempts }) => {
     return attempts.map(({ result }) => result);
   },
+  updatedAt: ({ updatedAt }) => {
+    return updatedAt.toISOString();
+  },
 };

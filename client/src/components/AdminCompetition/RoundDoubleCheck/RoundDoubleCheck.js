@@ -34,6 +34,7 @@ const ROUND_QUERY = gql`
           id
           name
         }
+        updatedAt
       }
     }
   }
@@ -83,56 +84,61 @@ const RoundDoubleCheck = ({ match }) => {
 
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
-      {({ data: { round } }) => (
-        <div style={{ padding: 24 }}>
-          <Grid
-            container
-            direction="row"
-            justify="center"
-            alignItems="center"
-            spacing={2}
-          >
-            <Grid item md={3} style={{ textAlign: 'center' }}>
-              <IconButton
-                ref={leftButtonRef}
-                onClick={() => setResultIndex(resultIndex - 1)}
-                disabled={resultIndex === 0}
-              >
-                <Icon>chevron_left</Icon>
-              </IconButton>
+      {({ data: { round } }) => {
+        const results = round.results
+          .slice()
+          .sort((r1, r2) => new Date(r2.updatedAt) - new Date(r1.updatedAt));
+        return (
+          <div style={{ padding: 24 }}>
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignItems="center"
+              spacing={2}
+            >
+              <Grid item md={3} style={{ textAlign: 'center' }}>
+                <IconButton
+                  ref={leftButtonRef}
+                  onClick={() => setResultIndex(resultIndex - 1)}
+                  disabled={resultIndex === 0}
+                >
+                  <Icon>chevron_left</Icon>
+                </IconButton>
+              </Grid>
+              <Grid item md={3}>
+                <ResultForm
+                  result={results[resultIndex]}
+                  format={round.format}
+                  eventId={round.event.id}
+                  timeLimit={round.timeLimit}
+                  cutoff={round.cutoff}
+                  competitionId={competitionId}
+                  roundId={roundId}
+                  setResultMutation={SET_RESULT_MUTATION}
+                  onPersonIdChange={id => {
+                    setResultIndex(
+                      results.findIndex(
+                        result => toInt(result.person.id) === id
+                      )
+                    );
+                  }}
+                />
+              </Grid>
+              <Grid item md={3} style={{ textAlign: 'center' }}>
+                <IconButton
+                  ref={rightButtonRef}
+                  autoFocus
+                  onClick={() => setResultIndex(resultIndex + 1)}
+                  disabled={resultIndex === results.length - 1}
+                >
+                  <Icon>chevron_right</Icon>
+                </IconButton>
+              </Grid>
             </Grid>
-            <Grid item md={3}>
-              <ResultForm
-                result={round.results[resultIndex]}
-                format={round.format}
-                eventId={round.event.id}
-                timeLimit={round.timeLimit}
-                cutoff={round.cutoff}
-                competitionId={competitionId}
-                roundId={roundId}
-                setResultMutation={SET_RESULT_MUTATION}
-                onPersonIdChange={id => {
-                  setResultIndex(
-                    round.results.findIndex(
-                      result => toInt(result.person.id) === id
-                    )
-                  );
-                }}
-              />
-            </Grid>
-            <Grid item md={3} style={{ textAlign: 'center' }}>
-              <IconButton
-                ref={rightButtonRef}
-                autoFocus
-                onClick={() => setResultIndex(resultIndex + 1)}
-                disabled={resultIndex === round.results.length - 1}
-              >
-                <Icon>chevron_right</Icon>
-              </IconButton>
-            </Grid>
-          </Grid>
-        </div>
-      )}
+          </div>
+        );
+      }}
     </CustomQuery>
   );
 };
