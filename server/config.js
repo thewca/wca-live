@@ -1,3 +1,24 @@
+const requiredEnvVariables = [
+  'PORT',
+  'MONGO_URI',
+  'COOKIES_SECRET',
+  'WCA_OAUTH_CLIENT_ID',
+  'WCA_OAUTH_SECRET',
+  'WCA_ORIGIN',
+  'WCA_OAUTH_REDIRECT_URI',
+];
+
+if (process.env.NODE_ENV === 'production') {
+  const missingEnvVariables = requiredEnvVariables
+    .filter(variable => process.env[variable] === undefined);
+  if (missingEnvVariables.length > 0) {
+    throw new Error(`
+      Missing environment variables: ${missingEnvVariables.join(', ')}.
+      Please update the .env file.
+    `);
+  }
+}
+
 module.exports = {
   PRODUCTION: process.env.NODE_ENV === 'production',
   PORT: process.env.PORT || 4000,
