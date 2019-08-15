@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminEvents from './AdminEvents/AdminEvents';
 import Synchronize from './Synchronize/Synchronize';
+import RoundDoubleCheck from './RoundDoubleCheck/RoundDoubleCheck';
 import AdminRound from './AdminRound/AdminRound';
 
 const COMPETITION_QUERY = gql`
@@ -83,6 +84,11 @@ const AdminCompetition = ({ match, location }) => {
                 exact
                 path="/admin/competitions/:competitionId/sync"
                 component={Synchronize}
+              />
+              <Route
+                exact
+                path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"
+                component={RoundDoubleCheck}
               />
               <Route
                 exact

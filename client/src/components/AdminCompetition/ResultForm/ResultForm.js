@@ -17,8 +17,8 @@ import { best, average } from '../../../logic/calculations';
 import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
 
 const ResultForm = ({
-  confirm,
-  results,
+  result,
+  onPersonIdChange,
   format,
   eventId,
   timeLimit,
@@ -26,19 +26,19 @@ const ResultForm = ({
   setResultMutation,
   competitionId,
   roundId,
+  confirm,
 }) => {
   const { solveCount } = format;
-  const [personId, setPersonId] = useState(null);
+  const [personId, setPersonId] = useState(result ? result.person.id : null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
   const rootRef = useRef(null);
-  const result =
-    personId &&
-    results.find(result => result.person.id === personId.toString());
 
-  const computeAverage =
-    [3, 5].includes(format.solveCount) && eventId !== '333mbf';
-
-  const submissionWarning = attemptsWarning(attempts, eventId);
+  useEffect(() => {
+    if (result) setPersonId(result.person.id);
+    setAttempts(
+      times(solveCount, index => (result && result.attempts[index]) || 0)
+    );
+  }, [result, solveCount]);
 
   useEffect(() => {
     const handleKeyPress = event => {
@@ -63,11 +63,18 @@ const ResultForm = ({
         nextElement.focus();
         nextElement.select && nextElement.select();
         event.preventDefault();
+      } else if (event.key === 'Escape') {
+        event.target.blur();
       }
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
+
+  const computeAverage =
+    [3, 5].includes(format.solveCount) && eventId !== '333mbf';
+
+  const submissionWarning = attemptsWarning(attempts, eventId);
 
   return (
     <Grid container spacing={1} ref={rootRef}>
@@ -91,16 +98,8 @@ const ResultForm = ({
           helperText={result ? result.person.name : ' '}
           onChange={event => {
             const personId = toInt(event.target.value);
-            const result =
-              personId &&
-              results.find(result => result.person.id === personId.toString());
             setPersonId(personId);
-            setAttempts(
-              times(
-                solveCount,
-                index => (result && result.attempts[index]) || 0
-              )
-            );
+            onPersonIdChange(personId);
           }}
         />
       </Grid>

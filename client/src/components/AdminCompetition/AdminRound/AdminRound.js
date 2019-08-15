@@ -8,6 +8,7 @@ import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
+import { toInt } from '../../../logic/utils';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -69,6 +70,7 @@ const SET_RESULT_MUTATION = gql`
 
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
+  const [editedResult, setEditedResult] = useState(null);
   const [resultMenuProps, setResultMenuProps] = useState({});
 
   const handleResultClick = useCallback((result, event) => {
@@ -85,7 +87,12 @@ const AdminRound = ({ match }) => {
           <Grid container direction="row" spacing={2}>
             <Grid item md={3}>
               <ResultForm
-                results={round.results}
+                result={editedResult}
+                onPersonIdChange={id => {
+                  setEditedResult(
+                    round.results.find(result => toInt(result.person.id) === id)
+                  );
+                }}
                 format={round.format}
                 eventId={round.event.id}
                 timeLimit={round.timeLimit}
