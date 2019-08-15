@@ -22,6 +22,7 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 75,
   },
   advancable: {
+    color: theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
   mainStat: {

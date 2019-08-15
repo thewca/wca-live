@@ -33,6 +33,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   advancable: {
+    color: theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
   name: {

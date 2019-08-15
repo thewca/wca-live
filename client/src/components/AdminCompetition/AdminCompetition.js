@@ -6,6 +6,8 @@ import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import { grey } from '@material-ui/core/colors';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminEvents from './AdminEvents/AdminEvents';
@@ -28,7 +30,15 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
+const useStyles = makeStyles(theme => ({
+  appBar: {
+    color: theme.palette.type === 'dark' ? '#fff' : null,
+    backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
+  },
+}));
+
 const AdminCompetition = ({ match, location }) => {
+  const classes = useStyles();
   return (
     <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
       {({ data }) => {
@@ -42,7 +52,7 @@ const AdminCompetition = ({ match, location }) => {
 
         return (
           <div>
-            <AppBar position="static">
+            <AppBar position="static" className={classes.appBar}>
               <Toolbar>
                 <Typography variant="h6" color="inherit">
                   {competition.name}

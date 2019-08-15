@@ -8,27 +8,9 @@ import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { BrowserRouter } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { createMuiTheme } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
 
+import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 import Navigation from '../Navigation/Navigation';
-
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      light: '#63a4ff',
-      main: '#1976d2',
-      dark: '#004ba0',
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#484848',
-      main: '#212121',
-      dark: '#000000',
-      contrastText: '#fff',
-    },
-  },
-});
 
 /* Apollo configuration */
 
@@ -68,7 +50,7 @@ const client = new ApolloClient({
 const App = () => (
   <BrowserRouter>
     <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider>
         <CssBaseline />
         <Navigation />
       </ThemeProvider>

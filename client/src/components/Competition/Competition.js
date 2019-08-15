@@ -11,6 +11,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import { grey } from '@material-ui/core/colors';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import EventList from '../EventList/EventList';
@@ -45,6 +46,10 @@ const COMPETITION_QUERY = gql`
 const drawerWidth = 250;
 
 const useStyles = makeStyles(theme => ({
+  appBar: {
+    color: theme.palette.type === 'dark' ? '#fff' : null,
+    backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
+  },
   appBarShift: {
     [theme.breakpoints.up('md')]: {
       width: `calc(100% - ${drawerWidth}px)`,
@@ -130,7 +135,10 @@ const Competition = ({ match, location }) => {
 
         return (
           <Fragment>
-            <AppBar position="static" className={classes.appBarShift}>
+            <AppBar
+              position="static"
+              className={classes.appBar + ' ' + classes.appBarShift}
+            >
               <Toolbar>
                 <IconButton
                   color="inherit"
