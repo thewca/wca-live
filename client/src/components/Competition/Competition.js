@@ -34,6 +34,7 @@ const COMPETITION_QUERY = gql`
       }
     }
     me {
+      id
       manageableCompetitions {
         id
       }
