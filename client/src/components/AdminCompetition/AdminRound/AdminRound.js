@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
@@ -114,9 +115,14 @@ const AdminRound = ({ match }) => {
                 </Grid>
                 <Grid item style={{ flexGrow: 1 }} />
                 <Grid item>
-                  <IconButton component={Link} to={`${match.url}/doublecheck`}>
-                    <Icon>check</Icon>
-                  </IconButton>
+                  <Tooltip title="Double-check" placement="left">
+                    <IconButton
+                      component={Link}
+                      to={`${match.url}/doublecheck`}
+                    >
+                      <Icon>check</Icon>
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
               <AdminResultsTable
