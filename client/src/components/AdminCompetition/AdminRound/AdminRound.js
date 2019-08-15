@@ -87,7 +87,7 @@ const AdminRound = ({ match }) => {
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round } }) => (
-        <div style={{ padding: 24 }}>
+        <div>
           <Grid container direction="row" spacing={2}>
             <Grid item md={3}>
               <ResultForm

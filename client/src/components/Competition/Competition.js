@@ -63,9 +63,9 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     overflowY: 'auto',
-    padding: '16px 8px',
+    padding: theme.spacing(2, 1),
     [theme.breakpoints.up('md')]: {
-      padding: 24,
+      padding: theme.spacing(3),
     },
   },
   contentShift: {

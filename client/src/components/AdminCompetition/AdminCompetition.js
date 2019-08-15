@@ -35,6 +35,12 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.type === 'dark' ? '#fff' : null,
     backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
   },
+  grow: {
+    flexGrow: 1,
+  },
+  content: {
+    padding: theme.spacing(3),
+  },
 }));
 
 const AdminCompetition = ({ match, location }) => {
@@ -57,7 +63,7 @@ const AdminCompetition = ({ match, location }) => {
                 <Typography variant="h6" color="inherit">
                   {competition.name}
                 </Typography>
-                <div style={{ flexGrow: 1 }} />
+                <div className={classes.grow} />
                 <IconButton
                   color="inherit"
                   component={Link}
@@ -84,29 +90,31 @@ const AdminCompetition = ({ match, location }) => {
                 </IconButton>
               </Toolbar>
             </AppBar>
-            <Switch>
-              <Route
-                exact
-                path="/admin/competitions/:competitionId"
-                component={AdminEvents}
-              />
-              <Route
-                exact
-                path="/admin/competitions/:competitionId/sync"
-                component={Synchronize}
-              />
-              <Route
-                exact
-                path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"
-                component={RoundDoubleCheck}
-              />
-              <Route
-                exact
-                path="/admin/competitions/:competitionId/rounds/:roundId"
-                component={AdminRound}
-              />
-              <Redirect to={`/admin/competitions/${competition.id}`} />
-            </Switch>
+            <div className={classes.content}>
+              <Switch>
+                <Route
+                  exact
+                  path="/admin/competitions/:competitionId"
+                  component={AdminEvents}
+                />
+                <Route
+                  exact
+                  path="/admin/competitions/:competitionId/sync"
+                  component={Synchronize}
+                />
+                <Route
+                  exact
+                  path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"
+                  component={RoundDoubleCheck}
+                />
+                <Route
+                  exact
+                  path="/admin/competitions/:competitionId/rounds/:roundId"
+                  component={AdminRound}
+                />
+                <Redirect to={`/admin/competitions/${competition.id}`} />
+              </Switch>
+            </div>
           </div>
         );
       }}
