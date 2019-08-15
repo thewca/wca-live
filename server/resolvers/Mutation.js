@@ -5,20 +5,23 @@ const pubsub = require('./pubsub');
 const wcaApi = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
 const { updateResult, openRound, clearRound, quitCompetitor } = require('../utils/results');
-const { synchronize } = require('../utils/competition');
+const { managerWcaUserIds, synchronize } = require('../utils/competition');
 
 module.exports = {
   importCompetition: withAuthentication(
-    async (parent, { id }, { user }) => {
+    async (parent, { id }, context) => {
+      const { user } = context;
       const wcif = await wcaApi(user).getWcif(id);
-      const managerWcaUserIds = wcif.persons.filter(
-        person => person.roles.some(role => ['delegate', 'organizer', 'staff-dataentry'].includes(role))
-      ).map(person => person.wcaUserId);
       const { value: competition } = await db.competitions.findOneAndUpdate(
         { 'wcif.id': id },
-        { $setOnInsert: { wcif, managerWcaUserIds } },
+        { $setOnInsert: {
+          wcif,
+          managerWcaUserIds: managerWcaUserIds(wcif),
+          synchronizedAt: new Date(),
+        } },
         { upsert: true, returnOriginal: false },
       );
+      context.competition = competition;
       return competition;
     }
   ),
@@ -83,8 +86,8 @@ module.exports = {
       const { user } = context;
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
-        const updatedWcif = await synchronize(competition.wcif, user);
-        context.competition = await competitionLoader.update({ ...competition, wcif: updatedWcif });
+        const updatedCompetition = await synchronize(competition, user);
+        context.competition = await competitionLoader.update(updatedCompetition);
         return context.competition;
       });
     }

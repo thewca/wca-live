@@ -8,4 +8,5 @@ module.exports = {
   competitors: ({ wcif }) => acceptedPeople(wcif),
   startDate: ({ wcif }) => startDate(wcif),
   endDate: ({ wcif }) => endDate(wcif),
+  synchronizedAt: ({ synchronizedAt }) => synchronizedAt.toISOString(),
 };

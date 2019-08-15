@@ -50,6 +50,7 @@ type Competition {
   endDate: String!
   events: [Event!]!
   competitors: [Person!]!
+  synchronizedAt: String!
 }
 
 type Event {
@@ -113,8 +114,6 @@ type Person {
   country: Country!
   avatar: Avatar
   roles: [String!]!
-  # registration: Registration!
-  # personalBests: [PersonalBest!]!
   results: [Result!]!
 }
 
@@ -122,15 +121,6 @@ type Country {
   iso2: String!
   name: String!
 }
-
-# type PersonalBest {
-#   eventId: String!
-#   best: Int!
-#   worldRanking: Int!
-#   continentalRanking: Int!
-#   nationalRanking: Int!
-#   type: String!
-# }
 
 # Inputs
 
