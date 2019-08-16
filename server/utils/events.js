@@ -56,13 +56,15 @@ const events = [{
   name: "3x3x3 Multi-Blind",
 }];
 
-const eventNameById = eventId =>
-  events.find(event => event.id === eventId).name;
+const eventNameById = eventId => {
+  return events.find(event => event.id === eventId).name;
+};
 
-const sortWcifEvents = wcifEvents =>
-  sortBy(wcifEvents,
+const sortWcifEvents = wcifEvents => {
+  return sortBy(wcifEvents,
     ({ id }) => events.findIndex(event => event.id === id)
   );
+};
 
 module.exports = {
   eventNameById,

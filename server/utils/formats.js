@@ -35,8 +35,9 @@ const formats = [{
   sortBy: 'average',
 }];
 
-const formatById = id =>
-  formats.find(format => format.id === id);
+const formatById = id => {
+  return formats.find(format => format.id === id);
+};
 
 module.exports = {
   formatById,

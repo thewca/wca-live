@@ -1,3 +1,4 @@
+/* Taken from WCA States list. */
 const countries = [
   {
     id: "Afghanistan",
@@ -1195,8 +1196,9 @@ const countries = [
   }
 ];
 
-const countryByIso2 = iso2 =>
-  countries.find(country => country.iso2 === iso2);
+const countryByIso2 = iso2 => {
+  return countries.find(country => country.iso2 === iso2);
+};
 
 module.exports = {
   countryByIso2,

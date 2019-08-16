@@ -10,7 +10,8 @@ const managerWcaUserIds = wcif => {
     .map(person => person.wcaUserId);
 };
 
-/* Gets current WCIF from the WCA website and overrides results with the local ones. */
+/* Gets current WCIF from the WCA website and overrides results with the local ones.
+   Returns synchronized competition. */
 const synchronize = async (competition, user) => {
   const newWcif = await wcaApi(user).getWcif(competition.wcif.id);
   newWcif.events.forEach(newEvent => {
