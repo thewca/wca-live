@@ -8,6 +8,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 import TimeAgo from 'react-timeago';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
@@ -31,8 +32,16 @@ const SYNCHRONIZE_MUTATION = gql`
   }
 `;
 
+const useStyles = makeStyles(theme => ({
+  description: {
+    maxWidth: '60%',
+  },
+}));
+
 const Synchronize = ({ match }) => {
+  const classes = useStyles();
   const { competitionId } = match.params;
+
   return (
     <CustomQuery query={COMPETITION_QUERY} variables={{ id: competitionId }}>
       {({ data: { competition } }) => (
@@ -55,13 +64,13 @@ const Synchronize = ({ match }) => {
               )}
             </CustomMutation>
           </Grid>
-          <Grid item style={{ width: '50%' }}>
+          <Grid item>
             <Typography variant="caption" component="div" align="center">
               Last synchronized{' '}
               <TimeAgo date={new Date(competition.synchronizedAt)} />.
             </Typography>
           </Grid>
-          <Grid item style={{ width: '50%' }}>
+          <Grid item className={classes.description}>
             <Typography align="justify">
               {`
                 We use competition information from the WCA website.
@@ -71,7 +80,7 @@ const Synchronize = ({ match }) => {
               `}
             </Typography>
           </Grid>
-          <Grid item style={{ width: '50%' }}>
+          <Grid item>
             <List>
               <ListItem
                 button

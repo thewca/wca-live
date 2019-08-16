@@ -9,10 +9,22 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 
+const useStyles = makeStyles(theme => ({
+  searchBox: {
+    padding: '2px 2px 2px 16px',
+    display: 'inline-block',
+  },
+  fullWidth: {
+    width: '100%',
+  },
+}));
+
 const CompetitorList = ({ competitors, competitionId }) => {
+  const classes = useStyles();
   const [filter, setFilter] = useState('');
 
   const filteredCompetitors = competitors
@@ -24,9 +36,9 @@ const CompetitorList = ({ competitors, competitionId }) => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <Grid container spacing={1}>
-      <Grid item xs={12} style={{ textAlign: 'center' }}>
-        <Paper style={{ padding: '2px 2px 2px 16px', display: 'inline-block' }}>
+    <Grid container direction="column" alignItems="center" spacing={1}>
+      <Grid item>
+        <Paper className={classes.searchBox}>
           <InputBase
             autoFocus
             value={filter}
@@ -38,7 +50,7 @@ const CompetitorList = ({ competitors, competitionId }) => {
           </IconButton>
         </Paper>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item className={classes.fullWidth}>
         <List>
           {filteredCompetitors.map(competitor => (
             <ListItem

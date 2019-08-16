@@ -12,6 +12,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
+import classNames from 'classnames';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import EventList from '../EventList/EventList';
@@ -137,7 +138,7 @@ const Competition = ({ match, location }) => {
           <Fragment>
             <AppBar
               position="static"
-              className={classes.appBar + ' ' + classes.appBarShift}
+              className={classNames(classes.appBar, classes.appBarShift)}
             >
               <Toolbar>
                 <IconButton
@@ -190,7 +191,7 @@ const Competition = ({ match, location }) => {
                 {drawerContent}
               </Drawer>
             </Hidden>
-            <div className={classes.content + ' ' + classes.appBarShift}>
+            <div className={classNames(classes.content, classes.appBarShift)}>
               <Switch>
                 <Route
                   exact

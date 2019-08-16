@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
+import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Typography from '@material-ui/core/Typography';
 
@@ -65,16 +66,18 @@ const Competitor = ({ match }) => {
               {competitor.name}{' '}
               <FlagIcon code={competitor.country.iso2.toLowerCase()} />
             </Typography>
-            {Object.entries(resultsByEvent).map(([eventName, results]) => (
-              <div style={{ marginBottom: 32 }} key={eventName}>
-                <Typography variant="subtitle1">{eventName}</Typography>
-                <CompetitorResultsTable
-                  results={results}
-                  competitionId={competitionId}
-                  onResultClick={result => setSelectedResult(result)}
-                />
-              </div>
-            ))}
+            <Grid container direction="column" spacing={3}>
+              {Object.entries(resultsByEvent).map(([eventName, results]) => (
+                <Grid item key={eventName}>
+                  <Typography variant="subtitle1">{eventName}</Typography>
+                  <CompetitorResultsTable
+                    results={results}
+                    competitionId={competitionId}
+                    onResultClick={result => setSelectedResult(result)}
+                  />
+                </Grid>
+              ))}
+            </Grid>
             <Hidden mdUp>
               <CompetitorResultDialog
                 result={selectedResult}

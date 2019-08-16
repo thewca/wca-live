@@ -71,7 +71,7 @@ const Round = ({ match }) => {
 
         return (
           <div>
-            <Typography variant="h5" style={{ marginBottom: 16 }}>
+            <Typography variant="h5" gutterBottom>
               {round.event.name} - {round.name}
             </Typography>
             <ResultsTable

@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
@@ -64,7 +65,14 @@ const SET_RESULT_MUTATION = gql`
   }
 `;
 
+const useStyles = makeStyles(theme => ({
+  centerContent: {
+    textAlign: 'center',
+  },
+}));
+
 const RoundDoubleCheck = ({ match }) => {
+  const classes = useStyles();
   const { competitionId, roundId } = match.params;
   const [resultIndex, setResultIndex] = useState(0);
   const leftButtonRef = useRef(null);
@@ -90,14 +98,8 @@ const RoundDoubleCheck = ({ match }) => {
           .slice()
           .sort((r1, r2) => new Date(r2.updatedAt) - new Date(r1.updatedAt));
         return (
-          <Grid
-            container
-            direction="row"
-            justify="center"
-            alignItems="center"
-            spacing={2}
-          >
-            <Grid item md={2} style={{ textAlign: 'center' }}>
+          <Grid container direction="row" alignItems="center" spacing={2}>
+            <Grid item md className={classes.centerContent}>
               <IconButton
                 ref={leftButtonRef}
                 onClick={() => setResultIndex(resultIndex - 1)}
@@ -123,7 +125,7 @@ const RoundDoubleCheck = ({ match }) => {
                 }}
               />
             </Grid>
-            <Grid item md={2} style={{ textAlign: 'center' }}>
+            <Grid item md className={classes.centerContent}>
               <IconButton
                 ref={rightButtonRef}
                 autoFocus
