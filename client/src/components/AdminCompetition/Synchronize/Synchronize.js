@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
+import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -13,6 +14,7 @@ import TimeAgo from 'react-timeago';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
+import { wcaUrl, groupifierUrl } from '../../../logic/url-utils';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -85,7 +87,9 @@ const Synchronize = ({ match }) => {
               <ListItem
                 button
                 component="a"
-                href={`https://www.worldcubeassociation.org/competitions/${competitionId}/registrations/add`}
+                href={wcaUrl(
+                  `/competitions/${competitionId}/registrations/add`
+                )}
                 target="_blank"
               >
                 <ListItemIcon>
@@ -96,7 +100,7 @@ const Synchronize = ({ match }) => {
               <ListItem
                 button
                 component="a"
-                href={`https://www.worldcubeassociation.org/competitions/${competitionId}/events/edit`}
+                href={wcaUrl(`/competitions/${competitionId}/events/edit`)}
                 target="_blank"
               >
                 <ListItemIcon>
@@ -105,6 +109,18 @@ const Synchronize = ({ match }) => {
                 <ListItemText>Change round data</ListItemText>
               </ListItem>
             </List>
+          </Grid>
+          <Grid item className={classes.description}>
+            <Typography align="justify">
+              {`To manage competitor groups and print scorecards you can use `}
+              <Link
+                href={groupifierUrl(`/competitions/${competitionId}`)}
+                target="_blank"
+              >
+                Groupifier
+              </Link>
+              {`. Make sure to "Synchronize" first, so it sees the entered results.`}
+            </Typography>
           </Grid>
         </Grid>
       )}
