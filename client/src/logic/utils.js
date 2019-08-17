@@ -33,6 +33,10 @@ export const formatDateRange = (startString, endString) => {
   const startYear = start.getFullYear();
   const endYear = end.getFullYear();
 
+  if (startString === endString) {
+    return `${startMonth} ${startDay}, ${startYear}`;
+  }
+
   const firstPart =
     startYear === endYear
       ? `${startMonth} ${startDay}`
