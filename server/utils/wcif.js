@@ -1,3 +1,4 @@
+const { uniq } = require('./utils');
 const { addDays } = require('../utils/date');
 
 const parseActivityCode = activityCode => {
@@ -73,6 +74,12 @@ const updateEvent = (wcif, updatedEvent) => {
   };
 };
 
+const competitionCountryIso2s = wcif => {
+  return uniq(
+    wcif.schedule.venues.map(({ countryIso2 }) => countryIso2)
+  );
+};
+
 module.exports = {
   parseActivityCode,
   eventById,
@@ -85,4 +92,5 @@ module.exports = {
   previousRound,
   updateEvent,
   updateRound,
+  competitionCountryIso2s,
 };

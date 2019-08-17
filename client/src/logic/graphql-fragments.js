@@ -25,5 +25,8 @@ export const COMPETITION_INFO_FRAGMENT = gql`
     name
     startDate
     endDate
+    countries {
+      iso2
+    }
   }
 `;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Icon from '@material-ui/core/Icon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -21,7 +22,14 @@ const CompetitionList = ({ title, competitions }) => {
           to={`/competitions/${competition.id}`}
         >
           <ListItemIcon>
-            <FlagIcon code="gb" size="lg" />
+            {competition.countries.length === 1 ? (
+              <FlagIcon
+                code={competition.countries[0].iso2.toLowerCase()}
+                size="lg"
+              />
+            ) : (
+              <Icon>public</Icon>
+            )}
           </ListItemIcon>
           <ListItemText
             primary={competition.name}

@@ -50,6 +50,7 @@ type Competition {
   endDate: String!
   events: [Event!]!
   competitors: [Person!]!
+  countries: [Country!]!
   synchronizedAt: String!
 }
 

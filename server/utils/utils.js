@@ -23,10 +23,14 @@ const sortBy = (arr, fn) =>
 const partition = (xs, fn) =>
   [xs.filter(fn), xs.filter(x => !fn(x))];
 
+const uniq = arr =>
+  [...new Set(arr)];
+
 module.exports = {
   flatMap,
   zip,
   sortByArray,
   sortBy,
   partition,
+  uniq,
 };

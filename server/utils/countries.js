@@ -1197,7 +1197,7 @@ const countries = [
 ];
 
 const countryByIso2 = iso2 => {
-  return countries.find(country => country.iso2 === iso2);
+  return countries.find(country => country.iso2 === iso2.toUpperCase());
 };
 
 module.exports = {
