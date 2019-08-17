@@ -16,6 +16,7 @@ module.exports = {
         { 'wcif.id': id },
         { $setOnInsert: {
           wcif,
+          importedById: user._id,
           managerWcaUserIds: managerWcaUserIds(wcif),
           synchronizedAt: new Date(),
         } },
@@ -83,10 +84,13 @@ module.exports = {
   ),
   synchronize: withCompetitionAuthorization(
     async (parent, { competitionId }, context) => {
-      const { user } = context;
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
-        const updatedCompetition = await synchronize(competition, user);
+        /* Use oauth credentials of whoever imported the competition to do synchronization,
+           because plain scoretakers don't have permissions to save WCIF to the WCA website,
+           yet we still want them to be able to synchronize results. */
+        const importedBy = await db.users.findOne({ _id: competition.importedById });
+        const updatedCompetition = await synchronize(competition, importedBy);
         context.competition = await competitionLoader.update(updatedCompetition);
         return context.competition;
       });
