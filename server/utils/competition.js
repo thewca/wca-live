@@ -18,7 +18,9 @@ const synchronize = async (competition, user) => {
     const event = competition.wcif.events.find(event => event.id === newEvent.id);
     newEvent.rounds.forEach(newRound => {
       const round = event.rounds.find(round => round.id === newRound.id);
-      newRound.results = round.results;
+      if (round) {
+        newRound.results = round.results;
+      }
     });
   });
   await wcaApi(user).updateWcif(competition.wcif.id, { events: newWcif.events });
