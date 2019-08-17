@@ -11,11 +11,11 @@ module.exports = (user = null) => {
     return me;
   };
 
-  const getRecentManageableCompetitions = () => {
-    const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const getUpcomingManageableCompetitions = () => {
+    const now = new Date();
     const params = new URLSearchParams({
       managed_by_me: true,
-      start: oneMonthAgo.toISOString(),
+      start: now.toISOString(),
     });
     return wcaApiFetch(`/competitions?${params.toString()}`);
   };
@@ -54,7 +54,7 @@ module.exports = (user = null) => {
 
   return {
     getMe,
-    getRecentManageableCompetitions,
+    getUpcomingManageableCompetitions,
     getWcif,
     updateWcif,
     getRecords,

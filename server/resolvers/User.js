@@ -4,7 +4,7 @@ const wcaApi = require('../utils/wca-api');
 module.exports = {
   id: (parent) => parent._id,
   importableCompetitions: async (parent, args) => {
-    const competitions = await wcaApi(parent).getRecentManageableCompetitions();
+    const competitions = await wcaApi(parent).getUpcomingManageableCompetitions();
     const importedCompetitions = await db.competitions.find({}).project({ 'wcif.id': 1 }).toArray();
     const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
     return competitions
