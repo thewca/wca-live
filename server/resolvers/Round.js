@@ -15,7 +15,7 @@ module.exports = {
     return roundName(roundNumber, event.rounds.length, cutoff);
   },
   results: (parent, args, { competition }) => {
-    const advancing = advancingResults(parent.results, parent, competition.wcif);
+    const advancing = advancingResults(parent, competition.wcif);
     return parent.results.map(result => ({
       ...result,
       round: parent,

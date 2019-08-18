@@ -149,18 +149,17 @@ const satisfiesAdvancementCondition = (result, advancementCondition, resultCount
     return result.ranking <= Math.floor(resultCount * level * 0.01);
   }
   if (type === 'attemptResult') {
-    return result.attempts.some(attempt => attempt.result > 0 && attempt.result < level);
+    return result.best > 0 && result.best < level;
   }
   throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
 };
 
 const advancingResultsFromCondition = (results, advancementCondition) => {
   if (results.length === 0) return [];
-  const complete = ({ attempts }) => attempts.some(({ result }) => result > 0);
   if (!advancementCondition) {
     /* Mark top 3 in the finals. */
     return results.filter(
-      result => complete(result) && result.ranking && result.ranking <= 3,
+      result => result.best > 0 && result.ranking && result.ranking <= 3,
     );
   } else {
     /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
@@ -174,22 +173,20 @@ const advancingResultsFromCondition = (results, advancementCondition) => {
       result.ranking
       /* Note: this ensures that people who tied either advance together or not. */
       && result.ranking < firstNonAdvancingRanking
-      && complete(result)
+      && result.best > 0
       && satisfiesAdvancementCondition(result, advancementCondition, results.length)
     );
   }
 };
 
-const advancingResults = (results, round, wcif) => {
+const advancingResults = (round, wcif) => {
   const next = nextRound(wcif, round.id);
   if (next && next.results.length > 0) {
     /* If the next round is open use its results to determine who advanced. */
-    const advancedByPersonId = Object.fromEntries(
-      next.results.map(result => [result.personId, true])
-    );
-    return results.filter(result => advancedByPersonId[result.personId]);
+    const advancedPersonIds = next.results.map(result => result.personId);
+    return round.results.filter(result => advancedPersonIds.includes(result.personId));
   } else {
-    return advancingResultsFromCondition(results, round.advancementCondition);
+    return advancingResultsFromCondition(round.results, round.advancementCondition);
   }
 };
 
@@ -204,7 +201,7 @@ const advancingPersonIds = (round, wcif) => {
     const previousRound = eventById(wcif, eventId).rounds.find(
       ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
     );
-    return advancingResults(previousRound.results, previousRound, wcif)
+    return advancingResults(previousRound, wcif)
       .map(({ personId }) => personId);
   }
 };
@@ -251,7 +248,7 @@ const clearRound = (wcif, roundId) => {
 const nextAdvancableToRound = (wcif, roundId) => {
   const previous = previousRound(wcif, roundId);
   if (!previous) return []; /* This is the first round, noone else could advance to it. */
-  const currentlyAdvancing = advancingResults(previous.results, previous, wcif);
+  const currentlyAdvancing = advancingResults(previous, wcif);
   const maxAdvancingRanking = Math.max(
     ...currentlyAdvancing.map(({ ranking }) => ranking)
   );
@@ -304,6 +301,7 @@ module.exports = {
   updateResult,
   openRound,
   clearRound,
+  advancingResultsFromCondition,
   advancingResults,
   nextAdvancableToRound,
   quitCompetitor,

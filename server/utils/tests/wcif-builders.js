@@ -75,9 +75,9 @@ module.exports.Event = attributes => ({
 module.exports.Round = attributes => ({
   id: '333-r1',
   format: 'a',
-  timeLimit: null,
+  timeLimit: { centiseconds: 10 * 60 * 60 * 10, cumulativeRoundIds: [] },
   cutoff: null,
-  advancementCondition: null,
+  advancementCondition: { type: 'percent', level: 75 },
   results: [],
   scrambleSetCount: 1,
   scrambleSets: [],

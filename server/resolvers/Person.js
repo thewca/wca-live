@@ -15,7 +15,7 @@ module.exports = {
       )
     );
     return roundsWhereHasResult.map(round => {
-      const advancing = advancingResults(round.results, round, competition.wcif);
+      const advancing = advancingResults(round, competition.wcif);
       const result = round.results.find(({ personId }) => personId === registrantId);
       return {
         ...result,
