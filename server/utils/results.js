@@ -303,6 +303,7 @@ const quitCompetitor = (wcif, roundId, competitorId, replace) => {
 };
 
 module.exports = {
+  updateRanking,
   updateResult,
   openRound,
   clearRound,

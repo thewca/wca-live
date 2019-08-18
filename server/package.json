@@ -5,7 +5,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon ./index.js"
+    "start": "nodemon ./index.js",
+    "test": "jest --watch"
   },
   "dependencies": {
     "apollo-server-express": "^2.6.7",
@@ -18,6 +19,7 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "jest": "^24.9.0",
     "nodemon": "^1.19.1"
   }
 }
