@@ -1,5 +1,5 @@
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { openRound, clearRound } = require('../rounds');
+const { openRound, clearRound, quitCompetitor } = require('../rounds');
 
 describe('openRound', () => {
   describe('when a first round is given', () => {
@@ -65,7 +65,7 @@ describe('openRound', () => {
       });
       const updatedWcif = openRound(wcif, '333-r2');
       expect(updatedWcif.events[0].rounds[0].results).toEqual(
-        wcif.events[0].rounds[0].results.slice(0, 8)
+        round1.results.slice(0, 8)
       );
     });
   });
@@ -130,5 +130,65 @@ describe('clearRound', () => {
     });
     const updatedWcif = clearRound(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results).toEqual([]);
+  });
+});
+
+describe('quitCompetitor', () => {
+  test('throws an error if the given competitor is not in the given round', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+    });
+    expect(() => {
+      quitCompetitor(wcif, '333-r1', 2, false);
+    }).toThrow(new Error('Cannot quit competitor with id 2 as he\'s not in 333-r1.'));
+  });
+
+  describe('when replace is false', () => {
+    test('removes the corresponding result', () => {
+      const round1 = Round({
+        id: '333-r1',
+        results: [Result({ personId: 1 }), Result({ personId: 2 })],
+      });
+      const wcif = Competition({
+        events: [Event({ id: '333', rounds: [round1] })],
+        persons: [Person({ registrantId: 1 }), Person({ registrantId: 2 })],
+      });
+      const updatedWcif = quitCompetitor(wcif, '333-r1', 1, false);
+      expect(updatedWcif.events[0].rounds[0].results.map(({ personId }) => personId)).toEqual([2]);
+    });
+  });
+
+  describe('when replace is true', () => {
+    test('removes the corresponding result and adds empty results for next advancable people', () => {
+      const round1 = Round({
+        id: '333-r1',
+        results: [
+          Result({ ranking: 1, personId: 1 }),
+          Result({ ranking: 2, personId: 2 }),
+          Result({ ranking: 3, personId: 3 }),
+          Result({ ranking: 4, personId: 4 }),
+        ],
+        advancementCondition: { type: 'ranking', level: 5 },
+      });
+      const round2 = Round({
+        id: '333-r2',
+        results: [
+          Result({ personId: 1 }),
+          Result({ personId: 2 }),
+        ],
+      });
+      const wcif = Competition({
+        events: [Event({ id: '333', rounds: [round1, round2] })],
+        persons: [1, 2, 3, 4].map(registrantId => Person({ registrantId })),
+      });
+      const updatedWcif = quitCompetitor(wcif, '333-r2', 1, true);
+      expect(updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId)).toEqual(
+        [2, 3, 4]
+      );
+    });
   });
 });
