@@ -51,19 +51,16 @@ const advancingResults = (round, wcif) => {
   }
 };
 
-const personIdsForRound = (round, wcif) => {
-  const { eventId, roundNumber } = parseActivityCode(round.id);
+const personIdsForRound = (wcif, roundId) => {
+  const { eventId, roundNumber } = parseActivityCode(roundId);
   if (roundNumber === 1) {
     const registeredPeople = acceptedPeople(wcif).filter(
       ({ registration }) => registration.eventIds.includes(eventId)
     );
     return registeredPeople.map(({ registrantId }) => registrantId);
   } else {
-    const previousRound = eventById(wcif, eventId).rounds.find(
-      ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
-    );
-    return advancingResults(previousRound, wcif)
-      .map(({ personId }) => personId);
+    const previous = previousRound(wcif, roundId);
+    return advancingResults(previous, wcif).map(({ personId }) => personId);
   }
 };
 

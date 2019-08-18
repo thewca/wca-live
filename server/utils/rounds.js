@@ -31,7 +31,7 @@ const openRound = (wcif, roundId) => {
     }
     wcif = updateRound(wcif, { ...previous, results: previousResults });
   }
-  const personIds = personIdsForRound(round, wcif);
+  const personIds = personIdsForRound(wcif, round.id);
   if (personIds.length === 0) {
     throw new Error(`Cannot open this round as no one ${previous ? 'qualified' : 'registered'}.`);
   }
