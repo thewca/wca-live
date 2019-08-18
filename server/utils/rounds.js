@@ -1,4 +1,4 @@
-const { roundById, previousRound, updateRound } = require('./wcif');
+const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
 const { personIdsForRound, nextAdvancableToRound } = require('./advancement');
 const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
 
@@ -20,6 +20,9 @@ const roundName = (roundNumber, numberOfRounds, cutoff) => {
 
 const openRound = (wcif, roundId) => {
   const round = roundById(wcif, roundId);
+  if (round.results.length > 0) {
+    throw new Error('Cannot open this round as it is already open.');
+  }
   const previous = previousRound(wcif, roundId);
   if (previous) {
     /* Remove empty results from previous round, to correctly determine how many people to advance. */
@@ -27,6 +30,7 @@ const openRound = (wcif, roundId) => {
       ({ attempts }) => attempts.length > 0
     );
     if (previousResults.length < 8) {
+      /* See: https://www.worldcubeassociation.org/regulations/#9m3 */
       throw new Error('Cannot open this round as the previous has less than 8 competitors.');
     }
     wcif = updateRound(wcif, { ...previous, results: previousResults });
@@ -40,6 +44,10 @@ const openRound = (wcif, roundId) => {
 };
 
 const clearRound = (wcif, roundId) => {
+  const next = nextRound(wcif, roundId);
+  if (next.results.length > 0) {
+    throw new Error('Cannot clear this round as the next round is open.');
+  }
   const round = roundById(wcif, roundId);
   return updateRound(wcif, { ...round, results: [] });
 };

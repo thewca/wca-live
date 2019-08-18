@@ -18,7 +18,7 @@ const updateRanking = (results, formatId) => {
   const { sortBy } = formatById(formatId);
   const rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
 
-  const [completed, empty] = partition(results, result => result.best > 0);
+  const [completed, empty] = partition(results, ({ attempts }) => attempts.length > 0);
 
   const sortedResults = sortByArray(completed, result =>
     rankingOrder.map(type => result[type] > 0 ? result[type] : Infinity)
