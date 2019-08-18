@@ -74,6 +74,6 @@ const app = express();
   });
 
   httpServer.listen({ port: PORT }, () =>
-    console.log(`Server running on http://localhost:${PORT}`)
+    console.log(`Server running at http://localhost:${PORT}`)
   );
 })();

@@ -1,8 +1,8 @@
 ## Concept
 
-On the top level, what WCA Live does is:
+On a top level, what WCA Live does is:
 - import competition WCIF
-- let's the user work on it by adding/modifying round results
+- let the user work on it by adding/modifying round results
 - save WCIF back
 
 Additionally it provides a public interface for viewing competitions and results.
@@ -23,7 +23,8 @@ but rather a part in the puzzle dedicated to entering results and displaying the
 
 We use MongoDB to store imported WCIF. We don't destructure it into many collections,
 but keep as is, which has several benefits:
-- ability to easily cache whole competition (keep in memory), see `server/competition-loader.js` for more details
+- ability to easily cache whole competition (keep in memory), see
+[`server/competition-loader.js`](server/competition-loader.js) for more details
 - we operate on the plain, common WCIF format, instead of specific data models
 - no logic related to loading WCIF into/from collections
 - it takes one query to get all data necessary to serve any supported GraphQL query
@@ -126,6 +127,13 @@ For every `Result` we store some additional app-specific data:
   }
 }
 ```
+
+## API
+
+The application is split into Node.js back-end and React front-end
+talking to each other using GraphQL API defined in [server/schema.graphql](server/schema.graphql).
+In the development mode you can play around with the API in GraphQL Playground
+running at http://localhost:4000/api.
 
 ## Wording
 
