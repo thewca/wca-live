@@ -19,7 +19,7 @@ const updateRanking = (results, formatId) => {
   const { sortBy } = formatById(formatId);
   const rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
 
-  const [completed, empty] = partition(results, ({ attempts }) => attempts.length > 0);
+  const [completed, empty] = partition(results, result => result.best > 0);
 
   const sortedResults = sortByArray(completed, result =>
     rankingOrder.map(type => result[type] > 0 ? result[type] : Infinity)
@@ -249,6 +249,12 @@ const nextAdvancableToRound = (wcif, roundId) => {
   const previous = previousRound(wcif, roundId);
   if (!previous) return []; /* This is the first round, noone else could advance to it. */
   const currentlyAdvancing = advancingResults(previous, wcif);
+  if (currentlyAdvancing.length === 0) {
+    /* This is only possible if the given round has no results (not open yet)
+       and no one from the previous round satisfies the advancement condition.
+       In that case there is no one who could advance. */
+    return [];
+  }
   const maxAdvancingRanking = Math.max(
     ...currentlyAdvancing.map(({ ranking }) => ranking)
   );
@@ -264,12 +270,12 @@ const nextAdvancableToRound = (wcif, roundId) => {
     .filter(result => !currentlyAdvancing.includes(result)) /* ...but didn't, because they quit the next round. */
     .map(({ personId }) => personId);
   const firstAdvancable = currentlyAdvancing[0];
-  const ignoredIds = firstAdvancable
-    ? [...alreadyQuitIds, firstAdvancable.personId]
-    : alreadyQuitIds;
+  const ignoredIds = [...alreadyQuitIds, firstAdvancable.personId]
   /* Hypothetical -> ignored people end up at the end. */
   const hypotheticalPreviousResults = previous.results.map(result =>
-    ignoredIds.includes(result.personId) ? { ...result, attempts: [] } : result
+    ignoredIds.includes(result.personId)
+      ? { ...result, attempts: [], best: 0, average: 0 }
+      : result
   );
   const withHypoteticalRanking = updateRanking(hypotheticalPreviousResults, previous.format);
   const newAdvancing = advancingResultsFromCondition(withHypoteticalRanking, previous.advancementCondition);

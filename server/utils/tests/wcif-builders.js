@@ -97,8 +97,8 @@ module.exports.Result = attributes => {
       { result: multiplier * 300 },
       { result: multiplier * 101 }
     ],
-    best: 101,
-    average: 185,
+    best: multiplier * 101,
+    average: multiplier * 185,
     ...attributes
   };
 };

@@ -3,6 +3,7 @@ const {
   updateRanking,
   advancingResultsFromCondition,
   advancingResults,
+  nextAdvancableToRound,
 } = require('../results');
 
 describe('updateRanking', () => {
@@ -214,5 +215,103 @@ describe('advancingResults', () => {
       });
       expect(advancingResults(round1, wcif)).toEqual(round1.results.slice(0, 2));
     });
+  });
+});
+
+describe('nextAdvancableToRound', () => {
+  test('returns an empty array if a first round is given', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1 }), Result({ personId: 2 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+    });
+    expect(nextAdvancableToRound(wcif, '333-r1')).toEqual([]);
+  });
+
+  test('returns id of the next person who could advance to the given round', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 2 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 2 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([3]);
+  });
+
+  test('returns multiple person ids if all could advance', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 3, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 2 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 2 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([3, 4]);
+  });
+
+  test('returns an empty array if there are too many people to fit in advanced 75%', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+        Result({ ranking: 4, personId: 5 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 2 }), Result({ personId: 3 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([]);
+  });
+
+  test('ignores people who already quit the given round', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 2 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 3 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([4]);
   });
 });
