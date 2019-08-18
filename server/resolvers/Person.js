@@ -1,7 +1,7 @@
 const { countryByIso2 } = require('../utils/countries');
 const { flatMap } = require('../utils/utils');
 const { sortWcifEvents } = require('../utils/events');
-const { advancingResults } = require('../utils/results');
+const { advancingResults } = require('../utils/advancement');
 
 module.exports = {
   id: ({ registrantId }) => registrantId,

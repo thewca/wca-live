@@ -1,7 +1,7 @@
 const { formatById } = require('../utils/formats');
 const { parseActivityCode, eventById } = require('../utils/wcif');
 const { roundName } = require('../utils/rounds');
-const { advancingResults, nextAdvancableToRound } = require('../utils/results');
+const { advancingResults } = require('../utils/advancement');
 
 module.exports = {
   format: ({ format }) => formatById(format),

@@ -3,7 +3,7 @@ const { ObjectId } = require('mongodb');
 const { db } = require('../mongo-connector');
 const { roundById, personById, startDate, endDate } = require('../utils/wcif');
 const { dateToString } = require('../utils/date');
-const { nextAdvancableToRound } = require('../utils/results');
+const { nextAdvancableToRound } = require('../utils/advancement');
 
 module.exports = {
   me: async (parent, args, { session }) => {

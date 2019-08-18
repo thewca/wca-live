@@ -4,7 +4,8 @@ const competitionLoader = require('../competition-loader');
 const pubsub = require('./pubsub');
 const wcaApi = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
-const { updateResult, openRound, clearRound, quitCompetitor } = require('../utils/results');
+const { updateResult } = require('../utils/results');
+const { openRound, clearRound, quitCompetitor } = require('../utils/rounds');
 const { managerWcaUserIds, synchronize } = require('../utils/competition');
 
 module.exports = {
