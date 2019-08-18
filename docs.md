@@ -135,6 +135,20 @@ talking to each other using GraphQL API defined in [server/schema.graphql](serve
 In the development mode you can play around with the API in GraphQL Playground
 running at http://localhost:4000/api.
 
+## 3rd party apps
+
+As already mentioned WCA Live is specifically dedicated to results work
+and relies on 3rd party apps when it comes to other tasks related to running
+a competition. As the WCA website is the central place for storing competition data,
+some tasks can be accomplished there (e.g. managing registrations, editing events and schedule).
+More specific tasks can be done in dedicated apps. [Groupifier](https://groupifier.jonatanklosko.com)
+is one such app, it deals with competitor group assignments and scorecards generation.
+Another example is [Scrambles Matcher](https://viroulep.github.io/scrambles-matcher),
+being a successor of Workbook Assistant, allowing delegates to attach
+scrambles to corresponding rounds once they are finished.
+The number of those specialized apps is expected to grow over time to cover all common
+competition organization needs.
+
 ## Wording
 
 - WCIF (WCA Competition Interchange Format) is a specification of competition data in JSON format.
