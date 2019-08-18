@@ -154,14 +154,14 @@ const satisfiesAdvancementCondition = (result, advancementCondition, resultCount
   throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
 };
 
-const withAdvancableFromCondition = (results, advancementCondition) => {
+const advancingResultsFromCondition = (results, advancementCondition) => {
+  if (results.length === 0) return [];
   const complete = ({ attempts }) => attempts.some(({ result }) => result > 0);
   if (!advancementCondition) {
     /* Mark top 3 in the finals. */
-    return results.map(result => ({
-      ...result,
-      advancable: complete(result) && !!result.ranking && result.ranking <= 3,
-    }));
+    return results.filter(
+      result => complete(result) && result.ranking && result.ranking <= 3,
+    );
   } else {
     /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
     const maxAdvanceable = Math.floor(results.length * 0.75);
@@ -170,29 +170,26 @@ const withAdvancableFromCondition = (results, advancementCondition) => {
       rankings.length > maxAdvanceable
         ? rankings[maxAdvanceable]
         : rankings[rankings.length - 1] + 1;
-    return results.map(result => ({
-      ...result,
-      /* Note: this ensures that people who tied either advance altogether or not. */
-      advancable: !!result.ranking && result.ranking < firstNonAdvancingRanking
-        && complete(result) && satisfiesAdvancementCondition(result, advancementCondition, results.length)
-    }));
+    return results.filter(result =>
+      result.ranking
+      /* Note: this ensures that people who tied either advance together or not. */
+      && result.ranking < firstNonAdvancingRanking
+      && complete(result)
+      && satisfiesAdvancementCondition(result, advancementCondition, results.length)
+    );
   }
 };
 
-const withAdvancable = (results, round, wcif) => {
-  if (results.length === 0) return [];
+const advancingResults = (results, round, wcif) => {
   const next = nextRound(wcif, round.id);
   if (next && next.results.length > 0) {
     /* If the next round is open use its results to determine who advanced. */
     const advancedByPersonId = Object.fromEntries(
       next.results.map(result => [result.personId, true])
     );
-    return results.map(result => ({
-      ...result,
-      advancable: advancedByPersonId[result.personId] || false,
-    }));
+    return results.filter(result => advancedByPersonId[result.personId]);
   } else {
-    return withAdvancableFromCondition(results, round.advancementCondition);
+    return advancingResultsFromCondition(results, round.advancementCondition);
   }
 };
 
@@ -207,8 +204,7 @@ const advancingPersonIds = (round, wcif) => {
     const previousRound = eventById(wcif, eventId).rounds.find(
       ({ id }) => parseActivityCode(id).roundNumber === roundNumber - 1
     );
-    return withAdvancable(previousRound.results, previousRound, wcif)
-      .filter(({ advancable }) => advancable)
+    return advancingResults(previousRound.results, previousRound, wcif)
       .map(({ personId }) => personId);
   }
 };
@@ -255,33 +251,34 @@ const clearRound = (wcif, roundId) => {
 const nextAdvancableToRound = (wcif, roundId) => {
   const previous = previousRound(wcif, roundId);
   if (!previous) return []; /* This is the first round, noone else could advance to it. */
-  const previousResults = withAdvancable(previous.results, previous, wcif);
+  const currentlyAdvancing = advancingResults(previous.results, previous, wcif);
   const maxAdvancingRanking = Math.max(
-    ...previousResults.filter(({ advancable }) => advancable).map(({ ranking }) => ranking)
+    ...currentlyAdvancing.map(({ ranking }) => ranking)
   );
-  const potentiallyAdvancingPersonIds = previousResults
+  const hasntAdvancedYetIds = previous.results
     .filter(({ ranking }) => ranking > maxAdvancingRanking)
     .map(({ personId }) => personId);
-  /* For previous round results ignore people who quitted the next round (gaps in advancable)
-     and also for first advancable person (by clearing their attempts).
-     Empty attempts rank those people at the end (so we don't treat them as advancable).
+  /* For previous round results ignore people who have already quit the next round
+     and also the first advancable person (by clearing their attempts).
+     Empty attempts rank those people at the end (so we don't treat them as advancing).
      Then recompute rankings and see who else would advance as a result. */
-  const alreadyQuittedIds = previousResults
-    .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should be advancable... */
-    .filter(({ advancable }) => !advancable) /* ...but it's not, because they quitted the next round. */
+  const alreadyQuitIds = previous.results
+    .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should advance... */
+    .filter(result => !currentlyAdvancing.includes(result)) /* ...but didn't, because they quit the next round. */
     .map(({ personId }) => personId);
-  const firstAdvancable = previousResults.find(({ advancable }) => advancable);
-  if (!firstAdvancable) return [];
-  const ignoredIds = [...alreadyQuittedIds, firstAdvancable.personId];
-  const resultsWithIgnored = previousResults.map(result =>
+  const firstAdvancable = currentlyAdvancing[0];
+  const ignoredIds = firstAdvancable
+    ? [...alreadyQuitIds, firstAdvancable.personId]
+    : alreadyQuitIds;
+  /* Hypothetical -> ignored people end up at the end. */
+  const hypotheticalPreviousResults = previous.results.map(result =>
     ignoredIds.includes(result.personId) ? { ...result, attempts: [] } : result
   );
-  const resultsWithNewRanking = updateRanking(resultsWithIgnored, previous.format);
-  const resultsWithNewAdvancable = withAdvancableFromCondition(resultsWithNewRanking, previous.advancementCondition);
-  const wouldAdvancePersonIds = potentiallyAdvancingPersonIds.filter(
-    personId => resultsWithNewAdvancable.find(result => result.personId === personId).advancable
-  );
-  return wouldAdvancePersonIds;
+  const withHypoteticalRanking = updateRanking(hypotheticalPreviousResults, previous.format);
+  const newAdvancing = advancingResultsFromCondition(withHypoteticalRanking, previous.advancementCondition);
+  return newAdvancing
+    .filter(result => hasntAdvancedYetIds.includes(result.personId))
+    .map(({ personId }) => personId);
 };
 
 const quitCompetitor = (wcif, roundId, competitorId, replace) => {
@@ -307,7 +304,7 @@ module.exports = {
   updateResult,
   openRound,
   clearRound,
-  withAdvancable,
+  advancingResults,
   nextAdvancableToRound,
   quitCompetitor,
 };

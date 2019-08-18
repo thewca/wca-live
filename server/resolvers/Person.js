@@ -1,7 +1,7 @@
 const { countryByIso2 } = require('../utils/countries');
 const { flatMap } = require('../utils/utils');
 const { sortWcifEvents } = require('../utils/events');
-const { withAdvancable } = require('../utils/results');
+const { advancingResults } = require('../utils/results');
 
 module.exports = {
   id: ({ registrantId }) => registrantId,
@@ -15,9 +15,13 @@ module.exports = {
       )
     );
     return roundsWhereHasResult.map(round => {
-      const result = withAdvancable(round.results, round, competition.wcif)
-        .find(({ personId }) => personId === registrantId)
-      return { ...result, round };
+      const advancing = advancingResults(round.results, round, competition.wcif);
+      const result = round.results.find(({ personId }) => personId === registrantId);
+      return {
+        ...result,
+        round,
+        advancable: advancing.includes(result),
+      };
     });
   },
 };
