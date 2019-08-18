@@ -52,3 +52,7 @@ To sign in do the following:
 *Technical note: in the development we run two servers: one serving frontend assets
 and the other one being our actual backend. While localhost:3000 correctly sends all
 API requests to the backend, in order to use OAuth we need to hit the backend directly.*
+
+## Docs
+
+See [docs](docs.md) for some top level notes.
