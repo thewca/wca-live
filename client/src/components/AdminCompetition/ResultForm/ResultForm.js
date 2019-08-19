@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Icon from '@material-ui/core/Icon';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import withConfirm from 'material-ui-confirm';
 
@@ -143,40 +145,61 @@ const ResultForm = ({
         )}
       </Grid>
       <Grid item xs={12}>
-        <CustomMutation
-          mutation={setResultMutation}
-          variables={{
-            competitionId,
-            roundId,
-            result: { personId, attempts: trimTrailingZeros(attempts) },
-          }}
-          onCompleted={() => {
-            const personIdInput = rootRef.current.getElementsByTagName(
-              'input'
-            )[0];
-            personIdInput.focus();
-            personIdInput.select();
-          }}
-        >
-          {(setResult, { loading }) => (
-            <Button
-              type="submit"
-              variant="outlined"
-              color="primary"
-              disabled={!result || loading}
-              onClick={
-                submissionWarning
-                  ? confirm(setResult, {
-                      description: submissionWarning,
-                      confirmationText: 'Submit',
-                    })
-                  : setResult
+        <Grid container alignItems="flex-end">
+          <Grid item>
+            <CustomMutation
+              mutation={setResultMutation}
+              variables={{
+                competitionId,
+                roundId,
+                result: { personId, attempts: trimTrailingZeros(attempts) },
+              }}
+              onCompleted={() => {
+                const personIdInput = rootRef.current.getElementsByTagName(
+                  'input'
+                )[0];
+                personIdInput.focus();
+                personIdInput.select();
+              }}
+            >
+              {(setResult, { loading }) => (
+                <Button
+                  type="submit"
+                  variant="outlined"
+                  color="primary"
+                  disabled={!result || loading}
+                  onClick={
+                    submissionWarning
+                      ? confirm(setResult, {
+                          description: submissionWarning,
+                          confirmationText: 'Submit',
+                        })
+                      : setResult
+                  }
+                >
+                  Submit
+                </Button>
+              )}
+            </CustomMutation>
+          </Grid>
+          <Grid item style={{ flexGrow: 1 }} />
+          <Grid item>
+            <Tooltip
+              title={
+                <div>
+                  Key bindings:
+                  <div>{`/ or f - DNF`}</div>
+                  <div>{`* or s - DNS`}</div>
+                  <div>{`Up and Down - navigation`}</div>
+                </div>
               }
             >
-              Submit
-            </Button>
-          )}
-        </CustomMutation>
+              <Icon style={{ verticalAlign: 'middle' }} color="action">
+                keyboard
+              </Icon>
+            </Tooltip>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );
