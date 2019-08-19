@@ -10,6 +10,8 @@
 </div>
 <br />
 
+[![Build status](https://travis-ci.com/thewca/wca-live.svg?branch=master)](https://travis-ci.com/thewca/wca-live)
+
 ## Development
 
 Node.js and MongoDB are required.
