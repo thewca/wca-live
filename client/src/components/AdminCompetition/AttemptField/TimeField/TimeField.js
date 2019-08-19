@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 
 import { toInt } from '../../../../logic/utils';
-import { roundOver10Mins } from '../../../../logic/calculations';
+import { roundOver10Mins } from '../../../../logic/stats';
 
 const reformatInput = input => {
   if (input.includes('f') || input.includes('/')) return 'DNF';

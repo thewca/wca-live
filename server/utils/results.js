@@ -1,4 +1,4 @@
-const { average, best } = require('./calculations');
+const { average, best } = require('./stats');
 const { sortByArray, partition } = require('./utils');
 const {
   parseActivityCode,
@@ -121,6 +121,8 @@ const processRoundChange = (wcif, roundId) => {
 
 const updateResult = (wcif, roundId, personId, attempts) => {
   const round = roundById(wcif, roundId);
+  const { solveCount } = formatById(round.format);
+  const { eventId } = parseActivityCode(roundId);
   const attemptResults = attempts.map(({ result }) => result);
   const updatedWcif = updateRound(wcif, {
     ...round,
@@ -130,7 +132,7 @@ const updateResult = (wcif, roundId, personId, attempts) => {
           ...current,
           attempts,
           best: best(attemptResults),
-          average: average(attemptResults),
+          average: average(attemptResults, eventId, solveCount),
           updatedAt: new Date(),
         }
         : current

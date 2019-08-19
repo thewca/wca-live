@@ -13,7 +13,7 @@ import {
   formatResult,
   attemptsWarning,
 } from '../../../logic/results';
-import { best, average } from '../../../logic/calculations';
+import { best, average } from '../../../logic/stats';
 import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
 
 const ResultForm = ({
@@ -133,7 +133,12 @@ const ResultForm = ({
       <Grid item xs={6}>
         {computeAverage && (
           <Typography variant="body2">
-            Average: {formatResult(average(attempts), eventId, true)}
+            Average:{' '}
+            {formatResult(
+              average(attempts, eventId, solveCount),
+              eventId,
+              true
+            )}
           </Typography>
         )}
       </Grid>
