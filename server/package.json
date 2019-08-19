@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon ./index.js",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "test:once": "jest --verbose"
   },
   "dependencies": {
     "apollo-server-express": "^2.6.7",
