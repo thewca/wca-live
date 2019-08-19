@@ -2,5 +2,7 @@ language: node_js
 node_js:
   - "node"
 cache: npm
+install:
+  - npm ci --prefix server
 script:
   - npm run test:once --prefix server
