@@ -1,5 +1,13 @@
-const { Result } = require('./wcif-builders');
-const { updateRanking } = require('../results');
+const records = require('../records');
+records.getRecordByIdCopy = jest.fn();
+beforeEach(() => {
+  records.getRecordByIdCopy.mockImplementation(() => {
+    throw new Error('Missing mocked records value.');
+  });
+});
+
+const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
+const { updateRanking, updateRecordTags } = require('../results');
 
 describe('updateRanking', () => {
   describe('when sorting by average', () => {
@@ -86,5 +94,175 @@ describe('updateRanking', () => {
       { ...result4, ranking: 1 },
       { ...result2, ranking: 4 },
     ]);
+  });
+});
+
+describe('updateRecordTags', () => {
+  beforeEach(() => {
+    records.getRecordByIdCopy.mockReturnValue({
+      '333-single-world': 500,
+      '333-average-world': 600,
+      '333-single-_Europe': 600,
+      '333-average-_Europe': 700,
+      '333-single-United Kingdom': 700,
+      '333-average-United Kingdom': 800,
+    });
+  });
+
+  const person = Person({
+    registrantId: 1,
+    countryIso2: 'GB',
+    personalBests: [
+      { eventId: '333', type: 'single', best: 800 },
+      { eventId: '333', type: 'average', best: 900 },
+    ],
+  });
+
+  test('sets null tags if no there is no record', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1, best: 850, average: 950 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: null, average: null
+    });
+  });
+
+  test('sets personal records correctly', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1, best: 750, average: 850 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'PB', average: 'PB'
+    });
+  });
+
+  test('sets national records correctly', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1, best: 650, average: 750 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'NR', average: 'NR'
+    });
+  });
+
+  test('sets continental records correctly', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1, best: 550, average: 650 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'CR', average: 'CR'
+    });
+  });
+
+  test('sets world records correctly', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1, best: 450, average: 550 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'WR', average: 'WR'
+    });
+  });
+
+  test('sets only one record of the given type in the given round', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ personId: 1, best: 480, average: 550 }),
+        Result({ personId: 2, best: 450, average: 580 }),
+      ],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [1, 2].map(registrantId => Person({
+        registrantId,
+        countryIso2: 'GB',
+        personalBests: [
+          { eventId: '333', type: 'single', best: 800 },
+          { eventId: '333', type: 'average', best: 900 },
+        ],
+      })),
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'PB', average: 'WR'
+    });
+    expect(updatedWcif.events[0].rounds[0].results[1].recordTags).toEqual({
+      single: 'WR', average: 'PB'
+    });
+  });
+
+  test('allows record of the same type in many rounds', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ personId: 1, best: 480, average: 580 }),
+      ],
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [
+        Result({ personId: 1, best: 450, average: 550 }),
+      ],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'WR', average: 'WR'
+    });
+    expect(updatedWcif.events[0].rounds[1].results[0].recordTags).toEqual({
+      single: 'WR', average: 'WR'
+    });
+  });
+
+  test('if there is no record of the specific type, any complete result is treated as a record', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1, best: 2000, average: -1 })],
+    });
+    const person = Person({
+      registrantId: 1,
+      countryIso2: 'US', /* Note: there are no records for either USA and North America. */
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [person],
+    });
+    const updatedWcif = updateRecordTags(wcif, '333-r1');
+    expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
+      single: 'CR', average: null
+    });
   });
 });

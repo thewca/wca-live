@@ -12,13 +12,14 @@ const { ObjectId } = require('mongodb');
 const oauth = require('./oauth');
 const resolvers = require('./resolvers');
 const mongo = require('./mongo-connector');
-const competitionLoaderFactory = require('./competition-loader');
+const { initialize: initializeRecords } = require('./utils/records');
 const { PRODUCTION, PORT, SESSION_SECRET } = require('./config');
 
-const app = express();
+const initialize = async () => {
+  const app = express();
 
-(async () => {
   await mongo.connect();
+  await initializeRecords();
 
   app.use(session({
     secret: SESSION_SECRET,
@@ -76,4 +77,9 @@ const app = express();
   httpServer.listen({ port: PORT }, () =>
     console.log(`Server running at http://localhost:${PORT}`)
   );
-})();
+};
+
+initialize().catch(error => {
+  console.error(error);
+  mongo.db.client.close();
+});

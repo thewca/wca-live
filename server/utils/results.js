@@ -57,6 +57,8 @@ const tagsWithRecordId = (wcif, personId, eventId, type) => {
   ];
 };
 
+/* Updates record tags for the given round and all further rounds
+   (as change to the given round may affect further ones). */
 const updateRecordTags = (wcif, roundId) => {
   const { eventId, roundNumber } = parseActivityCode(roundId);
   const event = eventById(wcif, eventId);
@@ -87,7 +89,7 @@ const updateRecordTags = (wcif, roundId) => {
   /* Changing result may affect records in the given and further rounds. */
   const [previousRounds, affectedRounds] = partition(
     event.rounds,
-    round => parseActivityCode(roundId).roundNumber < roundNumber
+    round => parseActivityCode(round.id).roundNumber < roundNumber
   );
   previousRounds.forEach(updateRecords);
   const updatedAffectedRounds = affectedRounds.map(round => {
@@ -155,6 +157,7 @@ const emptyResultsForPeople = personIds => {
 
 module.exports = {
   updateRanking,
+  updateRecordTags,
   sortedResults,
   processRoundChange,
   updateResult,

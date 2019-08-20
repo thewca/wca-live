@@ -1,3 +1,6 @@
+const records = require('../records');
+records.getRecordByIdCopy = jest.fn(() => ({}));
+
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
 const { openRound, clearRound, quitCompetitor } = require('../rounds');
 

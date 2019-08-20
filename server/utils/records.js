@@ -6,25 +6,26 @@ const wcaApi = require('./wca-api');
 
 const cache = { recordById: null };
 
-const updateRecords = async () => {
+/* Initialize records and set up a periodical update. */
+const initialize = async () => {
   try {
-    const recordsJson = await wcaApi().getRecords();
-    cache.recordById = recordsJsonToRecordById(recordsJson);
+    await updateRecords();
   } catch (error) {
-    console.log(`Failed to load records: ${error}`);
+    throw new Error(`Failed to load records: ${error}`);
   }
+  /* Update records every hour. */
+  setInterval(async () => {
+    try {
+      await updateRecords();
+    } catch(e) {
+      console.error(`Failed to update records: ${error}`);
+    }
+  }, 60 * 60 * 1000);
 };
 
-const getRecordByIdCopy = () => {
-  /* If we don't have recordbyId, return proxy object that for any given reacord id
-     returns smallest posible result value to avoid false positives. */
-  return cache.recordById
-    ? { ...cache.recordById }
-    : new Proxy({}, { get: () => 1 });
-};
-
-const recordId = (eventId, type, scopeId) => {
-  return `${eventId}-${type}-${scopeId}`;
+const updateRecords = async () => {
+  const recordsJson = await wcaApi().getRecords();
+  cache.recordById = recordsJsonToRecordById(recordsJson);
 };
 
 const recordsJsonToRecordById = ({
@@ -51,12 +52,19 @@ const recordsJsonToRecordById = ({
   return recordById;
 };
 
-/* Initialization */
+const getRecordByIdCopy = () => {
+  if (!cache.recordById) {
+    throw new Error(`Records haven't been initialized yet.`);
+  }
+  return { ...cache.recordById };
+};
 
-updateRecords();
-setInterval(updateRecords, 10 * 60 * 1000); /* Update records every 10 minutes. */
+const recordId = (eventId, type, scopeId) => {
+  return `${eventId}-${type}-${scopeId}`;
+};
 
 module.exports = {
-  recordId,
+  initialize,
   getRecordByIdCopy,
+  recordId,
 };
