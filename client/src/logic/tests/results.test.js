@@ -1,4 +1,4 @@
-import { formatResult } from '../results';
+import { formatResult, attemptsWarning } from '../results';
 
 describe('formatResult', () => {
   test('returns an empty string for value 0', () => {
@@ -38,5 +38,30 @@ describe('formatResult', () => {
       expect(formatResult(900348002, '333mbf')).toEqual('11/13 58:00');
       expect(formatResult(970360001, '333mbf')).toEqual('3/4 1:00:00');
     });
+  });
+});
+
+describe('attemptsWarning', () => {
+  const normalize = string => string.replace(/\s+/g, ' ');
+
+  describe('when 3x3x3 Multi-Blind results are given', () => {
+    it('returns a warning if an attempt has impossibly low time', () => {
+      const attempts = [970360001, 970006001];
+      expect(normalize(attemptsWarning(attempts, '333mbf'))).toMatch(
+        'attempt 2 is done in less than 30 seconds per cube tried'
+      );
+    });
+  });
+
+  it('returns a warning if best and worst result are far apart', () => {
+    const attempts = [500, 1000, 2500];
+    expect(normalize(attemptsWarning(attempts, '333'))).toMatch(
+      "There's a big difference between the best single (5.00) and the worst single (25.00)"
+    );
+  });
+
+  it('returns null if results do not look suspicious', () => {
+    const attempts = [900, 1000, 800];
+    expect(attemptsWarning(attempts, '333')).toEqual(null);
   });
 });
