@@ -4,5 +4,7 @@ node_js:
 cache: npm
 install:
   - npm ci --prefix server
+  - npm ci --prefix client
 script:
   - npm run test:once --prefix server
+  - npm run test --prefix client
