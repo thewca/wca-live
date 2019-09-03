@@ -95,6 +95,21 @@ The database schema looks like so:
           "type": "string"
         }
       }
+    },
+    "oauth": {
+      "type": "object",
+      "description": "WCA OAuth data specific to the user.",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expiresAt": {
+          "type": "date"
+        }
+      }
     }
   }
 }
