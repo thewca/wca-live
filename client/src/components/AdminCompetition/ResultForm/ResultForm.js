@@ -50,7 +50,7 @@ const ResultForm = ({
       const mod = n => (n + inputs.length) % inputs.length;
       const index = inputs.findIndex(input => event.target === input);
       if (index === -1) {
-        if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
+        if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
           inputs[0].focus();
           inputs[0].select();
           event.preventDefault();
@@ -60,7 +60,10 @@ const ResultForm = ({
         previousElement.focus();
         previousElement.select && previousElement.select();
         event.preventDefault();
-      } else if (event.key === 'ArrowDown') {
+      } else if (
+        event.key === 'ArrowDown' ||
+        (event.target.tagName === 'INPUT' && event.key === 'Enter')
+      ) {
         const nextElement = inputs[mod(index + 1)];
         nextElement.focus();
         nextElement.select && nextElement.select();
@@ -190,7 +193,7 @@ const ResultForm = ({
                   Key bindings:
                   <div>{`/ or d - DNF`}</div>
                   <div>{`* or s - DNS`}</div>
-                  <div>{`Up and Down - navigation`}</div>
+                  <div>{`Up, Down, Enter - navigation`}</div>
                 </div>
               }
             >
