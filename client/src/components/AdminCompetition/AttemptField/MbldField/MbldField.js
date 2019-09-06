@@ -29,7 +29,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
 
   const handleAnyInputChange = event => {
     const input = event.target.value;
-    if (input.includes('f') || input.includes('/')) {
+    if (input.includes('d') || input.includes('/')) {
       handleValue({ solved: 0, attempted: 0, centiseconds: -1 });
     } else if (input.includes('s') || input.includes('*')) {
       handleValue({ solved: 0, attempted: 0, centiseconds: -2 });

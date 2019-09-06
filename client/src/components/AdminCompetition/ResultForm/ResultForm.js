@@ -188,7 +188,7 @@ const ResultForm = ({
               title={
                 <div>
                   Key bindings:
-                  <div>{`/ or f - DNF`}</div>
+                  <div>{`/ or d - DNF`}</div>
                   <div>{`* or s - DNS`}</div>
                   <div>{`Up and Down - navigation`}</div>
                 </div>

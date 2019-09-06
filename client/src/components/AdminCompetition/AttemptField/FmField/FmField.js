@@ -30,7 +30,7 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       value={numberToInput(value)}
       onChange={event => {
         const input = event.target.value;
-        if (input.includes('f') || input.includes('/')) {
+        if (input.includes('d') || input.includes('/')) {
           setValue(-1);
         } else if (input.includes('s') || input.includes('*')) {
           setValue(-2);

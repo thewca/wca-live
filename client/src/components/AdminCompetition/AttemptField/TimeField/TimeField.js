@@ -5,7 +5,7 @@ import { toInt } from '../../../../logic/utils';
 import { roundOver10Mins } from '../../../../logic/stats';
 
 const reformatInput = input => {
-  if (input.includes('f') || input.includes('/')) return 'DNF';
+  if (input.includes('d') || input.includes('/')) return 'DNF';
   if (input.includes('s') || input.includes('*')) return 'DNS';
   const number = toInt(input.replace(/\D/g, '')) || 0;
   if (number === 0) return '';
