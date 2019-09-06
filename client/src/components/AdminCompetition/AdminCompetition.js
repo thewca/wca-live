@@ -2,6 +2,7 @@ import React from 'react';
 import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
+import Chip from '@material-ui/core/Chip';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -36,6 +37,10 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.type === 'dark' ? '#fff' : null,
     backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
   },
+  chip: {
+    marginLeft: theme.spacing(1),
+    color: 'inherit',
+  },
   grow: {
     flexGrow: 1,
   },
@@ -64,6 +69,12 @@ const AdminCompetition = ({ match, location }) => {
                 <Typography variant="h6" color="inherit">
                   {competition.name}
                 </Typography>
+                <Chip
+                  label="Admin"
+                  size="small"
+                  color="secondary"
+                  className={classes.chip}
+                />
                 <div className={classes.grow} />
                 <Tooltip title="Events">
                   <IconButton
