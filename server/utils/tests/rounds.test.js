@@ -127,9 +127,8 @@ describe('clearRound', () => {
       id: '333-r1',
       results: [Result({ personId: 1 }), Result({ personId: 2 })],
     });
-    const round2 = Round({ id: '333-r2', results: [] });
     const wcif = Competition({
-      events: [Event({ id: '333', rounds: [round1, round2] })],
+      events: [Event({ id: '333', rounds: [round1] })],
     });
     const updatedWcif = clearRound(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results).toEqual([]);

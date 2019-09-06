@@ -45,7 +45,7 @@ const openRound = (wcif, roundId) => {
 
 const clearRound = (wcif, roundId) => {
   const next = nextRound(wcif, roundId);
-  if (next.results.length > 0) {
+  if (next && next.results.length > 0) {
     throw new Error('Cannot clear this round as the next round is open.');
   }
   const round = roundById(wcif, roundId);
