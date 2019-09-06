@@ -114,7 +114,7 @@ const ResultForm = ({
             disabled={!result}
             onValue={value => {
               const updatedValue =
-                timeLimit && value > timeLimit.centiseconds ? -1 : value;
+                timeLimit && value >= timeLimit.centiseconds ? -1 : value;
               const updatedAttempts = setAt(attempts, index, updatedValue);
               setAttempts(
                 meetsCutoff(updatedAttempts, cutoff, eventId)
