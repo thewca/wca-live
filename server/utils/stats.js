@@ -41,9 +41,7 @@ const average = (attempts, eventId, expectedSolveCount) => {
        and that may be a hard to spot bug, so better enforce explicity here. */
     throw new Error('Missing argument: eventId');
   }
-  if (![3, 5].includes(expectedSolveCount)) {
-    throw new Error(`Invalid expected number of attempts: ${expectedSolveCount}. Must be either 3 or 5.`);
-  }
+  if (![3, 5].includes(expectedSolveCount)) return 0;
   if (eventId === '333mbf') return 0;
   const normalized = normalizeAttempts(attempts, expectedSolveCount);
   if (normalized.some(skipped)) return 0;

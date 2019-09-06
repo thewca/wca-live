@@ -28,10 +28,10 @@ describe('average', () => {
     }).toThrow('Missing argument: eventId');
   });
 
-  it('throws an error for unsupported expected solve count', () => {
-    expect(() => {
-      average([1100, 1000, 900], '333', 4);
-    }).toThrow('Invalid expected number of attempts: 4. Must be either 3 or 5.');
+  it('returns 0 if the expected solve count is neither 3 nor 5', () => {
+    expect(average([1100], '333', 1)).toEqual(0);
+    expect(average([1100], '333', 2)).toEqual(0);
+    expect(average([1100, 1000, 900, 800], '333', 4)).toEqual(0);
   });
 
   it('returns 0 (skipped) for 3x3x3 Multi-Blind', () => {
