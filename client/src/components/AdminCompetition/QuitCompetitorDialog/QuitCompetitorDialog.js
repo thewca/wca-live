@@ -86,7 +86,7 @@ const QuitCompetitorDialog = ({
                   value="false"
                   label={
                     nextAdvancable.length > 0
-                      ? `Yes, just remove ${competitor.name} and don't replace they.`
+                      ? `Yes, just remove ${competitor.name} and don't replace them.`
                       : `Yes, remove ${competitor.name}.`
                   }
                 />
