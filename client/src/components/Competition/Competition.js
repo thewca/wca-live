@@ -9,6 +9,7 @@ import Hidden from '@material-ui/core/Hidden';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
@@ -163,13 +164,15 @@ const Competition = ({ match, location }) => {
                 </Typography>
                 <div style={{ flexGrow: 1 }} />
                 {manageableByCurrentUser && (
-                  <IconButton
-                    color="inherit"
-                    component={Link}
-                    to={`/admin${location.pathname}`}
-                  >
-                    <Icon>lock</Icon>
-                  </IconButton>
+                  <Tooltip title="Admin view">
+                    <IconButton
+                      color="inherit"
+                      component={Link}
+                      to={`/admin${location.pathname}`}
+                    >
+                      <Icon>lock</Icon>
+                    </IconButton>
+                  </Tooltip>
                 )}
               </Toolbar>
             </AppBar>

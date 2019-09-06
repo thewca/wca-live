@@ -5,6 +5,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
@@ -64,30 +65,38 @@ const AdminCompetition = ({ match, location }) => {
                   {competition.name}
                 </Typography>
                 <div className={classes.grow} />
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to={`/admin/competitions/${competition.id}`}
-                >
-                  <Icon>view_list</Icon>
-                </IconButton>
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to={`/admin/competitions/${competition.id}/sync`}
-                >
-                  <Icon>sync</Icon>
-                </IconButton>
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to={location.pathname.replace(/^\/admin/, '')}
-                >
-                  <Icon>remove_red_eye</Icon>
-                </IconButton>
-                <IconButton color="inherit" component={Link} to="/admin">
-                  <Icon>account_circle</Icon>
-                </IconButton>
+                <Tooltip title="Events">
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    to={`/admin/competitions/${competition.id}`}
+                  >
+                    <Icon>view_list</Icon>
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Synchronization">
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    to={`/admin/competitions/${competition.id}/sync`}
+                  >
+                    <Icon>sync</Icon>
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Public view">
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    to={location.pathname.replace(/^\/admin/, '')}
+                  >
+                    <Icon>remove_red_eye</Icon>
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="My competitions">
+                  <IconButton color="inherit" component={Link} to="/admin">
+                    <Icon>account_circle</Icon>
+                  </IconButton>
+                </Tooltip>
               </Toolbar>
             </AppBar>
             <div className={classes.content}>
