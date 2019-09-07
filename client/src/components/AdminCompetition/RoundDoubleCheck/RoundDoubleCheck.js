@@ -8,7 +8,6 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
-import { toInt } from '../../../logic/utils';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -111,6 +110,7 @@ const RoundDoubleCheck = ({ match }) => {
             <Grid item md={3}>
               <ResultForm
                 result={results[resultIndex]}
+                results={round.results}
                 format={round.format}
                 eventId={round.event.id}
                 timeLimit={round.timeLimit}
@@ -118,10 +118,8 @@ const RoundDoubleCheck = ({ match }) => {
                 competitionId={competitionId}
                 roundId={roundId}
                 setResultMutation={SET_RESULT_MUTATION}
-                onPersonIdChange={id => {
-                  setResultIndex(
-                    results.findIndex(result => toInt(result.person.id) === id)
-                  );
+                onResultChange={result => {
+                  setResultIndex(results.indexOf(result));
                 }}
               />
             </Grid>

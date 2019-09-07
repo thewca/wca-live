@@ -12,7 +12,6 @@ import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
-import { toInt } from '../../../logic/utils';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -92,10 +91,9 @@ const AdminRound = ({ match }) => {
             <Grid item md={3}>
               <ResultForm
                 result={editedResult}
-                onPersonIdChange={id => {
-                  setEditedResult(
-                    round.results.find(result => toInt(result.person.id) === id)
-                  );
+                results={round.results}
+                onResultChange={result => {
+                  setEditedResult(result);
                 }}
                 format={round.format}
                 eventId={round.event.id}

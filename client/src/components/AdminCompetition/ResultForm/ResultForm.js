@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
-import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import withConfirm from 'material-ui-confirm';
 
 import CustomMutation from '../../CustomMutation/CustomMutation';
 import AttemptField from '../AttemptField/AttemptField';
-import { toInt, setAt, times, trimTrailingZeros } from '../../../logic/utils';
+import ResultSelect from '../ResultSelect/ResultSelect';
+import { setAt, times, trimTrailingZeros } from '../../../logic/utils';
 import {
   meetsCutoff,
   formatResult,
@@ -20,7 +20,8 @@ import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
 
 const ResultForm = ({
   result,
-  onPersonIdChange,
+  results,
+  onResultChange,
   format,
   eventId,
   timeLimit,
@@ -31,12 +32,10 @@ const ResultForm = ({
   confirm,
 }) => {
   const { solveCount } = format;
-  const [personId, setPersonId] = useState(result ? result.person.id : null);
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
   const rootRef = useRef(null);
 
   useEffect(() => {
-    if (result) setPersonId(result.person.id);
     setAttempts(
       times(solveCount, index => (result && result.attempts[index]) || 0)
     );
@@ -49,6 +48,13 @@ const ResultForm = ({
       );
       const mod = n => (n + inputs.length) % inputs.length;
       const index = inputs.findIndex(input => event.target === input);
+      if (
+        ['ArrowUp', 'ArrowDown'].includes(event.key) &&
+        rootRef.current.getElementsByClassName('MuiMenuItem-root').length > 0
+      ) {
+        /* Don't interrupt navigation within result selectable list. */
+        return;
+      }
       if (index === -1) {
         if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
           inputs[0].focus();
@@ -94,18 +100,10 @@ const ResultForm = ({
         </Typography>
       </Grid>
       <Grid item xs={12} style={{ marginBottom: 16, marginTop: 16 }}>
-        <TextField
-          autoFocus
-          fullWidth
-          variant="outlined"
-          label="Competitor ID"
-          value={personId || ''}
-          helperText={result ? result.person.name : ' '}
-          onChange={event => {
-            const personId = toInt(event.target.value);
-            setPersonId(personId);
-            onPersonIdChange(personId);
-          }}
+        <ResultSelect
+          results={results}
+          value={result}
+          onChange={onResultChange}
         />
       </Grid>
       {attempts.map((attempt, index) => (
@@ -155,14 +153,17 @@ const ResultForm = ({
               variables={{
                 competitionId,
                 roundId,
-                result: { personId, attempts: trimTrailingZeros(attempts) },
+                result: {
+                  personId: result && result.person.id,
+                  attempts: trimTrailingZeros(attempts),
+                },
               }}
               onCompleted={() => {
-                const personIdInput = rootRef.current.getElementsByTagName(
+                const resultInput = rootRef.current.getElementsByTagName(
                   'input'
                 )[0];
-                personIdInput.focus();
-                personIdInput.select();
+                resultInput.focus();
+                resultInput.select();
               }}
             >
               {(setResult, { loading }) => (
