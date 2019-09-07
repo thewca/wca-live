@@ -42,10 +42,14 @@ const ResultForm = ({
   }, [result, solveCount]);
 
   useEffect(() => {
-    const handleKeyPress = event => {
-      const inputs = Array.from(
+    const getInputs = () => {
+      return Array.from(
         rootRef.current.querySelectorAll('input, button')
-      );
+      ).filter(input => !input.disabled);
+    };
+
+    const handleKeyPress = event => {
+      const inputs = getInputs();
       const mod = n => (n + inputs.length) % inputs.length;
       const index = inputs.findIndex(input => event.target === input);
       if (
@@ -55,14 +59,24 @@ const ResultForm = ({
         /* Don't interrupt navigation within result selectable list. */
         return;
       }
+      if (
+        event.target.tagName === 'INPUT' &&
+        ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)
+      ) {
+        /* Blur the current input first, as it may affect which fields are disabled.
+           After that get the updated input list.
+           Note: blur is a synchronous event, so this call triggers all onBlur handlers before continuing. */
+        event.target.blur();
+      }
+      const updatedInputs = getInputs();
       if (index === -1) {
         if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
-          inputs[0].focus();
-          inputs[0].select();
+          updatedInputs[0].focus();
+          updatedInputs[0].select();
           event.preventDefault();
         }
       } else if (event.key === 'ArrowUp') {
-        const previousElement = inputs[mod(index - 1)];
+        const previousElement = updatedInputs[mod(index - 1)];
         previousElement.focus();
         previousElement.select && previousElement.select();
         event.preventDefault();
@@ -70,7 +84,7 @@ const ResultForm = ({
         event.key === 'ArrowDown' ||
         (event.target.tagName === 'INPUT' && event.key === 'Enter')
       ) {
-        const nextElement = inputs[mod(index + 1)];
+        const nextElement = updatedInputs[mod(index + 1)];
         nextElement.focus();
         nextElement.select && nextElement.select();
         event.preventDefault();
@@ -86,6 +100,10 @@ const ResultForm = ({
     [3, 5].includes(format.solveCount) && eventId !== '333mbf';
 
   const submissionWarning = attemptsWarning(attempts, eventId);
+
+  const disabledFromIndex = meetsCutoff(attempts, cutoff, eventId)
+    ? solveCount
+    : cutoff.numberOfAttempts;
 
   return (
     <Grid container spacing={1} ref={rootRef}>
@@ -112,7 +130,7 @@ const ResultForm = ({
             eventId={eventId}
             label={`Attempt ${index + 1}`}
             initialValue={attempt}
-            disabled={!result}
+            disabled={!result || index >= disabledFromIndex}
             onValue={value => {
               const updatedValue =
                 timeLimit && value >= timeLimit.centiseconds ? -1 : value;
