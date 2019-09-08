@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 
 import { toInt } from '../../../../logic/utils';
 
 const CubesField = ({ initialValue, onValue, ...props }) => {
+  const [prevInitialValue, setPrevInitialValue] = useState(null);
   const [value, setValue] = useState(initialValue);
 
-  useEffect(() => {
+  /* Sync local value when initial value changes. See AttemptField for detailed description. */
+  if (prevInitialValue !== initialValue) {
     setValue(initialValue);
-  }, [initialValue]);
+    setPrevInitialValue(initialValue);
+  }
 
   return (
     <TextField

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import TimeField from '../TimeField/TimeField';
@@ -10,11 +10,14 @@ import {
 } from '../../../../logic/results';
 
 const MbldField = ({ initialValue, onValue, disabled, label }) => {
+  const [prevInitialValue, setPrevInitialValue] = useState(null);
   const [result, setResult] = useState(decodeMbldResult(initialValue));
 
-  useEffect(() => {
+  /* Sync local value when initial value changes. See AttemptField for detailed description. */
+  if (prevInitialValue !== initialValue) {
     setResult(decodeMbldResult(initialValue));
-  }, [initialValue]);
+    setPrevInitialValue(initialValue);
+  }
 
   const handleValue = result => {
     const updatedResult = validateMbldResult(result);
