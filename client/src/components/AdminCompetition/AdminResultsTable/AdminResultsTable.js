@@ -10,7 +10,7 @@ import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../../logic/utils';
-import { formatResult } from '../../../logic/results';
+import { formatAttemptResult } from '../../../logic/attempts';
 import { statsToDisplay } from '../../../logic/results-table-utils';
 
 const useStyles = makeStyles(theme => ({
@@ -77,7 +77,7 @@ const AdminResultsTable = React.memo(
               <TableCell>{result.person.name}</TableCell>
               {times(format.solveCount, index => (
                 <TableCell key={index} align="right">
-                  {formatResult(result.attempts[index] || 0, eventId)}
+                  {formatAttemptResult(result.attempts[index] || 0, eventId)}
                 </TableCell>
               ))}
               {stats.map(({ name, type, recordType }, index) => (
@@ -89,7 +89,7 @@ const AdminResultsTable = React.memo(
                   })}
                 >
                   <ResultWithRecordTag
-                    result={formatResult(
+                    result={formatAttemptResult(
                       result[type],
                       eventId,
                       type === 'average'

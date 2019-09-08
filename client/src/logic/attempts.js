@@ -9,28 +9,28 @@ export const centisecondsToClockFormat = centiseconds => {
     .replace(/^[0:]*(?!\.)/g, '');
 };
 
-export const decodeMbldResult = value => {
+export const decodeMbldAttempt = value => {
   if (value <= 0) return { solved: 0, attempted: 0, centiseconds: value };
   const missed = value % 100;
   const seconds = Math.floor(value / 100) % 1e5;
-  const difference = 99 - (Math.floor(value / 1e7) % 100);
-  const solved = difference + missed;
+  const points = 99 - (Math.floor(value / 1e7) % 100);
+  const solved = points + missed;
   const attempted = solved + missed;
   const centiseconds = seconds === 99999 ? null : seconds * 100;
   return { solved, attempted, centiseconds };
 };
 
-export const encodeMbldResult = ({ solved, attempted, centiseconds }) => {
+export const encodeMbldAttempt = ({ solved, attempted, centiseconds }) => {
   if (centiseconds <= 0) return centiseconds;
   const missed = attempted - solved;
-  const dd = 99 - (solved - missed);
+  const points = solved - missed;
   const seconds = Math.round(
     (centiseconds || 9999900) / 100
   ); /* 99999 seconds is used for unknown time. */
-  return dd * 1e7 + seconds * 1e2 + missed;
+  return (99 - points) * 1e7 + seconds * 1e2 + missed;
 };
 
-export const validateMbldResult = ({ attempted, solved, centiseconds }) => {
+export const validateMbldAttempt = ({ attempted, solved, centiseconds }) => {
   if (!attempted || solved > attempted) {
     return { solved, attempted: solved, centiseconds };
   }
@@ -43,8 +43,8 @@ export const validateMbldResult = ({ attempted, solved, centiseconds }) => {
   return { solved, attempted, centiseconds };
 };
 
-export const mbldResultToPoints = result => {
-  const { solved, attempted } = decodeMbldResult(result);
+export const mbldAttemptToPoints = attempt => {
+  const { solved, attempted } = decodeMbldAttempt(attempt);
   const missed = attempted - solved;
   return solved - missed;
 };
@@ -57,8 +57,8 @@ export const meetsCutoff = (attempts, cutoff) => {
     .some(attempt => attempt > 0 && attempt < attemptResult);
 };
 
-const formatMbldResult = result => {
-  const { solved, attempted, centiseconds } = decodeMbldResult(result);
+const formatMbldAttempt = attempt => {
+  const { solved, attempted, centiseconds } = decodeMbldAttempt(attempt);
   const clockFormat = new Date(centiseconds * 10)
     .toISOString()
     .substr(11, 8)
@@ -66,26 +66,32 @@ const formatMbldResult = result => {
   return `${solved}/${attempted} ${clockFormat}`;
 };
 
-export const formatResult = (result, eventId, isAverage = false) => {
-  if (result === 0) return '';
-  if (result === -1) return 'DNF';
-  if (result === -2) return 'DNS';
+export const formatAttemptResult = (
+  attemptResult,
+  eventId,
+  isAverage = false
+) => {
+  if (attemptResult === 0) return '';
+  if (attemptResult === -1) return 'DNF';
+  if (attemptResult === -2) return 'DNS';
   if (eventId === '333fm') {
-    return isAverage ? (result / 100).toFixed(2) : result.toString();
+    return isAverage
+      ? (attemptResult / 100).toFixed(2)
+      : attemptResult.toString();
   }
-  if (eventId === '333mbf') return formatMbldResult(result);
-  return centisecondsToClockFormat(result);
+  if (eventId === '333mbf') return formatMbldAttempt(attemptResult);
+  return centisecondsToClockFormat(attemptResult);
 };
 
 export const attemptsWarning = (attempts, eventId) => {
   if (eventId === '333mbf') {
     const lowTimeIndex = attempts.findIndex(attempt => {
-      const { attempted, centiseconds } = decodeMbldResult(attempt);
+      const { attempted, centiseconds } = decodeMbldAttempt(attempt);
       return attempt > 0 && centiseconds / attempted < 30 * 100;
     });
     if (lowTimeIndex !== -1) {
       return `
-        The results you're trying to submit seem to be impossible:
+        The result you're trying to submit seems to be impossible:
         attempt ${lowTimeIndex + 1} is done in
         less than 30 seconds per cube tried.
         If you want to enter minutes, don't forget to add two zeros
@@ -93,17 +99,17 @@ export const attemptsWarning = (attempts, eventId) => {
       `;
     }
   } else {
-    const completedAttempts = attempts.filter(attempt => attempt > 0);
-    if (completedAttempts.length > 0) {
-      const bestSingle = Math.min(...completedAttempts);
-      const worstSingle = Math.max(...completedAttempts);
+    const completeAttempts = attempts.filter(attempt => attempt > 0);
+    if (completeAttempts.length > 0) {
+      const bestSingle = Math.min(...completeAttempts);
+      const worstSingle = Math.max(...completeAttempts);
       const inconsistent = worstSingle > bestSingle * 4;
       if (inconsistent) {
         return `
-          The results you're trying to submit seem to be inconsistent.
+          The result you're trying to submit seem to be inconsistent.
           There's a big difference between the best single
-          (${formatResult(bestSingle, eventId)}) and the worst single
-          (${formatResult(worstSingle, eventId)}).
+          (${formatAttemptResult(bestSingle, eventId)}) and the worst single
+          (${formatAttemptResult(worstSingle, eventId)}).
           Please check that the results are accurate.
         `;
       }

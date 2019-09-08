@@ -12,9 +12,9 @@ import ResultSelect from '../ResultSelect/ResultSelect';
 import { setAt, times, trimTrailingZeros } from '../../../logic/utils';
 import {
   meetsCutoff,
-  formatResult,
+  formatAttemptResult,
   attemptsWarning,
-} from '../../../logic/results';
+} from '../../../logic/attempts';
 import { best, average } from '../../../logic/stats';
 import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
 
@@ -95,14 +95,14 @@ const ResultForm = ({
       ))}
       <Grid item xs={6}>
         <Typography variant="body2">
-          Best: {formatResult(best(attempts), eventId)}
+          Best: {formatAttemptResult(best(attempts), eventId)}
         </Typography>
       </Grid>
       <Grid item xs={6}>
         {computeAverage && (
           <Typography variant="body2">
             Average:{' '}
-            {formatResult(
+            {formatAttemptResult(
               average(attempts, eventId, solveCount),
               eventId,
               true
@@ -229,7 +229,7 @@ const useKeyNavigation = containerRef => {
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  }, [containerRef]);
 };
 
 export default withConfirm(ResultForm);

@@ -4,38 +4,40 @@ import Grid from '@material-ui/core/Grid';
 import TimeField from '../TimeField/TimeField';
 import CubesField from '../CubesField/CubesField';
 import {
-  decodeMbldResult,
-  encodeMbldResult,
-  validateMbldResult,
-} from '../../../../logic/results';
+  decodeMbldAttempt,
+  encodeMbldAttempt,
+  validateMbldAttempt,
+} from '../../../../logic/attempts';
 
 const MbldField = ({ initialValue, onValue, disabled, label }) => {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
-  const [result, setResult] = useState(decodeMbldResult(initialValue));
+  const [decodedValue, setDecodedValue] = useState(
+    decodeMbldAttempt(initialValue)
+  );
 
   /* Sync local value when initial value changes. See AttemptField for detailed description. */
   if (prevInitialValue !== initialValue) {
-    setResult(decodeMbldResult(initialValue));
+    setDecodedValue(decodeMbldAttempt(initialValue));
     setPrevInitialValue(initialValue);
   }
 
-  const handleValue = result => {
-    const updatedResult = validateMbldResult(result);
-    if (encodeMbldResult(updatedResult) !== initialValue) {
-      onValue(encodeMbldResult(updatedResult));
+  const handleDecodedValueChange = decodedValue => {
+    const updatedDecodedValue = validateMbldAttempt(decodedValue);
+    if (encodeMbldAttempt(updatedDecodedValue) !== initialValue) {
+      onValue(encodeMbldAttempt(updatedDecodedValue));
       /* Once we emit the change, reflect the initial state. */
-      setResult(decodeMbldResult(initialValue));
+      setDecodedValue(decodeMbldAttempt(initialValue));
     } else {
-      setResult(updatedResult);
+      setDecodedValue(updatedDecodedValue);
     }
   };
 
   const handleAnyInputChange = event => {
     const input = event.target.value;
     if (input.includes('d') || input.includes('/')) {
-      handleValue({ solved: 0, attempted: 0, centiseconds: -1 });
+      handleDecodedValueChange(decodeMbldAttempt(-1));
     } else if (input.includes('s') || input.includes('*')) {
-      handleValue({ solved: 0, attempted: 0, centiseconds: -2 });
+      handleDecodedValueChange(decodeMbldAttempt(-2));
     }
   };
 
@@ -43,23 +45,29 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
     <Grid container direction="row" spacing={1} onChange={handleAnyInputChange}>
       <Grid item xs={2}>
         <CubesField
-          initialValue={result.solved}
-          onValue={solved => handleValue({ ...result, solved })}
+          initialValue={decodedValue.solved}
+          onValue={solved =>
+            handleDecodedValueChange({ ...decodedValue, solved })
+          }
           disabled={disabled}
         />
       </Grid>
       <Grid item xs={2}>
         <CubesField
-          initialValue={result.attempted}
-          onValue={attempted => handleValue({ ...result, attempted })}
+          initialValue={decodedValue.attempted}
+          onValue={attempted =>
+            handleDecodedValueChange({ ...decodedValue, attempted })
+          }
           disabled={disabled}
         />
       </Grid>
       <Grid item xs={8}>
         <TimeField
           label={label}
-          initialValue={result.centiseconds}
-          onValue={centiseconds => handleValue({ ...result, centiseconds })}
+          initialValue={decodedValue.centiseconds}
+          onValue={centiseconds =>
+            handleDecodedValueChange({ ...decodedValue, centiseconds })
+          }
           disabled={disabled}
         />
       </Grid>

@@ -18,13 +18,13 @@ const updateRanking = (results, formatId) => {
   const { sortBy } = formatById(formatId);
   const rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
 
-  const [completed, empty] = partition(results, ({ attempts }) => attempts.length > 0);
+  const [nonempty, empty] = partition(results, ({ attempts }) => attempts.length > 0);
 
-  const sortedResults = sortByArray(completed, result =>
+  const sortedResults = sortByArray(nonempty, result =>
     rankingOrder.map(type => result[type] > 0 ? result[type] : Infinity)
   );
 
-  const completedWithRanking = sortedResults.reduce((results, result, index) => {
+  const nonemptyWithRanking = sortedResults.reduce((results, result, index) => {
     const prevResult = results[index - 1];
     const tiedPrevious = prevResult && rankingOrder.every(
       type => result[type] === prevResult[type]
@@ -36,7 +36,7 @@ const updateRanking = (results, formatId) => {
     return [...results, resultWithRanking];
   }, []);
   const emptyWithRanking = empty.map(result => ({ ...result, ranking: null }));
-  return [...completedWithRanking, ...emptyWithRanking];
+  return [...nonemptyWithRanking, ...emptyWithRanking];
 };
 
 const sortedResults = (results, wcif) => {

@@ -10,7 +10,7 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { formatResult } from '../../logic/results';
+import { formatAttemptResult } from '../../logic/attempts';
 import { statsToDisplay } from '../../logic/results-table-utils';
 
 const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
@@ -51,7 +51,7 @@ const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
                     </Typography>
                     <Typography variant="body2">
                       {result.attempts
-                        .map(attempt => formatResult(attempt, eventId))
+                        .map(attempt => formatAttemptResult(attempt, eventId))
                         .join(', ')}
                     </Typography>
                   </Grid>
@@ -60,7 +60,7 @@ const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
                       <Typography variant="subtitle2">{name}</Typography>
                       <Typography variant="body2">
                         <ResultWithRecordTag
-                          result={formatResult(
+                          result={formatAttemptResult(
                             result[type],
                             eventId,
                             type === 'average'

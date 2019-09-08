@@ -1,9 +1,9 @@
-import { mbldResultToPoints, centisecondsToClockFormat } from './results';
+import { mbldAttemptToPoints, centisecondsToClockFormat } from './attempts';
 
 export const cutoffToString = (cutoff, eventId) => {
   if (!cutoff) return 'None';
   if (eventId === '333mbf') {
-    return `${mbldResultToPoints(cutoff.attemptResult)} points`;
+    return `${mbldAttemptToPoints(cutoff.attemptResult)} points`;
   } else if (eventId === '333fm') {
     return `${cutoff.attemptResult} moves`;
   } else {

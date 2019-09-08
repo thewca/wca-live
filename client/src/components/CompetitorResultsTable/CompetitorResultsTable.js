@@ -13,7 +13,7 @@ import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../logic/utils';
-import { formatResult } from '../../logic/results';
+import { formatAttemptResult } from '../../logic/attempts';
 import { statsToDisplay } from '../../logic/results-table-utils';
 
 const useStyles = makeStyles(theme => ({
@@ -107,7 +107,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
             <Hidden smDown>
               {times(solveCount, index => (
                 <TableCell key={index} align="right">
-                  {formatResult(result.attempts[index] || 0, event.id)}
+                  {formatAttemptResult(result.attempts[index] || 0, event.id)}
                 </TableCell>
               ))}
             </Hidden>
@@ -120,7 +120,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
                 })}
               >
                 <ResultWithRecordTag
-                  result={formatResult(
+                  result={formatAttemptResult(
                     result[type],
                     event.id,
                     type === 'average'
