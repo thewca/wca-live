@@ -16,9 +16,12 @@ import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const NEXT_ADVANCABLE_QUERY = gql`
   query NextAdvancable($competitionId: ID!, $roundId: ID!) {
-    nextAdvancable(competitionId: $competitionId, roundId: $roundId) {
+    round(competitionId: $competitionId, roundId: $roundId) {
       id
-      name
+      nextAdvancable {
+        id
+        name
+      }
     }
   }
 `;
@@ -60,7 +63,11 @@ const QuitCompetitorDialog = ({
           variables={{ competitionId, roundId }}
           fetchPolicy="network-only"
         >
-          {({ data: { nextAdvancable } }) => (
+          {({
+            data: {
+              round: { nextAdvancable },
+            },
+          }) => (
             <Fragment>
               <DialogContentText>
                 Going to permanently remove {competitor.name} from this round.

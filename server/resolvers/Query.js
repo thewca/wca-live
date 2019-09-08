@@ -3,7 +3,6 @@ const { ObjectId } = require('mongodb');
 const { db } = require('../mongo-connector');
 const { roundById, personById, startDate, endDate } = require('../utils/wcif');
 const { dateToString } = require('../utils/date');
-const { nextAdvancableToRound } = require('../utils/advancement');
 
 module.exports = {
   me: async (parent, args, { session }) => {
@@ -40,11 +39,4 @@ module.exports = {
 
     return { upcoming, inProgress, past };
   },
-  nextAdvancable: withCompetition(
-    (parent, { roundId }, { competition }) => {
-      return nextAdvancableToRound(competition.wcif, roundId).map(
-        personId => personById(competition.wcif, personId)
-      );
-    }
-  ),
 };

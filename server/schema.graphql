@@ -4,7 +4,6 @@ type Query {
   competition(id: ID!): Competition
   round(competitionId: ID!, roundId: ID!): Round
   competitor(competitionId: ID!, competitorId: ID!): Person
-  nextAdvancable(competitionId: ID!, roundId: ID!): [Person!]
 }
 
 type Mutation {
@@ -67,10 +66,11 @@ type Round {
   format: Format!
   timeLimit: TimeLimit
   cutoff: Cutoff
-  # advancementCondition: AdvancementCondition
   results: [Result!]!
   open: Boolean!
   finished: Boolean!
+  # People who could advance to the given round if one person quit.
+  nextAdvancable: [Person!]
 }
 
 type Format {
