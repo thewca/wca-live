@@ -1,7 +1,7 @@
 const { formatById } = require('../utils/formats');
 const { parseActivityCode, eventById, personById } = require('../utils/wcif');
 const { roundName } = require('../utils/rounds');
-const { advancingResults, nextAdvancableToRound } = require('../utils/advancement');
+const { advancingResults, nextAdvancableToRound, missingQualifyingIds } = require('../utils/advancement');
 
 module.exports = {
   format: ({ format }) => formatById(format),
@@ -30,5 +30,12 @@ module.exports = {
     return nextAdvancableToRound(competition.wcif, id).map(
       personId => personById(competition.wcif, personId)
     );
+  },
+  missingQualifying: ({ id }, args, { competition }) => {
+    const { qualifyingIds, excessIds } = missingQualifyingIds(competition.wcif, id);
+    return {
+      qualifying: qualifyingIds.map(personId => personById(competition.wcif, personId)),
+      excess: excessIds.map(personId => personById(competition.wcif, personId)),
+    };
   },
 };

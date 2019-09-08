@@ -69,8 +69,15 @@ type Round {
   results: [Result!]!
   open: Boolean!
   finished: Boolean!
-  # People who could advance to the given round if one person quit.
-  nextAdvancable: [Person!]
+  nextAdvancable: [Person!] # People who could advance to this round if one person quit.
+  missingQualifying: MissingQualifying
+}
+
+type MissingQualifying {
+  # People who qualify to this round, but are not in it.
+  qualifying: [Person!]!
+  # People who would be removed if one qualifying person is added to the round.
+  excess: [Person!]!
 }
 
 type Format {

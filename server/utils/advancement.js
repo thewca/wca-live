@@ -1,4 +1,4 @@
-const { parseActivityCode, eventById, acceptedPeople, nextRound, previousRound } = require('./wcif');
+const { parseActivityCode, eventById, roundById, acceptedPeople, nextRound, previousRound } = require('./wcif');
 const { updateRanking } = require('./results');
 
 const satisfiesAdvancementCondition = (result, advancementCondition, resultCount) => {
@@ -64,7 +64,27 @@ const personIdsForRound = (wcif, roundId) => {
   }
 };
 
-/* Returns ids of people who could advance to the given round if one person quit. */
+/**
+ * Returns ids of people who would advance from the given round
+ * if we ignored the specified people (i.e. intentionally not advance them).
+ */
+const advancingIdsIgnoring = (round, ignoredIds) => {
+  const { results, format, advancementCondition } = round;
+  /* Empty attempts rank ignored people at the end (making sure they don't advance).
+     Then recompute rankings and see who would advance as a result. */
+  const hypotheticalResults = results.map(result =>
+    ignoredIds.includes(result.personId)
+      ? { ...result, attempts: [], best: 0, average: 0 }
+      : result
+  );
+  const withHypoteticalRanking = updateRanking(hypotheticalResults, format);
+  return advancingResultsFromCondition(withHypoteticalRanking, advancementCondition)
+    .map(({ personId }) => personId);
+};
+
+/**
+ * Returns ids of people who could advance to the given round if one person quit.
+ */
 const nextAdvancableToRound = (wcif, roundId) => {
   const previous = previousRound(wcif, roundId);
   if (!previous) return []; /* This is the first round, noone else could advance to it. */
@@ -82,26 +102,53 @@ const nextAdvancableToRound = (wcif, roundId) => {
     .filter(({ ranking }) => ranking > maxAdvancingRanking)
     .map(({ personId }) => personId);
   /* For previous round results ignore people who have already quit the next round
-     and also the first advancable person (by clearing their attempts).
-     Empty attempts rank those people at the end (so we don't treat them as advancing).
-     Then recompute rankings and see who else would advance as a result. */
+     and also the first advancable person to see who else would advance. */
   const alreadyQuitIds = previous.results
     .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should advance... */
     .filter(result => !currentlyAdvancing.includes(result)) /* ...but didn't, because they quit the next round. */
     .map(({ personId }) => personId);
   const firstAdvancable = currentlyAdvancing[0];
   const ignoredIds = [...alreadyQuitIds, firstAdvancable.personId]
-  /* Hypothetical -> ignored people end up at the end. */
-  const hypotheticalPreviousResults = previous.results.map(result =>
-    ignoredIds.includes(result.personId)
-      ? { ...result, attempts: [], best: 0, average: 0 }
-      : result
-  );
-  const withHypoteticalRanking = updateRanking(hypotheticalPreviousResults, previous.format);
-  const newAdvancing = advancingResultsFromCondition(withHypoteticalRanking, previous.advancementCondition);
-  return newAdvancing
-    .filter(result => hasntAdvancedYetIds.includes(result.personId))
-    .map(({ personId }) => personId);
+  return advancingIdsIgnoring(previous, ignoredIds)
+    .filter(personId => hasntAdvancedYetIds.includes(personId));
+};
+
+const missingQualifyingIds = (wcif, roundId) => {
+  const round = roundById(wcif, roundId);
+  const advancedIds = round.results.map(result => result.personId); // and currentlyAdvancing?
+  const previous = previousRound(wcif, roundId);
+  if (!previous) {
+    /* Anyone qualifies to the first round. */
+    const qualifyingIds = acceptedPeople(wcif)
+      .filter(person => !advancedIds.includes(person.registrantId))
+      .map(({ registrantId }) => registrantId);
+    return { qualifyingIds, excessIds: [] };
+  } else {
+    const currentlyAdvancing = advancingResults(previous, wcif);
+    const maxAdvancingRanking = Math.max(
+      ...currentlyAdvancing.map(({ ranking }) => ranking)
+    );
+    const alreadyQuitIds = previous.results
+      .filter(({ ranking }) => ranking <= maxAdvancingRanking) /* Should advance... */
+      .filter(result => !currentlyAdvancing.includes(result)) /* ...but didn't, because they quit the next round. */
+      .map(({ personId }) => personId);
+    const couldJustAdvanceIds = advancingIdsIgnoring(previous, alreadyQuitIds)
+      .filter(personId => !currentlyAdvancing.some(result => result.personId === personId));
+    if (couldJustAdvanceIds.length > 0) {
+      /* If someone could just advance it means there's an empty spot, so no excess competitors. */
+      return { qualifyingIds: [...alreadyQuitIds, ...couldJustAdvanceIds], excessIds: [] };
+    } else if (alreadyQuitIds.length > 0) {
+      /* See who wouldn't advance if we un-quit one person. */
+      const newAdvancingIds = advancingIdsIgnoring(previous, alreadyQuitIds.slice(1));
+      const excessIds = currentlyAdvancing
+        .filter(result => !newAdvancingIds.includes(result.personId))
+        .map(({ personId }) => personId);
+      return { qualifyingIds: alreadyQuitIds, excessIds };
+    } else {
+      /* Everyone qualifying is already in the round. */
+      return { qualifyingIds: [], excessIds: [] };
+    }
+  }
 };
 
 module.exports = {
@@ -109,4 +156,5 @@ module.exports = {
   advancingResults,
   personIdsForRound,
   nextAdvancableToRound,
+  missingQualifyingIds,
 };
