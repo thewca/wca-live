@@ -41,60 +41,7 @@ const ResultForm = ({
     );
   }, [result, solveCount]);
 
-  useEffect(() => {
-    const getInputs = () => {
-      return Array.from(
-        rootRef.current.querySelectorAll('input, button')
-      ).filter(input => !input.disabled);
-    };
-
-    const handleKeyPress = event => {
-      const inputs = getInputs();
-      const mod = n => (n + inputs.length) % inputs.length;
-      const index = inputs.findIndex(input => event.target === input);
-      if (
-        ['ArrowUp', 'ArrowDown'].includes(event.key) &&
-        rootRef.current.getElementsByClassName('MuiMenuItem-root').length > 0
-      ) {
-        /* Don't interrupt navigation within result selectable list. */
-        return;
-      }
-      if (
-        event.target.tagName === 'INPUT' &&
-        ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)
-      ) {
-        /* Blur the current input first, as it may affect which fields are disabled.
-           After that get the updated input list.
-           Note: blur is a synchronous event, so this call triggers all onBlur handlers before continuing. */
-        event.target.blur();
-      }
-      const updatedInputs = getInputs();
-      if (index === -1) {
-        if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
-          updatedInputs[0].focus();
-          updatedInputs[0].select();
-          event.preventDefault();
-        }
-      } else if (event.key === 'ArrowUp') {
-        const previousElement = updatedInputs[mod(index - 1)];
-        previousElement.focus();
-        previousElement.select && previousElement.select();
-        event.preventDefault();
-      } else if (
-        event.key === 'ArrowDown' ||
-        (event.target.tagName === 'INPUT' && event.key === 'Enter')
-      ) {
-        const nextElement = updatedInputs[mod(index + 1)];
-        nextElement.focus();
-        nextElement.select && nextElement.select();
-        event.preventDefault();
-      } else if (event.key === 'Escape') {
-        event.target.blur();
-      }
-    };
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
+  useKeyNavigation(rootRef);
 
   const computeAverage =
     [3, 5].includes(format.solveCount) && eventId !== '333mbf';
@@ -225,6 +172,64 @@ const ResultForm = ({
       </Grid>
     </Grid>
   );
+};
+
+const useKeyNavigation = containerRef => {
+  useEffect(() => {
+    const getInputs = () => {
+      return Array.from(
+        containerRef.current.querySelectorAll('input, button')
+      ).filter(input => !input.disabled);
+    };
+
+    const handleKeyPress = event => {
+      const inputs = getInputs();
+      const mod = n => (n + inputs.length) % inputs.length;
+      const index = inputs.findIndex(input => event.target === input);
+      if (
+        ['ArrowUp', 'ArrowDown'].includes(event.key) &&
+        containerRef.current.getElementsByClassName('MuiMenuItem-root').length >
+          0
+      ) {
+        /* Don't interrupt navigation within result selectable list. */
+        return;
+      }
+      if (
+        event.target.tagName === 'INPUT' &&
+        ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)
+      ) {
+        /* Blur the current input first, as it may affect which fields are disabled.
+           After that get the updated input list.
+           Note: blur is a synchronous event, so this call triggers all onBlur handlers before continuing. */
+        event.target.blur();
+      }
+      const updatedInputs = getInputs();
+      if (index === -1) {
+        if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
+          updatedInputs[0].focus();
+          updatedInputs[0].select();
+          event.preventDefault();
+        }
+      } else if (event.key === 'ArrowUp') {
+        const previousElement = updatedInputs[mod(index - 1)];
+        previousElement.focus();
+        previousElement.select && previousElement.select();
+        event.preventDefault();
+      } else if (
+        event.key === 'ArrowDown' ||
+        (event.target.tagName === 'INPUT' && event.key === 'Enter')
+      ) {
+        const nextElement = updatedInputs[mod(index + 1)];
+        nextElement.focus();
+        nextElement.select && nextElement.select();
+        event.preventDefault();
+      } else if (event.key === 'Escape') {
+        event.target.blur();
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 };
 
 export default withConfirm(ResultForm);
