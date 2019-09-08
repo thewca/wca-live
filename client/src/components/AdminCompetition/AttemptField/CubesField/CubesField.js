@@ -19,6 +19,7 @@ const CubesField = ({ initialValue, onValue, ...props }) => {
       fullWidth
       variant="outlined"
       value={value || ''}
+      spellCheck={false}
       onChange={event => {
         const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
         if (newValue <= 99) setValue(newValue);

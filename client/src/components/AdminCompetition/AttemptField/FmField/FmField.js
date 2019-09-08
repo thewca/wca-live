@@ -31,6 +31,7 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       fullWidth
       variant="outlined"
       value={numberToInput(value)}
+      spellCheck={false}
       onChange={event => {
         const input = event.target.value;
         if (input.includes('d') || input.includes('/')) {

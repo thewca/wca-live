@@ -59,6 +59,7 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       fullWidth
       variant="outlined"
       value={input}
+      spellCheck={false}
       onChange={event => setInput(reformatInput(event.target.value))}
       onBlur={() => {
         const attempt =
