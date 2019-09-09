@@ -40,10 +40,14 @@ const updateRanking = (results, formatId) => {
 };
 
 const sortedResults = (results, wcif) => {
-  return sortByArray(results, result => [
-    result.ranking ? result.ranking : Infinity,
-    personById(wcif, result.personId).name,
-  ]);
+  return results.slice().sort((result1, result2) => {
+    const rank1 = result1.ranking ? result1.ranking : Infinity;
+    const rank2 = result2.ranking ? result2.ranking : Infinity;
+    if (rank1 !== rank2) return rank1 - rank2;
+    const person1 = personById(wcif, result1.personId);
+    const person2 = personById(wcif, result2.personId);
+    return person1.name.localeCompare(person2.name);
+  });
 };
 
 const tagsWithRecordId = (wcif, personId, eventId, type) => {

@@ -7,7 +7,7 @@ beforeEach(() => {
 });
 
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { updateRanking, updateRecordTags } = require('../results');
+const { updateRanking, updateRecordTags, sortedResults } = require('../results');
 
 describe('updateRanking', () => {
   describe('when sorting by average', () => {
@@ -264,5 +264,54 @@ describe('updateRecordTags', () => {
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
       single: 'CR', average: null
     });
+  });
+});
+
+describe('sortedResults', () => {
+  test('orders by ranking', () => {
+    const result1 = Result({ personId: 1, ranking: 2, });
+    const result2 = Result({ personId: 2, ranking: 3, });
+    const result3 = Result({ personId: 3, ranking: 1, });
+    const wcif = Competition({
+      persons: [1, 2, 3].map(registrantId => Person({ registrantId })),
+    });
+    const results = [result1, result2, result3];
+    expect(sortedResults(results, wcif)).toEqual([
+      result3, result1, result2,
+    ]);
+  });
+
+  test('orders by name people with the same ranking', () => {
+    const result1 = Result({ personId: 1, ranking: 1, });
+    const result2 = Result({ personId: 2, ranking: 1, });
+    const result3 = Result({ personId: 3, ranking: 1, });
+    const wcif = Competition({
+      persons: [
+        Person({ registrantId: 1, name: 'Sherlock' }),
+        Person({ registrantId: 2, name: 'John' }),
+        Person({ registrantId: 3, name: 'Mary' }),
+      ],
+    });
+    const results = [result1, result2, result3];
+    expect(sortedResults(results, wcif)).toEqual([
+      result2, result3, result1,
+    ]);
+  });
+
+  test('compares non-latin characters in names correctly', () => {
+    const result1 = Result({ personId: 1, ranking: 1, });
+    const result2 = Result({ personId: 2, ranking: 1, });
+    const result3 = Result({ personId: 3, ranking: 1, });
+    const wcif = Competition({
+      persons: [
+        Person({ registrantId: 1, name: 'Łukasz' }),
+        Person({ registrantId: 2, name: 'Lucas' }),
+        Person({ registrantId: 3, name: 'Zack' }),
+      ],
+    });
+    const results = [result1, result2, result3];
+    expect(sortedResults(results, wcif)).toEqual([
+      result2, result1, result3,
+    ]);
   });
 });
