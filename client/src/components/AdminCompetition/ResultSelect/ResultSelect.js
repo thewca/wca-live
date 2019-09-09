@@ -1,20 +1,15 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import Downshift from 'downshift';
 import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
 import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    position: 'relative',
-  },
-  paper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+  popper: {
     marginTop: theme.spacing(1),
-    zIndex: 10,
+    zIndex: theme.zIndex.modal + 1,
   },
 }));
 
@@ -37,6 +32,7 @@ const searchResults = (results, search) => {
 
 const ResultSelect = ({ results, value, onChange }) => {
   const classes = useStyles();
+  const textFieldRef = useRef();
 
   return (
     <Downshift
@@ -55,7 +51,7 @@ const ResultSelect = ({ results, value, onChange }) => {
         isOpen,
         selectedItem,
       }) => (
-        <div className={classes.container}>
+        <div>
           <TextField
             autoFocus
             fullWidth
@@ -64,10 +60,23 @@ const ResultSelect = ({ results, value, onChange }) => {
             placeholder="Type ID or name"
             InputLabelProps={getLabelProps()}
             InputProps={getInputProps()}
+            ref={textFieldRef}
           />
-          <div {...getMenuProps()}>
-            {isOpen && (
-              <Paper className={classes.paper} square>
+          <Popper
+            keepMounted
+            open={isOpen}
+            anchorEl={textFieldRef.current}
+            className={classes.popper}
+          >
+            <div {...getMenuProps({}, { suppressRefError: true })}>
+              <Paper
+                square
+                style={{
+                  width: textFieldRef.current
+                    ? textFieldRef.current.clientWidth
+                    : undefined,
+                }}
+              >
                 {searchResults(results, inputValue).map((result, index) => (
                   <MenuItem
                     {...getItemProps({
@@ -84,8 +93,8 @@ const ResultSelect = ({ results, value, onChange }) => {
                   </MenuItem>
                 ))}
               </Paper>
-            )}
-          </div>
+            </div>
+          </Popper>
         </div>
       )}
     </Downshift>
