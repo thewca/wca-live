@@ -41,7 +41,7 @@ const ResultForm = ({
     );
   }, [result, solveCount]);
 
-  useKeyNavigation(rootRef);
+  useKeyNavigation(rootRef.current);
 
   const computeAverage =
     [3, 5].includes(format.solveCount) && eventId !== '333mbf';
@@ -184,24 +184,22 @@ const ResultForm = ({
   );
 };
 
-const useKeyNavigation = containerRef => {
+const getInputs = container => {
+  return Array.from(container.querySelectorAll('input, button')).filter(
+    input => !input.disabled
+  );
+};
+
+const useKeyNavigation = container => {
   useEffect(() => {
-    const getInputs = () => {
-      return Array.from(
-        containerRef.current.querySelectorAll('input, button')
-      ).filter(input => !input.disabled);
-    };
+    if (!container) return;
 
     const handleKeyPress = event => {
-      const inputs = getInputs();
-      const mod = n => (n + inputs.length) % inputs.length;
-      const index = inputs.findIndex(input => event.target === input);
       if (
         ['ArrowUp', 'ArrowDown'].includes(event.key) &&
-        document.getElementsByClassName('MuiMenuItem-root').length >
-          0 /* TODO: figure out a good check for that */
+        container.querySelector('[aria-expanded="true"]')
       ) {
-        /* Don't interrupt navigation within result selectable list. */
+        /* Don't interrupt navigation within competitor select list. */
         return;
       }
       if (
@@ -213,15 +211,12 @@ const useKeyNavigation = containerRef => {
            Note: blur is a synchronous event, so this call triggers all onBlur handlers before continuing. */
         event.target.blur();
       }
-      const updatedInputs = getInputs();
-      if (index === -1) {
-        if (['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
-          updatedInputs[0].focus();
-          updatedInputs[0].select();
-          event.preventDefault();
-        }
-      } else if (event.key === 'ArrowUp') {
-        const previousElement = updatedInputs[mod(index - 1)];
+      const inputs = getInputs(container);
+      const index = inputs.findIndex(input => event.target === input);
+      if (index === -1) return;
+      const mod = n => (n + inputs.length) % inputs.length;
+      if (event.key === 'ArrowUp') {
+        const previousElement = inputs[mod(index - 1)];
         previousElement.focus();
         previousElement.select && previousElement.select();
         event.preventDefault();
@@ -229,7 +224,7 @@ const useKeyNavigation = containerRef => {
         event.key === 'ArrowDown' ||
         (event.target.tagName === 'INPUT' && event.key === 'Enter')
       ) {
-        const nextElement = updatedInputs[mod(index + 1)];
+        const nextElement = inputs[mod(index + 1)];
         nextElement.focus();
         nextElement.select && nextElement.select();
         event.preventDefault();
@@ -237,9 +232,27 @@ const useKeyNavigation = containerRef => {
         event.target.blur();
       }
     };
+    container.addEventListener('keydown', handleKeyPress);
+    return () => container.removeEventListener('keydown', handleKeyPress);
+  }, [container]);
+
+  useEffect(() => {
+    if (!container) return;
+    const handleKeyPress = event => {
+      if (
+        ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key) &&
+        event.target === document.body
+      ) {
+        const [firstInput] = getInputs(container);
+        if (firstInput) {
+          firstInput.focus();
+          firstInput.select();
+        }
+      }
+    };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [containerRef]);
+  }, [container]);
 };
 
 export default withConfirm(ResultForm);
