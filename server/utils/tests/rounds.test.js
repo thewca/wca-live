@@ -2,7 +2,7 @@ const records = require('../records');
 records.getRecordByIdCopy = jest.fn(() => ({}));
 
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { openRound, clearRound, quitCompetitor } = require('../rounds');
+const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../rounds');
 
 describe('openRound', () => {
   describe('when a first round is given', () => {
@@ -192,5 +192,69 @@ describe('quitCompetitor', () => {
         [2, 3, 4]
       );
     });
+  });
+});
+
+describe('addCompetitor', () => {
+  test('throws an error if the given competitor does not qualify to the given round', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 2 }), Result({ personId: 3 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    expect(() => {
+      addCompetitor(wcif, '333-r2', 4);
+    }).toThrow(new Error('Cannot add competitor with id 4 as he doesn\'t qualify to 333-r2.'));
+  });
+
+  test('adds an empty result for the given competitor', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ ranking: 1, personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [
+        Person({ registrantId: 1 }),
+        Person({ registrantId: 2, registration: { status: 'accepted' } }),
+      ],
+    });
+    const updatedWcif = addCompetitor(wcif, '333-r1', 2);
+    expect(updatedWcif.events[0].rounds[0].results.map(({ personId }) => personId).sort()).toEqual([1, 2]);
+  });
+
+  test('removes excess results from the given round', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 3 }), Result({ personId: 4 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+      persons: [1, 2, 3, 4].map(registrantId => Person({ registrantId })),
+    });
+    const updatedWcif = addCompetitor(wcif, '333-r2', 2);
+    expect(updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId).sort()).toEqual([1, 2, 3]);
   });
 });

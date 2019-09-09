@@ -4,6 +4,7 @@ const {
   advancingResults,
   personIdsForRound,
   nextAdvancableToRound,
+  missingQualifyingIds,
 } = require('../advancement');
 
 describe('advancingResultsFromCondition', () => {
@@ -341,5 +342,121 @@ describe('nextAdvancableToRound', () => {
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
     expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([4]);
+  });
+});
+
+describe('missingQualifyingIds', () => {
+  describe('when a first round is given', () => {
+    test('qualifies any accepted competitor who is not in the given round', () => {
+      const round1 = Round({
+        id: '333-r1',
+        results: [Result({ personId: 1 })],
+      });
+      const wcif = Competition({
+        events: [Event({ id: '333', rounds: [round1] })],
+        persons: [
+          Person({ registrantId: 1 }),
+          Person({ registrantId: 2, registration: { eventIds: ['333'], status: 'accepted' } }),
+          Person({ registrantId: 3, registration: { eventIds: ['333'], status: 'pending' } }),
+          Person({ registrantId: 4, registration: { eventIds: ['222'], status: 'accepted' } }),
+        ],
+      });
+      const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, '333-r1');
+      expect(qualifyingIds).toEqual([2, 4]);
+      expect(excessIds).toEqual([]);
+    });
+  });
+
+  test('returns empty arrays if no one else qualifies', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 2 }), Result({ personId: 3 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, '333-r2');
+    expect(qualifyingIds).toEqual([]);
+    expect(excessIds).toEqual([]);
+  });
+
+  test('returns only qualifying people if there is a free spot', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 3 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, '333-r2');
+    expect(qualifyingIds).toEqual([2, 4]);
+    expect(excessIds).toEqual([]);
+  });
+
+  test('returns excess people if someone qualifies, but there is no free spot', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 3 }), Result({ personId: 4 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, '333-r2');
+    expect(qualifyingIds).toEqual([2]);
+    expect(excessIds).toEqual([4]);
+  });
+
+  test('does not treat tied competitors as qualifying if there is a spot for just one', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 4, personId: 4 }),
+        Result({ ranking: 4, personId: 5 }),
+      ],
+      advancementCondition: { type: 'ranking', level: 3 },
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ personId: 1 }), Result({ personId: 3 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, '333-r2');
+    expect(qualifyingIds).toEqual([2]);
+    expect(excessIds).toEqual([]);
   });
 });
