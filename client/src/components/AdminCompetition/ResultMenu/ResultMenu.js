@@ -14,7 +14,7 @@ const ResultMenu = ({
   onClose,
   competitionId,
   roundId,
-  setResultMutation,
+  updateResultMutation,
   confirm,
 }) => {
   const [quitDialogOpen, setQuitDialogOpen] = useState(false);
@@ -41,7 +41,7 @@ const ResultMenu = ({
         </MenuItem>
         {result.attempts.length > 0 ? (
           <CustomMutation
-            mutation={setResultMutation}
+            mutation={updateResultMutation}
             variables={{
               competitionId,
               roundId,

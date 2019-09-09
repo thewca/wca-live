@@ -42,12 +42,12 @@ const ROUND_QUERY = gql`
 `;
 
 const SET_RESULT_MUTATION = gql`
-  mutation SetResult(
+  mutation UpdateResult(
     $competitionId: ID!
     $roundId: ID!
     $result: ResultInput!
   ) {
-    setResult(
+    updateResult(
       competitionId: $competitionId
       roundId: $roundId
       result: $result
@@ -73,7 +73,7 @@ const useStyles = makeStyles(theme => ({
 const RoundDoubleCheck = ({ match }) => {
   const classes = useStyles();
   const { competitionId, roundId } = match.params;
-  const [resultIndex, setResultIndex] = useState(0);
+  const [resultIndex, updateResultIndex] = useState(0);
   const leftButtonRef = useRef(null);
   const rightButtonRef = useRef(null);
 
@@ -101,7 +101,7 @@ const RoundDoubleCheck = ({ match }) => {
             <Grid item md className={classes.centerContent}>
               <IconButton
                 ref={leftButtonRef}
-                onClick={() => setResultIndex(resultIndex - 1)}
+                onClick={() => updateResultIndex(resultIndex - 1)}
                 disabled={resultIndex === 0}
               >
                 <Icon>chevron_left</Icon>
@@ -117,9 +117,9 @@ const RoundDoubleCheck = ({ match }) => {
                 cutoff={round.cutoff}
                 competitionId={competitionId}
                 roundId={roundId}
-                setResultMutation={SET_RESULT_MUTATION}
+                updateResultMutation={SET_RESULT_MUTATION}
                 onResultChange={result => {
-                  setResultIndex(results.indexOf(result));
+                  updateResultIndex(results.indexOf(result));
                 }}
               />
             </Grid>
@@ -127,7 +127,7 @@ const RoundDoubleCheck = ({ match }) => {
               <IconButton
                 ref={rightButtonRef}
                 autoFocus
-                onClick={() => setResultIndex(resultIndex + 1)}
+                onClick={() => updateResultIndex(resultIndex + 1)}
                 disabled={resultIndex === results.length - 1}
               >
                 <Icon>chevron_right</Icon>

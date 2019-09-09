@@ -26,7 +26,7 @@ const ResultForm = ({
   eventId,
   timeLimit,
   cutoff,
-  setResultMutation,
+  updateResultMutation,
   competitionId,
   roundId,
   confirm,
@@ -124,7 +124,7 @@ const ResultForm = ({
         <Grid container alignItems="flex-end">
           <Grid item>
             <CustomMutation
-              mutation={setResultMutation}
+              mutation={updateResultMutation}
               variables={{
                 competitionId,
                 roundId,
@@ -141,7 +141,7 @@ const ResultForm = ({
                 resultInput.select();
               }}
             >
-              {(setResult, { loading }) => (
+              {(updateResult, { loading }) => (
                 <Button
                   type="submit"
                   variant="outlined"
@@ -149,11 +149,11 @@ const ResultForm = ({
                   disabled={!result || loading}
                   onClick={
                     submissionWarning
-                      ? confirm(setResult, {
+                      ? confirm(updateResult, {
                           description: submissionWarning,
                           confirmationText: 'Submit',
                         })
-                      : setResult
+                      : updateResult
                   }
                 >
                   Submit

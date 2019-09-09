@@ -55,12 +55,12 @@ const ROUND_QUERY = gql`
 `;
 
 const SET_RESULT_MUTATION = gql`
-  mutation SetResult(
+  mutation UpdateResult(
     $competitionId: ID!
     $roundId: ID!
     $result: ResultInput!
   ) {
-    setResult(
+    updateResult(
       competitionId: $competitionId
       roundId: $roundId
       result: $result
@@ -75,11 +75,11 @@ const SET_RESULT_MUTATION = gql`
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   const [editedResult, setEditedResult] = useState(null);
-  const [resultMenuProps, setResultMenuProps] = useState({});
+  const [resultMenuProps, updateResultMenuProps] = useState({});
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const handleResultClick = useCallback((result, event) => {
-    setResultMenuProps({
+    updateResultMenuProps({
       position: { left: event.clientX, top: event.clientY },
       result,
     });
@@ -103,7 +103,7 @@ const AdminRound = ({ match }) => {
                 cutoff={round.cutoff}
                 competitionId={competitionId}
                 roundId={roundId}
-                setResultMutation={SET_RESULT_MUTATION}
+                updateResultMutation={SET_RESULT_MUTATION}
               />
             </Grid>
             <Grid item md={9}>
@@ -141,10 +141,10 @@ const AdminRound = ({ match }) => {
           </Grid>
           <ResultMenu
             {...resultMenuProps}
-            onClose={() => setResultMenuProps({})}
+            onClose={() => updateResultMenuProps({})}
             competitionId={competitionId}
             roundId={roundId}
-            setResultMutation={SET_RESULT_MUTATION}
+            updateResultMutation={SET_RESULT_MUTATION}
           />
           <AddCompetitorDialog
             open={addDialogOpen}

@@ -27,7 +27,7 @@ module.exports = {
       return competition;
     }
   ),
-  setResult: withCompetitionAuthorization(
+  updateResult: withCompetitionAuthorization(
     async (parent, { competitionId, roundId, result }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
