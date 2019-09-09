@@ -82,7 +82,7 @@ const QuitCompetitorDialog = ({
                     value="true"
                     label={`
                       Yes, remove ${competitor.name}
-                      and replace him with other qualifying competitors:
+                      and replace they with other qualifying competitors:
                       ${nextAdvancable.map(({ name }) => name).join(', ')}.
                     `}
                   />

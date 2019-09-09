@@ -52,7 +52,7 @@ const ResultMenu = ({
             {(clearResult, { loading }) => (
               <MenuItem
                 onClick={confirm(clearResult, {
-                  description: `This will clear times of ${result.person.name}.`,
+                  description: `This will clear all attempts of ${result.person.name}.`,
                 })}
                 disabled={loading}
               >
