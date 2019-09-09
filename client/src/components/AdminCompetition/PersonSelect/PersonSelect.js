@@ -55,6 +55,7 @@ const PersonSelect = ({ persons, value, onChange }) => {
           <TextField
             autoFocus
             fullWidth
+            spellCheck={false}
             variant="outlined"
             label="Competitor"
             placeholder="Type ID or name"
