@@ -13,32 +13,32 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const resultToString = result => {
-  return `${result.person.name} (${result.person.id})`;
+const personToString = person => {
+  return `${person.name} (${person.id})`;
 };
 
-const searchResults = (results, search) => {
+const searchPersons = (persons, search) => {
   const normalizedSearch = search.trim().toLowerCase();
   return normalizedSearch.length === 0
     ? []
-    : results
+    : persons
         .filter(
-          ({ person }) =>
+          person =>
             person.id === normalizedSearch ||
             person.name.toLowerCase().includes(normalizedSearch)
         )
         .slice(0, 5);
 };
 
-const ResultSelect = ({ results, value, onChange }) => {
+const PersonSelect = ({ persons, value, onChange }) => {
   const classes = useStyles();
   const textFieldRef = useRef();
 
   return (
     <Downshift
       selectedItem={value}
-      onChange={onChange}
-      itemToString={item => (item ? resultToString(item) : '')}
+      onChange={person => onChange(person)}
+      itemToString={item => (item ? personToString(item) : '')}
       defaultHighlightedIndex={0}
     >
       {({
@@ -77,19 +77,19 @@ const ResultSelect = ({ results, value, onChange }) => {
                     : undefined,
                 }}
               >
-                {searchResults(results, inputValue).map((result, index) => (
+                {searchPersons(persons, inputValue).map((person, index) => (
                   <MenuItem
                     {...getItemProps({
-                      item: result,
-                      key: result.person.id,
+                      item: person,
+                      key: person.id,
                       component: 'div',
                       selected: highlightedIndex === index,
                       style: {
-                        fontWeight: selectedItem === result ? 500 : 400,
+                        fontWeight: selectedItem === person ? 500 : 400,
                       },
                     })}
                   >
-                    {resultToString(result)}
+                    {personToString(person)}
                   </MenuItem>
                 ))}
               </Paper>
@@ -101,4 +101,4 @@ const ResultSelect = ({ results, value, onChange }) => {
   );
 };
 
-export default ResultSelect;
+export default PersonSelect;

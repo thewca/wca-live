@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
@@ -8,7 +8,7 @@ import withConfirm from 'material-ui-confirm';
 
 import CustomMutation from '../../CustomMutation/CustomMutation';
 import AttemptField from '../AttemptField/AttemptField';
-import ResultSelect from '../ResultSelect/ResultSelect';
+import PersonSelect from '../PersonSelect/PersonSelect';
 import { setAt, times, trimTrailingZeros } from '../../../logic/utils';
 import {
   meetsCutoff,
@@ -52,6 +52,10 @@ const ResultForm = ({
     ? solveCount
     : cutoff.numberOfAttempts;
 
+  const persons = useMemo(() => {
+    return results.map(result => result.person);
+  }, [results]);
+
   return (
     <Grid container spacing={1} ref={rootRef}>
       <Grid item xs={12}>
@@ -65,10 +69,16 @@ const ResultForm = ({
         </Typography>
       </Grid>
       <Grid item xs={12} style={{ marginBottom: 16, marginTop: 16 }}>
-        <ResultSelect
-          results={results}
-          value={result}
-          onChange={onResultChange}
+        <PersonSelect
+          persons={persons}
+          value={
+            result ? persons.find(person => person === result.person) : null
+          }
+          onChange={person => {
+            onResultChange(
+              person ? results.find(result => result.person === person) : null
+            );
+          }}
         />
       </Grid>
       {attempts.map((attempt, index) => (
@@ -188,8 +198,8 @@ const useKeyNavigation = containerRef => {
       const index = inputs.findIndex(input => event.target === input);
       if (
         ['ArrowUp', 'ArrowDown'].includes(event.key) &&
-        containerRef.current.getElementsByClassName('MuiMenuItem-root').length >
-          0
+        document.getElementsByClassName('MuiMenuItem-root').length >
+          0 /* TODO: figure out a good check for that */
       ) {
         /* Don't interrupt navigation within result selectable list. */
         return;

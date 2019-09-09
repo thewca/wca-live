@@ -5,7 +5,7 @@ const pubsub = require('./pubsub');
 const wcaApi = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
 const { updateResult } = require('../utils/results');
-const { openRound, clearRound, quitCompetitor } = require('../utils/rounds');
+const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../utils/rounds');
 const { managerWcaUserIds, synchronize } = require('../utils/competition');
 
 module.exports = {
@@ -75,6 +75,19 @@ module.exports = {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
         const updatedWcif = quitCompetitor(competition.wcif, roundId, parseInt(competitorId, 10), replace);
+        context.competition = await competitionLoader.update(
+          { ...competition, wcif: updatedWcif },
+          { resultsOnly: true }
+        );
+        return roundById(updatedWcif, roundId);
+      });
+    }
+  ),
+  addCompetitor: withCompetitionAuthorization(
+    async (parent, { competitionId, roundId, competitorId }, context) => {
+      return await competitionLoader.executeTask(competitionId, async () => {
+        const competition = await competitionLoader.get(competitionId);
+        const updatedWcif = addCompetitor(competition.wcif, roundId, parseInt(competitorId, 10));
         context.competition = await competitionLoader.update(
           { ...competition, wcif: updatedWcif },
           { resultsOnly: true }

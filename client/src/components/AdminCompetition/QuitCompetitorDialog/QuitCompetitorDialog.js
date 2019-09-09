@@ -61,7 +61,6 @@ const QuitCompetitorDialog = ({
         <CustomQuery
           query={NEXT_ADVANCABLE_QUERY}
           variables={{ competitionId, roundId }}
-          fetchPolicy="network-only"
         >
           {({
             data: {

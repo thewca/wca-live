@@ -1,5 +1,5 @@
 const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
-const { personIdsForRound, nextAdvancableToRound } = require('./advancement');
+const { personIdsForRound, nextAdvancableToRound, missingQualifyingIds } = require('./advancement');
 const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
 
 const roundName = (roundNumber, numberOfRounds, cutoff) => {
@@ -70,9 +70,23 @@ const quitCompetitor = (wcif, roundId, competitorId, replace) => {
   return processRoundChange(updatedWcif, round.id);
 };
 
+const addCompetitor = (wcif, roundId, competitorId, replace) => {
+  const round = roundById(wcif, roundId);
+  const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, roundId);
+  if (!qualifyingIds.includes(competitorId)) {
+    throw new Error(`Cannot add competitor with id ${competitorId} as he doesn't qualify to ${roundId}.`);
+  }
+  const results = round.results
+    .filter(result => !excessIds.includes(result.personId))
+    .concat(emptyResultsForPeople([competitorId]));
+  const updatedWcif = updateRound(wcif, { ...round, results });
+  return processRoundChange(updatedWcif, round.id);
+};
+
 module.exports = {
   roundName,
   openRound,
   clearRound,
   quitCompetitor,
+  addCompetitor,
 };

@@ -8,11 +8,12 @@ type Query {
 
 type Mutation {
   importCompetition(id: ID!): Competition
+  synchronize(competitionId: ID!): Competition
   setResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
   openRound(competitionId: ID!, roundId: ID!): Round
   clearRound(competitionId: ID!, roundId: ID!): Round
   quitCompetitor(competitionId: ID!, roundId: ID!, competitorId: ID!, replace: Boolean!): Round
-  synchronize(competitionId: ID!): Competition
+  addCompetitor(competitionId: ID!, roundId: ID!, competitorId: ID!): Round
 }
 
 type Subscription {

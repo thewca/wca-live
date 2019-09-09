@@ -11,6 +11,7 @@ import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
+import AddCompetitorDialog from '../AddCompetitorDialog/AddCompetitorDialog';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const ROUND_QUERY = gql`
@@ -75,6 +76,7 @@ const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   const [editedResult, setEditedResult] = useState(null);
   const [resultMenuProps, setResultMenuProps] = useState({});
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const handleResultClick = useCallback((result, event) => {
     setResultMenuProps({
@@ -113,7 +115,12 @@ const AdminRound = ({ match }) => {
                 </Grid>
                 <Grid item style={{ flexGrow: 1 }} />
                 <Grid item>
-                  <Tooltip title="Double-check" placement="left">
+                  <Tooltip title="Add competitor" placement="top">
+                    <IconButton onClick={() => setAddDialogOpen(true)}>
+                      <Icon>person_add</Icon>
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Double-check" placement="top">
                     <IconButton
                       component={Link}
                       to={`${match.url}/doublecheck`}
@@ -138,6 +145,12 @@ const AdminRound = ({ match }) => {
             competitionId={competitionId}
             roundId={roundId}
             setResultMutation={SET_RESULT_MUTATION}
+          />
+          <AddCompetitorDialog
+            open={addDialogOpen}
+            onClose={() => setAddDialogOpen(false)}
+            competitionId={competitionId}
+            roundId={roundId}
           />
         </div>
       )}
