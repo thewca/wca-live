@@ -70,7 +70,7 @@ type Round {
   results: [Result!]!
   open: Boolean!
   finished: Boolean!
-  nextAdvancable: [Person!] # People who could advance to this round if one person quit.
+  nextQualifying: [Person!] # People who would qualify to this round if one person quit.
   missingQualifying: MissingQualifying
 }
 

@@ -1,16 +1,16 @@
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
 const {
-  advancingResultsFromCondition,
+  qualifyingResults,
   advancingResults,
   personIdsForRound,
-  nextAdvancableToRound,
+  nextQualifyingToRound,
   missingQualifyingIds,
 } = require('../advancement');
 
-describe('advancingResultsFromCondition', () => {
+describe('qualifyingResults', () => {
   test('returns an empty array if no results are given', () => {
     const advancementCondition = { type: 'ranking', level: 3 };
-    expect(advancingResultsFromCondition([], advancementCondition)).toEqual([]);
+    expect(qualifyingResults([], advancementCondition)).toEqual([]);
   });
 
   describe('ranking', () => {
@@ -23,7 +23,7 @@ describe('advancingResultsFromCondition', () => {
         Result({ ranking: 5, personId: 5 })
       ];
       const advancementCondition = { type: 'ranking', level: 3 };
-      expect(advancingResultsFromCondition(results, advancementCondition)).toEqual(results.slice(0, 3));
+      expect(qualifyingResults(results, advancementCondition)).toEqual(results.slice(0, 3));
     });
   });
 
@@ -37,7 +37,7 @@ describe('advancingResultsFromCondition', () => {
         Result({ ranking: 5, personId: 5, best: 1400 })
       ];
       const advancementCondition = { type: 'percent', level: 50 };
-      expect(advancingResultsFromCondition(results, advancementCondition)).toEqual(results.slice(0, 2));
+      expect(qualifyingResults(results, advancementCondition)).toEqual(results.slice(0, 2));
     });
   });
 
@@ -51,11 +51,11 @@ describe('advancingResultsFromCondition', () => {
         Result({ ranking: 5, personId: 5, best: 1400 })
       ];
       const advancementCondition = { type: 'attemptResult', level: 1200 };
-      expect(advancingResultsFromCondition(results, advancementCondition)).toEqual(results.slice(0, 2));
+      expect(qualifyingResults(results, advancementCondition)).toEqual(results.slice(0, 2));
     });
   });
 
-  test('if people with the same ranking don\'t fit in 75%, neither is advanced', () => {
+  test('if people with the same ranking don\'t fit in 75%, neither qualify', () => {
     const results = [
       Result({ ranking: 1, personId: 1 }),
       Result({ ranking: 2, personId: 2 }),
@@ -64,7 +64,7 @@ describe('advancingResultsFromCondition', () => {
       Result({ ranking: 5, personId: 5 })
     ];
     const advancementCondition = { type: 'ranking', level: 3 };
-    expect(advancingResultsFromCondition(results, advancementCondition)).toEqual(results.slice(0, 2));
+    expect(qualifyingResults(results, advancementCondition)).toEqual(results.slice(0, 2));
   });
 
   test('does not return more than 75% even if satisfy advancement condition', () => {
@@ -76,10 +76,10 @@ describe('advancingResultsFromCondition', () => {
       Result({ ranking: 5, personId: 5 })
     ];
     const advancementCondition = { type: 'ranking', level: 4 };
-    expect(advancingResultsFromCondition(results, advancementCondition)).toEqual(results.slice(0, 3));
+    expect(qualifyingResults(results, advancementCondition)).toEqual(results.slice(0, 3));
   });
 
-  test('does not advance incomplete results', () => {
+  test('does not qualify incomplete results', () => {
     const results = [
       Result({ ranking: 1, personId: 1 }),
       Result({ ranking: 2, personId: 2, attempts: [-1, 0, 0], best: -1, average: -1 }),
@@ -88,7 +88,7 @@ describe('advancingResultsFromCondition', () => {
       Result({ ranking: null, personId: 5 })
     ];
     const advancementCondition = { type: 'ranking', level: 3 };
-    expect(advancingResultsFromCondition(results, advancementCondition)).toEqual(results.slice(0, 1));
+    expect(qualifyingResults(results, advancementCondition)).toEqual(results.slice(0, 1));
   });
 
   test('does not treat DNF results as satisfying attemptResult advancement condition', () => {
@@ -97,7 +97,7 @@ describe('advancingResultsFromCondition', () => {
       Result({ ranking: 2, personId: 2, attempts: [{ result: -1 }, { result: -1 }], best: -1 }),
     ];
     const advancementCondition = { type: 'attemptResult', level: 1500 };
-    expect(advancingResultsFromCondition(results, advancementCondition)).toEqual([]);
+    expect(qualifyingResults(results, advancementCondition)).toEqual([]);
   });
 
   describe('when no advancement condition is given', () => {
@@ -109,7 +109,7 @@ describe('advancingResultsFromCondition', () => {
         Result({ ranking: 4, personId: 4 }),
         Result({ ranking: 5, personId: 5 }),
       ];
-      expect(advancingResultsFromCondition(results, null)).toEqual(results.slice(0, 3));
+      expect(qualifyingResults(results, null)).toEqual(results.slice(0, 3));
     });
 
     test('returns more than 3 people if there are ties', () => {
@@ -120,7 +120,7 @@ describe('advancingResultsFromCondition', () => {
         Result({ ranking: 3, personId: 4 }),
         Result({ ranking: 5, personId: 5 }),
       ];
-      expect(advancingResultsFromCondition(results, null)).toEqual(results.slice(0, 4));
+      expect(qualifyingResults(results, null)).toEqual(results.slice(0, 4));
     });
 
     test('does not return people without any successful attempt', () => {
@@ -129,7 +129,7 @@ describe('advancingResultsFromCondition', () => {
         Result({ ranking: 2, personId: 2 }),
         Result({ ranking: 3, personId: 3, best: -1, }),
       ];
-      expect(advancingResultsFromCondition(results, null)).toEqual(results.slice(0, 2));
+      expect(qualifyingResults(results, null)).toEqual(results.slice(0, 2));
     });
   });
 
@@ -140,7 +140,7 @@ describe('advancingResultsFromCondition', () => {
     ];
     const advancementCondition = { type: 'cat', level: 100 };
     expect(() => {
-      advancingResultsFromCondition(results, advancementCondition);
+      qualifyingResults(results, advancementCondition);
     }).toThrow(new Error(`Unrecognised AdvancementCondition type: 'cat'`));
   });
 });
@@ -211,7 +211,7 @@ describe('personIdsForRound', () => {
   });
 
   describe('when a further round is given', () => {
-    test('returns ids of people who advance to the given round', () => {
+    test('returns ids of people who qualify to the given round', () => {
       const round1 = Round({
         id: '333-r1',
         results: [
@@ -231,7 +231,7 @@ describe('personIdsForRound', () => {
   });
 });
 
-describe('nextAdvancableToRound', () => {
+describe('nextQualifyingToRound', () => {
   test('returns an empty array if a first round is given', () => {
     const round1 = Round({
       id: '333-r1',
@@ -240,7 +240,7 @@ describe('nextAdvancableToRound', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1] })],
     });
-    expect(nextAdvancableToRound(wcif, '333-r1')).toEqual([]);
+    expect(nextQualifyingToRound(wcif, '333-r1')).toEqual([]);
   });
 
   test('returns an empty array if no one satisfies the advancement criteria', () => {
@@ -256,10 +256,10 @@ describe('nextAdvancableToRound', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
-    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([]);
+    expect(nextQualifyingToRound(wcif, '333-r2')).toEqual([]);
   });
 
-  test('returns id of the next person who could advance to the given round', () => {
+  test('returns id of the next person who could qualify to the given round', () => {
     const round1 = Round({
       id: '333-r1',
       results: [
@@ -277,10 +277,10 @@ describe('nextAdvancableToRound', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
-    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([3]);
+    expect(nextQualifyingToRound(wcif, '333-r2')).toEqual([3]);
   });
 
-  test('returns multiple person ids if all could advance', () => {
+  test('returns multiple person ids if all could qualify', () => {
     const round1 = Round({
       id: '333-r1',
       results: [
@@ -298,7 +298,7 @@ describe('nextAdvancableToRound', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
-    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([3, 4]);
+    expect(nextQualifyingToRound(wcif, '333-r2')).toEqual([3, 4]);
   });
 
   test('returns an empty array if there are too many people to fit in advanced 75%', () => {
@@ -320,7 +320,7 @@ describe('nextAdvancableToRound', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
-    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([]);
+    expect(nextQualifyingToRound(wcif, '333-r2')).toEqual([]);
   });
 
   test('ignores people who already quit the given round', () => {
@@ -341,7 +341,7 @@ describe('nextAdvancableToRound', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
-    expect(nextAdvancableToRound(wcif, '333-r2')).toEqual([4]);
+    expect(nextQualifyingToRound(wcif, '333-r2')).toEqual([4]);
   });
 });
 

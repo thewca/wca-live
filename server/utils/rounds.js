@@ -1,5 +1,5 @@
 const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
-const { personIdsForRound, nextAdvancableToRound, missingQualifyingIds } = require('./advancement');
+const { personIdsForRound, nextQualifyingToRound, missingQualifyingIds } = require('./advancement');
 const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
 
 const roundName = (roundNumber, numberOfRounds, cutoff) => {
@@ -61,7 +61,7 @@ const quitCompetitor = (wcif, roundId, competitorId, replace) => {
     throw new Error(`Cannot quit competitor with id ${competitorId} as he's not in ${roundId}.`);
   }
   const replacingResults = replace
-    ? emptyResultsForPeople(nextAdvancableToRound(wcif, round.id))
+    ? emptyResultsForPeople(nextQualifyingToRound(wcif, round.id))
     : [];
   const results = round.results
     .filter(result => result.personId !== competitorId)

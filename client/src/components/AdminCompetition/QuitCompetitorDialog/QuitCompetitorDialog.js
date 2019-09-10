@@ -14,11 +14,11 @@ import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
-const NEXT_ADVANCABLE_QUERY = gql`
-  query NextAdvancable($competitionId: ID!, $roundId: ID!) {
+const NEXT_QUALIFYING_QUERY = gql`
+  query NextQualifying($competitionId: ID!, $roundId: ID!) {
     round(competitionId: $competitionId, roundId: $roundId) {
       id
-      nextAdvancable {
+      nextQualifying {
         id
         name
       }
@@ -59,12 +59,12 @@ const QuitCompetitorDialog = ({
       <DialogTitle>Quit {competitor.name}</DialogTitle>
       <DialogContent>
         <CustomQuery
-          query={NEXT_ADVANCABLE_QUERY}
+          query={NEXT_QUALIFYING_QUERY}
           variables={{ competitionId, roundId }}
         >
           {({
             data: {
-              round: { nextAdvancable },
+              round: { nextQualifying },
             },
           }) => (
             <Fragment>
@@ -76,14 +76,14 @@ const QuitCompetitorDialog = ({
                 value={replace}
                 onChange={event => setReplace(event.target.value)}
               >
-                {nextAdvancable.length > 0 && (
+                {nextQualifying.length > 0 && (
                   <FormControlLabel
                     control={<Radio />}
                     value="true"
                     label={`
                       Yes, remove ${competitor.name}
                       and replace they with other qualifying competitors:
-                      ${nextAdvancable.map(({ name }) => name).join(', ')}.
+                      ${nextQualifying.map(({ name }) => name).join(', ')}.
                     `}
                   />
                 )}
@@ -91,7 +91,7 @@ const QuitCompetitorDialog = ({
                   control={<Radio />}
                   value="false"
                   label={
-                    nextAdvancable.length > 0
+                    nextQualifying.length > 0
                       ? `Yes, just remove ${competitor.name} and don't replace them.`
                       : `Yes, remove ${competitor.name}.`
                   }
