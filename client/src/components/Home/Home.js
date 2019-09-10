@@ -38,6 +38,9 @@ const useStyles = makeStyles(theme => ({
   grow: {
     flexGrow: 1,
   },
+  fullWidth: {
+    width: '100%',
+  },
   center: {
     textAlign: 'center',
   },
@@ -67,7 +70,7 @@ const Home = () => {
               </Typography>
             </Grid>
             {inProgress.length > 0 && (
-              <Grid item>
+              <Grid item className={classes.fullWidth}>
                 <Paper>
                   <CompetitionList
                     title="Happening right now!"
@@ -77,21 +80,21 @@ const Home = () => {
               </Grid>
             )}
             {upcoming.length > 0 && (
-              <Grid item>
+              <Grid item className={classes.fullWidth}>
                 <Paper>
                   <CompetitionList title="Upcoming" competitions={upcoming} />
                 </Paper>
               </Grid>
             )}
             {past.length > 0 && (
-              <Grid item>
+              <Grid item className={classes.fullWidth}>
                 <Paper>
                   <CompetitionList title="Past" competitions={past} />
                 </Paper>
               </Grid>
             )}
             <Grid item className={classes.grow} />
-            <Grid item>
+            <Grid item className={classes.fullWidth}>
               <Footer />
             </Grid>
           </Grid>
