@@ -1,3 +1,5 @@
+export const flatMap = (arr, fn) => arr.reduce((xs, x) => xs.concat(fn(x)), []);
+
 export const setAt = (array, index, value) => [
   ...array.slice(0, index),
   value,

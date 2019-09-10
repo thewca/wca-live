@@ -26,6 +26,14 @@ module.exports = {
   finished: ({ results }) => {
     return results.every(({ attempts }) => attempts.length > 0);
   },
+  active: ({ results }) => {
+    /* Treat the competition as active if there were several updates in the past 5 minutes. */
+    const recentUpdates = results
+      .filter(result => result.attempts.length > 0)
+      .map(result => result.updatedAt)
+      .filter(updatedAt => updatedAt > new Date(Date.now() - 10 * 60 * 1000));
+    return recentUpdates.length >= 3;
+  },
   nextQualifying: ({ id }, args, { competition }) => {
     return nextQualifyingToRound(competition.wcif, id).map(
       personId => personById(competition.wcif, personId)

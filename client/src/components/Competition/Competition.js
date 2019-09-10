@@ -17,6 +17,7 @@ import classNames from 'classnames';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import EventList from '../EventList/EventList';
+import CompetitionHome from '../CompetitionHome/CompetitionHome';
 import Round from '../Round/Round';
 import Competitors from '../Competitors/Competitors';
 import Competitor from '../Competitor/Competitor';
@@ -196,6 +197,11 @@ const Competition = ({ match, location }) => {
             </Hidden>
             <div className={classNames(classes.content, classes.appBarShift)}>
               <Switch>
+                <Route
+                  exact
+                  path="/competitions/:competitionId"
+                  component={CompetitionHome}
+                />
                 <Route
                   exact
                   path="/competitions/:competitionId/rounds/:roundId"
