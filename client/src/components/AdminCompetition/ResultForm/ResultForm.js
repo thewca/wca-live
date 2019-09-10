@@ -206,7 +206,10 @@ const useKeyNavigation = container => {
         return;
       }
       if (!['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) return;
-      event.preventDefault(); /* Prevent page scrolling. */
+      if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
+        /* Prevent page scrolling. */
+        event.preventDefault();
+      }
       if (event.target.tagName === 'INPUT') {
         /* Blur the current input first, as it may affect which fields are disabled. */
         event.target.blur();
