@@ -77,7 +77,7 @@ type Round {
 type MissingQualifying {
   # People who qualify to this round, but are not in it.
   qualifying: [Person!]!
-  # People who would be removed if one qualifying person is added to the round.
+  # People who would be removed if one qualifying person was added to the round.
   excess: [Person!]!
 }
 
