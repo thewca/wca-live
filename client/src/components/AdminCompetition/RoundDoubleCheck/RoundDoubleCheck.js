@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
+import { sortBy } from '../../../logic/utils';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: ID!) {
@@ -93,9 +94,10 @@ const RoundDoubleCheck = ({ match }) => {
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round } }) => {
-        const results = round.results
-          .slice()
-          .sort((r1, r2) => new Date(r2.updatedAt) - new Date(r1.updatedAt));
+        const results = sortBy(
+          round.results,
+          result => -new Date(result.updatedAt)
+        );
         return (
           <Grid container direction="row" alignItems="center" spacing={2}>
             <Grid item md className={classes.centerContent}>

@@ -20,10 +20,14 @@ export const updateIn = (object, [property, ...properyChain], updater) =>
       };
 
 export const groupBy = (arr, fn) =>
-  arr.reduce(
-    (obj, x) => updateIn(obj, [fn(x)], xs => (xs || []).concat(x)),
-    {}
-  );
+  arr.reduce((obj, x) => updateIn(obj, [fn(x)], xs => [...(xs || []), x]), {});
+
+export const uniq = arr => [...new Set(arr)];
+
+export const sortCompare = (x, y) => (x < y ? -1 : x > y ? 1 : 0);
+
+export const sortBy = (arr, fn) =>
+  arr.slice().sort((x, y) => sortCompare(fn(x), fn(y)));
 
 export const formatDateRange = (startString, endString) => {
   const start = new Date(startString);

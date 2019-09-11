@@ -40,8 +40,8 @@ const AdminCompetitionList = ({
           <ListItemText
             primary={competition.name}
             secondary={formatDateRange(
-              competition.startDate,
-              competition.endDate
+              competition.schedule.startDate,
+              competition.schedule.endDate
             )}
           />
         </ListItem>
@@ -84,8 +84,8 @@ const AdminCompetitionList = ({
               <ListItemText
                 primary={competition.name}
                 secondary={formatDateRange(
-                  competition.startDate,
-                  competition.endDate
+                  competition.schedule.startDate,
+                  competition.schedule.ndDate
                 )}
               />
             </ListItem>

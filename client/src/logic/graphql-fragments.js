@@ -23,8 +23,10 @@ export const COMPETITION_INFO_FRAGMENT = gql`
   fragment competitionInfo on Competition {
     id
     name
-    startDate
-    endDate
+    schedule {
+      startDate
+      endDate
+    }
     countries {
       iso2
     }

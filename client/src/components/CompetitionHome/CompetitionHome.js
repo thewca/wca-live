@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 
 import { wcaUrl } from '../../logic/url-utils';
 import { flatMap } from '../../logic/utils';
+import Schedule from '../Schedule/Schedule';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import CubingIcon from '../CubingIcon/CubingIcon';
 
@@ -25,6 +26,25 @@ const COMPETITION_QUERY = gql`
           id
           name
           active
+          open
+        }
+      }
+      schedule {
+        venues {
+          id
+          name
+          rooms {
+            id
+            name
+            color
+            activities {
+              id
+              activityCode
+              name
+              startTime
+              endTime
+            }
+          }
         }
       }
     }
@@ -67,7 +87,7 @@ const CompetitionHome = ({ match }) => {
                 </Typography>
                 <Grid container spacing={1}>
                   {active.map(([event, round]) => (
-                    <Grid item xs={12} md={3}>
+                    <Grid item key={round.id}>
                       <Card>
                         <CardActionArea
                           component={RouterLink}
@@ -84,6 +104,16 @@ const CompetitionHome = ({ match }) => {
                 </Grid>
               </Grid>
             )}
+            <Grid item>
+              <Typography variant="h5" gutterBottom>
+                Schedule
+              </Typography>
+              <Schedule
+                schedule={competition.schedule}
+                events={competition.events}
+                competitionId={competitionId}
+              />
+            </Grid>
           </Grid>
         );
       }}

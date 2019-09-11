@@ -46,9 +46,8 @@ type Avatar {
 type Competition {
   id: ID!
   name: String!
-  startDate: String!
-  endDate: String!
   events: [Event!]!
+  schedule: Schedule!
   competitors: [Person!]!
   countries: [Country!]!
   synchronizedAt: String!
@@ -73,13 +72,6 @@ type Round {
   active: Boolean!
   nextQualifying: [Person!] # People who would qualify to this round if one person quit.
   missingQualifying: MissingQualifying
-}
-
-type MissingQualifying {
-  # People who qualify to this round, but are not in it.
-  qualifying: [Person!]!
-  # People who would be removed if one qualifying person was added to the round.
-  excess: [Person!]!
 }
 
 type Format {
@@ -115,6 +107,41 @@ type Result {
 type RecordTags {
   single: String
   average: String
+}
+
+type MissingQualifying {
+  # People who qualify to this round, but are not in it.
+  qualifying: [Person!]!
+  # People who would be removed if one qualifying person was added to the round.
+  excess: [Person!]!
+}
+
+type Schedule {
+  startDate: String!
+  endDate: String!
+  venues: [Venue!]!
+}
+
+type Venue {
+  id: ID!
+  name: String!
+  rooms: [Room!]!
+}
+
+type Room {
+  id: ID!
+  name: String!
+  color: String!
+  activities: [Activity!]!
+}
+
+type Activity {
+  id: ID!
+  name: String!
+  activityCode: String!
+  startTime: String!
+  endTime: String!
+  childActivities: [Activity!]!
 }
 
 type Person {
