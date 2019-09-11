@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
 import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
+import { signInUrl, signOut } from '../../logic/auth';
 
 const ADMIN_QUERY = gql`
   query Competitions {
@@ -29,7 +30,7 @@ const ADMIN_QUERY = gql`
   ${COMPETITION_INFO_FRAGMENT}
 `;
 
-const Admin = () => {
+const Admin = ({ history }) => {
   return (
     <CustomQuery query={ADMIN_QUERY}>
       {({ data, client }) => {
@@ -47,7 +48,7 @@ const Admin = () => {
                   size="large"
                   variant="outlined"
                   color="primary"
-                  href="/oauth/sign-in"
+                  href={signInUrl}
                 >
                   Sign in
                 </Button>
@@ -92,9 +93,9 @@ const Admin = () => {
                     variant="outlined"
                     color="default"
                     onClick={() => {
-                      fetch('/oauth/sign-out', {
-                        credentials: 'same-origin',
-                      }).then(() => client.resetStore());
+                      signOut()
+                        .then(() => client.resetStore())
+                        .then(() => history.push('/'));
                     }}
                   >
                     Sign out

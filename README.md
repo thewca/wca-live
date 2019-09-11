@@ -36,7 +36,7 @@ npm install
 npm start
 ```
 
-## Local authentication with OAuth
+## Authentication with OAuth
 
 WCA Live uses OAuth for authentication (meaning that users sign in via the WCA website).
 In the development mode, instead of interacting with the real WCA server,
@@ -45,15 +45,11 @@ It's similar to the production one, but used for testing purposes.
 In particular there is no sensitive data and every user has the password of `wca`.
 
 To sign in do the following:
-- navigate to http://localhost:4000/oauth/sign-in
+- navigate to http://localhost:3000/admin and hit "Sign in"
 - sign in as [any Delegate](https://staging.worldcubeassociation.org/delegates),
   preferably one with some upcoming competitions (to actually have something to work on)
 - click "Authorize"
-- navigate to http://localhost:3000/admin, where you should be able to import/manage your competitions
-
-*Technical note: in the development we run two servers: one serving frontend assets
-and the other one being our actual backend. While localhost:3000 correctly sends all
-API requests to the backend, in order to use OAuth we need to hit the backend directly.*
+- now you should be able to import and manage "your" competitions
 
 ## Docs
 

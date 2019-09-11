@@ -2,6 +2,7 @@ const express = require('express');
 const { db } = require('./mongo-connector');
 const wcaApi  = require('./utils/wca-api');
 const { authorizationUrl, oauthDataFromCode }  = require('./utils/wca-oauth');
+const { PRODUCTION }  = require('./config');
 
 const userJsonToUser = userJson => ({
   wcaUserId: userJson['id'],
@@ -29,10 +30,10 @@ router.get('/callback', async (req, res) => {
     { upsert: true, returnOriginal: false }
   );
   req.session.userId = dbUser._id;
-  res.redirect('/admin');
+  res.redirect(PRODUCTION ? '/admin' : 'http://localhost:3000/admin');
 });
 
-router.get('/sign-out', (req, res) => {
+router.post('/sign-out', (req, res) => {
   req.session.destroy();
   res.end();
 });
