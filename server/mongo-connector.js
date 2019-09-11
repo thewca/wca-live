@@ -18,5 +18,6 @@ module.exports.connect = async () => {
     client,
     users: db.collection('users'),
     competitions: db.collection('competitions'),
+    data: db.collection('data'),
   });
 };
