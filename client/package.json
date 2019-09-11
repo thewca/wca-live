@@ -12,6 +12,7 @@
     "@material-ui/core": "^4.4.1",
     "@material-ui/styles": "^4.4.1",
     "apollo-boost": "^0.4.3",
+    "apollo-link-retry": "^2.2.15",
     "apollo-link-ws": "^1.0.18",
     "classnames": "^2.2.6",
     "downshift": "^3.2.14",

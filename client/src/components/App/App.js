@@ -1,9 +1,10 @@
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
-import { split } from 'apollo-link';
+import { ApolloLink, split } from 'apollo-link';
 import { createHttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
+import { RetryLink } from 'apollo-link-retry';
 import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { BrowserRouter } from 'react-router-dom';
@@ -19,6 +20,20 @@ const httpLink = createHttpLink(
     ? { uri: '/api', credentials: 'same-origin' }
     : { uri: 'http://localhost:4000/api', credentials: 'include' }
 );
+
+const retryLink = new RetryLink({
+  delay: {
+    initial: 2000,
+  },
+  attempts: {
+    max: 2,
+  },
+});
+
+const retryHttpLink =
+  process.env.NODE_ENV === 'production'
+    ? ApolloLink.from([retryLink, httpLink])
+    : httpLink;
 
 const wsLink = new WebSocketLink({
   uri:
@@ -39,7 +54,7 @@ const link = split(
     );
   },
   wsLink,
-  httpLink
+  retryHttpLink
 );
 
 const client = new ApolloClient({
