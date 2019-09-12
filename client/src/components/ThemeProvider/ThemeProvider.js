@@ -45,12 +45,13 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     window.localStorage.setItem('themeType', themeType);
-    document
-      .querySelector('meta[name="theme-color"]')
-      .setAttribute(
+    const themeMetaTag = document.querySelector('meta[name="theme-color"]');
+    if (themeMetaTag) {
+      themeMetaTag.setAttribute(
         'content',
         themeType === 'dark' ? grey['900'] : blue['700']
       );
+    }
   }, [themeType]);
 
   return (
