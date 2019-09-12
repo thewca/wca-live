@@ -15,8 +15,9 @@ import { parseActivityCode } from '../../logic/wcif';
 import { shortLocalTime } from '../../logic/date';
 
 const useStyles = makeStyles(theme => ({
-  fullHeight: {
+  root: {
     height: '100%',
+    position: 'relative',
   },
   timeRange: {
     marginLeft: theme.spacing(1),
@@ -57,40 +58,39 @@ const ScheduleCard = ({
     (Math.min(Math.max(distanceFromStart, 0), duration) / duration) * 100
   );
   return (
-    <Card className={classes.fullHeight}>
+    <Card className={classes.root}>
       <CardActionArea
-        className={classes.fullHeight}
         component={RouterLink}
         to={`/competitions/${competitionId}/rounds/${round.id}`}
         disabled={!round.open}
       >
         <CardHeader avatar={<CubingIcon eventId={eventId} />} title={name} />
-        <CardContent>
-          <Grid container spacing={1}>
-            {activitiesWithRoom.map(([activity, room]) => (
-              <Grid key={activity.id} item xs={6}>
-                <RoomLabel room={room} />
-                <Typography
-                  component="span"
-                  variant="body2"
-                  className={classes.timeRange}
-                >
-                  {`${shortLocalTime(activity.startTime)} - ${shortLocalTime(
-                    activity.endTime
-                  )}`}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-        {0 < progressPercentage && progressPercentage < 100 && (
-          <LinearProgress
-            variant="determinate"
-            value={progressPercentage}
-            className={classes.progress}
-          />
-        )}
       </CardActionArea>
+      <CardContent>
+        <Grid container spacing={1}>
+          {activitiesWithRoom.map(([activity, room]) => (
+            <Grid key={activity.id} item xs={6}>
+              <RoomLabel room={room} />
+              <Typography
+                component="span"
+                variant="body2"
+                className={classes.timeRange}
+              >
+                {`${shortLocalTime(activity.startTime)} - ${shortLocalTime(
+                  activity.endTime
+                )}`}
+              </Typography>
+            </Grid>
+          ))}
+        </Grid>
+      </CardContent>
+      {0 < progressPercentage && progressPercentage < 100 && (
+        <LinearProgress
+          variant="determinate"
+          value={progressPercentage}
+          className={classes.progress}
+        />
+      )}
     </Card>
   );
 };
