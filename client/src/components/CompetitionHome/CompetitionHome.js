@@ -64,9 +64,14 @@ const CompetitionHome = ({ match }) => {
         );
 
         return (
-          <Grid container direction="column" spacing={2}>
-            <Grid item>
-              <Typography variant="h5" gutterBottom>
+          <Grid
+            container
+            direction="column"
+            spacing={2}
+            style={{ maxWidth: '100%' }}
+          >
+            <Grid item style={{ maxWidth: '100%' }}>
+              <Typography variant="h5" gutterBottom noWrap>
                 Welcome to {competition.name}!
               </Typography>
               <Typography>
