@@ -9,7 +9,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import withConfirm from 'material-ui-confirm';
 
 import CustomMutation from '../CustomMutation/CustomMutation';
-import { formatDateRange } from '../../logic/utils';
+import { formatDateRange } from '../../logic/date';
 
 const IMPORT_COMPETITION_MUTATION = gql`
   mutation ImportCompetition($id: ID!) {

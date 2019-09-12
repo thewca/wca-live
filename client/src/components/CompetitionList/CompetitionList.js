@@ -8,7 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
-import { formatDateRange } from '../../logic/utils';
+import { formatDateRange } from '../../logic/date';
 
 const CompetitionList = ({ title, competitions }) => {
   return (
