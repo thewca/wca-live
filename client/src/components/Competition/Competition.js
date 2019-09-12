@@ -65,6 +65,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   content: {
+    position: 'relative' /* For LinearProgress */,
     overflowY: 'auto',
     padding: theme.spacing(2, 1),
     [theme.breakpoints.up('md')]: {
@@ -139,7 +140,7 @@ const Competition = ({ match, location }) => {
         return (
           <Fragment>
             <AppBar
-              position="static"
+              position="sticky"
               className={classNames(classes.appBar, classes.appBarShift)}
             >
               <Toolbar>

@@ -45,6 +45,12 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     window.localStorage.setItem('themeType', themeType);
+    document
+      .querySelector('meta[name="theme-color"]')
+      .setAttribute(
+        'content',
+        themeType === 'dark' ? grey['900'] : blue['700']
+      );
   }, [themeType]);
 
   return (

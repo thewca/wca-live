@@ -43,6 +43,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
   },
   content: {
+    position: 'relative' /* For LinearProgress */,
     padding: theme.spacing(3),
   },
 }));
@@ -62,7 +63,7 @@ const AdminCompetition = ({ match, location }) => {
 
         return (
           <div>
-            <AppBar position="static" className={classes.appBar}>
+            <AppBar position="sticky" className={classes.appBar}>
               <Toolbar>
                 <Typography variant="h6" color="inherit">
                   {competition.name}

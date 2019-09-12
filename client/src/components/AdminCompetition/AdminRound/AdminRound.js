@@ -90,7 +90,7 @@ const AdminRound = ({ match }) => {
       {({ data: { round } }) => (
         <div>
           <Grid container direction="row" spacing={2}>
-            <Grid item md={3}>
+            <Grid item xs={12} md={3}>
               <ResultForm
                 result={editedResult}
                 results={round.results}
@@ -106,7 +106,7 @@ const AdminRound = ({ match }) => {
                 updateResultMutation={SET_RESULT_MUTATION}
               />
             </Grid>
-            <Grid item md={9}>
+            <Grid item xs={12} md={9}>
               <Grid container alignItems="center">
                 <Grid item>
                   <Typography variant="h5" align="center">
@@ -130,13 +130,15 @@ const AdminRound = ({ match }) => {
                   </Tooltip>
                 </Grid>
               </Grid>
-              <AdminResultsTable
-                results={round.results}
-                format={round.format}
-                eventId={round.event.id}
-                competitionId={competitionId}
-                onResultClick={handleResultClick}
-              />
+              <div style={{ overflowX: 'auto' }}>
+                <AdminResultsTable
+                  results={round.results}
+                  format={round.format}
+                  eventId={round.event.id}
+                  competitionId={competitionId}
+                  onResultClick={handleResultClick}
+                />
+              </div>
             </Grid>
           </Grid>
           <ResultMenu

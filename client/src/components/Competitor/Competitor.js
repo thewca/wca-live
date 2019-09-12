@@ -66,7 +66,7 @@ const Competitor = ({ match }) => {
               {competitor.name}{' '}
               <FlagIcon code={competitor.country.iso2.toLowerCase()} />
             </Typography>
-            <Grid container direction="column" spacing={3}>
+            <Grid container direction="column" spacing={2}>
               {Object.entries(resultsByEvent).map(([eventName, results]) => (
                 <Grid item key={eventName}>
                   <Typography variant="subtitle1">{eventName}</Typography>
