@@ -204,7 +204,6 @@ const Competition = ({ match, location }) => {
                   component={CompetitionHome}
                 />
                 <Route
-                  exact
                   path="/competitions/:competitionId/rounds/:roundId"
                   component={Round}
                 />

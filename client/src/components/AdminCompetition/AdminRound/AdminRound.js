@@ -130,7 +130,7 @@ const AdminRound = ({ match }) => {
                   </Tooltip>
                 </Grid>
               </Grid>
-              <div style={{ overflowX: 'auto' }}>
+              <div style={{ overflowX: 'auto', paddingRight: 4 }}>
                 <AdminResultsTable
                   results={round.results}
                   format={round.format}

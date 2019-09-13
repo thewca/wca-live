@@ -1,11 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
-import Hidden from '@material-ui/core/Hidden';
-import Typography from '@material-ui/core/Typography';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
-import ResultsTable from '../ResultsTable/ResultsTable';
-import ResultDialog from '../ResultDialog/ResultDialog';
+import RoundProjector from '../RoundProjector/RoundProjector';
+import RoundView from '../RoundView/RoundView';
 import { RESULTS_UPDATE_FRAGMENT } from '../../logic/graphql-fragments';
 
 const ROUND_QUERY = gql`
@@ -32,6 +31,7 @@ const ROUND_QUERY = gql`
           name
           country {
             name
+            iso2
           }
         }
         recordTags {
@@ -55,42 +55,39 @@ const ROUND_UPDATE_SUBSCRIPTION = gql`
 
 const Round = ({ match }) => {
   const { competitionId, roundId } = match.params;
-  const [selectedResult, setSelectedResult] = useState(null);
-
-  const handleResultClick = useCallback((result, event) => {
-    setSelectedResult(result);
-  }, []);
+  const [subscribed, setSubscribed] = useState(false);
 
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round }, subscribeToMore }) => {
-        subscribeToMore({
-          document: ROUND_UPDATE_SUBSCRIPTION,
-          variables: { competitionId, roundId },
-        });
+        if (!subscribed) {
+          subscribeToMore({
+            document: ROUND_UPDATE_SUBSCRIPTION,
+            variables: { competitionId, roundId },
+          });
+          setSubscribed(true);
+        }
 
         return (
-          <div>
-            <Typography variant="h5" gutterBottom>
-              {round.event.name} - {round.name}
-            </Typography>
-            <ResultsTable
-              results={round.results}
-              format={round.format}
-              eventId={round.event.id}
-              competitionId={competitionId}
-              onResultClick={handleResultClick}
+          <Switch>
+            <Route
+              exact
+              path={`/competitions/${competitionId}/rounds/${round.id}/projector`}
+              render={() => (
+                <RoundProjector round={round} competitionId={competitionId} />
+              )}
             />
-            <Hidden mdUp>
-              <ResultDialog
-                result={selectedResult}
-                format={round.format}
-                eventId={round.event.id}
-                competitionId={competitionId}
-                onClose={() => setSelectedResult(null)}
-              />
-            </Hidden>
-          </div>
+            <Route
+              exact
+              path={`/competitions/${competitionId}/rounds/${round.id}`}
+              render={() => (
+                <RoundView round={round} competitionId={competitionId} />
+              )}
+            />
+            <Redirect
+              to={`/competitions/${competitionId}/rounds/${round.id}`}
+            />
+          </Switch>
         );
       }}
     </CustomQuery>
