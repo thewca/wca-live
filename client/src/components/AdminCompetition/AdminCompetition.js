@@ -2,13 +2,16 @@ import React from 'react';
 import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
 import AppBar from '@material-ui/core/AppBar';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
+import SyncIcon from '@material-ui/icons/Sync';
+import ViewListIcon from '@material-ui/icons/ViewList';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminEvents from './AdminEvents/AdminEvents';
@@ -78,7 +81,7 @@ const AdminCompetition = ({ match, location }) => {
                     component={Link}
                     to={`/admin/competitions/${competition.id}`}
                   >
-                    <Icon>view_list</Icon>
+                    <ViewListIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Synchronization">
@@ -87,7 +90,7 @@ const AdminCompetition = ({ match, location }) => {
                     component={Link}
                     to={`/admin/competitions/${competition.id}/sync`}
                   >
-                    <Icon>sync</Icon>
+                    <SyncIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Public view">
@@ -96,12 +99,12 @@ const AdminCompetition = ({ match, location }) => {
                     component={Link}
                     to={location.pathname.replace(/^\/admin/, '')}
                   >
-                    <Icon>remove_red_eye</Icon>
+                    <RemoveRedEyeIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="My competitions">
                   <IconButton color="inherit" component={Link} to="/admin">
-                    <Icon>account_circle</Icon>
+                    <AccountCircleIcon />
                   </IconButton>
                 </Tooltip>
               </Toolbar>

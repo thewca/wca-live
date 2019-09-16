@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Icon from '@material-ui/core/Icon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import PublicIcon from '@material-ui/icons/Public';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 import { formatDateRange } from '../../logic/date';
@@ -28,7 +28,7 @@ const CompetitionList = ({ title, competitions }) => {
                 size="lg"
               />
             ) : (
-              <Icon>public</Icon>
+              <PublicIcon />
             )}
           </ListItemIcon>
           <ListItemText

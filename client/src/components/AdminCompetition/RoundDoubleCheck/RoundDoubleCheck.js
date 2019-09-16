@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
@@ -106,7 +107,7 @@ const RoundDoubleCheck = ({ match }) => {
                 onClick={() => updateResultIndex(resultIndex - 1)}
                 disabled={resultIndex === 0}
               >
-                <Icon>chevron_left</Icon>
+                <ChevronLeftIcon />
               </IconButton>
             </Grid>
             <Grid item md={3}>
@@ -132,7 +133,7 @@ const RoundDoubleCheck = ({ match }) => {
                 onClick={() => updateResultIndex(resultIndex + 1)}
                 disabled={resultIndex === results.length - 1}
               >
-                <Icon>chevron_right</Icon>
+                <ChevronRightIcon />
               </IconButton>
             </Grid>
             <Grid item md={5}>

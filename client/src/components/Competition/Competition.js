@@ -6,7 +6,6 @@ import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Hidden from '@material-ui/core/Hidden';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -14,6 +13,10 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 import classNames from 'classnames';
+import HomeIcon from '@material-ui/icons/Home';
+import LockIcon from '@material-ui/icons/Lock';
+import MenuIcon from '@material-ui/icons/Menu';
+import PeopleIcon from '@material-ui/icons/People';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import EventList from '../EventList/EventList';
@@ -116,13 +119,13 @@ const Competition = ({ match, location }) => {
           <Fragment>
             <div className={classes.toolbar}>
               <IconButton component={Link} to="/">
-                <Icon>home</Icon>
+                <HomeIcon />
               </IconButton>
               <IconButton
                 component={Link}
                 to={`/competitions/${competition.id}/competitors`}
               >
-                <Icon>people</Icon>
+                <PeopleIcon />
               </IconButton>
             </div>
             <Divider />
@@ -149,7 +152,7 @@ const Competition = ({ match, location }) => {
                   className={classes.menuButton}
                   onClick={() => setMobileOpen(true)}
                 >
-                  <Icon>menu</Icon>
+                  <MenuIcon />
                 </IconButton>
                 <Typography
                   variant="h6"
@@ -172,7 +175,7 @@ const Competition = ({ match, location }) => {
                       component={Link}
                       to={`/admin${location.pathname}`}
                     >
-                      <Icon>lock</Icon>
+                      <LockIcon />
                     </IconButton>
                   </Tooltip>
                 )}

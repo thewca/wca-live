@@ -2,7 +2,6 @@ import React from 'react';
 import gql from 'graphql-tag';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
-import Icon from '@material-ui/core/Icon';
 import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -11,6 +10,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import TimeAgo from 'react-timeago';
+import EditIcon from '@material-ui/icons/Edit';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
@@ -93,7 +94,7 @@ const Synchronize = ({ match }) => {
                 target="_blank"
               >
                 <ListItemIcon>
-                  <Icon>person_add</Icon>
+                  <PersonAddIcon />
                 </ListItemIcon>
                 <ListItemText>Add competitor</ListItemText>
               </ListItem>
@@ -104,7 +105,7 @@ const Synchronize = ({ match }) => {
                 target="_blank"
               >
                 <ListItemIcon>
-                  <Icon>edit</Icon>
+                  <EditIcon />
                 </ListItemIcon>
                 <ListItemText>Change round data</ListItemText>
               </ListItem>

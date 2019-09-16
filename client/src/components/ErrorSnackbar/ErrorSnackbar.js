@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
 const ErrorSnackbar = ({ message }) => {
   const [open, setOpen] = useState(true);
@@ -16,7 +16,7 @@ const ErrorSnackbar = ({ message }) => {
       message={message}
       action={
         <IconButton color="inherit" onClick={() => setOpen(false)}>
-          <Icon>close</Icon>
+          <CloseIcon />
         </IconButton>
       }
     />

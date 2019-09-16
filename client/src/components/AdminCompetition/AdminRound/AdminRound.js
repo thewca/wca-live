@@ -2,10 +2,11 @@ import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import CheckIcon from '@material-ui/icons/Check';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
@@ -117,7 +118,7 @@ const AdminRound = ({ match }) => {
                 <Grid item>
                   <Tooltip title="Add competitor" placement="top">
                     <IconButton onClick={() => setAddDialogOpen(true)}>
-                      <Icon>person_add</Icon>
+                      <PersonAddIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Double-check" placement="top">
@@ -125,7 +126,7 @@ const AdminRound = ({ match }) => {
                       component={Link}
                       to={`${match.url}/doublecheck`}
                     >
-                      <Icon>check</Icon>
+                      <CheckIcon />
                     </IconButton>
                   </Tooltip>
                 </Grid>

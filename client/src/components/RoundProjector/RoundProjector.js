@@ -4,7 +4,6 @@ import AppBar from '@material-ui/core/AppBar';
 import classNames from 'classnames';
 import Dialog from '@material-ui/core/Dialog';
 import Fade from '@material-ui/core/Fade';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import Slide from '@material-ui/core/Slide';
 import Table from '@material-ui/core/Table';
@@ -17,6 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import green from '@material-ui/core/colors/green';
 import grey from '@material-ui/core/colors/grey';
 import { makeStyles } from '@material-ui/core/styles';
+import CloseIcon from '@material-ui/icons/Close';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
@@ -148,7 +148,7 @@ const RoundProjector = ({ competitionId, round }) => {
               component={Link}
               to={`/competitions/${competitionId}/rounds/${round.id}`}
             >
-              <Icon>clear</Icon>
+              <CloseIcon />
             </IconButton>
           </Toolbar>
         </AppBar>

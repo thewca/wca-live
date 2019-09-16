@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import InputBase from '@material-ui/core/InputBase';
 import List from '@material-ui/core/List';
@@ -10,6 +9,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
+import SearchIcon from '@material-ui/icons/Search';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 
@@ -46,7 +46,7 @@ const CompetitorList = ({ competitors, competitionId }) => {
             onChange={event => setFilter(event.target.value)}
           />
           <IconButton disabled>
-            <Icon>search</Icon>
+            <SearchIcon />
           </IconButton>
         </Paper>
       </Grid>
