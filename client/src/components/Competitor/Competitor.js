@@ -93,6 +93,7 @@ const Competitor = ({ match }) => {
                   <a
                     href={wcaUrl(`/persons/${competitor.wcaId}`)}
                     target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <img
                       src={wcaLogo}
