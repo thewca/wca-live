@@ -68,7 +68,7 @@ const initialize = async () => {
   const httpServer = http.createServer(app);
   server.installSubscriptionHandlers(httpServer);
 
-  const buildPath = path.join(__dirname, '../client/build');
+  const buildPath = path.join(__dirname, '../client/build-prod');
   app.use(express.static(buildPath));
   app.get('/*', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
