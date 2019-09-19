@@ -24,6 +24,7 @@ const get = async (wcifId) => {
     return cachedCompetition;
   } else {
     const competition = await db.competitions.findOne({ 'wcif.id': wcifId });
+    if (!competition) return null;
     /* Check if it hasn't been added to the cache while we were loading. */
     const inCache = cachedCompetitions.some(cached => cached.wcif.id === wcifId);
     if (!inCache) {
