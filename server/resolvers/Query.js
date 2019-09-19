@@ -25,7 +25,7 @@ module.exports = {
     const today = dateToString(new Date());
     const competitions = await db.competitions
       .find({})
-      .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1 })
+      .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1, 'wcif.shortName': 1 })
       .toArray();
     const upcoming = competitions.filter(
       ({ wcif }) => startDate(wcif) > today
