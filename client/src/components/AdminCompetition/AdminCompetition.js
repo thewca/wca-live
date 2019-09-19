@@ -39,6 +39,10 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.type === 'dark' ? '#fff' : null,
     backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
   },
+  titleLink: {
+    color: 'inherit',
+    textDecoration: 'none',
+  },
   admin: {
     marginLeft: theme.spacing(1),
   },
@@ -68,12 +72,21 @@ const AdminCompetition = ({ match, location }) => {
           <div>
             <AppBar position="sticky" className={classes.appBar}>
               <Toolbar>
-                <Typography variant="h6" color="inherit">
-                  {competition.name}
-                </Typography>
-                <Typography variant="overline" className={classes.admin}>
-                  Admin
-                </Typography>
+                <Link
+                  to={`/admin/competitions/${competition.id}`}
+                  className={classes.titleLink}
+                >
+                  <Typography variant="h6" color="inherit" component="span">
+                    {competition.name}
+                  </Typography>
+                  <Typography
+                    variant="overline"
+                    component="span"
+                    className={classes.admin}
+                  >
+                    Admin
+                  </Typography>
+                </Link>
                 <div className={classes.grow} />
                 <Tooltip title="Events">
                   <IconButton
