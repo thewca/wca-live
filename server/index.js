@@ -9,7 +9,8 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const { ApolloServer, gql } = require('apollo-server-express');
 const { ObjectId } = require('mongodb');
-const oauth = require('./oauth');
+const oauth = require('./routes/oauth');
+const pdfs = require('./routes/pdfs');
 const resolvers = require('./resolvers');
 const mongo = require('./mongo-connector');
 const { initialize: initializeRecords } = require('./utils/records');
@@ -40,6 +41,7 @@ const initialize = async () => {
   }));
 
   app.use('/oauth', oauth);
+  app.use('/pdfs', pdfs);
 
   const server = new ApolloServer({
     typeDefs: gql(fs.readFileSync(__dirname.concat('/schema.graphql'), 'utf8')),

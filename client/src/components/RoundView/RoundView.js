@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import TvIcon from '@material-ui/icons/Tv';
+import PrintIcon from '@material-ui/icons/Print';
 
 import ResultsTable from '../ResultsTable/ResultsTable';
 import ResultDialog from '../ResultDialog/ResultDialog';
@@ -28,7 +29,16 @@ const RoundView = ({ round, competitionId }) => {
         <Grid item style={{ flexGrow: 1 }} />
         <Hidden smDown>
           <Grid item>
-            <Tooltip title="Projector view" placement="left">
+            <Tooltip title="PDF" placement="top">
+              <IconButton
+                component="a"
+                target="_blank"
+                href={`/pdfs/competitions/${competitionId}/rounds/${round.id}`}
+              >
+                <PrintIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Projector view" placement="top">
               <IconButton
                 component={Link}
                 to={`/competitions/${competitionId}/rounds/${round.id}/projector`}

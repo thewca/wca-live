@@ -26,6 +26,9 @@ const partition = (xs, fn) =>
 const uniq = arr =>
   [...new Set(arr)];
 
+const times = (n, fn) =>
+  Array.from({ length: n }, (_, index) => fn(index));
+
 module.exports = {
   flatMap,
   zip,
@@ -33,4 +36,5 @@ module.exports = {
   sortBy,
   partition,
   uniq,
+  times,
 };

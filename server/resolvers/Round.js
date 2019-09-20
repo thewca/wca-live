@@ -1,6 +1,6 @@
 const { formatById } = require('../utils/formats');
 const { parseActivityCode, eventById, personById } = require('../utils/wcif');
-const { roundName } = require('../utils/rounds');
+const { friendlyRoundName } = require('../utils/rounds');
 const { advancingResults, nextQualifyingToRound, missingQualifyingIds } = require('../utils/advancement');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
   name: ({ id, cutoff }, args, { competition }) => {
     const { eventId, roundNumber } = parseActivityCode(id);
     const event = eventById(competition.wcif, eventId);
-    return roundName(roundNumber, event.rounds.length, cutoff);
+    return friendlyRoundName(roundNumber, event.rounds.length, cutoff);
   },
   results: (parent, args, { competition }) => {
     const advancing = advancingResults(parent, competition.wcif);

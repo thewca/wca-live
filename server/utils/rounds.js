@@ -2,7 +2,7 @@ const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
 const { personIdsForRound, nextQualifyingToRound, missingQualifyingIds } = require('./advancement');
 const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
 
-const roundName = (roundNumber, numberOfRounds, cutoff) => {
+const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
   if (roundNumber === numberOfRounds) {
     return cutoff ? 'Combined Final' : 'Final';
   }
@@ -84,7 +84,7 @@ const addCompetitor = (wcif, roundId, competitorId, replace) => {
 };
 
 module.exports = {
-  roundName,
+  friendlyRoundName,
   openRound,
   clearRound,
   quitCompetitor,

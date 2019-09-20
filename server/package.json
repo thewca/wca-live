@@ -17,7 +17,8 @@
     "express-session": "^1.16.2",
     "graphql": "^14.4.2",
     "mongodb": "^3.2.7",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "pdfmake": "^0.1.59"
   },
   "devDependencies": {
     "jest": "^24.9.0",
