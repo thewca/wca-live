@@ -138,7 +138,8 @@ const ResultForm = ({
                   'input'
                 )[0];
                 resultInput.focus();
-                resultInput.select();
+                /* Clear the form. */
+                onResultChange(null);
               }}
             >
               {(updateResult, { loading }) => (
