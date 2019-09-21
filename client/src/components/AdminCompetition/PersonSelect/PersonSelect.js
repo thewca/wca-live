@@ -34,6 +34,19 @@ const PersonSelect = ({ persons, value, onChange }) => {
   const classes = useStyles();
   const textFieldRef = useRef();
 
+  const handleKeyDown = event => {
+    /* Mimic enter behavior on tab press. */
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      const newEvent = new KeyboardEvent('keydown', {
+        bubbles: true,
+        cancelable: true,
+        key: 'Enter',
+      });
+      event.target.dispatchEvent(newEvent);
+    }
+  };
+
   return (
     <Downshift
       selectedItem={value}
@@ -60,7 +73,7 @@ const PersonSelect = ({ persons, value, onChange }) => {
             label="Competitor"
             placeholder="Type ID or name"
             InputLabelProps={getLabelProps()}
-            InputProps={getInputProps()}
+            InputProps={getInputProps({ onKeyDown: handleKeyDown })}
             ref={textFieldRef}
           />
           <Popper
