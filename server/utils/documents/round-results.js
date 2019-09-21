@@ -5,6 +5,7 @@ const { formatById } = require('../formats');
 const { friendlyRoundName } = require('../rounds');
 const { eventNameById } = require('../events');
 const { advancingResults } = require('../advancement');
+const { countryByIso2 } = require('../countries');
 
 /* Copied from client/src/logic/attempts.js */
 const centisecondsToClockFormat = centiseconds => {
@@ -103,7 +104,8 @@ module.exports = (wcif, roundId) => {
   const stats = statsToDisplay(format, eventId);
 
   const docDefinition = {
-    pageMargins: [20, 20, 20, 20],
+    pageMargins: [30, 30, 30, 30],
+    pageOrientation: 'landscape',
     content: [
       {
         text: wcif.name,
@@ -118,7 +120,7 @@ module.exports = (wcif, roundId) => {
       },
       {
         table: {
-          widths: ['auto', 'auto', ...times(format.solveCount + stats.length, () => '*')],
+          widths: ['auto', 'auto', 'auto', ...times(format.solveCount + stats.length, () => '*')],
           headerRows: 1,
           body: [
             /* Header */
@@ -130,6 +132,10 @@ module.exports = (wcif, roundId) => {
               },
               {
                 text: 'Name',
+                ...headerCellProps,
+              },
+              {
+                text: 'Country',
                 ...headerCellProps,
               },
               ...times(format.solveCount, index => ({
@@ -157,6 +163,9 @@ module.exports = (wcif, roundId) => {
                 {
                   text: latinName(person.name),
                 },
+                {
+                  text: countryByIso2(person.countryIso2).name,
+                },
                 ...times(format.solveCount, index => ({
                   text: formatAttemptResult(attempts[index] || 0, eventId),
                   alignment: 'right',
@@ -174,7 +183,7 @@ module.exports = (wcif, roundId) => {
           ],
         },
         layout: {
-          paddingLeft: () => 4,
+          paddingLeft: () => 8,
           paddingRight: () => 4,
           paddingTop: () => 4,
           paddingBottom: () => 4,
