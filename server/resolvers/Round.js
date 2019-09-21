@@ -1,6 +1,6 @@
 const { formatById } = require('../utils/formats');
 const { parseActivityCode, eventById, personById } = require('../utils/wcif');
-const { friendlyRoundName } = require('../utils/rounds');
+const { friendlyRoundName, roundLabel, roundFinished, roundActive } = require('../utils/rounds');
 const { advancingResults, nextQualifyingToRound, missingQualifyingIds } = require('../utils/advancement');
 
 module.exports = {
@@ -14,6 +14,9 @@ module.exports = {
     const event = eventById(competition.wcif, eventId);
     return friendlyRoundName(roundNumber, event.rounds.length, cutoff);
   },
+  label: (round) => {
+    return roundLabel(round);
+  },
   results: (parent, args, { competition }) => {
     const advancing = advancingResults(parent, competition.wcif);
     return parent.results.map(result => ({
@@ -23,16 +26,11 @@ module.exports = {
     }));
   },
   open: ({ results }) => results.length > 0,
-  finished: ({ results }) => {
-    return results.every(({ attempts }) => attempts.length > 0);
+  finished: (round) => {
+    return roundFinished(round);
   },
-  active: ({ results }) => {
-    /* Treat the competition as active if there were several updates in the past 15 minutes. */
-    const recentUpdates = results
-      .filter(result => result.attempts.length > 0)
-      .map(result => result.updatedAt)
-      .filter(updatedAt => updatedAt > new Date(Date.now() - 15 * 60 * 1000));
-    return recentUpdates.length >= 3;
+  active: (round) => {
+    return roundActive(round)
   },
   nextQualifying: ({ id }, args, { competition }) => {
     return nextQualifyingToRound(competition.wcif, id).map(

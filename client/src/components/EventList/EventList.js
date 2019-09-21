@@ -1,14 +1,25 @@
 import React, { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Chip from '@material-ui/core/Chip';
 import Collapse from '@material-ui/core/Collapse';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import { makeStyles } from '@material-ui/core/styles';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 
+const useStyles = makeStyles(theme => ({
+  labelChip: {
+    borderRadius: 6,
+    fontSize: '0.8em',
+    fontWeight: 500,
+  },
+}));
+
 const EventList = ({ events, competitionId }) => {
+  const classes = useStyles();
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   return (
@@ -43,6 +54,13 @@ const EventList = ({ events, competitionId }) => {
                   disabled={!round.open}
                 >
                   <ListItemText primary={round.name} />
+                  {round.label && (
+                    <Chip
+                      label={round.label}
+                      size="small"
+                      className={classes.labelChip}
+                    />
+                  )}
                 </ListItem>
               ))}
             </List>

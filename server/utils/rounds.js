@@ -1,6 +1,7 @@
 const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
 const { personIdsForRound, nextQualifyingToRound, missingQualifyingIds } = require('./advancement');
 const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
+const { flatMap } = require('./utils');
 
 const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
   if (roundNumber === numberOfRounds) {
@@ -16,6 +17,35 @@ const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
     return cutoff ? 'Combined Third' : 'Semi Final'
   }
   return null;
+};
+
+const roundLabel = round => {
+  const recordTags = flatMap(round.results, result => Object.values(result.recordTags))
+    .filter(tag => tag && tag !== 'PB');
+  if (recordTags.length > 0) {
+    return ['WR', 'CR', 'NR'].find(tag => recordTags.includes(tag));
+  }
+  if (roundFinished(round)) {
+    return 'Done';
+  }
+  if (roundActive(round)) {
+    return 'Live';
+  }
+  return null;
+};
+
+const roundFinished = round => {
+  /* Fixme: this is not accurate for events with distributed attempts (MBLD, FM). */
+  return round.results.length > 0 && round.results.every(({ attempts }) => attempts.length > 0);
+};
+
+const roundActive = round => {
+  /* Treat the competition as active if there were several updates in the past 15 minutes. */
+  const recentUpdates = round.results
+    .filter(result => result.attempts.length > 0)
+    .map(result => result.updatedAt)
+    .filter(updatedAt => updatedAt > new Date(Date.now() - 15 * 60 * 1000));
+  return recentUpdates.length >= 3;
 };
 
 const openRound = (wcif, roundId) => {
@@ -85,6 +115,9 @@ const addCompetitor = (wcif, roundId, competitorId, replace) => {
 
 module.exports = {
   friendlyRoundName,
+  roundLabel,
+  roundFinished,
+  roundActive,
   openRound,
   clearRound,
   quitCompetitor,

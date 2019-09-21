@@ -2,7 +2,85 @@ const records = require('../records');
 records.getRecordByIdCopy = jest.fn(() => ({}));
 
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../rounds');
+const { roundLabel, openRound, clearRound, quitCompetitor, addCompetitor } = require('../rounds');
+
+describe('roundLabel', () => {
+  test('returns null if the rund is just open', () => {
+    const round = Round({
+      id: '333-r1',
+      results: [
+        Result({
+          personId: 1,
+          attempts: [], best: 0, average: 0,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
+      ],
+    });
+    expect(roundLabel(round)).toEqual(null);
+  });
+
+  test('returns highest record tag if there is any record', () => {
+    const round = Round({
+      id: '333-r1',
+      results: [
+        Result({
+          personId: 1,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: 'NR' },
+        }),
+        Result({
+          personId: 1,
+          updatedAt: new Date(),
+          recordTags: { single: 'CR', average: 'PB' }
+        }),
+      ],
+    });
+    expect(roundLabel(round)).toEqual('CR');
+  });
+
+  test('returns Done if the round is finished', () => {
+    const round = Round({
+      id: '333-r1',
+      results: [
+        Result({ personId: 1, updatedAt: new Date(), recordTags: { single: null, average: null } }),
+        Result({ personId: 2, updatedAt: new Date(), recordTags: { single: null, average: null } }),
+        Result({ personId: 3, updatedAt: new Date(), recordTags: { single: null, average: null } }),
+      ],
+    });
+    expect(roundLabel(round)).toEqual('Done');
+  });
+
+  test('returns Live if the round is active but not finished', () => {
+    const round = Round({
+      id: '333-r1',
+      results: [
+        Result({
+          personId: 1,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
+        Result({
+          personId: 2,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
+        Result({
+          personId: 3,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
+        Result({
+          personId: 3,
+          updatedAt: new Date(),
+          attempts: [], best: 0, average: 0,
+          recordTags: { single: null, average: null },
+        }),
+      ],
+    });
+    expect(roundLabel(round)).toEqual('Live');
+  });
+});
 
 describe('openRound', () => {
   describe('when a first round is given', () => {

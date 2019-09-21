@@ -62,6 +62,7 @@ type Event {
 type Round {
   id: ID!
   name: String!
+  label: String
   event: Event!
   format: Format!
   timeLimit: TimeLimit

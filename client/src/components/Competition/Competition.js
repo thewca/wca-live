@@ -36,6 +36,7 @@ const COMPETITION_QUERY = gql`
         rounds {
           id
           name
+          label
           open
         }
       }
