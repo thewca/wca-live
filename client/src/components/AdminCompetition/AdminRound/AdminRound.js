@@ -7,6 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import CheckIcon from '@material-ui/icons/Check';
+import PrintIcon from '@material-ui/icons/Print';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import ResultForm from '../ResultForm/ResultForm';
@@ -116,6 +117,15 @@ const AdminRound = ({ match }) => {
                 </Grid>
                 <Grid item style={{ flexGrow: 1 }} />
                 <Grid item>
+                  <Tooltip title="PDF" placement="top">
+                    <IconButton
+                      component="a"
+                      target="_blank"
+                      href={`/pdfs/competitions/${competitionId}/rounds/${round.id}`}
+                    >
+                      <PrintIcon />
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="Add competitor" placement="top">
                     <IconButton onClick={() => setAddDialogOpen(true)}>
                       <PersonAddIcon />
