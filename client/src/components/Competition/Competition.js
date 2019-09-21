@@ -108,7 +108,11 @@ const Competition = ({ match, location }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
+    <CustomQuery
+      query={COMPETITION_QUERY}
+      variables={{ id: match.params.id }}
+      pollInterval={60 * 1000}
+    >
       {({ data }) => {
         const { competition, me } = data;
         const manageableByCurrentUser =
