@@ -70,6 +70,8 @@ const ResultsTable = React.memo(
             <TableCell className={classes.cell}>Name</TableCell>
             <Hidden smDown>
               <TableCell className={classes.cell}>Country</TableCell>
+            </Hidden>
+            <Hidden xsDown>
               {times(format.solveCount, index => (
                 <TableCell key={index} className={classes.cell} align="right">
                   {index + 1}
@@ -100,7 +102,7 @@ const ResultsTable = React.memo(
                 {result.ranking}
               </TableCell>
               <TableCell className={classNames(classes.cell, classes.name)}>
-                <Hidden smDown>
+                <Hidden xsDown>
                   <Link
                     component={RouterLink}
                     to={`/competitions/${competitionId}/competitors/${result.person.id}`}
@@ -108,12 +110,14 @@ const ResultsTable = React.memo(
                     {result.person.name}
                   </Link>
                 </Hidden>
-                <Hidden mdUp>{result.person.name}</Hidden>
+                <Hidden smUp>{result.person.name}</Hidden>
               </TableCell>
               <Hidden smDown>
                 <TableCell className={classes.cell}>
                   {result.person.country.name}
                 </TableCell>
+              </Hidden>
+              <Hidden xsDown>
                 {times(format.solveCount, index => (
                   <TableCell key={index} className={classes.cell} align="right">
                     {formatAttemptResult(result.attempts[index] || 0, eventId)}

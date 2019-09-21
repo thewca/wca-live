@@ -56,7 +56,7 @@ const RoundView = ({ round, competitionId }) => {
         competitionId={competitionId}
         onResultClick={handleResultClick}
       />
-      <Hidden mdUp>
+      <Hidden smUp>
         <ResultDialog
           result={selectedResult}
           format={round.format}

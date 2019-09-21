@@ -71,7 +71,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
           <TableCell className={classNames(classes.cell, classes.roundName)}>
             Round
           </TableCell>
-          <Hidden smDown>
+          <Hidden xsDown>
             {times(solveCount, index => (
               <TableCell key={index} align="right">
                 {index + 1}
@@ -102,7 +102,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
               {result.ranking}
             </TableCell>
             <TableCell className={classNames(classes.cell, classes.roundName)}>
-              <Hidden smDown>
+              <Hidden xsDown>
                 <Link
                   component={RouterLink}
                   to={`/competitions/${competitionId}/rounds/${result.round.id}`}
@@ -110,9 +110,9 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
                   {result.round.name}
                 </Link>
               </Hidden>
-              <Hidden mdUp>{result.round.name}</Hidden>
+              <Hidden smUp>{result.round.name}</Hidden>
             </TableCell>
-            <Hidden smDown>
+            <Hidden xsDown>
               {times(solveCount, index => (
                 <TableCell key={index} align="right">
                   {formatAttemptResult(result.attempts[index] || 0, event.id)}

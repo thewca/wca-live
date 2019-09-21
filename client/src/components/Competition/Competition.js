@@ -58,13 +58,13 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
   },
   appBarShift: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: drawerWidth,
     },
   },
   drawer: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       width: drawerWidth,
     },
   },
@@ -77,14 +77,14 @@ const useStyles = makeStyles(theme => ({
     },
   },
   contentShift: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       marginLeft: drawerWidth,
     },
   },
   menuButton: {
     marginLeft: -12,
     marginRight: 20,
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       display: 'none',
     },
   },
@@ -186,7 +186,7 @@ const Competition = ({ match, location }) => {
                 )}
               </Toolbar>
             </AppBar>
-            <Hidden mdUp>
+            <Hidden lgUp>
               <SwipeableDrawer
                 open={mobileOpen}
                 onOpen={() => setMobileOpen(true)}
@@ -199,7 +199,7 @@ const Competition = ({ match, location }) => {
                 {drawerContent}
               </SwipeableDrawer>
             </Hidden>
-            <Hidden smDown>
+            <Hidden mdDown>
               <Drawer variant="permanent" classes={{ paper: classes.drawer }}>
                 {drawerContent}
               </Drawer>

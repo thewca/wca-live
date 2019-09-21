@@ -117,7 +117,7 @@ const Competitor = ({ match }) => {
                 </Grid>
               ))}
             </Grid>
-            <Hidden mdUp>
+            <Hidden smUp>
               <CompetitorResultDialog
                 result={selectedResult}
                 competitionId={competitionId}
