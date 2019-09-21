@@ -19,7 +19,8 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
   },
   ranking: {
-    maxWidth: 75,
+    paddingRight: 16,
+    width: 50,
   },
   advancable: {
     color: theme.palette.getContrastText(green['A400']),

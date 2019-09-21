@@ -27,9 +27,11 @@ const useStyles = makeStyles(theme => ({
     },
   },
   ranking: {
-    maxWidth: 75,
+    paddingRight: 16,
+    width: 50,
     [theme.breakpoints.down('sm')]: {
-      maxWidth: 40,
+      paddingRight: 8,
+      width: 40,
     },
   },
   advancable: {

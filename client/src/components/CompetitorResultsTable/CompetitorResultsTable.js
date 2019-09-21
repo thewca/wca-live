@@ -27,8 +27,10 @@ const useStyles = makeStyles(theme => ({
     },
   },
   ranking: {
-    width: 75,
+    paddingRight: 16,
+    width: 50,
     [theme.breakpoints.down('sm')]: {
+      paddingRight: 8,
       width: 40,
     },
   },
