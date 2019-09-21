@@ -30,7 +30,9 @@ const Schedule = ({ schedule, events, competitionId }) => {
     activitiesWithRoom.map(([activity]) => toDateString(activity.startTime))
   );
   const [closestDate] = sortBy(dates, date =>
-    Math.abs(new Date(date) - new Date())
+    Math.abs(
+      new Date(date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)
+    )
   );
 
   const [selectedDate, setSelectedDate] = useState(closestDate);
