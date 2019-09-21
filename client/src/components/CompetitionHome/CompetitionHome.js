@@ -7,6 +7,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 
 import { wcaUrl } from '../../logic/url-utils';
 import { flatMap } from '../../logic/utils';
@@ -51,7 +52,14 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
+const useStyles = makeStyles(theme => ({
+  fullWidth: {
+    width: '100%',
+  },
+}));
+
 const CompetitionHome = ({ match }) => {
+  const classes = useStyles();
   const { competitionId } = match.params;
 
   return (
@@ -64,13 +72,8 @@ const CompetitionHome = ({ match }) => {
         );
 
         return (
-          <Grid
-            container
-            direction="column"
-            spacing={2}
-            style={{ maxWidth: '100%' }}
-          >
-            <Grid item style={{ maxWidth: '100%' }}>
+          <Grid container direction="column" spacing={2}>
+            <Grid item className={classes.fullWidth}>
               <Typography variant="h5" gutterBottom noWrap>
                 Welcome to {competition.name}!
               </Typography>
@@ -86,13 +89,13 @@ const CompetitionHome = ({ match }) => {
               </Typography>
             </Grid>
             {active.length > 0 && (
-              <Grid item>
+              <Grid item className={classes.fullWidth}>
                 <Typography variant="h5" gutterBottom>
                   Active rounds
                 </Typography>
                 <Grid container spacing={1}>
                   {active.map(([event, round]) => (
-                    <Grid item key={round.id}>
+                    <Grid item key={round.id} xs={12} sm={6} lg={4}>
                       <Card>
                         <CardActionArea
                           component={RouterLink}
@@ -109,7 +112,7 @@ const CompetitionHome = ({ match }) => {
                 </Grid>
               </Grid>
             )}
-            <Grid item>
+            <Grid item className={classes.fullWidth}>
               <Typography variant="h5" gutterBottom>
                 Schedule
               </Typography>
