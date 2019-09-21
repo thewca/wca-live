@@ -17,21 +17,25 @@ import { formatAttemptResult } from '../../logic/attempts';
 import { statsToDisplay } from '../../logic/results-table-utils';
 
 const useStyles = makeStyles(theme => ({
+  table: {
+    tableLayout: 'fixed',
+  },
   row: {
     whiteSpace: 'nowrap',
   },
-  cell: {
-    [theme.breakpoints.down('sm')]: {
-      paddingRight: 6,
-      paddingLeft: 10,
-    },
-  },
+  cell: {},
   ranking: {
     paddingRight: 16,
     width: 50,
     [theme.breakpoints.down('sm')]: {
       paddingRight: 8,
       width: 40,
+    },
+  },
+  roundName: {
+    width: 200,
+    [theme.breakpoints.down('md')]: {
+      width: 150,
     },
   },
   advancable: {
@@ -55,7 +59,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
   );
 
   return (
-    <Table size="small">
+    <Table size="small" className={classes.table}>
       <TableHead>
         <TableRow>
           <TableCell
@@ -64,7 +68,9 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
           >
             #
           </TableCell>
-          <TableCell className={classes.cell}>Round</TableCell>
+          <TableCell className={classNames(classes.cell, classes.roundName)}>
+            Round
+          </TableCell>
           <Hidden smDown>
             {times(solveCount, index => (
               <TableCell key={index} align="right">
@@ -95,7 +101,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
             >
               {result.ranking}
             </TableCell>
-            <TableCell className={classes.cell}>
+            <TableCell className={classNames(classes.cell, classes.roundName)}>
               <Hidden smDown>
                 <Link
                   component={RouterLink}
