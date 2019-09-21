@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+import KeyboardIcon from '@material-ui/icons/Keyboard';
 import withConfirm from 'material-ui-confirm';
 
 import CustomMutation from '../../CustomMutation/CustomMutation';
@@ -173,9 +174,10 @@ const ResultForm = ({
                 </div>
               }
             >
-              <Icon style={{ verticalAlign: 'middle' }} color="action">
-                keyboard
-              </Icon>
+              <KeyboardIcon
+                style={{ verticalAlign: 'middle' }}
+                color="action"
+              />
             </Tooltip>
           </Grid>
         </Grid>
