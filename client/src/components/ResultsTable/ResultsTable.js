@@ -39,11 +39,12 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: green['A400'],
   },
   name: {
+    maxWidth: 250,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    paddingRight: 0,
     [theme.breakpoints.down('sm')]: {
       maxWidth: 150,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      paddingRight: 0,
     },
   },
   mainStat: {
