@@ -6,8 +6,10 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardHeader from '@material-ui/core/CardHeader';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 
 import { wcaUrl } from '../../logic/url-utils';
 import { flatMap } from '../../logic/utils';
@@ -55,6 +57,9 @@ const COMPETITION_QUERY = gql`
 const useStyles = makeStyles(theme => ({
   fullWidth: {
     width: '100%',
+  },
+  grow: {
+    flexGrow: 1,
   },
 }));
 
@@ -113,9 +118,22 @@ const CompetitionHome = ({ match }) => {
               </Grid>
             )}
             <Grid item className={classes.fullWidth}>
-              <Typography variant="h5" gutterBottom>
-                Schedule
-              </Typography>
+              <Grid container alignContent="center">
+                <Grid item>
+                  <Typography variant="h5">Schedule</Typography>
+                </Grid>
+                <Grid item className={classes.grow} />
+                <Grid item>
+                  <Tooltip
+                    title={`
+                    All the dates and times below are displayed in your local timezone:
+                    ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  `}
+                  >
+                    <NotificationImportantIcon color="action" />
+                  </Tooltip>
+                </Grid>
+              </Grid>
               <Schedule
                 schedule={competition.schedule}
                 events={competition.events}
