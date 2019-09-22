@@ -1,3 +1,5 @@
+import { trimTrailingZeros } from './utils';
+
 export const centisecondsToClockFormat = centiseconds => {
   if (!Number.isFinite(centiseconds)) return null;
   if (centiseconds === 0) return '';
@@ -84,6 +86,11 @@ export const formatAttemptResult = (
 };
 
 export const attemptsWarning = (attempts, eventId) => {
+  const skippedGapIndex = trimTrailingZeros(attempts).indexOf(0);
+  if (skippedGapIndex !== -1) {
+    return `You've omitted attempt ${skippedGapIndex +
+      1}. Make sure it's intentional.`;
+  }
   if (eventId === '333mbf') {
     const lowTimeIndex = attempts.findIndex(attempt => {
       const { attempted, centiseconds } = decodeMbldAttempt(attempt);

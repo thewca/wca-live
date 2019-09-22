@@ -180,4 +180,16 @@ describe('attemptsWarning', () => {
     const attempts = [-1, 1000, 2500];
     expect(attemptsWarning(attempts, '333')).toEqual(null);
   });
+
+  it('returns a warning if an attempt is omitted', () => {
+    const attempts = [1000, 0, 900];
+    expect(attemptsWarning(attempts, '333')).toMatch(
+      "You've omitted attempt 2"
+    );
+  });
+
+  it('doas not treat trailing skipped attempts as omitted', () => {
+    const attempts = [1000, 0, 0];
+    expect(attemptsWarning(attempts, '333')).toEqual(null);
+  });
 });
