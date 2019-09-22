@@ -155,6 +155,7 @@ const AdminRound = ({ match }) => {
           <ResultMenu
             {...resultMenuProps}
             onClose={() => updateResultMenuProps({})}
+            onEditClick={() => setEditedResult(resultMenuProps.result)}
             competitionId={competitionId}
             roundId={roundId}
             updateResultMutation={SET_RESULT_MUTATION}

@@ -12,6 +12,7 @@ const ResultMenu = ({
   position,
   result,
   onClose,
+  onEditClick,
   competitionId,
   roundId,
   updateResultMutation,
@@ -33,6 +34,14 @@ const ResultMenu = ({
           subheader: <ListSubheader>{result.person.name}</ListSubheader>,
         }}
       >
+        <MenuItem
+          onClick={() => {
+            onEditClick();
+            onClose();
+          }}
+        >
+          Edit
+        </MenuItem>
         <MenuItem
           component={Link}
           to={`/competitions/${competitionId}/competitors/${result.person.id}`}
