@@ -6,6 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import { createMuiTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/styles';
 import { blue, grey, pink } from '@material-ui/core/colors';
 
@@ -35,10 +36,14 @@ const themes = {
 
 const ToggleThemeContext = createContext();
 
-const initialThemeType = window.localStorage.getItem('themeType') || 'light';
+const storedThemeType = window.localStorage.getItem('themeType');
 
 export const ThemeProvider = ({ children }) => {
-  const [themeType, setThemeType] = useState(initialThemeType);
+  const prefersDarkMode = useMediaQuery('@media (prefers-color-scheme: dark)');
+  const preferredThemeType = prefersDarkMode ? 'dark' : 'light';
+  const [themeType, setThemeType] = useState(
+    storedThemeType || preferredThemeType
+  );
   const toggleTheme = useCallback(() => {
     setThemeType(themeType => (themeType === 'light' ? 'dark' : 'light'));
   }, []);
