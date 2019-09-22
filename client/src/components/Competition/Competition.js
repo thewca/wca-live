@@ -17,6 +17,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import LockIcon from '@material-ui/icons/Lock';
 import MenuIcon from '@material-ui/icons/Menu';
 import PeopleIcon from '@material-ui/icons/People';
+import FormatListNumberedRoundedIcon from '@material-ui/icons/FormatListNumberedRounded';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import EventList from '../EventList/EventList';
@@ -24,6 +25,7 @@ import CompetitionHome from '../CompetitionHome/CompetitionHome';
 import Round from '../Round/Round';
 import Competitors from '../Competitors/Competitors';
 import Competitor from '../Competitor/Competitor';
+import Podiums from '../Podiums/Podiums';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -132,6 +134,12 @@ const Competition = ({ match, location }) => {
               >
                 <PeopleIcon />
               </IconButton>
+              <IconButton
+                component={Link}
+                to={`/competitions/${competition.id}/podiums`}
+              >
+                <FormatListNumberedRoundedIcon />
+              </IconButton>
             </div>
             <Divider />
             <EventList
@@ -224,6 +232,11 @@ const Competition = ({ match, location }) => {
                   exact
                   path="/competitions/:competitionId/competitors/:competitorId"
                   component={Competitor}
+                />
+                <Route
+                  exact
+                  path="/competitions/:competitionId/podiums"
+                  component={Podiums}
                 />
                 <Redirect to={`/competitions/${competition.id}`} />
               </Switch>

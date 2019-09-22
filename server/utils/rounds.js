@@ -113,6 +113,22 @@ const addCompetitor = (wcif, roundId, competitorId, replace) => {
   return processRoundChange(updatedWcif, round.id);
 };
 
+/**
+ * Returns finished final rounds with podium results only.
+ */
+const podiums = wcif => {
+  const finals = wcif.events
+    .map(event => event.rounds[event.rounds.length - 1])
+    .filter(roundFinished);
+  const withTop3Results = finals.map(round => ({
+    ...round,
+    results: round.results.filter(result =>
+      result.best > 0 && result.ranking && result.ranking <= 3
+    ),
+  }));
+  return withTop3Results.filter(round => round.results.length > 0);
+};
+
 module.exports = {
   friendlyRoundName,
   roundLabel,
@@ -122,4 +138,5 @@ module.exports = {
   clearRound,
   quitCompetitor,
   addCompetitor,
+  podiums,
 };

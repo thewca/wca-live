@@ -13,7 +13,7 @@ import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatAttemptResult } from '../../logic/attempts';
 import { statsToDisplay } from '../../logic/results-table-utils';
 
-const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
+const RoundResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
   const stats = statsToDisplay(format, eventId);
 
   return (
@@ -86,4 +86,4 @@ const ResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
   );
 };
 
-export default ResultDialog;
+export default RoundResultDialog;

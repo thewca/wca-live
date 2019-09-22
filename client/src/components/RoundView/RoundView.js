@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback } from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import Hidden from '@material-ui/core/Hidden';
 import Grid from '@material-ui/core/Grid';
@@ -8,16 +8,9 @@ import Typography from '@material-ui/core/Typography';
 import TvIcon from '@material-ui/icons/Tv';
 import PrintIcon from '@material-ui/icons/Print';
 
-import ResultsTable from '../ResultsTable/ResultsTable';
-import ResultDialog from '../ResultDialog/ResultDialog';
+import RoundResults from '../RoundResults/RoundResults';
 
 const RoundView = ({ round, competitionId }) => {
-  const [selectedResult, setSelectedResult] = useState(null);
-
-  const handleResultClick = useCallback((result, event) => {
-    setSelectedResult(result);
-  }, []);
-
   return (
     <Fragment>
       <Grid container alignItems="center">
@@ -49,22 +42,12 @@ const RoundView = ({ round, competitionId }) => {
           </Grid>
         </Hidden>
       </Grid>
-      <ResultsTable
+      <RoundResults
         results={round.results}
         format={round.format}
         eventId={round.event.id}
         competitionId={competitionId}
-        onResultClick={handleResultClick}
       />
-      <Hidden smUp>
-        <ResultDialog
-          result={selectedResult}
-          format={round.format}
-          eventId={round.event.id}
-          competitionId={competitionId}
-          onClose={() => setSelectedResult(null)}
-        />
-      </Hidden>
     </Fragment>
   );
 };

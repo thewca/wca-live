@@ -2,7 +2,7 @@ const records = require('../records');
 records.getRecordByIdCopy = jest.fn(() => ({}));
 
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { roundLabel, openRound, clearRound, quitCompetitor, addCompetitor } = require('../rounds');
+const { roundLabel, openRound, clearRound, quitCompetitor, addCompetitor, podiums } = require('../rounds');
 
 describe('roundLabel', () => {
   test('returns null if the rund is just open', () => {
@@ -334,5 +334,70 @@ describe('addCompetitor', () => {
     });
     const updatedWcif = addCompetitor(wcif, '333-r2', 2);
     expect(updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId).sort()).toEqual([1, 2, 3]);
+  });
+});
+
+describe('podiums', () => {
+  test('returns final rounds only', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ ranking: 1, personId: 1 })],
+    });
+    const round2 = Round({
+      id: '333-r2',
+      results: [Result({ ranking: 1, personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1, round2] })],
+    });
+    expect(podiums(wcif).map(round => round.id)).toEqual(['333-r2']);
+  });
+
+  test('returns finished rounds only', () => {
+    const round333 = Round({
+      id: '333-r1',
+      results: [Result({ ranking: 1, personId: 1, attempts: [], best: 0, average: 0 })],
+    });
+    const round222 = Round({
+      id: '222-r1',
+      results: [Result({ ranking: 1, personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [
+        Event({ id: '333', rounds: [round333] }),
+        Event({ id: '222', rounds: [round222] }),
+      ],
+    });
+    expect(podiums(wcif).map(round => round.id)).toEqual(['222-r1']);
+  });
+
+  test('returned rounds include only podium results', () => {
+    const round = Round({
+      id: '333-r1',
+      results: [
+        Result({ ranking: 1, personId: 1 }),
+        Result({ ranking: 2, personId: 2 }),
+        Result({ ranking: 3, personId: 3 }),
+        Result({ ranking: 3, personId: 4 }),
+        Result({ ranking: 5, personId: 5 }),
+      ],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round] })],
+    });
+    expect(podiums(wcif)[0].results.map(result => result.personId)).toEqual([1, 2, 3, 4]);
+  });
+
+  test('does not return finished rounds with no complete results', () => {
+    const round = Round({
+      id: '333bf-r1',
+      results: [
+        Result({ ranking: 1, personId: 1, attempts: [-1, -1, -1], best: -1, average: -1 }),
+      ],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333bf', rounds: [round] })],
+    });
+    expect(podiums(wcif)).toEqual([]);
   });
 });

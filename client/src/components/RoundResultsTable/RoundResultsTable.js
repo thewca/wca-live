@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ResultsTable = React.memo(
+const RoundResultsTable = React.memo(
   ({ results, format, eventId, competitionId, onResultClick }) => {
     const classes = useStyles();
     const stats = statsToDisplay(format, eventId);
@@ -91,7 +91,7 @@ const ResultsTable = React.memo(
               key={result.person.id}
               hover
               className={classes.row}
-              onClick={event => onResultClick(result, event)}
+              onClick={event => onResultClick && onResultClick(result, event)}
             >
               <TableCell
                 align="right"
@@ -151,4 +151,4 @@ const ResultsTable = React.memo(
   }
 );
 
-export default ResultsTable;
+export default RoundResultsTable;

@@ -51,6 +51,8 @@ type Competition {
   competitors: [Person!]!
   countries: [Country!]!
   synchronizedAt: String!
+  # Finished final rounds including only podium results.
+  podiums: [Round!]!
 }
 
 type Event {
