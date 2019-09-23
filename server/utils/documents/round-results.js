@@ -76,10 +76,16 @@ const statsToDisplay = (format, eventId) => {
 
 const latinName = name => name.replace(/\s*\(.*$/, '');
 
+const colorByRecordTag = {
+  WR: '#f44336',
+  CR: '#ffeb3b',
+  NR: '#00e676',
+};
+
 const withRecordTag = (result, recordTag) => {
   if (!recordTag || recordTag === 'PB') return result;
   return [
-    { text: recordTag, color: '#1976d2', fontSize: 10, bold: true },
+    { text: ` ${recordTag} `, background: colorByRecordTag[recordTag], color: 'black', bold: true },
     ' ',
     { text: result },
   ]

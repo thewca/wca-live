@@ -1,16 +1,38 @@
 import React from 'react';
 import Badge from '@material-ui/core/Badge';
 import { makeStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+import red from '@material-ui/core/colors/red';
+import yellow from '@material-ui/core/colors/yellow';
+import green from '@material-ui/core/colors/green';
+import blue from '@material-ui/core/colors/blue';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   badge: {
-    right: '-1.3em',
+    right: '-1.2em',
     top: 4,
     height: '1.7em',
     minWidth: '2.1em',
     padding: 0,
     borderRadius: 4,
     fontSize: '0.6em',
+    fontWeight: 600,
+  },
+  wr: {
+    color: theme.palette.getContrastText(red[500]),
+    backgroundColor: red[500],
+  },
+  cr: {
+    color: theme.palette.getContrastText(yellow[500]),
+    backgroundColor: yellow[500],
+  },
+  nr: {
+    color: theme.palette.getContrastText(green['A400']),
+    backgroundColor: green['A400'],
+  },
+  pb: {
+    color: theme.palette.getContrastText(blue[700]),
+    backgroundColor: blue[700],
   },
 }));
 
@@ -23,9 +45,10 @@ const ResultWithRecordTag = ({ result, recordTag, showPb }) => {
 
   return (
     <Badge
-      color="primary"
       badgeContent={recordTag}
-      classes={{ badge: classes.badge }}
+      classes={{
+        badge: classNames(classes.badge, classes[recordTag.toLowerCase()]),
+      }}
     >
       {result}
     </Badge>
