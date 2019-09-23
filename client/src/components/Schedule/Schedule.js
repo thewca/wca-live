@@ -6,7 +6,11 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import ScheduleCard from '../ScheduleCard/ScheduleCard';
 import { flatMap, groupBy, uniq, sortBy } from '../../logic/utils';
-import { shortLocalDate, toDateString } from '../../logic/date';
+import {
+  shortDate,
+  toLocalDateString,
+  closestDateString,
+} from '../../logic/date';
 
 const useStyles = makeStyles(theme => ({
   tabs: {
@@ -27,20 +31,17 @@ const Schedule = ({ schedule, events, competitionId }) => {
     ([activity]) => activity.startTime
   );
   const dates = uniq(
-    activitiesWithRoom.map(([activity]) => toDateString(activity.startTime))
-  );
-  const [closestDate] = sortBy(dates, date =>
-    Math.abs(
-      new Date(date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)
+    activitiesWithRoom.map(([activity]) =>
+      toLocalDateString(activity.startTime)
     )
   );
 
-  const [selectedDate, setSelectedDate] = useState(closestDate);
+  const [selectedDate, setSelectedDate] = useState(closestDateString(dates));
 
   const activitiesWithRoomByActivityCode = Object.entries(
     groupBy(
       activitiesWithRoom.filter(
-        ([activity]) => toDateString(activity.startTime) === selectedDate
+        ([activity]) => toLocalDateString(activity.startTime) === selectedDate
       ),
       ([activity]) => activity.activityCode
     )
@@ -55,7 +56,7 @@ const Schedule = ({ schedule, events, competitionId }) => {
         className={classes.tabs}
       >
         {dates.map(date => (
-          <Tab key={date} label={shortLocalDate(date)} value={date} />
+          <Tab key={date} label={shortDate(date)} value={date} />
         ))}
       </Tabs>
       <Grid container spacing={1}>
