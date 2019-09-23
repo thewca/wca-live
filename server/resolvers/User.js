@@ -8,6 +8,7 @@ module.exports = {
     const importedCompetitions = await db.competitions.find({}).project({ 'wcif.id': 1 }).toArray();
     const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
     return competitions
+      .filter(competition => competition.announced_at)
       .filter(competition => !importedCompetitionIds.includes(competition.id))
       .map(({ id, name, short_name, start_date, end_date, country_iso2 }) => ({
         wcif: {
