@@ -34,7 +34,6 @@ const COMPETITION_QUERY = gql`
       }
       schedule {
         venues {
-          id
           name
           rooms {
             id

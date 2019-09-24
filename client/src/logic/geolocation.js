@@ -1,0 +1,28 @@
+import { sortBy } from './utils';
+
+/* Source https://www.movable-type.co.uk/scripts/latlong.html#equirectangular */
+const distanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; /* km */
+  const x = toRadians(lon2 - lon1) * Math.cos(toRadians(lat1 + lat2) / 2);
+  const y = toRadians(lat2 - lat1);
+  return Math.sqrt(x * x + y * y) * R;
+};
+
+const toRadians = degrees => (degrees * Math.PI) / 180;
+
+export const nearestCompetition = competitions => {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(position => {
+      const { latitude, longitude } = position.coords;
+      const [nearest] = sortBy(competitions, competition => {
+        const distances = competition.schedule.venues.map(venue =>
+          distanceKm(latitude, longitude, venue.latitude, venue.longitude)
+        );
+        return Math.min(...distances);
+      });
+      resolve(nearest);
+    }, reject);
+  });
+};
+
+export const geolocationAvailable = 'geolocation' in navigator;

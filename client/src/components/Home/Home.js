@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 import Footer from '../Footer/Footer';
 import logo from './logo.svg';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import CompetitionList from '../CompetitionList/CompetitionList';
 import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
+import {
+  geolocationAvailable,
+  nearestCompetition,
+} from '../../logic/geolocation';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {
@@ -19,6 +25,12 @@ const COMPETITIONS_QUERY = gql`
       }
       inProgress {
         ...competitionInfo
+        schedule {
+          venues {
+            latitude
+            longitude
+          }
+        }
       }
       past {
         ...competitionInfo
@@ -49,7 +61,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Home = () => {
+const Home = ({ history }) => {
   const classes = useStyles();
   return (
     <CustomQuery query={COMPETITIONS_QUERY}>
@@ -73,14 +85,34 @@ const Home = () => {
               </Typography>
             </Grid>
             {inProgress.length > 0 && (
-              <Grid item className={classes.fullWidth}>
-                <Paper>
-                  <CompetitionList
-                    title="Happening right now!"
-                    competitions={inProgress}
-                  />
-                </Paper>
-              </Grid>
+              <Fragment>
+                {geolocationAvailable && (
+                  <Grid
+                    item
+                    className={classNames(classes.fullWidth, classes.center)}
+                  >
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => {
+                        nearestCompetition(inProgress).then(competition => {
+                          history.push(`/competitions/${competition.id}`);
+                        });
+                      }}
+                    >
+                      Nearest competition
+                    </Button>
+                  </Grid>
+                )}
+                <Grid item className={classes.fullWidth}>
+                  <Paper>
+                    <CompetitionList
+                      title="Happening right now!"
+                      competitions={inProgress}
+                    />
+                  </Paper>
+                </Grid>
+              </Fragment>
             )}
             {upcoming.length > 0 && (
               <Grid item className={classes.fullWidth}>

@@ -126,9 +126,10 @@ type Schedule {
 }
 
 type Venue {
-  id: ID!
   name: String!
   rooms: [Room!]!
+  latitude: Float!
+  longitude: Float!
 }
 
 type Room {

@@ -8,6 +8,7 @@ const Event = require('./Event');
 const Round = require('./Round');
 const Result = require('./Result');
 const Schedule = require('./Schedule');
+const Venue = require('./Venue');
 
 module.exports = {
   Query,
@@ -20,4 +21,5 @@ module.exports = {
   Round,
   Result,
   Schedule,
+  Venue,
 };
