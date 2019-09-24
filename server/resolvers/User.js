@@ -1,5 +1,6 @@
 const { db } = require('../mongo-connector');
 const wcaApi = require('../utils/wca-api');
+const { countryByIso2 } = require('../utils/countries');
 
 module.exports = {
   id: (parent) => parent._id,
@@ -10,6 +11,12 @@ module.exports = {
     return competitions
       .filter(competition => competition.announced_at)
       .filter(competition => !importedCompetitionIds.includes(competition.id))
+      /* TODO: at the moment the WCA website allows setting Multiple Countries
+         as venue country although it shouldn't. WCA Live doesn't recognise
+         Multiple Countries as it expects venues to be in a valid country (which they should).
+         Until this is resolved we just ignore those competitions to avoid
+         running into errors. */
+      .filter(competition => !['XA', 'XE', 'XF', 'XM', 'XN', 'XO', 'XS', 'XW'].includes(competition.country_iso2))
       .map(({ id, name, short_name, start_date, end_date, country_iso2 }) => ({
         wcif: {
           id,
@@ -19,7 +26,9 @@ module.exports = {
           schedule: {
             startDate: start_date,
             numberOfDays: new Date(end_date).getDate() - new Date(start_date).getDate() + 1,
-            venues: [{ countryIso2: country_iso2 }],
+            venues: countryByIso2(country_iso2)
+              ? [{ countryIso2: country_iso2 }]
+              : [] /* Ignore invalid iso2 (e.g. if the coutry is 'Multiple Countries') */,
           }
         },
       }));
