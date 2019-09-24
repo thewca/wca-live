@@ -1,8 +1,8 @@
 import { sortBy } from './utils';
 
 export const formatDateRange = (startString, endString) => {
-  const start = new Date(startString);
-  const end = new Date(endString);
+  const start = dateStringToLocalDateObject(startString);
+  const end = dateStringToLocalDateObject(endString);
   const startDay = start.getDate();
   const endDay = end.getDate();
   const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
@@ -54,11 +54,15 @@ export const toLocalDateString = isoString => {
  * Returns date string closest the current day.
  */
 export const closestDateString = dateStrings => {
-  /* Set time part to 0 for all dates. */
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [closest] = sortBy(dateStrings, dateString =>
-    Math.abs(new Date(`${dateString}T00:00:00.000`) - today)
+    Math.abs(dateStringToLocalDateObject(dateString) - today)
   );
   return closest;
+};
+
+/* Returns a date object with local date part matching the given date string and local time of 0. */
+const dateStringToLocalDateObject = dateString => {
+  return new Date(`${dateString}T00:00:00.000`);
 };
