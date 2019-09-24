@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import green from '@material-ui/core/colors/green';
@@ -34,6 +35,38 @@ const useStyles = makeStyles(theme => ({
 const AdminResultsTable = React.memo(
   ({ results, format, eventId, competitionId, onResultClick }) => {
     const classes = useStyles();
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState(null);
+
+    const sortedResults =
+      orderBy === null
+        ? results
+        : results.slice().sort((result1, result2) => {
+            if (orderBy === 'id') {
+              const value = result1.person.id - result2.person.id;
+              return order === 'asc' ? value : -value;
+            }
+            if (orderBy === 'name') {
+              const value = result1.person.name.localeCompare(
+                result2.person.name
+              );
+              return order === 'asc' ? value : -value;
+            }
+            throw new Error(`Unrecognized order rule: ${orderBy}`);
+          });
+
+    const handleSortClick = property => {
+      if (orderBy !== property) {
+        setOrderBy(property);
+        setOrder('asc');
+      } else if (order === 'asc') {
+        setOrder('desc');
+      } else {
+        /* Third click on the same column gets back to the default order. */
+        setOrderBy(null);
+        setOrder('asc');
+      }
+    };
 
     const stats = statsToDisplay(format, eventId);
 
@@ -44,8 +77,24 @@ const AdminResultsTable = React.memo(
             <TableCell align="right" className={classes.ranking}>
               #
             </TableCell>
-            <TableCell align="right">ID</TableCell>
-            <TableCell>Name</TableCell>
+            <TableCell align="right">
+              <TableSortLabel
+                active={orderBy === 'id'}
+                direction={order}
+                onClick={() => handleSortClick('id')}
+              >
+                ID
+              </TableSortLabel>
+            </TableCell>
+            <TableCell>
+              <TableSortLabel
+                active={orderBy === 'name'}
+                direction={order}
+                onClick={() => handleSortClick('name')}
+              >
+                Name
+              </TableSortLabel>
+            </TableCell>
             {times(format.solveCount, index => (
               <TableCell key={index} align="right">
                 {index + 1}
@@ -59,7 +108,7 @@ const AdminResultsTable = React.memo(
           </TableRow>
         </TableHead>
         <TableBody>
-          {results.map(result => (
+          {sortedResults.map(result => (
             <TableRow
               key={result.person.id}
               hover
