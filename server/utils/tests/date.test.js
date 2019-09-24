@@ -1,8 +1,8 @@
-const { dateToString, addDays } = require('../date');
+const { dateToUTCDateString, addDays } = require('../date');
 
-describe('dateToString', () => {
+describe('dateToUTCDateString', () => {
   test('returns date in yyyy-mm-dd format', () => {
-    expect(dateToString(new Date(2014, 4, 15))).toEqual('2014-05-15');
+    expect(dateToUTCDateString(new Date(Date.UTC(2014, 4, 15)))).toEqual('2014-05-15');
   });
 });
 

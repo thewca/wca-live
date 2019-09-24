@@ -2,7 +2,7 @@ const { withAuthentication, withCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
 const { db } = require('../mongo-connector');
 const { roundById, personById, startDate, endDate } = require('../utils/wcif');
-const { dateToString } = require('../utils/date');
+const { dateToUTCDateString } = require('../utils/date');
 
 module.exports = {
   me: async (parent, args, { session }) => {
@@ -22,7 +22,7 @@ module.exports = {
     }
   ),
   competitions: async (parent, args) => {
-    const today = dateToString(new Date());
+    const today = dateToUTCDateString(new Date());
     const competitions = await db.competitions
       .find({})
       .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1, 'wcif.shortName': 1 })
