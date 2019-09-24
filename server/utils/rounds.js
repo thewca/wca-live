@@ -2,7 +2,6 @@ const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
 const { personIdsForRound, nextQualifyingToRound, missingQualifyingIds } = require('./advancement');
 const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
 const { flatMap } = require('./utils');
-const { sortWcifEvents } = require('../utils/events');
 
 const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
   if (roundNumber === numberOfRounds) {
@@ -118,7 +117,7 @@ const addCompetitor = (wcif, roundId, competitorId, replace) => {
  * Returns finished final rounds with podium results only.
  */
 const podiums = wcif => {
-  const finals = sortWcifEvents(wcif.events)
+  const finals = wcif.events
     .map(event => event.rounds[event.rounds.length - 1])
     .filter(roundFinished);
   const withTop3Results = finals.map(round => ({

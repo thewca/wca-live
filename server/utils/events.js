@@ -60,13 +60,6 @@ const eventNameById = eventId => {
   return events.find(event => event.id === eventId).name;
 };
 
-const sortWcifEvents = wcifEvents => {
-  return sortBy(wcifEvents,
-    ({ id }) => events.findIndex(event => event.id === id)
-  );
-};
-
 module.exports = {
   eventNameById,
-  sortWcifEvents,
 };

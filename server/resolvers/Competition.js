@@ -1,5 +1,4 @@
 const { acceptedPeople } = require('../utils/wcif');
-const { sortWcifEvents } = require('../utils/events');
 const { competitionCountryIso2s } = require('../utils/wcif');
 const { countryByIso2 } = require('../utils/countries');
 const { podiums } = require('../utils/rounds');
@@ -12,7 +11,7 @@ module.exports = {
     return wcif.shortName;
   },
   events: ({ wcif }) => {
-    return sortWcifEvents(wcif.events);
+    return wcif.events;
   },
   schedule: ({ wcif }) => {
     return wcif.schedule;
