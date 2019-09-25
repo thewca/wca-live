@@ -12,10 +12,12 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import SyncIcon from '@material-ui/icons/Sync';
 import ViewListIcon from '@material-ui/icons/ViewList';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
 import AdminEvents from './AdminEvents/AdminEvents';
 import Synchronize from './Synchronize/Synchronize';
+import AdminSettings from './AdminSettings/AdminSettings';
 import RoundDoubleCheck from './RoundDoubleCheck/RoundDoubleCheck';
 import AdminRound from './AdminRound/AdminRound';
 
@@ -106,6 +108,15 @@ const AdminCompetition = ({ match, location }) => {
                     <SyncIcon />
                   </IconButton>
                 </Tooltip>
+                <Tooltip title="Settings">
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    to={`/admin/competitions/${competition.id}/settings`}
+                  >
+                    <SettingsIcon />
+                  </IconButton>
+                </Tooltip>
                 <Tooltip title="Public view">
                   <IconButton
                     color="inherit"
@@ -133,6 +144,11 @@ const AdminCompetition = ({ match, location }) => {
                   exact
                   path="/admin/competitions/:competitionId/sync"
                   component={Synchronize}
+                />
+                <Route
+                  exact
+                  path="/admin/competitions/:competitionId/settings"
+                  component={AdminSettings}
                 />
                 <Route
                   exact

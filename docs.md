@@ -49,17 +49,29 @@ The database schema looks like so:
       "type": "objectId",
       "description": "Id of the user who imported the competition from the WCA website."
     },
+    "synchronizedAt": {
+      "type": "Date",
+      "description": "Time of last synchronization."
+    },
     "managerWcaUserIds": {
       "type": "array",
-      "description": "Organizers, delegates and dataentries.",
+      "description": "Organizers and delegates.",
       "items": {
         "type": "number",
         "description": "User ID in the WCA database."
       }
     },
-    "synchronizedAt": {
-      "type": "Date",
-      "description": "Time of last synchronization."
+    "scoretakerWcaUserIds": {
+      "type": "array",
+      "description": "Scoretakers.",
+      "items": {
+        "type": "number",
+        "description": "User ID in the WCA database."
+      }
+    },
+    "encryptedPassword": {
+      "type": ["null", "string"],
+      "description": "Encrypted password for accountless scoretaker access."
     }
   }
 }

@@ -29,6 +29,11 @@ const uniq = arr =>
 const times = (n, fn) =>
   Array.from({ length: n }, (_, index) => fn(index));
 
+const haveSameElements = (array1, array2) => {
+  if (array1.length !== array2.length) return false;
+  return array1.every(item => array2.includes(item));
+};
+
 module.exports = {
   flatMap,
   zip,
@@ -37,4 +42,5 @@ module.exports = {
   partition,
   uniq,
   times,
+  haveSameElements,
 };

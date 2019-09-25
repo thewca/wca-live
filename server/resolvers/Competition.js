@@ -28,4 +28,12 @@ module.exports = {
   podiums: ({ wcif }) => {
     return podiums(wcif);
   },
+  scoretakers: ({ wcif, scoretakerWcaUserIds }) => {
+    return wcif.persons.filter(person =>
+      scoretakerWcaUserIds.includes(person.wcaUserId)
+    );
+  },
+  passwordAuthEnabled: ({ encryptedPassword }) => {
+    return !!encryptedPassword;
+  },
 };

@@ -79,6 +79,7 @@ const ResultForm = ({
               person ? results.find(result => result.person === person) : null
             );
           }}
+          TextFieldProps={{ autoFocus: true, fullWidth: true }}
         />
       </Grid>
       {attempts.map((attempt, index) => (

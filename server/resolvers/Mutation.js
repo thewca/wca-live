@@ -1,30 +1,36 @@
 const { withAuthentication, withCompetition, withCompetitionAuthorization } = require('./middleware');
-const { db } = require('../mongo-connector');
 const competitionLoader = require('../competition-loader');
 const pubsub = require('./pubsub');
-const wcaApi = require('../utils/wca-api');
 const { roundById } = require('../utils/wcif');
 const { updateResult } = require('../utils/results');
 const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../utils/rounds');
-const { managerWcaUserIds, synchronize } = require('../utils/competition');
+const { importCompetition, synchronize, updateAccessSettings } = require('../utils/competition');
 
 module.exports = {
   importCompetition: withAuthentication(
     async (parent, { id }, context) => {
-      const { user } = context;
-      const wcif = await wcaApi(user).getWcif(id);
-      const { value: competition } = await db.competitions.findOneAndUpdate(
-        { 'wcif.id': id },
-        { $setOnInsert: {
-          wcif,
-          importedById: user._id,
-          managerWcaUserIds: managerWcaUserIds(wcif),
-          synchronizedAt: new Date(),
-        } },
-        { upsert: true, returnOriginal: false },
-      );
-      context.competition = competition;
-      return competition;
+      context.competition = await importCompetition(id, context.user);
+      return context.competition;
+    }
+  ),
+  synchronize: withCompetitionAuthorization(
+    async (parent, { competitionId }, context) => {
+      return await competitionLoader.executeTask(competitionId, async () => {
+        const competition = await competitionLoader.get(competitionId);
+        const updatedCompetition = await synchronize(competition);
+        context.competition = await competitionLoader.update(updatedCompetition);
+        return context.competition;
+      });
+    }
+  ),
+  updateAccessSettings: withCompetitionAuthorization(
+    async (parent, { competitionId, accessSettings }, context) => {
+      return await competitionLoader.executeTask(competitionId, async () => {
+        const competition = await competitionLoader.get(competitionId);
+        const updatedCompetition = await updateAccessSettings(competition, accessSettings);
+        context.competition = await competitionLoader.update(updatedCompetition);
+        return context.competition;
+      });
     }
   ),
   updateResult: withCompetitionAuthorization(
@@ -93,20 +99,6 @@ module.exports = {
           { resultsOnly: true }
         );
         return roundById(updatedWcif, roundId);
-      });
-    }
-  ),
-  synchronize: withCompetitionAuthorization(
-    async (parent, { competitionId }, context) => {
-      return await competitionLoader.executeTask(competitionId, async () => {
-        const competition = await competitionLoader.get(competitionId);
-        /* Use oauth credentials of whoever imported the competition to do synchronization,
-           because plain scoretakers don't have permissions to save WCIF to the WCA website,
-           yet we still want them to be able to synchronize results. */
-        const importedBy = await db.users.findOne({ _id: competition.importedById });
-        const updatedCompetition = await synchronize(competition, importedBy);
-        context.competition = await competitionLoader.update(updatedCompetition);
-        return context.competition;
       });
     }
   ),

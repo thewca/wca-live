@@ -79,6 +79,7 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
                     persons={qualifying}
                     value={selectedCompetitor}
                     onChange={setSelectedCompetitor}
+                    TextFieldProps={{ autoFocus: true, fullWidth: true }}
                   />
                 </Grid>
                 {excess.length > 0 && (

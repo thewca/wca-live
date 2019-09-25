@@ -29,7 +29,12 @@ module.exports = {
   },
   manageableCompetitions: async (parent, args) => {
     return await db.competitions
-      .find({ managerWcaUserIds: parent.wcaUserId })
+      .find({
+        $or: [
+          { managerWcaUserIds: parent.wcaUserId },
+          { scoretakerWcaUserIds: parent.wcaUserId },
+        ],
+      })
       .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1 })
       .toArray();
   },

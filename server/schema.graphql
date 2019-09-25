@@ -9,6 +9,7 @@ type Query {
 type Mutation {
   importCompetition(id: ID!): Competition
   synchronize(competitionId: ID!): Competition
+  updateAccessSettings(competitionId: ID!, accessSettings: AccessSettingsInput!): Competition
   updateResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
   openRound(competitionId: ID!, roundId: ID!): Round
   clearRound(competitionId: ID!, roundId: ID!): Round
@@ -53,6 +54,8 @@ type Competition {
   synchronizedAt: String!
   # Finished final rounds including only podium results.
   podiums: [Round!]!
+  scoretakers: [Person!]!
+  passwordAuthEnabled: Boolean!
 }
 
 type Event {
@@ -168,4 +171,10 @@ type Country {
 input ResultInput {
   personId: ID!
   attempts: [Int!]!
+}
+
+input AccessSettingsInput {
+  scoretakerIds: [ID!]!
+  passwordAuthEnabled: Boolean!
+  password: String!
 }

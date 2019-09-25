@@ -33,7 +33,13 @@ const searchPersons = (persons, search) => {
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
 };
 
-const PersonSelect = ({ persons, value, onChange }) => {
+const PersonSelect = ({
+  persons,
+  value,
+  onChange,
+  clearOnChange = false,
+  TextFieldProps = {},
+}) => {
   const classes = useStyles();
   const textFieldRef = useRef();
 
@@ -53,7 +59,12 @@ const PersonSelect = ({ persons, value, onChange }) => {
   return (
     <Downshift
       selectedItem={value}
-      onChange={person => onChange(person)}
+      onChange={(person, { clearSelection }) => {
+        if (clearOnChange) {
+          clearSelection();
+        }
+        onChange(person);
+      }}
       itemToString={item => (item ? personToString(item) : '')}
       defaultHighlightedIndex={0}
     >
@@ -69,12 +80,11 @@ const PersonSelect = ({ persons, value, onChange }) => {
       }) => (
         <div>
           <TextField
-            autoFocus
-            fullWidth
             spellCheck={false}
             variant="outlined"
             label="Competitor"
             placeholder="Type ID or name"
+            {...TextFieldProps}
             InputLabelProps={getLabelProps()}
             InputProps={getInputProps({ onKeyDown: handleKeyDown })}
             ref={textFieldRef}
