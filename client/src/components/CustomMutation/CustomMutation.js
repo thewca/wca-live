@@ -10,7 +10,15 @@ const CustomMutation = ({ children, ...props }) => (
       const [, { error }] = args;
       return (
         <Fragment>
-          {error && <ErrorSnackbar message={error.graphQLErrors[0].message} />}
+          {error && (
+            <ErrorSnackbar
+              message={
+                error.graphQLErrors.length > 0
+                  ? error.graphQLErrors[0].message
+                  : 'Something went wrong 😔'
+              }
+            />
+          )}
           {children(...args)}
         </Fragment>
       );
