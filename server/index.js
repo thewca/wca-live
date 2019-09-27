@@ -46,7 +46,7 @@ const initialize = async () => {
   const server = new ApolloServer({
     typeDefs: gql(fs.readFileSync(__dirname.concat('/schema.graphql'), 'utf8')),
     resolvers,
-    context: ({ req, connection }) => {
+    context: async ({ req, connection }) => {
       if (connection) {
         /* For subscriptions over websocket. */
         return {};
@@ -54,6 +54,9 @@ const initialize = async () => {
         /* For queries and mutations over http. */
         return {
           session: req.session,
+          user: req.session.userId
+            ? await mongo.db.users.findOne({ _id: new ObjectId(req.session.userId) })
+            : null,
         };
       }
     },

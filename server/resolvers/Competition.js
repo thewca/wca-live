@@ -36,4 +36,14 @@ module.exports = {
   passwordAuthEnabled: ({ encryptedPassword }) => {
     return !!encryptedPassword;
   },
+  currentUserManagerAccess: ({ managerWcaUserIds }, args, { user }) => {
+    return !!user && managerWcaUserIds.includes(user.wcaUserId);
+  },
+  currentUserScoretakerAccess: (competition, args, { user, session }) => {
+    const authorizedIds = [...competition.scoretakerWcaUserIds, ...competition.managerWcaUserIds];
+    const passwordSession =
+      session.competitionId === competition._id.toString()
+      && session.encryptedPassword === competition.encryptedPassword;
+    return (!!user && authorizedIds.includes(user.wcaUserId)) || passwordSession;
+  },
 };

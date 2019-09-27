@@ -26,12 +26,11 @@ const COMPETITION_QUERY = gql`
     competition(id: $id) {
       id
       name
+      currentUserManagerAccess
+      currentUserScoretakerAccess
     }
     me {
       id
-      manageableCompetitions {
-        id
-      }
     }
   }
 `;
@@ -63,10 +62,11 @@ const AdminCompetition = ({ match, location }) => {
     <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
       {({ data }) => {
         const { competition, me } = data;
-        const manageableByCurrentUser =
-          me &&
-          me.manageableCompetitions.some(({ id }) => id === competition.id);
-        if (!manageableByCurrentUser) {
+        const {
+          currentUserManagerAccess,
+          currentUserScoretakerAccess,
+        } = competition;
+        if (!currentUserScoretakerAccess) {
           return <Redirect to={`/competitions/${competition.id}`} />;
         }
 
@@ -108,15 +108,17 @@ const AdminCompetition = ({ match, location }) => {
                     <SyncIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Settings">
-                  <IconButton
-                    color="inherit"
-                    component={Link}
-                    to={`/admin/competitions/${competition.id}/settings`}
-                  >
-                    <SettingsIcon />
-                  </IconButton>
-                </Tooltip>
+                {currentUserManagerAccess && (
+                  <Tooltip title="Settings">
+                    <IconButton
+                      color="inherit"
+                      component={Link}
+                      to={`/admin/competitions/${competition.id}/settings`}
+                    >
+                      <SettingsIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
                 <Tooltip title="Public view">
                   <IconButton
                     color="inherit"
@@ -126,11 +128,13 @@ const AdminCompetition = ({ match, location }) => {
                     <RemoveRedEyeIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="My competitions">
-                  <IconButton color="inherit" component={Link} to="/admin">
-                    <AccountCircleIcon />
-                  </IconButton>
-                </Tooltip>
+                {me && (
+                  <Tooltip title="My competitions">
+                    <IconButton color="inherit" component={Link} to="/admin">
+                      <AccountCircleIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Toolbar>
             </AppBar>
             <div className={classes.content}>
@@ -145,11 +149,13 @@ const AdminCompetition = ({ match, location }) => {
                   path="/admin/competitions/:competitionId/sync"
                   component={Synchronize}
                 />
-                <Route
-                  exact
-                  path="/admin/competitions/:competitionId/settings"
-                  component={AdminSettings}
-                />
+                {currentUserManagerAccess && (
+                  <Route
+                    exact
+                    path="/admin/competitions/:competitionId/settings"
+                    component={AdminSettings}
+                  />
+                )}
                 <Route
                   exact
                   path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"

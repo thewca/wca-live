@@ -42,12 +42,7 @@ const COMPETITION_QUERY = gql`
           open
         }
       }
-    }
-    me {
-      id
-      manageableCompetitions {
-        id
-      }
+      currentUserScoretakerAccess
     }
   }
 `;
@@ -116,12 +111,7 @@ const Competition = ({ match, location }) => {
       variables={{ id: match.params.id }}
       pollInterval={60 * 1000}
     >
-      {({ data }) => {
-        const { competition, me } = data;
-        const manageableByCurrentUser =
-          me &&
-          me.manageableCompetitions.some(({ id }) => id === competition.id);
-
+      {({ data: { competition } }) => {
         const drawerContent = (
           <Fragment>
             <div className={classes.toolbar}>
@@ -181,7 +171,7 @@ const Competition = ({ match, location }) => {
                   </Link>
                 </Typography>
                 <div style={{ flexGrow: 1 }} />
-                {manageableByCurrentUser && (
+                {competition.currentUserScoretakerAccess && (
                   <Tooltip title="Admin view">
                     <IconButton
                       color="inherit"

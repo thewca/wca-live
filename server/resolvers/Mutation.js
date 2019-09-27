@@ -1,4 +1,5 @@
-const { withAuthentication, withCompetition, withCompetitionAuthorization } = require('./middleware');
+const bcrypt = require('bcrypt');
+const { withCompetition, withCompetitionAuthorization } = require('./middleware');
 const competitionLoader = require('../competition-loader');
 const pubsub = require('./pubsub');
 const { roundById } = require('../utils/wcif');
@@ -7,13 +8,13 @@ const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../uti
 const { importCompetition, synchronize, updateAccessSettings } = require('../utils/competition');
 
 module.exports = {
-  importCompetition: withAuthentication(
-    async (parent, { id }, context) => {
-      context.competition = await importCompetition(id, context.user);
-      return context.competition;
-    }
-  ),
+  importCompetition: async (parent, { id }, context) => {
+    if (!context.user) throw new AuthenticationError('Not authorized.');
+    context.competition = await importCompetition(id, context.user);
+    return context.competition;
+  },
   synchronize: withCompetitionAuthorization(
+    'scoretaker',
     async (parent, { competitionId }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
@@ -24,6 +25,7 @@ module.exports = {
     }
   ),
   updateAccessSettings: withCompetitionAuthorization(
+    'manager',
     async (parent, { competitionId, accessSettings }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
@@ -33,7 +35,18 @@ module.exports = {
       });
     }
   ),
+  signIn: withCompetition(
+    async (parent, { competitionId, password }, { competition, session }) => {
+      const authenticated = await bcrypt.compare(password, competition.encryptedPassword);
+      if (authenticated) {
+        session.competitionId = competition._id;
+        session.encryptedPassword = competition.encryptedPassword;
+      }
+      return authenticated;
+    }
+  ),
   updateResult: withCompetitionAuthorization(
+    'scoretaker',
     async (parent, { competitionId, roundId, result }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
@@ -51,6 +64,7 @@ module.exports = {
     }
   ),
   openRound: withCompetitionAuthorization(
+    'scoretaker',
     async (parent, { competitionId, roundId }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
@@ -64,6 +78,7 @@ module.exports = {
     }
   ),
   clearRound: withCompetitionAuthorization(
+    'scoretaker',
     async (parent, { competitionId, roundId }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
@@ -77,6 +92,7 @@ module.exports = {
     }
   ),
   quitCompetitor: withCompetitionAuthorization(
+    'scoretaker',
     async (parent, { competitionId, roundId, competitorId, replace }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
@@ -90,6 +106,7 @@ module.exports = {
     }
   ),
   addCompetitor: withCompetitionAuthorization(
+    'scoretaker',
     async (parent, { competitionId, roundId, competitorId }, context) => {
       return await competitionLoader.executeTask(competitionId, async () => {
         const competition = await competitionLoader.get(competitionId);
