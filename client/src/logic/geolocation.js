@@ -12,16 +12,24 @@ const toRadians = degrees => (degrees * Math.PI) / 180;
 
 export const nearestCompetition = competitions => {
   return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(position => {
-      const { latitude, longitude } = position.coords;
-      const [nearest] = sortBy(competitions, competition => {
-        const distances = competition.schedule.venues.map(venue =>
-          distanceKm(latitude, longitude, venue.latitude, venue.longitude)
-        );
-        return Math.min(...distances);
-      });
-      resolve(nearest);
-    }, reject);
+    const options = {
+      /* Prevent the browser from asking the user to turn on GPS, we just need an estimate. */
+      maximumAge: 5 * 60 * 1000,
+    };
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        const [nearest] = sortBy(competitions, competition => {
+          const distances = competition.schedule.venues.map(venue =>
+            distanceKm(latitude, longitude, venue.latitude, venue.longitude)
+          );
+          return Math.min(...distances);
+        });
+        resolve(nearest);
+      },
+      reject,
+      options
+    );
   });
 };
 
