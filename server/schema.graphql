@@ -7,10 +7,11 @@ type Query {
 }
 
 type Mutation {
+  signOut: Boolean!
   importCompetition(id: ID!): Competition
   synchronize(competitionId: ID!): Competition
   updateAccessSettings(competitionId: ID!, accessSettings: AccessSettingsInput!): Competition
-  signIn(competitionId: ID!, password: String!): Boolean
+  signIn(competitionId: ID!, password: String!): Boolean!
   updateResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
   openRound(competitionId: ID!, roundId: ID!): Round
   clearRound(competitionId: ID!, roundId: ID!): Round

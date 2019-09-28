@@ -8,6 +8,10 @@ const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../uti
 const { importCompetition, synchronize, updateAccessSettings } = require('../utils/competition');
 
 module.exports = {
+  signOut: async (parent, args, { session }) => {
+    session.destroy();
+    return true;
+  },
   importCompetition: async (parent, { id }, context) => {
     if (!context.user) throw new AuthenticationError('Not authorized.');
     context.competition = await importCompetition(id, context.user);

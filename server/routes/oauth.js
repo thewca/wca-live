@@ -33,9 +33,4 @@ router.get('/callback', async (req, res) => {
   res.redirect(PRODUCTION ? '/admin' : 'http://localhost:3000/admin');
 });
 
-router.post('/sign-out', (req, res) => {
-  req.session.destroy();
-  res.end();
-});
-
 module.exports = router;

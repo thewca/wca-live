@@ -9,12 +9,14 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import SyncIcon from '@material-ui/icons/Sync';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
+import CustomMutation from '../CustomMutation/CustomMutation';
 import AdminEvents from './AdminEvents/AdminEvents';
 import Synchronize from './Synchronize/Synchronize';
 import AdminSettings from './AdminSettings/AdminSettings';
@@ -32,6 +34,12 @@ const COMPETITION_QUERY = gql`
     me {
       id
     }
+  }
+`;
+
+const SIGN_OUT_MUTATION = gql`
+  mutation SignOut {
+    signOut
   }
 `;
 
@@ -56,11 +64,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const AdminCompetition = ({ match, location }) => {
+const AdminCompetition = ({ match, location, history }) => {
   const classes = useStyles();
   return (
     <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
-      {({ data }) => {
+      {({ data, client }) => {
         const { competition, me } = data;
         const {
           currentUserManagerAccess,
@@ -128,12 +136,31 @@ const AdminCompetition = ({ match, location }) => {
                     <RemoveRedEyeIcon />
                   </IconButton>
                 </Tooltip>
-                {me && (
+                {me ? (
                   <Tooltip title="My competitions">
                     <IconButton color="inherit" component={Link} to="/admin">
                       <AccountCircleIcon />
                     </IconButton>
                   </Tooltip>
+                ) : (
+                  <CustomMutation
+                    mutation={SIGN_OUT_MUTATION}
+                    onCompleted={data => {
+                      client.clearStore().then(() => history.push('/'));
+                    }}
+                  >
+                    {(signOut, { loading }) => (
+                      <Tooltip title="Sign out">
+                        <IconButton
+                          color="inherit"
+                          onClick={signOut}
+                          disabled={loading}
+                        >
+                          <ExitToAppIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </CustomMutation>
                 )}
               </Toolbar>
             </AppBar>

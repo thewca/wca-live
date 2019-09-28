@@ -1,15 +1,21 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import Avatar from '@material-ui/core/Avatar';
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
 
 import CustomQuery from '../CustomQuery/CustomQuery';
+import CustomMutation from '../CustomMutation/CustomMutation';
+import CompetitionSignInForm from '../CompetitionSignInForm/CompetitionSignInForm';
 import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
 import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
-import { signInUrl, signOut } from '../../logic/auth';
+import { signInUrl } from '../../logic/auth';
 
 const ADMIN_QUERY = gql`
   query Competitions {
@@ -30,7 +36,33 @@ const ADMIN_QUERY = gql`
   ${COMPETITION_INFO_FRAGMENT}
 `;
 
+const SIGN_OUT_MUTATION = gql`
+  mutation SignOut {
+    signOut
+  }
+`;
+
+const useStyles = makeStyles(theme => ({
+  screenHeight: {
+    height: '100vh',
+  },
+  center: {
+    textAlign: 'center',
+  },
+  title: {
+    marginBottom: theme.spacing(2),
+  },
+  avatar: {
+    height: 64,
+    width: 64,
+  },
+  fullWidth: {
+    width: '100%',
+  },
+}));
+
 const Admin = ({ history }) => {
+  const classes = useStyles();
   return (
     <CustomQuery query={ADMIN_QUERY}>
       {({ data, client }) => {
@@ -39,11 +71,13 @@ const Admin = ({ history }) => {
           return (
             <Grid
               container
-              justify="center"
               alignItems="center"
-              style={{ height: '100vh' }}
+              className={classes.screenHeight}
             >
-              <Grid item>
+              <Grid item xs={12} md className={classes.center}>
+                <Typography variant="h5" className={classes.title}>
+                  Use your WCA account
+                </Typography>
                 <Button
                   size="large"
                   variant="outlined"
@@ -52,6 +86,15 @@ const Admin = ({ history }) => {
                 >
                   Sign in
                 </Button>
+              </Grid>
+              <Hidden smDown>
+                <Divider orientation="vertical" />
+              </Hidden>
+              <Grid item xs={12} md className={classes.center}>
+                <Typography variant="h5" className={classes.title}>
+                  Use competition dedicated password
+                </Typography>
+                <CompetitionSignInForm />
               </Grid>
             </Grid>
           );
@@ -63,7 +106,7 @@ const Admin = ({ history }) => {
             importableCompetitions,
           } = me;
           return (
-            <div style={{ padding: 24 }}>
+            <Box p={3}>
               <Grid
                 container
                 direction="column"
@@ -71,15 +114,12 @@ const Admin = ({ history }) => {
                 spacing={3}
               >
                 <Grid item>
-                  <Avatar
-                    src={avatar.thumbUrl}
-                    style={{ width: 64, height: 64 }}
-                  />
+                  <Avatar src={avatar.thumbUrl} className={classes.avatar} />
                 </Grid>
                 <Grid item>
                   <Typography variant="h5">Hello, {name}!</Typography>
                 </Grid>
-                <Grid item style={{ width: '100%' }}>
+                <Grid item className={classes.fullWidth}>
                   <Paper>
                     <AdminCompetitionList
                       manageableCompetitions={manageableCompetitions}
@@ -89,20 +129,26 @@ const Admin = ({ history }) => {
                   </Paper>
                 </Grid>
                 <Grid item>
-                  <Button
-                    variant="outlined"
-                    color="default"
-                    onClick={() => {
-                      signOut()
-                        .then(() => client.resetStore())
-                        .then(() => history.push('/'));
+                  <CustomMutation
+                    mutation={SIGN_OUT_MUTATION}
+                    onCompleted={data => {
+                      client.clearStore().then(() => history.push('/'));
                     }}
                   >
-                    Sign out
-                  </Button>
+                    {(signOut, { loading }) => (
+                      <Button
+                        variant="outlined"
+                        color="default"
+                        onClick={signOut}
+                        disabled={loading}
+                      >
+                        Sign out
+                      </Button>
+                    )}
+                  </CustomMutation>
                 </Grid>
               </Grid>
-            </div>
+            </Box>
           );
         }
       }}

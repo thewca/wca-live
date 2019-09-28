@@ -5,6 +5,9 @@ const competitionLoader = require('../competition-loader');
 
 const withCompetition = resolver => async (parent, args, context) => {
   context.competition = await competitionLoader.get(args.competitionId || args.id);
+  if (!context.competition) {
+    throw new Error('Competition not found.');
+  }
   return resolver(parent, args, context);
 };
 
