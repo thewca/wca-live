@@ -122,7 +122,10 @@ const RoundDoubleCheck = ({ match }) => {
                 roundId={roundId}
                 updateResultMutation={SET_RESULT_MUTATION}
                 onResultChange={result => {
-                  updateResultIndex(results.indexOf(result));
+                  /* Disable clearing as we don't want to lose track of the currently viewed result. */
+                  if (result !== null) {
+                    updateResultIndex(results.indexOf(result));
+                  }
                 }}
               />
             </Grid>
