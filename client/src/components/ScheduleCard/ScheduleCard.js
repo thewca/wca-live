@@ -11,7 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 import RoomLabel from '../RoomLabel/RoomLabel';
-import { parseActivityCode } from '../../logic/wcif';
+import { parseActivityCode, eventRoundForActivityCode } from '../../logic/wcif';
 import { shortLocalTime } from '../../logic/date';
 
 const useStyles = makeStyles(theme => ({
@@ -37,12 +37,8 @@ const ScheduleCard = ({
   competitionId,
 }) => {
   const classes = useStyles();
-  const { eventId, roundNumber, attemptNumber } = parseActivityCode(
-    activityCode
-  );
-  const roundId = `${eventId}-r${roundNumber}`;
-  const event = events.find(event => event.id === eventId);
-  const round = event.rounds.find(round => round.id === roundId);
+  const { attemptNumber } = parseActivityCode(activityCode);
+  const { event, round } = eventRoundForActivityCode({ events }, activityCode);
   const name = attemptNumber
     ? `${event.name} - ${round.name} (Attempt ${attemptNumber})`
     : `${event.name} - ${round.name}`;
@@ -64,7 +60,7 @@ const ScheduleCard = ({
         to={`/competitions/${competitionId}/rounds/${round.id}`}
         disabled={!round.open}
       >
-        <CardHeader avatar={<CubingIcon eventId={eventId} />} title={name} />
+        <CardHeader avatar={<CubingIcon eventId={event.id} />} title={name} />
       </CardActionArea>
       <CardContent>
         <Grid container spacing={1}>

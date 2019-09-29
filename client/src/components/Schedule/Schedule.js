@@ -11,6 +11,7 @@ import {
   toLocalDateString,
   closestDateString,
 } from '../../logic/date';
+import { eventRoundForActivityCode } from '../../logic/wcif';
 
 const useStyles = makeStyles(theme => ({
   tabs: {
@@ -26,7 +27,11 @@ const Schedule = ({ schedule, events, competitionId }) => {
   );
   const activitiesWithRoom = sortBy(
     allActivitiesWithRoom.filter(
-      ([activity]) => !activity.activityCode.startsWith('other-')
+      ([activity]) =>
+        !activity.activityCode.startsWith('other-') &&
+        /* Ignore activities that don't have corresponding event/round data
+         (e.g. if a round is removed, but still in the schedule) */
+        eventRoundForActivityCode({ events }, activity.activityCode)
     ),
     ([activity]) => activity.startTime
   );
