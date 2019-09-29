@@ -6,6 +6,8 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import TextField from '@material-ui/core/TextField';
 
+import { uniq } from '../../../logic/utils';
+
 const useStyles = makeStyles(theme => ({
   popper: {
     marginTop: theme.spacing(1),
@@ -19,15 +21,16 @@ const personToString = person => {
 
 const searchPersons = (persons, search) => {
   const normalizedSearch = search.trim().toLowerCase();
-  return normalizedSearch.length === 0
-    ? []
-    : persons
-        .filter(
-          person =>
-            person.id === normalizedSearch ||
-            person.name.toLowerCase().includes(normalizedSearch)
-        )
-        .slice(0, 5);
+  if (normalizedSearch.length === 0) return [];
+  const matchingId = persons.find(person => person.id === normalizedSearch);
+  if (matchingId) return [matchingId];
+  const matchingNameStart = persons.filter(person =>
+    person.name.toLowerCase().startsWith(normalizedSearch)
+  );
+  const matchingName = persons.filter(person =>
+    person.name.toLowerCase().includes(normalizedSearch)
+  );
+  return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
 };
 
 const PersonSelect = ({ persons, value, onChange }) => {
