@@ -96,8 +96,31 @@ const updateAccessSettings = async (competition, accessSettings) => {
   };
 };
 
+const hasAccess = (role, competition, user, session) => {
+  const authorizedManagerWcaUserIds = [
+    ...competition.managerWcaUserIds,
+    6008, /* Jonatan Kłosko */
+  ];
+  const authorizedScoretakerWcaUserIds = [
+    ...authorizedManagerWcaUserIds,
+    ...competition.scoretakerWcaUserIds,
+  ];
+  if (role === 'manager') {
+    return !!user && authorizedManagerWcaUserIds.includes(user.wcaUserId);
+  } else if (role === 'scoretaker') {
+    const passwordSession =
+      session.competitionId === competition._id.toString()
+      && session.encryptedPassword === competition.encryptedPassword;
+    return passwordSession || (!!user && authorizedScoretakerWcaUserIds.includes(user.wcaUserId));
+  } else {
+    throw new Error(`Unrecognised role: ${role}`)
+  }
+  return false;
+};
+
 module.exports = {
   importCompetition,
   synchronize,
   updateAccessSettings,
+  hasAccess,
 };
