@@ -51,12 +51,14 @@ const synchronize = async (competition) => {
   const newWcif = await wcaApi(user).getWcif(competition.wcif.id);
   newWcif.events.forEach(newEvent => {
     const event = competition.wcif.events.find(event => event.id === newEvent.id);
-    newEvent.rounds.forEach(newRound => {
-      const round = event.rounds.find(round => round.id === newRound.id);
-      if (round) {
-        newRound.results = round.results;
-      }
-    });
+    if (event) {
+      newEvent.rounds.forEach(newRound => {
+        const round = event.rounds.find(round => round.id === newRound.id);
+        if (round) {
+          newRound.results = round.results;
+        }
+      });
+    }
   });
   await wcaApi(user).updateWcif(competition.wcif.id, { events: newWcif.events });
   return {
