@@ -197,7 +197,7 @@ const useKeyNavigation = container => {
   useEffect(() => {
     if (!container) return;
     const handleKeyPress = event => {
-      if (event.key === 'Esc') {
+      if (event.key === 'Escape') {
         event.target.blur && event.target.blur();
         return;
       }
@@ -208,7 +208,7 @@ const useKeyNavigation = container => {
         /* Don't interrupt navigation within competitor select list. */
         return;
       }
-      if (!['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) return;
+      if (!['ArrowUp', 'ArrowDown', 'Enter', 'Tab'].includes(event.key)) return;
       if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
         /* Prevent page scrolling. */
         event.preventDefault();
@@ -217,6 +217,8 @@ const useKeyNavigation = container => {
         /* Blur the current input first, as it may affect which fields are disabled. */
         event.target.blur();
       }
+      /* Let Tab be handled as usually. */
+      if (event.key === 'Tab') return;
       /* Other handlers may change which fields are disabled, so let them run first. */
       setTimeout(() => {
         const inputs = getInputs(container);
