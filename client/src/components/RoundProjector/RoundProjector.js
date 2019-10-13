@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import classNames from 'classnames';
@@ -94,20 +94,17 @@ const RoundProjector = ({ competitionId, round }) => {
   const stats = statsToDisplay(format, event.id);
 
   const nonemptyResults = results.filter(result => result.attempts.length > 0);
-  /* useEffect below depends on the number of nonempty results,
-     but we don't want to reset the timers whenever the number changes
-     (e.g. a new result is entered), so we use a ref instead. */
-  const nonemptyResultsLengthRef = useRef(nonemptyResults.length);
-  useEffect(() => {
-    nonemptyResultsLengthRef.current = nonemptyResults.length;
-  }, [nonemptyResults.length]);
 
   useEffect(() => {
     if (status === STATUS.SHOWN) {
-      const timeout = setTimeout(() => {
-        setStatus(STATUS.HIDING);
-      }, DURATION.SHOWN);
-      return () => clearTimeout(timeout);
+      if (nonemptyResults.length > getNumberOfRows()) {
+        const timeout = setTimeout(() => {
+          setStatus(STATUS.HIDING);
+        }, DURATION.SHOWN);
+        return () => clearTimeout(timeout);
+      } else {
+        return;
+      }
     }
     if (status === STATUS.SHOWING) {
       const timeout = setTimeout(() => {
@@ -120,13 +117,13 @@ const RoundProjector = ({ competitionId, round }) => {
         setStatus(STATUS.SHOWING);
         setTopResultIndex(topResultIndex => {
           const newIndex = topResultIndex + getNumberOfRows();
-          return newIndex >= nonemptyResultsLengthRef.current ? 0 : newIndex;
+          return newIndex >= nonemptyResults.length ? 0 : newIndex;
         });
       }, DURATION.HIDING);
       return () => clearTimeout(timeout);
     }
     throw new Error(`Unrecoginsed status: ${status}`);
-  }, [status]);
+  }, [status, nonemptyResults.length]);
 
   return (
     <Dialog

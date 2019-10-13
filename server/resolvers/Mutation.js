@@ -41,6 +41,9 @@ module.exports = {
   ),
   signIn: withCompetition(
     async (parent, { competitionId, password }, { competition, session }) => {
+      if (competition.encryptedPassword === null) {
+        throw new Error(`The competition doesn't use password authentication.`);
+      }
       const authenticated = await bcrypt.compare(password, competition.encryptedPassword);
       if (authenticated) {
         session.competitionId = competition._id;
