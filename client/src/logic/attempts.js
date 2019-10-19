@@ -39,7 +39,8 @@ export const validateMbldAttempt = ({ attempted, solved, centiseconds }) => {
   if (solved < attempted / 2 || solved <= 1) {
     return { solved: 0, attempted: 0, centiseconds: -1 };
   }
-  if (centiseconds > 10 * 60 * 100 * Math.min(6, attempted)) {
+  /* Allow additional (arbitrary) 30 seconds over the limit for +2s. */
+  if (centiseconds > 10 * 60 * 100 * Math.min(6, attempted) + 30 * 100) {
     return { solved: 0, attempted: 0, centiseconds: -1 };
   }
   return { solved, attempted, centiseconds };

@@ -117,6 +117,19 @@ describe('validateMbldAttempt', () => {
     });
   });
 
+  test('allows 30 seconds over the time limit for +2s', () => {
+    const attempt = {
+      solved: 2,
+      attempted: 3,
+      centiseconds: 30 * 60 * 100 + 30 * 100,
+    };
+    expect(validateMbldAttempt(attempt)).toEqual({
+      solved: 2,
+      attempted: 3,
+      centiseconds: 30 * 60 * 100 + 30 * 100,
+    });
+  });
+
   test('returns the same attempt if everything is ok', () => {
     const attempt = { solved: 11, attempted: 12, centiseconds: 60 * 60 * 100 };
     expect(validateMbldAttempt(attempt)).toEqual({
