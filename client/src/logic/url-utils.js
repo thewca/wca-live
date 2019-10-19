@@ -6,11 +6,18 @@ const WCA_ORIGIN = production
 
 const GROUPIFIER_ORIGIN = 'https://groupifier.jonatanklosko.com';
 
-export const wcaUrl = path => {
+const SCRAMBLES_MATCHER_ORIGIN = 'https://viroulep.github.io/scrambles-matcher';
+
+export const wcaUrl = (path = '') => {
   return `${WCA_ORIGIN}${path}`;
 };
 
-export const groupifierUrl = path => {
+export const groupifierUrl = (path = '') => {
   const query = production ? '' : '?staging=true';
   return `${GROUPIFIER_ORIGIN}${path}${query}`;
+};
+
+export const scramblesMatcherUrl = (path = '') => {
+  const query = production ? '' : '?staging=true';
+  return `${SCRAMBLES_MATCHER_ORIGIN}${path}${query}`;
 };

@@ -15,7 +15,11 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 import CustomQuery from '../../CustomQuery/CustomQuery';
 import CustomMutation from '../../CustomMutation/CustomMutation';
-import { wcaUrl, groupifierUrl } from '../../../logic/url-utils';
+import {
+  wcaUrl,
+  groupifierUrl,
+  scramblesMatcherUrl,
+} from '../../../logic/url-utils';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -120,7 +124,12 @@ const Synchronize = ({ match }) => {
               >
                 Groupifier
               </Link>
-              {`. Make sure to "Synchronize" first, so it sees the entered results.`}
+              {`. After the competition, please use `}
+              <Link href={scramblesMatcherUrl()} target="_blank">
+                Scrambles Matcher
+              </Link>
+              {` to attach scrambles to rounds and proceed with results posting.`}
+              {` Always make sure to "Synchronize" first, so the tools see the entered results.`}
             </Typography>
           </Grid>
         </Grid>
