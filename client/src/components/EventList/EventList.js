@@ -7,6 +7,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles } from '@material-ui/core/styles';
+import scrollIntoView from 'scroll-into-view-if-needed';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 
@@ -43,6 +44,13 @@ const EventList = ({ events, competitionId }) => {
             in={selectedEvent === event.id}
             timeout="auto"
             unmountOnExit
+            onEntered={element => {
+              scrollIntoView(element, {
+                behavior: 'smooth',
+                scrollMode: 'if-needed',
+                block: 'end',
+              });
+            }}
           >
             <List dense={true}>
               {event.rounds.map(round => (
