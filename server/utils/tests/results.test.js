@@ -7,7 +7,7 @@ beforeEach(() => {
 });
 
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { updateRanking, updateRecordTags, sortedResults } = require('../results');
+const { updateRanking, updateRecordTags, sortedResults, resultFinished } = require('../results');
 
 describe('updateRanking', () => {
   describe('when sorting by average', () => {
@@ -313,5 +313,29 @@ describe('sortedResults', () => {
     expect(sortedResults(results, wcif)).toEqual([
       result2, result1, result3,
     ]);
+  });
+});
+
+describe('resultFinished', () => {
+  test('returns true if the result has all attempts', () => {
+    const result = Result({ personId: 1, attempts: [{ result: 24 }, { result: 25 }, { result: 22 }] });
+    expect(resultFinished(result, 3, null)).toEqual(true);
+  });
+
+  test('returns false if the result does not have all attempts', () => {
+    const result = Result({ personId: 1, attempts: [{ result: 24 }, { result: 25 }] });
+    expect(resultFinished(result, 3, null)).toEqual(false);
+  });
+
+  test('returns true if the result has all cutoff times and does not meet cutoff', () => {
+    const result = Result({ personId: 1, attempts: [{ result: 24 }] });
+    const cutoff = { attemptResult: 23, numberOfAttempts: 1 };
+    expect(resultFinished(result, 3, cutoff)).toEqual(true);
+  });
+
+  test('returns false if the result only has the cutoff times but meets cutoff', () => {
+    const result = Result({ personId: 1, attempts: [{ result: 24 }] });
+    const cutoff = { attemptResult: 25, numberOfAttempts: 1 };
+    expect(resultFinished(result, 3, cutoff)).toEqual(false);
   });
 });

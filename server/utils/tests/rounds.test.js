@@ -2,7 +2,16 @@ const records = require('../records');
 records.getRecordByIdCopy = jest.fn(() => ({}));
 
 const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { roundLabel, openRound, clearRound, quitCompetitor, addCompetitor, podiums } = require('../rounds');
+const {
+  addCompetitor,
+  clearRound,
+  openRound,
+  podiums,
+  quitCompetitor,
+  roundFinished,
+  roundLabel,
+} = require('../rounds');
+const { times } = require('../utils');
 
 describe('roundLabel', () => {
   test('returns null if the rund is just open', () => {
@@ -118,7 +127,7 @@ describe('openRound', () => {
       const round1 = Round({
         id: '333-r1',
         results: [1, 2, 3, 4, 5, 6, 7, 8].map(
-          personId => Result({ ranking: 1, personId, attempts: [-1], best: -1 })
+          personId => Result({ ranking: 1, personId, attempts: [{ result: -1 }], best: -1 })
         ),
       });
       const round2 = Round({ id: '333-r2', results: [] });
@@ -392,12 +401,60 @@ describe('podiums', () => {
     const round = Round({
       id: '333bf-r1',
       results: [
-        Result({ ranking: 1, personId: 1, attempts: [-1, -1, -1], best: -1, average: -1 }),
+        Result({
+          ranking: 1,
+          personId: 1,
+          attempts: [{ result: -1 }, { result: -1 }, { result: -1 }],
+          best: -1,
+          average: -1,
+        }),
       ],
     });
     const wcif = Competition({
       events: [Event({ id: '333bf', rounds: [round] })],
     });
     expect(podiums(wcif)).toEqual([]);
+  });
+
+  describe('roundFinished', () => {
+    test('returns true if all results are finished', () => {
+      const round = Round({
+        id: '333-r1',
+        results: [
+          Result({ ranking: 1, personId: 1 }),
+          Result({ ranking: 2, personId: 2 }),
+        ],
+        cutoff: null,
+      });
+      expect(roundFinished(round)).toEqual(true);
+    });
+
+    test('returns true if few results are missing but the round is inactive', () => {
+      const round = Round({
+        id: '333-r1',
+        results: [
+          ...times(20, n =>
+            Result({ personId: n + 1, ranking: n + 1, updatedAt: new Date(Date.now() - 20 * 60 * 1000) })
+          ),
+          Result({ personId: 21, attempts: [], updatedAt: new Date(Date.now() - 20 * 60 * 1000) }),
+        ],
+        cutoff: null,
+      });
+      expect(roundFinished(round)).toEqual(true);
+    });
+
+    test('returns false if few results are missing but the round is active', () => {
+      const round = Round({
+        id: '333-r1',
+        results: [
+          ...times(20, n =>
+            Result({ personId: n + 1, ranking: n + 1, updatedAt: new Date(Date.now() - 10 * 60 * 1000) })
+          ),
+          Result({ personId: 21, attempts: [], updatedAt: new Date(Date.now() - 20 * 60 * 1000) }),
+        ],
+        cutoff: null,
+      });
+      expect(roundFinished(round)).toEqual(false);
+    });
   });
 });

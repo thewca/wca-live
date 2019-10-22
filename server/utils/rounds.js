@@ -1,6 +1,7 @@
 const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
 const { personIdsForRound, nextQualifyingToRound, missingQualifyingIds } = require('./advancement');
-const { processRoundChange, sortedResults, emptyResultsForPeople } = require('./results');
+const { processRoundChange, sortedResults, emptyResultsForPeople, resultFinished } = require('./results');
+const { formatById } = require('./formats');
 const { flatMap } = require('./utils');
 
 const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
@@ -34,9 +35,20 @@ const roundLabel = round => {
   return null;
 };
 
+/**
+ * Returns whether the round is finished.
+ * A round is considered finished if all results have the expected
+ * number of attempts (taking cutoff into account)
+ * or less than 10% of results is missing and the round is inactive.
+ */
 const roundFinished = round => {
-  /* Fixme: this is not accurate for events with distributed attempts (MBLD, FM). */
-  return round.results.length > 0 && round.results.every(({ attempts }) => attempts.length > 0);
+  const { solveCount } = formatById(round.format);
+  const { cutoff } = round;
+  const unfinishedResults = round.results.filter(
+    result => !resultFinished(result, solveCount, cutoff)
+  );
+  return unfinishedResults.length === 0
+    || (unfinishedResults.length < Math.floor(0.1 * round.results.length) && !roundActive(round))
 };
 
 const roundActive = round => {

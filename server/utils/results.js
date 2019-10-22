@@ -159,6 +159,15 @@ const emptyResultsForPeople = personIds => {
   }));
 };
 
+const resultFinished = (result, solveCount, cutoff) => {
+  const meetsCutoff = !cutoff || result.attempts
+    .slice(0, cutoff.numberOfAttempts)
+    .some(attempt => attempt.result > 0 && attempt.result < cutoff.attemptResult);
+  return meetsCutoff
+    ? result.attempts.length === solveCount
+    : result.attempts.length === cutoff.numberOfAttempts;
+};
+
 module.exports = {
   updateRanking,
   updateRecordTags,
@@ -166,4 +175,5 @@ module.exports = {
   processRoundChange,
   updateResult,
   emptyResultsForPeople,
+  resultFinished,
 };
