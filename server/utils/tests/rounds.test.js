@@ -417,6 +417,14 @@ describe('podiums', () => {
   });
 
   describe('roundFinished', () => {
+    test('returns false if the round has no results', () => {
+      const round = Round({
+        id: '333-r1',
+        results: [],
+      });
+      expect(roundFinished(round)).toEqual(false);
+    });
+
     test('returns true if all results are finished', () => {
       const round = Round({
         id: '333-r1',

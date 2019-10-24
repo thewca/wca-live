@@ -42,6 +42,7 @@ const roundLabel = round => {
  * or less than 10% of results is missing and the round is inactive.
  */
 const roundFinished = round => {
+  if (round.results.length === 0) return false;
   const { solveCount } = formatById(round.format);
   const { cutoff } = round;
   const unfinishedResults = round.results.filter(
