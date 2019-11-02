@@ -20,4 +20,9 @@ module.exports.connect = async () => {
     competitions: db.collection('competitions'),
     data: db.collection('data'),
   });
+  /* Create indices */
+  db.collection('competitions').createIndex(
+    { 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1, 'wcif.shortName': 1 },
+    { name: 'Competition list query' }
+  );
 };
