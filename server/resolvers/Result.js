@@ -1,4 +1,4 @@
-const { personById } = require('../utils/wcif');
+const { personById } = require('../logic/wcif');
 
 module.exports = {
   person: ({ personId, wcif }) => {

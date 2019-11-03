@@ -1,6 +1,6 @@
 const { db } = require('../mongo-connector');
-const wcaApi = require('../utils/wca-api');
-const { countryByIso2 } = require('../utils/countries');
+const wcaApi = require('../logic/wca-api');
+const { countryByIso2 } = require('../logic/countries');
 
 module.exports = {
   id: (parent) => parent._id,

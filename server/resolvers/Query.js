@@ -1,8 +1,8 @@
 const { withAuthentication, requireCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
 const { db } = require('../mongo-connector');
-const { roundById, personById, startDate, endDate } = require('../utils/wcif');
-const { dateToUTCDateString } = require('../utils/date');
+const { roundById, personById, startDate, endDate } = require('../logic/wcif');
+const { dateToUTCDateString } = require('../logic/date');
 const { withWcif } = require('./utils');
 
 module.exports = {

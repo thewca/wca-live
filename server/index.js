@@ -13,7 +13,7 @@ const oauth = require('./routes/oauth');
 const pdfs = require('./routes/pdfs');
 const resolvers = require('./resolvers');
 const mongo = require('./mongo-connector');
-const { initialize: initializeRecords } = require('./utils/records');
+const { initialize: initializeRecords } = require('./logic/records');
 const { PRODUCTION, PORT, SESSION_SECRET } = require('./config');
 
 const initialize = async () => {

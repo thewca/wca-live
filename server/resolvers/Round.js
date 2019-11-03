@@ -1,7 +1,7 @@
-const { formatById } = require('../utils/formats');
-const { parseActivityCode, eventById, personById } = require('../utils/wcif');
-const { friendlyRoundName, roundLabel, roundFinished, roundActive } = require('../utils/rounds');
-const { advancingResults, nextQualifyingToRound, missingQualifyingIds } = require('../utils/advancement');
+const { formatById } = require('../logic/formats');
+const { parseActivityCode, eventById, personById } = require('../logic/wcif');
+const { friendlyRoundName, roundLabel, roundFinished, roundActive } = require('../logic/rounds');
+const { advancingResults, nextQualifyingToRound, missingQualifyingIds } = require('../logic/advancement');
 const { withWcif } = require('./utils');
 
 module.exports = {

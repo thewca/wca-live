@@ -1,4 +1,4 @@
-const { addDays } = require('../utils/date');
+const { addDays } = require('../logic/date');
 
 module.exports = {
   latitude: ({ latitudeMicrodegrees }) => {

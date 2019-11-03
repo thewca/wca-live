@@ -1,7 +1,7 @@
 const express = require('express');
 const { db } = require('../mongo-connector');
-const wcaApi  = require('../utils/wca-api');
-const { authorizationUrl, oauthDataFromCode }  = require('../utils/wca-oauth');
+const wcaApi  = require('../logic/wca-api');
+const { authorizationUrl, oauthDataFromCode }  = require('../logic/wca-oauth');
 const { PRODUCTION }  = require('../config');
 
 const userJsonToUser = userJson => ({

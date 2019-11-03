@@ -1,6 +1,6 @@
 const express = require('express');
 const competitionLoader = require('../competition-loader');
-const roundResultsPdf = require('../utils/documents/round-results');
+const roundResultsPdf = require('../logic/documents/round-results');
 
 const router = express.Router();
 

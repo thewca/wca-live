@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const { db } = require('../mongo-connector');
 const wcaApi = require ('./wca-api');
-const { personById } = require('../utils/wcif');
-const { uniq, haveSameElements } = require('../utils/utils');
+const { personById } = require('../logic/wcif');
+const { uniq, haveSameElements } = require('../logic/utils');
 
 const managerWcaUserIds = wcif => {
   return wcif.persons

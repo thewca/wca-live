@@ -1,8 +1,8 @@
-const { acceptedPeople } = require('../utils/wcif');
-const { competitionCountryIso2s } = require('../utils/wcif');
-const { countryByIso2 } = require('../utils/countries');
-const { podiums } = require('../utils/rounds');
-const { hasAccess } = require('../utils/competition');
+const { acceptedPeople } = require('../logic/wcif');
+const { competitionCountryIso2s } = require('../logic/wcif');
+const { countryByIso2 } = require('../logic/countries');
+const { podiums } = require('../logic/rounds');
+const { hasAccess } = require('../logic/competition');
 const { withWcif } = require('./utils');
 
 module.exports = {

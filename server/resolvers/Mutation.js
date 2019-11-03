@@ -2,10 +2,10 @@ const bcrypt = require('bcrypt');
 const { requireCompetition, requireCompetitionWithAuthorization } = require('./middleware');
 const competitionLoader = require('../competition-loader');
 const pubsub = require('./pubsub');
-const { roundById } = require('../utils/wcif');
-const { updateResult } = require('../utils/results');
-const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../utils/rounds');
-const { importCompetition, synchronize, updateAccessSettings } = require('../utils/competition');
+const { roundById } = require('../logic/wcif');
+const { updateResult } = require('../logic/results');
+const { openRound, clearRound, quitCompetitor, addCompetitor } = require('../logic/rounds');
+const { importCompetition, synchronize, updateAccessSettings } = require('../logic/competition');
 const { withWcif } = require('./utils');
 
 module.exports = {

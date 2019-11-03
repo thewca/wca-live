@@ -1,4 +1,4 @@
-const { eventNameById } = require('../utils/events');
+const { eventNameById } = require('../logic/events');
 const { withWcif } = require('./utils');
 
 module.exports = {

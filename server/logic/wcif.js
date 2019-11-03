@@ -1,5 +1,5 @@
 const { uniq } = require('./utils');
-const { addDays } = require('../utils/date');
+const { addDays } = require('../logic/date');
 
 const parseActivityCode = activityCode => {
   const [, e, r, g, a] = activityCode.match(/(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?/);

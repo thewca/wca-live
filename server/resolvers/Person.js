@@ -1,6 +1,6 @@
-const { countryByIso2 } = require('../utils/countries');
-const { flatMap } = require('../utils/utils');
-const { advancingResults } = require('../utils/advancement');
+const { countryByIso2 } = require('../logic/countries');
+const { flatMap } = require('../logic/utils');
+const { advancingResults } = require('../logic/advancement');
 
 module.exports = {
   id: ({ registrantId }) => registrantId,
