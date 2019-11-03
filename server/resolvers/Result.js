@@ -1,4 +1,5 @@
 const { personById } = require('../logic/wcif');
+const { withWcif } = require('./utils');
 
 module.exports = {
   person: ({ personId, wcif }) => {
@@ -9,5 +10,8 @@ module.exports = {
   },
   updatedAt: ({ updatedAt }) => {
     return updatedAt.toISOString();
+  },
+  round: ({ round, wcif }) => {
+    return withWcif(wcif)(round);
   },
 };

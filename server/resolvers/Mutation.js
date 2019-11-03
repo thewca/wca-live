@@ -1,8 +1,5 @@
 const bcrypt = require('bcrypt');
-const {
-  requireCompetition,
-  requireCompetitionWithAuthorization,
-} = require('./middleware');
+const { requireCompetition, requireRole } = require('./middleware');
 const competitionLoader = require('../competition-loader');
 const pubsub = require('./pubsub');
 const { roundById } = require('../logic/wcif');
@@ -30,12 +27,7 @@ module.exports = {
     return await importCompetition(id, context.user);
   },
   synchronize: async (parent, { competitionId }, { user, session }) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'scoretaker',
-      user,
-      session
-    );
+    await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const updatedCompetition = await synchronize(competition);
@@ -47,12 +39,7 @@ module.exports = {
     { competitionId, accessSettings },
     { user, session }
   ) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'manager',
-      user,
-      session
-    );
+    await requireRole('manager', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const updatedCompetition = await updateAccessSettings(
@@ -82,12 +69,7 @@ module.exports = {
     { competitionId, roundId, result },
     { user, session }
   ) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'scoretaker',
-      user,
-      session
-    );
+    await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const attempts = result.attempts.map(attempt => ({ result: attempt }));
@@ -113,12 +95,7 @@ module.exports = {
     });
   },
   openRound: async (parent, { competitionId, roundId }, { user, session }) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'scoretaker',
-      user,
-      session
-    );
+    await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const updatedWcif = openRound(competition.wcif, roundId);
@@ -130,12 +107,7 @@ module.exports = {
     });
   },
   clearRound: async (parent, { competitionId, roundId }, { user, session }) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'scoretaker',
-      user,
-      session
-    );
+    await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const updatedWcif = clearRound(competition.wcif, roundId);
@@ -151,12 +123,7 @@ module.exports = {
     { competitionId, roundId, competitorId, replace },
     { user, session }
   ) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'scoretaker',
-      user,
-      session
-    );
+    await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const updatedWcif = quitCompetitor(
@@ -177,12 +144,7 @@ module.exports = {
     { competitionId, roundId, competitorId },
     { user, session }
   ) => {
-    const competition = requireCompetitionWithAuthorization(
-      competitionId,
-      'scoretaker',
-      user,
-      session
-    );
+    await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const updatedWcif = addCompetitor(

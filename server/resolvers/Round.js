@@ -48,17 +48,17 @@ module.exports = {
   nextQualifying: ({ id, wcif }) => {
     return nextQualifyingToRound(wcif, id)
       .map(personId => personById(wcif, personId))
-      .map(withWcif(parent.wcif));
+      .map(withWcif(wcif));
   },
   missingQualifying: ({ id, wcif }) => {
     const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, id);
     return {
       qualifying: qualifyingIds
         .map(personId => personById(wcif, personId))
-        .map(withWcif(parent.wcif)),
+        .map(withWcif(wcif)),
       excess: excessIds
         .map(personId => personById(wcif, personId))
-        .map(withWcif(parent.wcif)),
+        .map(withWcif(wcif)),
     };
   },
 };

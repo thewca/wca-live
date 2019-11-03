@@ -12,12 +12,7 @@ const requireCompetition = async id => {
   return competition;
 };
 
-const requireCompetitionWithAuthorization = async (
-  competitionId,
-  role,
-  user,
-  session
-) => {
+const requireRole = async (role, competitionId, user, session) => {
   const competition = await requireCompetition(competitionId);
   if (!hasAccess(role, competition, user, session)) {
     throw new AuthenticationError('Not authorized.');
@@ -27,5 +22,5 @@ const requireCompetitionWithAuthorization = async (
 
 module.exports = {
   requireCompetition,
-  requireCompetitionWithAuthorization,
+  requireRole,
 };
