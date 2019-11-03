@@ -1,6 +1,15 @@
 const { roundById, previousRound, nextRound, updateRound } = require('./wcif');
-const { personIdsForRound, nextQualifyingToRound, missingQualifyingIds } = require('./advancement');
-const { processRoundChange, sortedResults, emptyResultsForPeople, resultFinished } = require('./results');
+const {
+  personIdsForRound,
+  nextQualifyingToRound,
+  missingQualifyingIds,
+} = require('./advancement');
+const {
+  processRoundChange,
+  sortedResults,
+  emptyResultsForPeople,
+  resultFinished,
+} = require('./results');
 const { formatById } = require('./formats');
 const { flatMap } = require('./utils');
 
@@ -15,14 +24,15 @@ const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
     return cutoff ? 'Combined Second' : 'Second Round';
   }
   if (roundNumber === 3) {
-    return cutoff ? 'Combined Third' : 'Semi Final'
+    return cutoff ? 'Combined Third' : 'Semi Final';
   }
   return null;
 };
 
 const roundLabel = round => {
-  const recordTags = flatMap(round.results, result => Object.values(result.recordTags))
-    .filter(tag => tag && tag !== 'PB');
+  const recordTags = flatMap(round.results, result =>
+    Object.values(result.recordTags)
+  ).filter(tag => tag && tag !== 'PB');
   if (recordTags.length > 0) {
     return ['WR', 'CR', 'NR'].find(tag => recordTags.includes(tag));
   }
@@ -48,8 +58,11 @@ const roundFinished = round => {
   const unfinishedResults = round.results.filter(
     result => !resultFinished(result, solveCount, cutoff)
   );
-  return unfinishedResults.length === 0
-    || (unfinishedResults.length < Math.floor(0.1 * round.results.length) && !roundActive(round))
+  return (
+    unfinishedResults.length === 0 ||
+    (unfinishedResults.length < Math.floor(0.1 * round.results.length) &&
+      !roundActive(round))
+  );
 };
 
 const roundActive = round => {
@@ -74,13 +87,19 @@ const openRound = (wcif, roundId) => {
     );
     if (previousResults.length < 8) {
       /* See: https://www.worldcubeassociation.org/regulations/#9m3 */
-      throw new Error('Cannot open this round as the previous has less than 8 competitors.');
+      throw new Error(
+        'Cannot open this round as the previous has less than 8 competitors.'
+      );
     }
     wcif = updateRound(wcif, { ...previous, results: previousResults });
   }
   const personIds = personIdsForRound(wcif, round.id);
   if (personIds.length === 0) {
-    throw new Error(`Cannot open this round as no one ${previous ? 'qualified' : 'registered'}.`);
+    throw new Error(
+      `Cannot open this round as no one ${
+        previous ? 'qualified' : 'registered'
+      }.`
+    );
   }
   const results = sortedResults(emptyResultsForPeople(personIds), wcif);
   return updateRound(wcif, { ...round, results });
@@ -101,7 +120,9 @@ const quitCompetitor = (wcif, roundId, competitorId, replace) => {
     result => result.personId === competitorId
   );
   if (!advanced) {
-    throw new Error(`Cannot quit competitor with id ${competitorId} as he's not in ${roundId}.`);
+    throw new Error(
+      `Cannot quit competitor with id ${competitorId} as he's not in ${roundId}.`
+    );
   }
   const replacingResults = replace
     ? emptyResultsForPeople(nextQualifyingToRound(wcif, round.id))
@@ -117,7 +138,9 @@ const addCompetitor = (wcif, roundId, competitorId, replace) => {
   const round = roundById(wcif, roundId);
   const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, roundId);
   if (!qualifyingIds.includes(competitorId)) {
-    throw new Error(`Cannot add competitor with id ${competitorId} as he doesn't qualify to ${roundId}.`);
+    throw new Error(
+      `Cannot add competitor with id ${competitorId} as he doesn't qualify to ${roundId}.`
+    );
   }
   const results = round.results
     .filter(result => !excessIds.includes(result.personId))
@@ -135,8 +158,8 @@ const podiums = wcif => {
     .filter(roundFinished);
   const withTop3Results = finals.map(round => ({
     ...round,
-    results: round.results.filter(result =>
-      result.best > 0 && result.ranking && result.ranking <= 3
+    results: round.results.filter(
+      result => result.best > 0 && result.ranking && result.ranking <= 3
     ),
   }));
   return withTop3Results.filter(round => round.results.length > 0);

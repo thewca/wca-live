@@ -17,7 +17,7 @@ const authorizationUrl = () => {
   return `${WCA_ORIGIN}/oauth/authorize?${params.toString()}`;
 };
 
-const oauthDataFromCode = async (code) => {
+const oauthDataFromCode = async code => {
   const params = new URLSearchParams({
     client_id: WCA_OAUTH_CLIENT_ID,
     client_secret: WCA_OAUTH_SECRET,
@@ -25,11 +25,14 @@ const oauthDataFromCode = async (code) => {
     code,
     grant_type: 'authorization_code',
   });
-  const tokenResponse = await fetch(`${WCA_ORIGIN}/oauth/token?${params.toString()}`, { method: 'POST' });
+  const tokenResponse = await fetch(
+    `${WCA_ORIGIN}/oauth/token?${params.toString()}`,
+    { method: 'POST' }
+  );
   return tokenResponseJsonToOauthData(await tokenResponse.json());
 };
 
-const refreshUserAccessToken = async (user) => {
+const refreshUserAccessToken = async user => {
   /* Refresh the token only if it expires in less than 5 minutes. */
   if (user.oauth.expiresAt < new Date(Date.now() + 5 * 60 * 1000)) {
     const params = new URLSearchParams({
@@ -38,11 +41,14 @@ const refreshUserAccessToken = async (user) => {
       grant_type: 'refresh_token',
       refresh_token: user.oauth.refreshToken,
     });
-    const tokenResponse = await fetch(`${WCA_ORIGIN}/oauth/token?${params.toString()}`, { method: 'POST' });
+    const tokenResponse = await fetch(
+      `${WCA_ORIGIN}/oauth/token?${params.toString()}`,
+      { method: 'POST' }
+    );
     user.oauth = tokenResponseJsonToOauthData(await tokenResponse.json());
     await db.users.findOneAndUpdate(
       { wcaUserId: user.wcaUserId },
-      { $set: user },
+      { $set: user }
     );
   }
 };

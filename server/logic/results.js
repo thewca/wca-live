@@ -18,20 +18,23 @@ const updateRanking = (results, formatId) => {
   const { sortBy } = formatById(formatId);
   const rankingOrder = sortBy === 'best' ? ['best'] : ['average', 'best'];
 
-  const [nonempty, empty] = partition(results, ({ attempts }) => attempts.length > 0);
+  const [nonempty, empty] = partition(
+    results,
+    ({ attempts }) => attempts.length > 0
+  );
 
   const sortedResults = sortByArray(nonempty, result =>
-    rankingOrder.map(type => result[type] > 0 ? result[type] : Infinity)
+    rankingOrder.map(type => (result[type] > 0 ? result[type] : Infinity))
   );
 
   const nonemptyWithRanking = sortedResults.reduce((results, result, index) => {
     const prevResult = results[index - 1];
-    const tiedPrevious = prevResult && rankingOrder.every(
-      type => result[type] === prevResult[type]
-    );
+    const tiedPrevious =
+      prevResult &&
+      rankingOrder.every(type => result[type] === prevResult[type]);
     const resultWithRanking = {
       ...result,
-      ranking: tiedPrevious ? prevResult.ranking : index + 1
+      ranking: tiedPrevious ? prevResult.ranking : index + 1,
     };
     return [...results, resultWithRanking];
   }, []);
@@ -82,10 +85,14 @@ const updateRecordTags = (wcif, roundId) => {
       };
       ['single', 'average'].forEach(type => {
         if (stats[type] > 0) {
-          tagsWithRecordId(wcif, result.personId, eventId, type)
-            .forEach(({ recordId }) => {
-              recordById[recordId] = Math.min(recordById[recordId] || Infinity, stats[type]);
-            });
+          tagsWithRecordId(wcif, result.personId, eventId, type).forEach(
+            ({ recordId }) => {
+              recordById[recordId] = Math.min(
+                recordById[recordId] || Infinity,
+                stats[type]
+              );
+            }
+          );
         }
       });
     });
@@ -105,15 +112,22 @@ const updateRecordTags = (wcif, roundId) => {
       };
       const recordTags = {};
       ['single', 'average'].forEach(type => {
-        const tagWithRecordId = tagsWithRecordId(wcif, result.personId, eventId, type)
-          .find(({ recordId }) => recordById[recordId] === stats[type]);
+        const tagWithRecordId = tagsWithRecordId(
+          wcif,
+          result.personId,
+          eventId,
+          type
+        ).find(({ recordId }) => recordById[recordId] === stats[type]);
         recordTags[type] = tagWithRecordId ? tagWithRecordId.tag : null;
       });
       return { ...result, recordTags };
     });
     return { ...round, results };
   });
-  const updatedEvent = { ...event, rounds: [...previousRounds, ...updatedAffectedRounds] };
+  const updatedEvent = {
+    ...event,
+    rounds: [...previousRounds, ...updatedAffectedRounds],
+  };
   return updateEvent(wcif, updatedEvent);
 };
 
@@ -135,12 +149,12 @@ const updateResult = (wcif, roundId, personId, attempts) => {
     results: round.results.map(current =>
       current.personId === personId
         ? {
-          ...current,
-          attempts,
-          best: best(attemptResults),
-          average: average(attemptResults, eventId, solveCount),
-          updatedAt: new Date(),
-        }
+            ...current,
+            attempts,
+            best: best(attemptResults),
+            average: average(attemptResults, eventId, solveCount),
+            updatedAt: new Date(),
+          }
         : current
     ),
   });
@@ -160,9 +174,13 @@ const emptyResultsForPeople = personIds => {
 };
 
 const resultFinished = (result, solveCount, cutoff) => {
-  const meetsCutoff = !cutoff || result.attempts
-    .slice(0, cutoff.numberOfAttempts)
-    .some(attempt => attempt.result > 0 && attempt.result < cutoff.attemptResult);
+  const meetsCutoff =
+    !cutoff ||
+    result.attempts
+      .slice(0, cutoff.numberOfAttempts)
+      .some(
+        attempt => attempt.result > 0 && attempt.result < cutoff.attemptResult
+      );
   return meetsCutoff
     ? result.attempts.length === solveCount
     : result.attempts.length === cutoff.numberOfAttempts;

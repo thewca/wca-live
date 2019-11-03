@@ -1,13 +1,13 @@
 const bcrypt = require('bcrypt');
 const { db } = require('../mongo-connector');
-const wcaApi = require ('./wca-api');
+const wcaApi = require('./wca-api');
 const { personById } = require('../logic/wcif');
 const { uniq, haveSameElements } = require('../logic/utils');
 
 const managerWcaUserIds = wcif => {
   return wcif.persons
-    .filter(({ roles }) =>
-      roles.includes('delegate') || roles.includes('organizer')
+    .filter(
+      ({ roles }) => roles.includes('delegate') || roles.includes('organizer')
     )
     .map(person => person.wcaUserId);
 };
@@ -39,18 +39,20 @@ const importCompetition = async (competitionId, user) => {
         encryptedPassword: null,
       },
     },
-    { upsert: true, returnOriginal: false },
+    { upsert: true, returnOriginal: false }
   );
   return competition;
 };
 
 /* Gets current WCIF from the WCA website and overrides results with the local ones.
    Returns synchronized competition. */
-const synchronize = async (competition) => {
+const synchronize = async competition => {
   const user = await importedByUser(competition);
   const newWcif = await wcaApi(user).getWcif(competition.wcif.id);
   newWcif.events.forEach(newEvent => {
-    const event = competition.wcif.events.find(event => event.id === newEvent.id);
+    const event = competition.wcif.events.find(
+      event => event.id === newEvent.id
+    );
     if (event) {
       newEvent.rounds.forEach(newRound => {
         const round = event.rounds.find(round => round.id === newRound.id);
@@ -60,7 +62,9 @@ const synchronize = async (competition) => {
       });
     }
   });
-  await wcaApi(user).updateWcif(competition.wcif.id, { events: newWcif.events });
+  await wcaApi(user).updateWcif(competition.wcif.id, {
+    events: newWcif.events,
+  });
   return {
     ...competition,
     wcif: newWcif,
@@ -71,20 +75,27 @@ const synchronize = async (competition) => {
 };
 
 const updateAccessSettings = async (competition, accessSettings) => {
-  const scoretakerIds = accessSettings.scoretakerIds.map(id => parseInt(id, 10));
-  const scoretakerWcaUserIds = scoretakerIds
-    .map(id => personById(competition.wcif, id).wcaUserId);
+  const scoretakerIds = accessSettings.scoretakerIds.map(id =>
+    parseInt(id, 10)
+  );
+  const scoretakerWcaUserIds = scoretakerIds.map(
+    id => personById(competition.wcif, id).wcaUserId
+  );
   const persons = competition.wcif.persons.map(person => ({
     ...person,
     roles: scoretakerIds.includes(person.registrantId)
       ? uniq([...person.roles, 'staff-dataentry'])
-      : person.roles.filter(role => role !== 'staff-dataentry')
+      : person.roles.filter(role => role !== 'staff-dataentry'),
   }));
   const { passwordAuthEnabled, password } = accessSettings;
   const encryptedPassword = passwordAuthEnabled
-    ? (password ? await bcrypt.hash(password, 12) : competition.encryptedPassword)
+    ? password
+      ? await bcrypt.hash(password, 12)
+      : competition.encryptedPassword
     : null;
-  if (!haveSameElements(scoretakerWcaUserIds, competition.scoretakerWcaUserIds)) {
+  if (
+    !haveSameElements(scoretakerWcaUserIds, competition.scoretakerWcaUserIds)
+  ) {
     const user = await importedByUser(competition);
     /* Save scoretakers change straightaway, so during synchronization we can
        always overried local scoretakers with the synchronized ones. */
@@ -101,7 +112,7 @@ const updateAccessSettings = async (competition, accessSettings) => {
 const hasAccess = (role, competition, user, session) => {
   const authorizedManagerWcaUserIds = [
     ...competition.managerWcaUserIds,
-    6008, /* Jonatan Kłosko */
+    6008 /* Jonatan Kłosko */,
   ];
   const authorizedScoretakerWcaUserIds = [
     ...authorizedManagerWcaUserIds,
@@ -111,11 +122,14 @@ const hasAccess = (role, competition, user, session) => {
     return !!user && authorizedManagerWcaUserIds.includes(user.wcaUserId);
   } else if (role === 'scoretaker') {
     const passwordSession =
-      session.competitionId === competition._id.toString()
-      && session.encryptedPassword === competition.encryptedPassword;
-    return passwordSession || (!!user && authorizedScoretakerWcaUserIds.includes(user.wcaUserId));
+      session.competitionId === competition._id.toString() &&
+      session.encryptedPassword === competition.encryptedPassword;
+    return (
+      passwordSession ||
+      (!!user && authorizedScoretakerWcaUserIds.includes(user.wcaUserId))
+    );
   } else {
-    throw new Error(`Unrecognised role: ${role}`)
+    throw new Error(`Unrecognised role: ${role}`);
   }
   return false;
 };

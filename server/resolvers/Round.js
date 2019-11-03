@@ -1,7 +1,16 @@
 const { formatById } = require('../logic/formats');
 const { parseActivityCode, eventById, personById } = require('../logic/wcif');
-const { friendlyRoundName, roundLabel, roundFinished, roundActive } = require('../logic/rounds');
-const { advancingResults, nextQualifyingToRound, missingQualifyingIds } = require('../logic/advancement');
+const {
+  friendlyRoundName,
+  roundLabel,
+  roundFinished,
+  roundActive,
+} = require('../logic/rounds');
+const {
+  advancingResults,
+  nextQualifyingToRound,
+  missingQualifyingIds,
+} = require('../logic/advancement');
 const { withWcif } = require('./utils');
 
 module.exports = {
@@ -16,10 +25,10 @@ module.exports = {
     const event = eventById(wcif, eventId);
     return friendlyRoundName(roundNumber, event.rounds.length, cutoff);
   },
-  label: (round) => {
+  label: round => {
     return roundLabel(round);
   },
-  results: (parent) => {
+  results: parent => {
     const advancing = advancingResults(parent, parent.wcif);
     return parent.results
       .map(result => ({
@@ -30,16 +39,16 @@ module.exports = {
       .map(withWcif(parent.wcif));
   },
   open: ({ results }) => results.length > 0,
-  finished: (round) => {
+  finished: round => {
     return roundFinished(round);
   },
-  active: (round) => {
-    return roundActive(round)
+  active: round => {
+    return roundActive(round);
   },
   nextQualifying: ({ id, wcif }) => {
     return nextQualifyingToRound(wcif, id)
       .map(personId => personById(wcif, personId))
-      .map(withWcif(parent.wcif));;
+      .map(withWcif(parent.wcif));
   },
   missingQualifying: ({ id, wcif }) => {
     const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, id);

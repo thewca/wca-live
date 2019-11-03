@@ -22,23 +22,25 @@ const initialize = async () => {
   await mongo.connect();
   await initializeRecords();
 
-  app.use(session({
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    rolling: true,
-    cookie: {
-      httpOnly: true,
-      secure: PRODUCTION,
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000,
-    },
-    proxy: true,
-    store: new MongoStore({
-      collection: 'cookieSessions',
-      client: mongo.db.client,
-    }),
-  }));
+  app.use(
+    session({
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      rolling: true,
+      cookie: {
+        httpOnly: true,
+        secure: PRODUCTION,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      },
+      proxy: true,
+      store: new MongoStore({
+        collection: 'cookieSessions',
+        client: mongo.db.client,
+      }),
+    })
+  );
 
   app.use('/oauth', oauth);
   app.use('/pdfs', pdfs);
@@ -55,7 +57,9 @@ const initialize = async () => {
         return {
           session: req.session,
           user: req.session.userId
-            ? await mongo.db.users.findOne({ _id: new ObjectId(req.session.userId) })
+            ? await mongo.db.users.findOne({
+                _id: new ObjectId(req.session.userId),
+              })
             : null,
         };
       }
@@ -66,7 +70,9 @@ const initialize = async () => {
   server.applyMiddleware({
     app,
     path: '/api',
-    cors: PRODUCTION ? false : { origin: 'http://localhost:3000', credentials: true },
+    cors: PRODUCTION
+      ? false
+      : { origin: 'http://localhost:3000', credentials: true },
     bodyParserConfig: { limit: '5mb' },
   });
 

@@ -6,8 +6,19 @@ beforeEach(() => {
   });
 });
 
-const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
-const { updateRanking, updateRecordTags, sortedResults, resultFinished } = require('../results');
+const {
+  Result,
+  Competition,
+  Event,
+  Round,
+  Person,
+} = require('./wcif-builders');
+const {
+  updateRanking,
+  updateRecordTags,
+  sortedResults,
+  resultFinished,
+} = require('../results');
 
 describe('updateRanking', () => {
   describe('when sorting by average', () => {
@@ -129,7 +140,8 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: null, average: null
+      single: null,
+      average: null,
     });
   });
 
@@ -144,7 +156,8 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'PB', average: 'PB'
+      single: 'PB',
+      average: 'PB',
     });
   });
 
@@ -159,7 +172,8 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'NR', average: 'NR'
+      single: 'NR',
+      average: 'NR',
     });
   });
 
@@ -174,7 +188,8 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'CR', average: 'CR'
+      single: 'CR',
+      average: 'CR',
     });
   });
 
@@ -189,7 +204,8 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'WR', average: 'WR'
+      single: 'WR',
+      average: 'WR',
     });
   });
 
@@ -203,36 +219,36 @@ describe('updateRecordTags', () => {
     });
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1] })],
-      persons: [1, 2].map(registrantId => Person({
-        registrantId,
-        countryIso2: 'GB',
-        personalBests: [
-          { eventId: '333', type: 'single', best: 800 },
-          { eventId: '333', type: 'average', best: 900 },
-        ],
-      })),
+      persons: [1, 2].map(registrantId =>
+        Person({
+          registrantId,
+          countryIso2: 'GB',
+          personalBests: [
+            { eventId: '333', type: 'single', best: 800 },
+            { eventId: '333', type: 'average', best: 900 },
+          ],
+        })
+      ),
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'PB', average: 'WR'
+      single: 'PB',
+      average: 'WR',
     });
     expect(updatedWcif.events[0].rounds[0].results[1].recordTags).toEqual({
-      single: 'WR', average: 'PB'
+      single: 'WR',
+      average: 'PB',
     });
   });
 
   test('allows record of the same type in many rounds', () => {
     const round1 = Round({
       id: '333-r1',
-      results: [
-        Result({ personId: 1, best: 480, average: 580 }),
-      ],
+      results: [Result({ personId: 1, best: 480, average: 580 })],
     });
     const round2 = Round({
       id: '333-r2',
-      results: [
-        Result({ personId: 1, best: 450, average: 550 }),
-      ],
+      results: [Result({ personId: 1, best: 450, average: 550 })],
     });
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
@@ -240,10 +256,12 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'WR', average: 'WR'
+      single: 'WR',
+      average: 'WR',
     });
     expect(updatedWcif.events[0].rounds[1].results[0].recordTags).toEqual({
-      single: 'WR', average: 'WR'
+      single: 'WR',
+      average: 'WR',
     });
   });
 
@@ -254,7 +272,8 @@ describe('updateRecordTags', () => {
     });
     const person = Person({
       registrantId: 1,
-      countryIso2: 'US', /* Note: there are no records for either USA and North America. */
+      countryIso2:
+        'US' /* Note: there are no records for either USA and North America. */,
     });
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1] })],
@@ -262,29 +281,28 @@ describe('updateRecordTags', () => {
     });
     const updatedWcif = updateRecordTags(wcif, '333-r1');
     expect(updatedWcif.events[0].rounds[0].results[0].recordTags).toEqual({
-      single: 'CR', average: null
+      single: 'CR',
+      average: null,
     });
   });
 });
 
 describe('sortedResults', () => {
   test('orders by ranking', () => {
-    const result1 = Result({ personId: 1, ranking: 2, });
-    const result2 = Result({ personId: 2, ranking: 3, });
-    const result3 = Result({ personId: 3, ranking: 1, });
+    const result1 = Result({ personId: 1, ranking: 2 });
+    const result2 = Result({ personId: 2, ranking: 3 });
+    const result3 = Result({ personId: 3, ranking: 1 });
     const wcif = Competition({
       persons: [1, 2, 3].map(registrantId => Person({ registrantId })),
     });
     const results = [result1, result2, result3];
-    expect(sortedResults(results, wcif)).toEqual([
-      result3, result1, result2,
-    ]);
+    expect(sortedResults(results, wcif)).toEqual([result3, result1, result2]);
   });
 
   test('orders by name people with the same ranking', () => {
-    const result1 = Result({ personId: 1, ranking: 1, });
-    const result2 = Result({ personId: 2, ranking: 1, });
-    const result3 = Result({ personId: 3, ranking: 1, });
+    const result1 = Result({ personId: 1, ranking: 1 });
+    const result2 = Result({ personId: 2, ranking: 1 });
+    const result3 = Result({ personId: 3, ranking: 1 });
     const wcif = Competition({
       persons: [
         Person({ registrantId: 1, name: 'Sherlock' }),
@@ -293,15 +311,13 @@ describe('sortedResults', () => {
       ],
     });
     const results = [result1, result2, result3];
-    expect(sortedResults(results, wcif)).toEqual([
-      result2, result3, result1,
-    ]);
+    expect(sortedResults(results, wcif)).toEqual([result2, result3, result1]);
   });
 
   test('compares non-latin characters in names correctly', () => {
-    const result1 = Result({ personId: 1, ranking: 1, });
-    const result2 = Result({ personId: 2, ranking: 1, });
-    const result3 = Result({ personId: 3, ranking: 1, });
+    const result1 = Result({ personId: 1, ranking: 1 });
+    const result2 = Result({ personId: 2, ranking: 1 });
+    const result3 = Result({ personId: 3, ranking: 1 });
     const wcif = Competition({
       persons: [
         Person({ registrantId: 1, name: 'Łukasz' }),
@@ -310,20 +326,24 @@ describe('sortedResults', () => {
       ],
     });
     const results = [result1, result2, result3];
-    expect(sortedResults(results, wcif)).toEqual([
-      result2, result1, result3,
-    ]);
+    expect(sortedResults(results, wcif)).toEqual([result2, result1, result3]);
   });
 });
 
 describe('resultFinished', () => {
   test('returns true if the result has all attempts', () => {
-    const result = Result({ personId: 1, attempts: [{ result: 24 }, { result: 25 }, { result: 22 }] });
+    const result = Result({
+      personId: 1,
+      attempts: [{ result: 24 }, { result: 25 }, { result: 22 }],
+    });
     expect(resultFinished(result, 3, null)).toEqual(true);
   });
 
   test('returns false if the result does not have all attempts', () => {
-    const result = Result({ personId: 1, attempts: [{ result: 24 }, { result: 25 }] });
+    const result = Result({
+      personId: 1,
+      attempts: [{ result: 24 }, { result: 25 }],
+    });
     expect(resultFinished(result, 3, null)).toEqual(false);
   });
 

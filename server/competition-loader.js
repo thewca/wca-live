@@ -13,7 +13,7 @@ const { db } = require('./mongo-connector');
 const CACHED_COMPETITION_COUNT = 20;
 const cachedCompetitions = [];
 
-const get = async (wcifId) => {
+const get = async wcifId => {
   const cachedIndex = cachedCompetitions.findIndex(
     cached => cached.wcif.id === wcifId
   );
@@ -26,7 +26,9 @@ const get = async (wcifId) => {
     const competition = await db.competitions.findOne({ 'wcif.id': wcifId });
     if (!competition) return null;
     /* Check if it hasn't been added to the cache while we were loading. */
-    const inCache = cachedCompetitions.some(cached => cached.wcif.id === wcifId);
+    const inCache = cachedCompetitions.some(
+      cached => cached.wcif.id === wcifId
+    );
     if (!inCache) {
       cachedCompetitions.push(competition);
       if (cachedCompetitions.length > CACHED_COMPETITION_COUNT) {
@@ -64,7 +66,7 @@ const update = async (competition, { resultsOnly } = {}) => {
 
 const taskQueueByWcifId = {};
 
-const executeTasks = async (wcifId) => {
+const executeTasks = async wcifId => {
   if (taskQueueByWcifId[wcifId].length > 0) {
     const { task, resolve, reject } = taskQueueByWcifId[wcifId][0];
     try {

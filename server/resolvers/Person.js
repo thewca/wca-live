@@ -8,13 +8,16 @@ module.exports = {
   results: ({ registrantId, wcif }) => {
     const rounds = flatMap(wcif.events, event => event.rounds);
     const roundsWhereHasResult = rounds.filter(round =>
-      round.results.some(({ personId, attempts }) =>
-        personId === registrantId && attempts.length > 0
+      round.results.some(
+        ({ personId, attempts }) =>
+          personId === registrantId && attempts.length > 0
       )
     );
     return roundsWhereHasResult.map(round => {
       const advancing = advancingResults(round, wcif);
-      const result = round.results.find(({ personId }) => personId === registrantId);
+      const result = round.results.find(
+        ({ personId }) => personId === registrantId
+      );
       return {
         ...result,
         round,

@@ -26,17 +26,19 @@ module.exports = {
     const today = dateToUTCDateString(new Date());
     const competitions = await db.competitions
       .find({})
-      .sort({ 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1, 'wcif.shortName': 1 })
+      .sort({
+        'wcif.schedule.startDate': 1,
+        'wcif.schedule.numberOfDays': 1,
+        'wcif.shortName': 1,
+      })
       .toArray();
-    const upcoming = competitions.filter(
-      ({ wcif }) => startDate(wcif) > today
-    );
+    const upcoming = competitions.filter(({ wcif }) => startDate(wcif) > today);
     const inProgress = competitions.filter(
       ({ wcif }) => startDate(wcif) <= today && today <= endDate(wcif)
     );
-    const past = competitions.filter(
-      ({ wcif }) => endDate(wcif) < today
-    ).reverse();
+    const past = competitions
+      .filter(({ wcif }) => endDate(wcif) < today)
+      .reverse();
 
     return { upcoming, inProgress, past };
   },

@@ -6,8 +6,10 @@ module.exports = {
     subscribe: withFilter(
       () => pubsub.asyncIterator(['ROUND_UPDATE']),
       (payload, variables) => {
-        return payload.competitionId === variables.competitionId
-            && payload.roundId === variables.roundId;
+        return (
+          payload.competitionId === variables.competitionId &&
+          payload.roundId === variables.roundId
+        );
       }
     ),
   },

@@ -18,8 +18,8 @@ const initialize = async () => {
       } else {
         try {
           await updateRecords();
-        } catch(error) {
-          console.log(`Failed to load new records: ${error}. Using old ones.`)
+        } catch (error) {
+          console.log(`Failed to load new records: ${error}. Using old ones.`);
           cache.recordById = recordsData.recordById;
         }
       }
@@ -33,12 +33,11 @@ const initialize = async () => {
   setInterval(async () => {
     try {
       await updateRecords();
-    } catch(e) {
+    } catch (e) {
       console.error(`Failed to update records: ${error}`);
     }
   }, 60 * 60 * 1000);
 };
-
 
 const updateRecords = async () => {
   const recordsJson = await wcaApi().getRecords();
@@ -46,7 +45,7 @@ const updateRecords = async () => {
   await db.data.findOneAndUpdate(
     { id: 'records' },
     { $set: { recordById: cache.recordById, updatedAt: new Date() } },
-    { upsert: true },
+    { upsert: true }
   );
 };
 

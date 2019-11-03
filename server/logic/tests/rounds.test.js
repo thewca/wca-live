@@ -1,7 +1,13 @@
 const records = require('../records');
 records.getRecordByIdCopy = jest.fn(() => ({}));
 
-const { Result, Competition, Event, Round, Person } = require('./wcif-builders');
+const {
+  Result,
+  Competition,
+  Event,
+  Round,
+  Person,
+} = require('./wcif-builders');
 const {
   addCompetitor,
   clearRound,
@@ -20,7 +26,9 @@ describe('roundLabel', () => {
       results: [
         Result({
           personId: 1,
-          attempts: [], best: 0, average: 0,
+          attempts: [],
+          best: 0,
+          average: 0,
           updatedAt: new Date(),
           recordTags: { single: null, average: null },
         }),
@@ -41,7 +49,7 @@ describe('roundLabel', () => {
         Result({
           personId: 1,
           updatedAt: new Date(),
-          recordTags: { single: 'CR', average: 'PB' }
+          recordTags: { single: 'CR', average: 'PB' },
         }),
       ],
     });
@@ -52,9 +60,21 @@ describe('roundLabel', () => {
     const round = Round({
       id: '333-r1',
       results: [
-        Result({ personId: 1, updatedAt: new Date(), recordTags: { single: null, average: null } }),
-        Result({ personId: 2, updatedAt: new Date(), recordTags: { single: null, average: null } }),
-        Result({ personId: 3, updatedAt: new Date(), recordTags: { single: null, average: null } }),
+        Result({
+          personId: 1,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
+        Result({
+          personId: 2,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
+        Result({
+          personId: 3,
+          updatedAt: new Date(),
+          recordTags: { single: null, average: null },
+        }),
       ],
     });
     expect(roundLabel(round)).toEqual('Done');
@@ -82,7 +102,9 @@ describe('roundLabel', () => {
         Result({
           personId: 3,
           updatedAt: new Date(),
-          attempts: [], best: 0, average: 0,
+          attempts: [],
+          best: 0,
+          average: 0,
           recordTags: { single: null, average: null },
         }),
       ],
@@ -111,7 +133,12 @@ describe('openRound', () => {
         id: '333-r1',
         results: [
           ...[1, 2, 3, 4, 5, 6, 7].map(personId => Result({ personId })),
-          Result({ ranking: null, personId: 8, attempts: [], best: 0 }), /* Empty result. */
+          Result({
+            ranking: null,
+            personId: 8,
+            attempts: [],
+            best: 0,
+          }) /* Empty result. */,
         ],
       });
       const round2 = Round({ id: '333-r2', results: [] });
@@ -120,14 +147,18 @@ describe('openRound', () => {
       });
       expect(() => {
         openRound(wcif, '333-r2');
-      }).toThrow(new Error('Cannot open this round as the previous has less than 8 competitors.'));
+      }).toThrow(
+        new Error(
+          'Cannot open this round as the previous has less than 8 competitors.'
+        )
+      );
     });
 
     test('throws an error if no one qualified', () => {
       const round1 = Round({
         id: '333-r1',
-        results: [1, 2, 3, 4, 5, 6, 7, 8].map(
-          personId => Result({ ranking: 1, personId, attempts: [{ result: -1 }], best: -1 })
+        results: [1, 2, 3, 4, 5, 6, 7, 8].map(personId =>
+          Result({ ranking: 1, personId, attempts: [{ result: -1 }], best: -1 })
         ),
       });
       const round2 = Round({ id: '333-r2', results: [] });
@@ -143,15 +174,29 @@ describe('openRound', () => {
       const round1 = Round({
         id: '333-r1',
         results: [
-          ...[1, 2, 3, 4, 5, 6, 7, 8].map(n => Result({ ranking: n, personId: n })),
-          Result({ ranking: null, personId: 9, attempts: [], best: 0 }), /* Empty result. */
-          Result({ ranking: null, personId: 10, attempts: [], best: 0 }), /* Empty result. */
+          ...[1, 2, 3, 4, 5, 6, 7, 8].map(n =>
+            Result({ ranking: n, personId: n })
+          ),
+          Result({
+            ranking: null,
+            personId: 9,
+            attempts: [],
+            best: 0,
+          }) /* Empty result. */,
+          Result({
+            ranking: null,
+            personId: 10,
+            attempts: [],
+            best: 0,
+          }) /* Empty result. */,
         ],
       });
       const round2 = Round({ id: '333-r2', results: [] });
       const wcif = Competition({
         events: [Event({ id: '333', rounds: [round1, round2] })],
-        persons: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(registrantId => Person({ registrantId })),
+        persons: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(registrantId =>
+          Person({ registrantId })
+        ),
       });
       const updatedWcif = openRound(wcif, '333-r2');
       expect(updatedWcif.events[0].rounds[0].results).toEqual(
@@ -164,19 +209,23 @@ describe('openRound', () => {
     const round1 = Round({
       id: '333-r1',
       results: [
-        ...[1, 2, 3, 4, 5, 6, 7, 8].map(n => Result({ ranking: n, personId: n })),
+        ...[1, 2, 3, 4, 5, 6, 7, 8].map(n =>
+          Result({ ranking: n, personId: n })
+        ),
       ],
       advancementCondition: { type: 'ranking', level: 5 },
     });
     const round2 = Round({ id: '333-r2', results: [] });
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
-      persons: [1, 2, 3, 4, 5, 6, 7, 8].map(registrantId => Person({ registrantId })),
+      persons: [1, 2, 3, 4, 5, 6, 7, 8].map(registrantId =>
+        Person({ registrantId })
+      ),
     });
     const updatedWcif = openRound(wcif, '333-r2');
-    expect(updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId)).toEqual(
-      [1, 2, 3, 4, 5]
-    );
+    expect(
+      updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId)
+    ).toEqual([1, 2, 3, 4, 5]);
   });
 
   test('throws an error if the round is already open', () => {
@@ -233,7 +282,9 @@ describe('quitCompetitor', () => {
     });
     expect(() => {
       quitCompetitor(wcif, '333-r1', 2, false);
-    }).toThrow(new Error('Cannot quit competitor with id 2 as he\'s not in 333-r1.'));
+    }).toThrow(
+      new Error("Cannot quit competitor with id 2 as he's not in 333-r1.")
+    );
   });
 
   describe('when replace is false', () => {
@@ -247,7 +298,9 @@ describe('quitCompetitor', () => {
         persons: [Person({ registrantId: 1 }), Person({ registrantId: 2 })],
       });
       const updatedWcif = quitCompetitor(wcif, '333-r1', 1, false);
-      expect(updatedWcif.events[0].rounds[0].results.map(({ personId }) => personId)).toEqual([2]);
+      expect(
+        updatedWcif.events[0].rounds[0].results.map(({ personId }) => personId)
+      ).toEqual([2]);
     });
   });
 
@@ -265,19 +318,16 @@ describe('quitCompetitor', () => {
       });
       const round2 = Round({
         id: '333-r2',
-        results: [
-          Result({ personId: 1 }),
-          Result({ personId: 2 }),
-        ],
+        results: [Result({ personId: 1 }), Result({ personId: 2 })],
       });
       const wcif = Competition({
         events: [Event({ id: '333', rounds: [round1, round2] })],
         persons: [1, 2, 3, 4].map(registrantId => Person({ registrantId })),
       });
       const updatedWcif = quitCompetitor(wcif, '333-r2', 1, true);
-      expect(updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId)).toEqual(
-        [2, 3, 4]
-      );
+      expect(
+        updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId)
+      ).toEqual([2, 3, 4]);
     });
   });
 });
@@ -296,14 +346,22 @@ describe('addCompetitor', () => {
     });
     const round2 = Round({
       id: '333-r2',
-      results: [Result({ personId: 1 }), Result({ personId: 2 }), Result({ personId: 3 })],
+      results: [
+        Result({ personId: 1 }),
+        Result({ personId: 2 }),
+        Result({ personId: 3 }),
+      ],
     });
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
     });
     expect(() => {
       addCompetitor(wcif, '333-r2', 4);
-    }).toThrow(new Error('Cannot add competitor with id 4 as he doesn\'t qualify to 333-r2.'));
+    }).toThrow(
+      new Error(
+        "Cannot add competitor with id 4 as he doesn't qualify to 333-r2."
+      )
+    );
   });
 
   test('adds an empty result for the given competitor', () => {
@@ -319,7 +377,11 @@ describe('addCompetitor', () => {
       ],
     });
     const updatedWcif = addCompetitor(wcif, '333-r1', 2);
-    expect(updatedWcif.events[0].rounds[0].results.map(({ personId }) => personId).sort()).toEqual([1, 2]);
+    expect(
+      updatedWcif.events[0].rounds[0].results
+        .map(({ personId }) => personId)
+        .sort()
+    ).toEqual([1, 2]);
   });
 
   test('removes excess results from the given round', () => {
@@ -335,14 +397,22 @@ describe('addCompetitor', () => {
     });
     const round2 = Round({
       id: '333-r2',
-      results: [Result({ personId: 1 }), Result({ personId: 3 }), Result({ personId: 4 })],
+      results: [
+        Result({ personId: 1 }),
+        Result({ personId: 3 }),
+        Result({ personId: 4 }),
+      ],
     });
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round1, round2] })],
       persons: [1, 2, 3, 4].map(registrantId => Person({ registrantId })),
     });
     const updatedWcif = addCompetitor(wcif, '333-r2', 2);
-    expect(updatedWcif.events[0].rounds[1].results.map(({ personId }) => personId).sort()).toEqual([1, 2, 3]);
+    expect(
+      updatedWcif.events[0].rounds[1].results
+        .map(({ personId }) => personId)
+        .sort()
+    ).toEqual([1, 2, 3]);
   });
 });
 
@@ -365,7 +435,9 @@ describe('podiums', () => {
   test('returns finished rounds only', () => {
     const round333 = Round({
       id: '333-r1',
-      results: [Result({ ranking: 1, personId: 1, attempts: [], best: 0, average: 0 })],
+      results: [
+        Result({ ranking: 1, personId: 1, attempts: [], best: 0, average: 0 }),
+      ],
     });
     const round222 = Round({
       id: '222-r1',
@@ -394,7 +466,12 @@ describe('podiums', () => {
     const wcif = Competition({
       events: [Event({ id: '333', rounds: [round] })],
     });
-    expect(podiums(wcif)[0].results.map(result => result.personId)).toEqual([1, 2, 3, 4]);
+    expect(podiums(wcif)[0].results.map(result => result.personId)).toEqual([
+      1,
+      2,
+      3,
+      4,
+    ]);
   });
 
   test('does not return finished rounds with no complete results', () => {
@@ -442,9 +519,17 @@ describe('podiums', () => {
         id: '333-r1',
         results: [
           ...times(20, n =>
-            Result({ personId: n + 1, ranking: n + 1, updatedAt: new Date(Date.now() - 20 * 60 * 1000) })
+            Result({
+              personId: n + 1,
+              ranking: n + 1,
+              updatedAt: new Date(Date.now() - 20 * 60 * 1000),
+            })
           ),
-          Result({ personId: 21, attempts: [], updatedAt: new Date(Date.now() - 20 * 60 * 1000) }),
+          Result({
+            personId: 21,
+            attempts: [],
+            updatedAt: new Date(Date.now() - 20 * 60 * 1000),
+          }),
         ],
         cutoff: null,
       });
@@ -456,9 +541,17 @@ describe('podiums', () => {
         id: '333-r1',
         results: [
           ...times(20, n =>
-            Result({ personId: n + 1, ranking: n + 1, updatedAt: new Date(Date.now() - 10 * 60 * 1000) })
+            Result({
+              personId: n + 1,
+              ranking: n + 1,
+              updatedAt: new Date(Date.now() - 10 * 60 * 1000),
+            })
           ),
-          Result({ personId: 21, attempts: [], updatedAt: new Date(Date.now() - 20 * 60 * 1000) }),
+          Result({
+            personId: 21,
+            attempts: [],
+            updatedAt: new Date(Date.now() - 20 * 60 * 1000),
+          }),
         ],
         cutoff: null,
       });

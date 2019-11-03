@@ -1,6 +1,11 @@
 const printer = require('./pdf-printer');
 const { times } = require('../utils');
-const { roundById, personById, eventById, parseActivityCode } = require('../wcif');
+const {
+  roundById,
+  personById,
+  eventById,
+  parseActivityCode,
+} = require('../wcif');
 const { formatById } = require('../formats');
 const { friendlyRoundName } = require('../rounds');
 const { eventNameById } = require('../events');
@@ -39,11 +44,7 @@ const formatMbldAttempt = attempt => {
   return `${solved}/${attempted} ${clockFormat}`;
 };
 
-const formatAttemptResult = (
-  attemptResult,
-  eventId,
-  isAverage = false
-) => {
+const formatAttemptResult = (attemptResult, eventId, isAverage = false) => {
   if (attemptResult === 0) return '';
   if (attemptResult === -1) return 'DNF';
   if (attemptResult === -2) return 'DNS';
@@ -85,10 +86,15 @@ const colorByRecordTag = {
 const withRecordTag = (result, recordTag) => {
   if (!recordTag || recordTag === 'PB') return result;
   return [
-    { text: ` ${recordTag} `, background: colorByRecordTag[recordTag], color: 'black', bold: true },
+    {
+      text: ` ${recordTag} `,
+      background: colorByRecordTag[recordTag],
+      color: 'black',
+      bold: true,
+    },
     ' ',
     { text: result },
-  ]
+  ];
 };
 
 const headerCellProps = {
@@ -105,7 +111,11 @@ module.exports = (wcif, roundId) => {
   const { eventId, roundNumber } = parseActivityCode(round.id);
   const event = eventById(wcif, eventId);
   const eventName = eventNameById(event.id);
-  const roundName = friendlyRoundName(roundNumber, event.rounds.length, round.cutoff);
+  const roundName = friendlyRoundName(
+    roundNumber,
+    event.rounds.length,
+    round.cutoff
+  );
   const advancing = advancingResults(round, wcif);
   const stats = statsToDisplay(format, eventId);
 
@@ -126,7 +136,12 @@ module.exports = (wcif, roundId) => {
       },
       {
         table: {
-          widths: ['auto', 'auto', 'auto', ...times(format.solveCount + stats.length, () => '*')],
+          widths: [
+            'auto',
+            'auto',
+            'auto',
+            ...times(format.solveCount + stats.length, () => '*'),
+          ],
           headerRows: 1,
           body: [
             /* Header */
@@ -147,12 +162,12 @@ module.exports = (wcif, roundId) => {
               ...times(format.solveCount, index => ({
                 text: (index + 1).toString(),
                 alignment: 'right',
-                ...headerCellProps
+                ...headerCellProps,
               })),
               ...stats.map(({ name }) => ({
                 text: name,
                 alignment: 'right',
-                ...headerCellProps
+                ...headerCellProps,
               })),
             ],
             /* Rows */
@@ -178,14 +193,18 @@ module.exports = (wcif, roundId) => {
                 })),
                 ...stats.map(({ type, recordType }, index) => ({
                   text: withRecordTag(
-                    formatAttemptResult(result[type], eventId, type === 'average'),
+                    formatAttemptResult(
+                      result[type],
+                      eventId,
+                      type === 'average'
+                    ),
                     result.recordTags[recordType]
                   ),
                   alignment: 'right',
                   bold: index === 0,
                 })),
               ];
-            })
+            }),
           ],
         },
         layout: {

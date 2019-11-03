@@ -2,12 +2,14 @@ const { uniq } = require('./utils');
 const { addDays } = require('../logic/date');
 
 const parseActivityCode = activityCode => {
-  const [, e, r, g, a] = activityCode.match(/(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?/);
+  const [, e, r, g, a] = activityCode.match(
+    /(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?/
+  );
   return {
     eventId: e,
     roundNumber: r && parseInt(r, 10),
     groupNumber: g && parseInt(g, 10),
-    attemptNumber: a && parseInt(a, 10)
+    attemptNumber: a && parseInt(a, 10),
   };
 };
 
@@ -28,7 +30,7 @@ const acceptedPeople = wcif => {
   return wcif.persons.filter(
     ({ registration }) => registration && registration.status === 'accepted'
   );
-}
+};
 
 const startDate = wcif => {
   return wcif.schedule.startDate;
@@ -58,26 +60,30 @@ const updateRound = (wcif, updatedRound) => {
   const { eventId } = parseActivityCode(updatedRound.id);
   return {
     ...wcif,
-    events: wcif.events.map(event => event.id !== eventId ? event : ({
-      ...event,
-      rounds: event.rounds.map(round => round.id === updatedRound.id ? updatedRound : round),
-    })),
+    events: wcif.events.map(event =>
+      event.id !== eventId
+        ? event
+        : {
+            ...event,
+            rounds: event.rounds.map(round =>
+              round.id === updatedRound.id ? updatedRound : round
+            ),
+          }
+    ),
   };
 };
 
 const updateEvent = (wcif, updatedEvent) => {
   return {
     ...wcif,
-    events: wcif.events.map(
-      event => event.id === updatedEvent.id ? updatedEvent : event
+    events: wcif.events.map(event =>
+      event.id === updatedEvent.id ? updatedEvent : event
     ),
   };
 };
 
 const competitionCountryIso2s = wcif => {
-  return uniq(
-    wcif.schedule.venues.map(({ countryIso2 }) => countryIso2)
-  );
+  return uniq(wcif.schedule.venues.map(({ countryIso2 }) => countryIso2));
 };
 
 module.exports = {

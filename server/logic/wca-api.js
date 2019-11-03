@@ -20,14 +20,14 @@ module.exports = (user = null) => {
     return wcaApiFetch(`/competitions?${params.toString()}`);
   };
 
-  const getWcif = (competitionId) => {
+  const getWcif = competitionId => {
     return wcaApiFetch(`/competitions/${competitionId}/wcif`);
   };
 
   const updateWcif = (competitionId, wcif) => {
     return wcaApiFetch(`/competitions/${competitionId}/wcif`, {
       method: 'PATCH',
-      body: JSON.stringify(wcif)
+      body: JSON.stringify(wcif),
     });
   };
 
@@ -43,7 +43,7 @@ module.exports = (user = null) => {
     const options = {
       ...fetchOptions,
       headers: {
-        'Authorization': user ? `Bearer ${user.oauth.accessToken}` : null,
+        Authorization: user ? `Bearer ${user.oauth.accessToken}` : null,
         'Content-Type': 'application/json',
       },
     };

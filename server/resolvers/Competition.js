@@ -13,7 +13,7 @@ module.exports = {
     return wcif.shortName;
   },
   events: ({ wcif }) => {
-    return wcif.events.map(withWcif(wcif));;
+    return wcif.events.map(withWcif(wcif));
   },
   schedule: ({ wcif }) => {
     return withWcif(wcif)(wcif.schedule);
@@ -33,7 +33,7 @@ module.exports = {
   scoretakers: ({ wcif, scoretakerWcaUserIds }) => {
     return wcif.persons
       .filter(person => scoretakerWcaUserIds.includes(person.wcaUserId))
-      .map(withWcif(wcif));;
+      .map(withWcif(wcif));
   },
   passwordAuthEnabled: ({ encryptedPassword }) => {
     return !!encryptedPassword;

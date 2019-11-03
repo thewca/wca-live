@@ -4,7 +4,7 @@ const { db } = require('../mongo-connector');
 const competitionLoader = require('../competition-loader');
 const { hasAccess } = require('../logic/competition');
 
-const requireCompetition = async (id) => {
+const requireCompetition = async id => {
   const competition = await competitionLoader.get(id);
   if (!competition) {
     throw new Error('Competition not found.');
@@ -12,7 +12,12 @@ const requireCompetition = async (id) => {
   return competition;
 };
 
-const requireCompetitionWithAuthorization = async (competitionId, role, user, session) => {
+const requireCompetitionWithAuthorization = async (
+  competitionId,
+  role,
+  user,
+  session
+) => {
   const competition = await requireCompetition(competitionId);
   if (!hasAccess(role, competition, user, session)) {
     throw new AuthenticationError('Not authorized.');

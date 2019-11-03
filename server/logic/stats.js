@@ -7,20 +7,20 @@ const compareAttempts = (attempt1, attempt2) => {
   if (!complete(attempt1) && complete(attempt2)) return 1;
   if (complete(attempt1) && !complete(attempt2)) return -1;
   return attempt1 - attempt2;
-}
+};
 
 /* See: https://www.worldcubeassociation.org/regulations/#9f2 */
 const roundOver10Mins = average => {
   if (average <= 10 * 6000) return average;
   return Math.round(average / 100) * 100;
-}
+};
 
 const mathMean = (a, b, c) => {
   return Math.round((a + b + c) / 3);
 };
 
 const ao5 = attempts => {
-  const [, a, b, c, ] = attempts.slice().sort(compareAttempts);
+  const [, a, b, c] = attempts.slice().sort(compareAttempts);
   if (!complete(c)) return -1;
   return mathMean(a, b, c);
 };

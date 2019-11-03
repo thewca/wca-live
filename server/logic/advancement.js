@@ -4,10 +4,21 @@
  * - qualifying - satisfying advancement criteria
  */
 
-const { parseActivityCode, eventById, roundById, acceptedPeople, nextRound, previousRound } = require('./wcif');
+const {
+  parseActivityCode,
+  eventById,
+  roundById,
+  acceptedPeople,
+  nextRound,
+  previousRound,
+} = require('./wcif');
 const { updateRanking } = require('./results');
 
-const satisfiesAdvancementCondition = (result, advancementCondition, resultCount) => {
+const satisfiesAdvancementCondition = (
+  result,
+  advancementCondition,
+  resultCount
+) => {
   const { type, level } = advancementCondition;
   if (type === 'ranking') {
     return result.ranking <= level;
@@ -26,22 +37,30 @@ const qualifyingResults = (results, advancementCondition) => {
   if (!advancementCondition) {
     /* Mark top 3 in the finals. */
     return results.filter(
-      result => result.best > 0 && result.ranking && result.ranking <= 3,
+      result => result.best > 0 && result.ranking && result.ranking <= 3
     );
   } else {
     /* See: https://www.worldcubeassociation.org/regulations/#9p1 */
     const maxQualifying = Math.floor(results.length * 0.75);
-    const rankings = results.map(({ ranking }) => ranking).filter(x => x).sort((x, y) => x - y);
+    const rankings = results
+      .map(({ ranking }) => ranking)
+      .filter(x => x)
+      .sort((x, y) => x - y);
     const firstNonQualifyingRanking =
       rankings.length > maxQualifying
         ? rankings[maxQualifying]
         : rankings[rankings.length - 1] + 1;
-    return results.filter(result =>
-      result.ranking
-      /* Note: this ensures that people who tied either qualify together or not. */
-      && result.ranking < firstNonQualifyingRanking
-      && result.best > 0
-      && satisfiesAdvancementCondition(result, advancementCondition, results.length)
+    return results.filter(
+      result =>
+        result.ranking &&
+        /* Note: this ensures that people who tied either qualify together or not. */
+        result.ranking < firstNonQualifyingRanking &&
+        result.best > 0 &&
+        satisfiesAdvancementCondition(
+          result,
+          advancementCondition,
+          results.length
+        )
     );
   }
 };
@@ -51,7 +70,9 @@ const advancingResults = (round, wcif) => {
   if (next && next.results.length > 0) {
     /* If the next round is open use its results to determine who advanced. */
     const advancingPersonIds = next.results.map(result => result.personId);
-    return round.results.filter(result => advancingPersonIds.includes(result.personId));
+    return round.results.filter(result =>
+      advancingPersonIds.includes(result.personId)
+    );
   } else {
     return qualifyingResults(round.results, round.advancementCondition);
   }
@@ -60,8 +81,8 @@ const advancingResults = (round, wcif) => {
 const personIdsForRound = (wcif, roundId) => {
   const { eventId, roundNumber } = parseActivityCode(roundId);
   if (roundNumber === 1) {
-    const registeredPeople = acceptedPeople(wcif).filter(
-      ({ registration }) => registration.eventIds.includes(eventId)
+    const registeredPeople = acceptedPeople(wcif).filter(({ registration }) =>
+      registration.eventIds.includes(eventId)
     );
     return registeredPeople.map(({ registrantId }) => registrantId);
   } else {
@@ -84,8 +105,9 @@ const qualifyingIdsIgnoring = (round, ignoredIds) => {
       : result
   );
   const withHypoteticalRanking = updateRanking(hypotheticalResults, format);
-  return qualifyingResults(withHypoteticalRanking, advancementCondition)
-    .map(({ personId }) => personId);
+  return qualifyingResults(withHypoteticalRanking, advancementCondition).map(
+    ({ personId }) => personId
+  );
 };
 
 const alreadyQuitResults = (results, advancingResults) => {
@@ -93,8 +115,12 @@ const alreadyQuitResults = (results, advancingResults) => {
     ...advancingResults.map(result => result.ranking)
   );
   return results
-    .filter(result => result.ranking <= maxAdvancingRanking) /* Should advance... */
-    .filter(result => !advancingResults.includes(result)); /* ...but didn't, because they quit the next round. */
+    .filter(
+      result => result.ranking <= maxAdvancingRanking
+    ) /* Should advance... */
+    .filter(
+      result => !advancingResults.includes(result)
+    ); /* ...but didn't, because they quit the next round. */
 };
 
 /**
@@ -102,7 +128,8 @@ const alreadyQuitResults = (results, advancingResults) => {
  */
 const nextQualifyingToRound = (wcif, roundId) => {
   const previous = previousRound(wcif, roundId);
-  if (!previous) return []; /* This is the first round, so there is *next* person who qualifies to it. */
+  if (!previous)
+    return []; /* This is the first round, so there is *next* person who qualifies to it. */
   const currentlyAdvancing = advancingResults(previous, wcif);
   if (currentlyAdvancing.length === 0) {
     /* This is only possible if the given round has no results (not open yet)
@@ -112,16 +139,20 @@ const nextQualifyingToRound = (wcif, roundId) => {
   }
   const alreadyQuit = alreadyQuitResults(previous.results, currentlyAdvancing);
   const candidateIdsToQualify = previous.results
-    .filter(result =>
-      !currentlyAdvancing.includes(result) && !alreadyQuit.includes(result)
+    .filter(
+      result =>
+        !currentlyAdvancing.includes(result) && !alreadyQuit.includes(result)
     )
     .map(result => result.personId);
   const firstAdvancing = currentlyAdvancing[0];
   /* For previous round results ignore people who have already quit the next round
      and also the first advancing person to see who else would advance in that case. */
-  const ignoredIds = [...alreadyQuit, firstAdvancing].map(result => result.personId);
-  return qualifyingIdsIgnoring(previous, ignoredIds)
-    .filter(personId => candidateIdsToQualify.includes(personId));
+  const ignoredIds = [...alreadyQuit, firstAdvancing].map(
+    result => result.personId
+  );
+  return qualifyingIdsIgnoring(previous, ignoredIds).filter(personId =>
+    candidateIdsToQualify.includes(personId)
+  );
 };
 
 /**
@@ -135,21 +166,37 @@ const missingQualifyingIds = (wcif, roundId) => {
     /* Anyone qualifies to the first round. */
     const round = roundById(wcif, roundId);
     const qualifyingIds = acceptedPeople(wcif)
-      .filter(person => !round.results.some(result => result.personId === person.registrantId))
+      .filter(
+        person =>
+          !round.results.some(result => result.personId === person.registrantId)
+      )
       .map(person => person.registrantId);
     return { qualifyingIds, excessIds: [] };
   } else {
     const currentlyAdvancing = advancingResults(previous, wcif);
-    const alreadyQuitIds = alreadyQuitResults(previous.results, currentlyAdvancing)
-      .map(result => result.personId);
-    const couldJustAdvanceIds = qualifyingIdsIgnoring(previous, alreadyQuitIds)
-      .filter(personId => !currentlyAdvancing.some(result => result.personId === personId));
+    const alreadyQuitIds = alreadyQuitResults(
+      previous.results,
+      currentlyAdvancing
+    ).map(result => result.personId);
+    const couldJustAdvanceIds = qualifyingIdsIgnoring(
+      previous,
+      alreadyQuitIds
+    ).filter(
+      personId =>
+        !currentlyAdvancing.some(result => result.personId === personId)
+    );
     if (couldJustAdvanceIds.length > 0) {
       /* If someone could just advance it means there's a free spot. */
-      return { qualifyingIds: [...alreadyQuitIds, ...couldJustAdvanceIds], excessIds: [] };
+      return {
+        qualifyingIds: [...alreadyQuitIds, ...couldJustAdvanceIds],
+        excessIds: [],
+      };
     } else if (alreadyQuitIds.length > 0) {
       /* See who wouldn't advance if we un-quit one person. */
-      const newAdvancingIds = qualifyingIdsIgnoring(previous, alreadyQuitIds.slice(1));
+      const newAdvancingIds = qualifyingIdsIgnoring(
+        previous,
+        alreadyQuitIds.slice(1)
+      );
       const excessIds = currentlyAdvancing
         .filter(result => !newAdvancingIds.includes(result.personId))
         .map(result => result.personId);

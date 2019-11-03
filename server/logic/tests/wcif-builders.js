@@ -21,8 +21,8 @@ module.exports.Competition = attributes => ({
     startDate: '2020-01-01',
     numberOfDays: 2,
     venues: [],
-    ...attributes.schedule
-  }
+    ...attributes.schedule,
+  },
 });
 
 module.exports.Person = withId(id => attributes => ({
@@ -36,7 +36,7 @@ module.exports.Person = withId(id => attributes => ({
   email: `person${id}@example.com`,
   avatar: {
     url: 'https://example.com/avatar.jpg',
-    thumbUrl: 'https://example.com/avatar-thumb.jpg'
+    thumbUrl: 'https://example.com/avatar-thumb.jpg',
   },
   roles: [],
   assignments: [],
@@ -48,18 +48,19 @@ module.exports.Person = withId(id => attributes => ({
     status: 'accepted',
     guests: 0,
     comments: '',
-    ...attributes.registration
-  }
+    ...attributes.registration,
+  },
 }));
 
 module.exports.PersonalBest = attributes => {
   const { eventId, worldRanking, type } = attributes;
-  if (!eventId || !worldRanking || !type) throw new Error('PersonalBest requires eventId, worldRanking and type.');
+  if (!eventId || !worldRanking || !type)
+    throw new Error('PersonalBest requires eventId, worldRanking and type.');
   return {
     best: worldRanking * 200,
     continentalRanking: worldRanking,
     nationalRanking: worldRanking,
-    ...attributes
+    ...attributes,
   };
 };
 
@@ -69,7 +70,7 @@ module.exports.Event = attributes => ({
   competitorLimit: null,
   qualification: null,
   extensions: [],
-  ...attributes
+  ...attributes,
 });
 
 module.exports.Round = attributes => ({
@@ -82,7 +83,7 @@ module.exports.Round = attributes => ({
   scrambleSetCount: 1,
   scrambleSets: [],
   extensions: [],
-  ...attributes
+  ...attributes,
 });
 
 module.exports.Result = attributes => {
@@ -95,11 +96,11 @@ module.exports.Result = attributes => {
       { result: multiplier * 205 },
       { result: multiplier * 150 },
       { result: multiplier * 300 },
-      { result: multiplier * 101 }
+      { result: multiplier * 101 },
     ],
     best: multiplier * 101,
     average: multiplier * 185,
-    ...attributes
+    ...attributes,
   };
 };
 
@@ -111,7 +112,7 @@ module.exports.Venue = withId(id => attributes => ({
   timezone: 'UTC',
   rooms: [],
   extensions: [],
-  ...attributes
+  ...attributes,
 }));
 
 module.exports.Room = withId(id => attributes => ({
@@ -120,7 +121,7 @@ module.exports.Room = withId(id => attributes => ({
   color: '#000000',
   activities: [],
   extensions: [],
-  ...attributes
+  ...attributes,
 }));
 
 module.exports.Activity = withId(id => attributes => ({
@@ -132,5 +133,5 @@ module.exports.Activity = withId(id => attributes => ({
   childActivities: [],
   scrambleSetId: null,
   extensions: [],
-  ...attributes
+  ...attributes,
 }));

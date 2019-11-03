@@ -3,11 +3,18 @@ const wcaApi = require('../logic/wca-api');
 const { countryByIso2 } = require('../logic/countries');
 
 module.exports = {
-  id: (parent) => parent._id,
+  id: parent => parent._id,
   importableCompetitions: async (parent, args) => {
-    const competitions = await wcaApi(parent).getUpcomingManageableCompetitions();
-    const importedCompetitions = await db.competitions.find({}).project({ 'wcif.id': 1 }).toArray();
-    const importedCompetitionIds = importedCompetitions.map(competition => competition.wcif.id);
+    const competitions = await wcaApi(
+      parent
+    ).getUpcomingManageableCompetitions();
+    const importedCompetitions = await db.competitions
+      .find({})
+      .project({ 'wcif.id': 1 })
+      .toArray();
+    const importedCompetitionIds = importedCompetitions.map(
+      competition => competition.wcif.id
+    );
     return competitions
       .filter(competition => competition.announced_at)
       .filter(competition => !importedCompetitionIds.includes(competition.id))
@@ -19,11 +26,12 @@ module.exports = {
           events: [],
           schedule: {
             startDate: start_date,
-            numberOfDays: new Date(end_date).getDate() - new Date(start_date).getDate() + 1,
+            numberOfDays:
+              new Date(end_date).getDate() - new Date(start_date).getDate() + 1,
             venues: countryByIso2(country_iso2)
               ? [{ countryIso2: country_iso2 }]
               : [] /* Ignore invalid iso2 (e.g. if the coutry is 'Multiple Countries') */,
-          }
+          },
         },
       }));
   },

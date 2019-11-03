@@ -4,7 +4,9 @@ const { MONGO_URI, PRODUCTION } = require('./config');
 module.exports.db = {};
 
 module.exports.connect = async () => {
-  const client = await MongoClient.connect(MONGO_URI, { useNewUrlParser: true });
+  const client = await MongoClient.connect(MONGO_URI, {
+    useNewUrlParser: true,
+  });
   const db = client.db();
   if (!PRODUCTION) {
     let queryNumber = 1;
@@ -22,7 +24,11 @@ module.exports.connect = async () => {
   });
   /* Create indices */
   db.collection('competitions').createIndex(
-    { 'wcif.schedule.startDate': 1, 'wcif.schedule.numberOfDays': 1, 'wcif.shortName': 1 },
+    {
+      'wcif.schedule.startDate': 1,
+      'wcif.schedule.numberOfDays': 1,
+      'wcif.shortName': 1,
+    },
     { name: 'Competition list query' }
   );
 };
