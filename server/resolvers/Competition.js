@@ -3,6 +3,7 @@ const { competitionCountryIso2s } = require('../utils/wcif');
 const { countryByIso2 } = require('../utils/countries');
 const { podiums } = require('../utils/rounds');
 const { hasAccess } = require('../utils/competition');
+const { withWcif } = require('./utils');
 
 module.exports = {
   id: ({ wcif }) => {
@@ -12,13 +13,13 @@ module.exports = {
     return wcif.shortName;
   },
   events: ({ wcif }) => {
-    return wcif.events;
+    return wcif.events.map(withWcif(wcif));;
   },
   schedule: ({ wcif }) => {
-    return wcif.schedule;
+    return withWcif(wcif)(wcif.schedule);
   },
   competitors: ({ wcif }) => {
-    return acceptedPeople(wcif);
+    return acceptedPeople(wcif).map(withWcif(wcif));
   },
   countries: ({ wcif }) => {
     return competitionCountryIso2s(wcif).map(countryByIso2);
@@ -27,12 +28,12 @@ module.exports = {
     return synchronizedAt.toISOString();
   },
   podiums: ({ wcif }) => {
-    return podiums(wcif);
+    return podiums(wcif).map(withWcif(wcif));
   },
   scoretakers: ({ wcif, scoretakerWcaUserIds }) => {
-    return wcif.persons.filter(person =>
-      scoretakerWcaUserIds.includes(person.wcaUserId)
-    );
+    return wcif.persons
+      .filter(person => scoretakerWcaUserIds.includes(person.wcaUserId))
+      .map(withWcif(wcif));;
   },
   passwordAuthEnabled: ({ encryptedPassword }) => {
     return !!encryptedPassword;

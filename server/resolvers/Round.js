@@ -2,28 +2,32 @@ const { formatById } = require('../utils/formats');
 const { parseActivityCode, eventById, personById } = require('../utils/wcif');
 const { friendlyRoundName, roundLabel, roundFinished, roundActive } = require('../utils/rounds');
 const { advancingResults, nextQualifyingToRound, missingQualifyingIds } = require('../utils/advancement');
+const { withWcif } = require('./utils');
 
 module.exports = {
   format: ({ format }) => formatById(format),
-  event: ({ id }, args, { competition }) => {
+  event: ({ id, wcif }) => {
     const { eventId } = parseActivityCode(id);
-    return eventById(competition.wcif, eventId);
+    const event = eventById(wcif, eventId);
+    return withWcif(wcif)(event);
   },
-  name: ({ id, cutoff }, args, { competition }) => {
+  name: ({ id, cutoff, wcif }) => {
     const { eventId, roundNumber } = parseActivityCode(id);
-    const event = eventById(competition.wcif, eventId);
+    const event = eventById(wcif, eventId);
     return friendlyRoundName(roundNumber, event.rounds.length, cutoff);
   },
   label: (round) => {
     return roundLabel(round);
   },
-  results: (parent, args, { competition }) => {
-    const advancing = advancingResults(parent, competition.wcif);
-    return parent.results.map(result => ({
-      ...result,
-      round: parent,
-      advancable: advancing.includes(result),
-    }));
+  results: (parent) => {
+    const advancing = advancingResults(parent, parent.wcif);
+    return parent.results
+      .map(result => ({
+        ...result,
+        round: parent,
+        advancable: advancing.includes(result),
+      }))
+      .map(withWcif(parent.wcif));
   },
   open: ({ results }) => results.length > 0,
   finished: (round) => {
@@ -32,16 +36,20 @@ module.exports = {
   active: (round) => {
     return roundActive(round)
   },
-  nextQualifying: ({ id }, args, { competition }) => {
-    return nextQualifyingToRound(competition.wcif, id).map(
-      personId => personById(competition.wcif, personId)
-    );
+  nextQualifying: ({ id, wcif }) => {
+    return nextQualifyingToRound(wcif, id)
+      .map(personId => personById(wcif, personId))
+      .map(withWcif(parent.wcif));;
   },
-  missingQualifying: ({ id }, args, { competition }) => {
-    const { qualifyingIds, excessIds } = missingQualifyingIds(competition.wcif, id);
+  missingQualifying: ({ id, wcif }) => {
+    const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, id);
     return {
-      qualifying: qualifyingIds.map(personId => personById(competition.wcif, personId)),
-      excess: excessIds.map(personId => personById(competition.wcif, personId)),
+      qualifying: qualifyingIds
+        .map(personId => personById(wcif, personId))
+        .map(withWcif(parent.wcif)),
+      excess: excessIds
+        .map(personId => personById(wcif, personId))
+        .map(withWcif(parent.wcif)),
     };
   },
 };

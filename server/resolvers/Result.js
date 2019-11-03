@@ -1,8 +1,8 @@
 const { personById } = require('../utils/wcif');
 
 module.exports = {
-  person: ({ personId }, args, { competition }) => {
-    return personById(competition.wcif, personId);
+  person: ({ personId, wcif }) => {
+    return personById(wcif, personId);
   },
   attempts: ({ attempts }) => {
     return attempts.map(({ result }) => result);

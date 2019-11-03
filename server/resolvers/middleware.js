@@ -4,25 +4,23 @@ const { db } = require('../mongo-connector');
 const competitionLoader = require('../competition-loader');
 const { hasAccess } = require('../utils/competition');
 
-const withCompetition = resolver => async (parent, args, context) => {
-  context.competition = await competitionLoader.get(args.competitionId || args.id);
-  if (!context.competition) {
+const requireCompetition = async (id) => {
+  const competition = await competitionLoader.get(id);
+  if (!competition) {
     throw new Error('Competition not found.');
   }
-  return resolver(parent, args, context);
+  return competition;
 };
 
-const withCompetitionAuthorization = (role, resolver) => withCompetition(
-  async (parent, args, context) => {
-    const { competition, user, session } = context;
-    if (!hasAccess(role, competition, user, session)) {
-      throw new AuthenticationError('Not authorized.');
-    }
-    return resolver(parent, args, context);
+const requireCompetitionWithAuthorization = async (competitionId, role, user, session) => {
+  const competition = await requireCompetition(competitionId);
+  if (!hasAccess(role, competition, user, session)) {
+    throw new AuthenticationError('Not authorized.');
   }
-);
+  return competition;
+};
 
 module.exports = {
-  withCompetition,
-  withCompetitionAuthorization,
+  requireCompetition,
+  requireCompetitionWithAuthorization,
 };
