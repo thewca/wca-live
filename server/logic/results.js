@@ -194,4 +194,5 @@ module.exports = {
   updateResult,
   emptyResultsForPeople,
   resultFinished,
+  tagsWithRecordId,
 };

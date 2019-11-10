@@ -4,6 +4,7 @@ const { db } = require('../mongo-connector');
 const { roundById, personById, isInProgress, isUpcoming, isPast } = require('../logic/wcif');
 const { dateToUTCDateString } = require('../logic/date');
 const { withWcif } = require('./utils');
+const { computeRecords } = require('../logic/live-records');
 
 module.exports = {
   me: async (parent, args, { session }) => {
@@ -21,6 +22,25 @@ module.exports = {
     const competition = await requireCompetition(competitionId);
     const person = personById(competition.wcif, competitorId);
     return withWcif(competition.wcif)(person);
+  },
+  recentRecords: async () => {
+    const tenDaysAgo = dateToUTCDateString(new Date(Date.now() - 10 * 24 * 60 * 60 * 1000));
+    const competitions = await db.competitions
+      .find({
+        'wcif.schedule.startDate': {
+          $gte: tenDaysAgo,
+        },
+        'wcif.events.rounds.results': {
+          $elemMatch: {
+            $or: [
+              { 'recordTags.single': { $in: ['WR', 'CR', 'NR'] } },
+              { 'recordTags.average': { $in: ['WR', 'CR', 'NR'] } },
+            ],
+          },
+        }
+      })
+      .toArray();
+    return computeRecords(competitions);
   },
   competitions: async (parent, args) => {
     const today = dateToUTCDateString(new Date());

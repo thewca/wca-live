@@ -79,6 +79,11 @@ const eventNameById = eventId => {
   return events.find(event => event.id === eventId).name;
 };
 
+const eventIndexById = eventId => {
+  return events.findIndex(event => event.id === eventId);
+};
+
 module.exports = {
   eventNameById,
+  eventIndexById,
 };

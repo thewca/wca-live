@@ -11,6 +11,7 @@ import Footer from '../Footer/Footer';
 import logo from './logo.svg';
 import CustomQuery from '../CustomQuery/CustomQuery';
 import Competitions from '../Competitions/Competitions';
+import RecordList from '../RecordList/RecordList';
 import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
 import {
   geolocationAvailable,
@@ -106,6 +107,11 @@ const Home = ({ history }) => {
                     inProgress={inProgress}
                     past={past}
                   />
+                </Paper>
+              </Grid>
+              <Grid item>
+                <Paper>
+                  <RecordList />
                 </Paper>
               </Grid>
             </Fragment>

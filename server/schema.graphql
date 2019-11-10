@@ -8,6 +8,7 @@ type Query {
   competition(id: ID!): Competition
   round(competitionId: ID!, roundId: String!): Round
   competitor(competitionId: ID!, competitorId: Int!): Person
+  recentRecords: [Record!]!
 }
 
 type Mutation {
@@ -43,6 +44,16 @@ type Competitions {
   upcoming: [Competition!]!
   inProgress: [Competition!]!
   past: [Competition!]!
+}
+
+type Record {
+  competition: Competition!
+  event: Event!
+  round: Round!
+  result: Result!
+  type: String!
+  recordTag: String!
+  attemptResult: Int!
 }
 
 type User {

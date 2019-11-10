@@ -11,6 +11,7 @@ const Schedule = require('./Schedule');
 const Venue = require('./Venue');
 const Room = require('./Room');
 const Activity = require('./Activity');
+const Record = require('./Record');
 
 module.exports = {
   Query,
@@ -26,4 +27,5 @@ module.exports = {
   Venue,
   Room,
   Activity,
+  Record,
 };

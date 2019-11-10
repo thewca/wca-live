@@ -65,6 +65,10 @@ const initialize = async () => {
       }
     },
     subscriptions: '/api',
+    formatError: error => {
+      console.log(error);
+      return error;
+    }
   });
 
   server.applyMiddleware({

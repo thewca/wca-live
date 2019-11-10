@@ -35,6 +35,23 @@ const haveSameElements = (array1, array2) => {
   return array1.every(item => array2.includes(item));
 };
 
+const updateIn = (object, [property, ...properyChain], updater) => {
+  return properyChain.length === 0
+    ? { ...object, [property]: updater(object[property]) }
+    : {
+        ...object,
+        [property]: updateIn(object[property], properyChain, updater),
+      };
+};
+
+const groupBy = (arr, fn) => {
+  return arr.reduce(
+    (obj, x) => updateIn(obj, [fn(x)], xs => (xs || []).concat(x)),
+    {}
+  );
+};
+
+
 module.exports = {
   flatMap,
   zip,
@@ -44,4 +61,5 @@ module.exports = {
   uniq,
   times,
   haveSameElements,
+  groupBy,
 };
