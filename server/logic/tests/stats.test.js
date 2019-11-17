@@ -7,11 +7,16 @@ describe('best', () => {
     expect(best([0, 0, 0, 0, 0])).toEqual(0);
   });
 
-  it('returns -1 (DNF) if there are non-skipped attempts, but none is successful', () => {
+  it('returns -1 (DNF) if there are DNFs and no successful attempts', () => {
     expect(best([-1])).toEqual(-1);
-    expect(best([-2])).toEqual(-1);
     expect(best([-1, -1, -2])).toEqual(-1);
     expect(best([-1, -1, 0, 0, 0])).toEqual(-1);
+  });
+
+  it('returns -2 (DNS) if DNSes are the only non-skipped attempts', () => {
+    expect(best([-2])).toEqual(-2);
+    expect(best([-2, -2])).toEqual(-2);
+    expect(best([-2, 0])).toEqual(-2);
   });
 
   it('returns the best result if there are any successful attempts', () => {

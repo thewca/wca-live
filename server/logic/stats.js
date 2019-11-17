@@ -53,10 +53,14 @@ const average = (attempts, eventId, expectedSolveCount) => {
 };
 
 const best = attempts => {
-  if (attempts.every(skipped)) return 0;
-  const completeAttempts = attempts.filter(complete);
-  if (completeAttempts.length === 0) return -1;
-  return Math.min(...completeAttempts);
+  const nonSkipped = attempts.filter(attempt => !skipped(attempt));
+  if (nonSkipped.length === 0) return 0;
+  const completeAttempts = nonSkipped.filter(complete);
+  if (completeAttempts.length > 0) {
+    return Math.min(...completeAttempts);
+  } else {
+    return Math.max(...nonSkipped);
+  }
 };
 
 module.exports = {
