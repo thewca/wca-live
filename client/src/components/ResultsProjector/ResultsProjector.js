@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import AppBar from '@material-ui/core/AppBar';
 import classNames from 'classnames';
+import AppBar from '@material-ui/core/AppBar';
 import Dialog from '@material-ui/core/Dialog';
 import Fade from '@material-ui/core/Fade';
 import IconButton from '@material-ui/core/IconButton';
@@ -85,13 +85,19 @@ const DURATION = {
 /* (window height - app bar - table header) / row height */
 const getNumberOfRows = () => Math.floor((window.innerHeight - 64 - 50) / 63);
 
-const RoundProjector = ({ competitionId, round }) => {
+const ResultsProjector = ({
+  results,
+  format,
+  eventId,
+  title,
+  competitionId,
+  exitUrl,
+}) => {
   const classes = useStyles();
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
-  const { event, format, results } = round;
-  const stats = statsToDisplay(format, event.id);
+  const stats = statsToDisplay(format, eventId);
 
   const nonemptyResults = results.filter(result => result.attempts.length > 0);
 
@@ -137,13 +143,13 @@ const RoundProjector = ({ competitionId, round }) => {
         <AppBar position="sticky" className={classes.appBar}>
           <Toolbar>
             <Typography variant="h4" color="inherit">
-              {round.event.name} - {round.name}
+              {title}
             </Typography>
             <div className={classes.grow} />
             <IconButton
               color="inherit"
               component={Link}
-              to={`/competitions/${competitionId}/rounds/${round.id}`}
+              to={exitUrl}
             >
               <CloseIcon />
             </IconButton>
@@ -217,7 +223,7 @@ const RoundProjector = ({ competitionId, round }) => {
                       >
                         {formatAttemptResult(
                           result.attempts[index] || 0,
-                          event.id
+                          eventId
                         )}
                       </TableCell>
                     ))}
@@ -232,7 +238,7 @@ const RoundProjector = ({ competitionId, round }) => {
                         <ResultWithRecordTag
                           result={formatAttemptResult(
                             result[type],
-                            event.id,
+                            eventId,
                             type === 'average'
                           )}
                           recordTag={result.recordTags[recordType]}
@@ -250,4 +256,4 @@ const RoundProjector = ({ competitionId, round }) => {
   );
 };
 
-export default RoundProjector;
+export default ResultsProjector;
