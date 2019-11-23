@@ -2,9 +2,9 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Home from '../Home/Home';
-import Admin from '../Admin/Admin';
-import AdminCompetition from '../AdminCompetition/AdminCompetition';
 import Competition from '../Competition/Competition';
+import Admin from '../admin/Admin/Admin';
+import AdminCompetition from '../admin/AdminCompetition/AdminCompetition';
 
 const Navigation = () => {
   return (

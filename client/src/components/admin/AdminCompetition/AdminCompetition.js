@@ -7,7 +7,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
+import grey from '@material-ui/core/colors/grey';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
@@ -15,13 +15,13 @@ import SyncIcon from '@material-ui/icons/Sync';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
 
-import CustomQuery from '../CustomQuery/CustomQuery';
-import CustomMutation from '../CustomMutation/CustomMutation';
-import AdminEvents from './AdminEvents/AdminEvents';
-import Synchronize from './Synchronize/Synchronize';
-import AdminSettings from './AdminSettings/AdminSettings';
-import RoundDoubleCheck from './RoundDoubleCheck/RoundDoubleCheck';
-import AdminRound from './AdminRound/AdminRound';
+import CustomQuery from '../../CustomQuery/CustomQuery';
+import CustomMutation from '../../CustomMutation/CustomMutation';
+import AdminEvents from '../AdminEvents/AdminEvents';
+import Synchronize from '../Synchronize/Synchronize';
+import AdminSettings from '../AdminSettings/AdminSettings';
+import RoundDoubleCheck from '../RoundDoubleCheck/RoundDoubleCheck';
+import AdminRound from '../AdminRound/AdminRound';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {

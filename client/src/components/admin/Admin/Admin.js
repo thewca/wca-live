@@ -10,12 +10,12 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
-import CustomQuery from '../CustomQuery/CustomQuery';
-import CustomMutation from '../CustomMutation/CustomMutation';
-import CompetitionSignInForm from '../CompetitionSignInForm/CompetitionSignInForm';
+import CustomQuery from '../../CustomQuery/CustomQuery';
+import CustomMutation from '../../CustomMutation/CustomMutation';
+import CompetitionSignInForm from '../../CompetitionSignInForm/CompetitionSignInForm';
 import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
-import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
-import { signInUrl } from '../../logic/auth';
+import { COMPETITION_INFO_FRAGMENT } from '../../../logic/graphql-fragments';
+import { signInUrl } from '../../../logic/auth';
 
 const ADMIN_QUERY = gql`
   query Competitions {
