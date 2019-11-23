@@ -64,78 +64,76 @@ const useStyles = makeStyles(theme => ({
 const Home = ({ history }) => {
   const classes = useStyles();
   return (
-    <CustomQuery query={COMPETITIONS_QUERY}>
-      {({
-        data: {
-          competitions: { upcoming, inProgress, past },
-        },
-      }) => (
-        <div className={classes.root}>
-          <Grid
-            container
-            spacing={2}
-            direction="column"
-            className={classes.grow}
-          >
-            <Grid item className={classes.center}>
-              <img src={logo} alt="" height="128" width="128" />
-              <Typography variant="h4">WCA Live</Typography>
-              <Typography variant="subtitle1">
-                Live results from competitions all around the world!
-              </Typography>
-            </Grid>
-            {inProgress.length > 0 && (
-              <Fragment>
-                {geolocationAvailable && (
-                  <Grid
-                    item
-                    className={classNames(classes.fullWidth, classes.center)}
-                  >
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => {
-                        nearestCompetition(inProgress).then(competition => {
-                          history.push(`/competitions/${competition.id}`);
-                        });
-                      }}
+    <div className={classes.root}>
+      <Grid container spacing={2} direction="column" className={classes.grow}>
+        <Grid item className={classes.center}>
+          <img src={logo} alt="" height="128" width="128" />
+          <Typography variant="h4">WCA Live</Typography>
+          <Typography variant="subtitle1">
+            Live results from competitions all around the world!
+          </Typography>
+        </Grid>
+        <CustomQuery query={COMPETITIONS_QUERY}>
+          {({
+            data: {
+              competitions: { upcoming, inProgress, past },
+            },
+          }) => (
+            <Fragment>
+              {inProgress.length > 0 && (
+                <Fragment>
+                  {geolocationAvailable && (
+                    <Grid
+                      item
+                      className={classNames(classes.fullWidth, classes.center)}
                     >
-                      Nearest competition
-                    </Button>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => {
+                          nearestCompetition(inProgress).then(competition => {
+                            history.push(`/competitions/${competition.id}`);
+                          });
+                        }}
+                        aria-label="Nearest competition"
+                      >
+                        Nearest competition
+                      </Button>
+                    </Grid>
+                  )}
+                  <Grid item className={classes.fullWidth}>
+                    <Paper>
+                      <CompetitionList
+                        title="Happening right now!"
+                        competitions={inProgress}
+                      />
+                    </Paper>
                   </Grid>
-                )}
+                </Fragment>
+              )}
+              {upcoming.length > 0 && (
                 <Grid item className={classes.fullWidth}>
                   <Paper>
-                    <CompetitionList
-                      title="Happening right now!"
-                      competitions={inProgress}
-                    />
+                    <CompetitionList title="Upcoming" competitions={upcoming} />
                   </Paper>
                 </Grid>
-              </Fragment>
-            )}
-            {upcoming.length > 0 && (
-              <Grid item className={classes.fullWidth}>
-                <Paper>
-                  <CompetitionList title="Upcoming" competitions={upcoming} />
-                </Paper>
-              </Grid>
-            )}
-            {past.length > 0 && (
-              <Grid item className={classes.fullWidth}>
-                <Paper>
-                  <CompetitionList title="Past" competitions={past} />
-                </Paper>
-              </Grid>
-            )}
-            <Grid item className={classes.grow} />
-            <Grid item className={classes.fullWidth}>
-              <Footer />
-            </Grid>
-          </Grid>
-        </div>
-      )}
-    </CustomQuery>
+              )}
+              {past.length > 0 && (
+                <Grid item className={classes.fullWidth}>
+                  <Paper>
+                    <CompetitionList title="Past" competitions={past} />
+                  </Paper>
+                </Grid>
+              )}
+            </Fragment>
+          )}
+        </CustomQuery>
+        <Grid item className={classes.grow} />
+        <Grid item className={classes.fullWidth}>
+          <Footer />
+        </Grid>
+      </Grid>
+    </div>
   );
 };
 
