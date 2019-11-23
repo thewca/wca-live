@@ -96,6 +96,7 @@ const Synchronize = ({ match }) => {
                   `/competitions/${competitionId}/registrations/add`
                 )}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <ListItemIcon>
                   <PersonAddIcon />
@@ -107,6 +108,7 @@ const Synchronize = ({ match }) => {
                 component="a"
                 href={wcaUrl(`/competitions/${competitionId}/events/edit`)}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <ListItemIcon>
                   <EditIcon />

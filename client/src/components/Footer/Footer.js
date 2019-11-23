@@ -54,6 +54,7 @@ const Footer = () => {
           variant="subtitle1"
           href="https://github.com/thewca/wca-live"
           target="_blank"
+          rel="noopener noreferrer"
         >
           GitHub
         </Link>
