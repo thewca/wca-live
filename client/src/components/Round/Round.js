@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
 import { Switch, Route, Redirect, Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
@@ -66,18 +66,14 @@ const ROUND_UPDATE_SUBSCRIPTION = gql`
 
 const Round = ({ match }) => {
   const { competitionId, roundId } = match.params;
-  const [subscribed, setSubscribed] = useState(false);
 
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round }, subscribeToMore }) => {
-        if (!subscribed) {
-          subscribeToMore({
-            document: ROUND_UPDATE_SUBSCRIPTION,
-            variables: { competitionId, roundId },
-          });
-          setSubscribed(true);
-        }
+        subscribeToMore({
+          document: ROUND_UPDATE_SUBSCRIPTION,
+          variables: { competitionId, roundId },
+        });
 
         return (
           <Fragment>
