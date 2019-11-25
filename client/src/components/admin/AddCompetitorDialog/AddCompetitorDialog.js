@@ -15,15 +15,18 @@ import PersonSelect from '../PersonSelect/PersonSelect';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const MISSING_QUALIFYING_QUERY = gql`
-  query MissingQualifying($competitionId: ID!, $roundId: ID!) {
+  query MissingQualifying($competitionId: ID!, $roundId: String!) {
     round(competitionId: $competitionId, roundId: $roundId) {
+      _id
       id
       missingQualifying {
         qualifying {
+          _id
           id
           name
         }
         excess {
+          _id
           id
           name
         }
@@ -35,14 +38,15 @@ const MISSING_QUALIFYING_QUERY = gql`
 const ADD_COMPETITOR_MUTATION = gql`
   mutation AddCompetitor(
     $competitionId: ID!
-    $roundId: ID!
-    $competitorId: ID!
+    $roundId: String!
+    $competitorId: Int!
   ) {
     addCompetitor(
       competitionId: $competitionId
       roundId: $roundId
       competitorId: $competitorId
     ) {
+      _id
       id
       ...resultsUpdate
     }

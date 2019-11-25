@@ -4,6 +4,9 @@ const { advancingResults } = require('../logic/advancement');
 const { withWcif } = require('./utils');
 
 module.exports = {
+  _id: ({ registrantId, wcif }) => {
+    return `${wcif.id}:${registrantId}`;
+  },
   id: ({ registrantId }) => {
     return registrantId;
   },

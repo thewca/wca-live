@@ -3,13 +3,14 @@ import gql from 'graphql-tag';
 export const RESULTS_UPDATE_FRAGMENT = gql`
   fragment resultsUpdate on Round {
     results {
+      _id
       ranking
       advancable
       attempts
       best
       average
       person {
-        id
+        _id
       }
       recordTags {
         single

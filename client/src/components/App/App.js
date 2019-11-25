@@ -59,7 +59,24 @@ const link = split(
 
 const client = new ApolloClient({
   link,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    /*
+     * Modified version of https://github.com/apollographql/apollo-client/blob/ecaa058388092c7079d77e1d4357da0e4223b076/packages/apollo-cache-inmemory/src/inMemoryCache.ts#L40-L50
+     * to always look at _id as the unique indentifier instead of id first.
+     * See https://www.apollographql.com/docs/react/caching/cache-configuration/#custom-identifiers
+     **/
+    dataIdFromObject: result => {
+      if (result.__typename) {
+        if (result._id !== undefined) {
+          return `${result.__typename}:${result._id}`;
+        }
+        if (result.id !== undefined) {
+          return `${result.__typename}:${result.id}`;
+        }
+      }
+      return null;
+    },
+  }),
 });
 
 const App = () => (

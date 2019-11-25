@@ -19,7 +19,7 @@ module.exports = {
   },
   competitor: async (parent, { competitionId, competitorId }) => {
     const competition = await requireCompetition(competitionId);
-    const person = personById(competition.wcif, parseInt(competitorId, 10));
+    const person = personById(competition.wcif, competitorId);
     return withWcif(competition.wcif)(person);
   },
   competitions: async (parent, args) => {

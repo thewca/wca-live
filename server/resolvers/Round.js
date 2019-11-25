@@ -14,6 +14,9 @@ const {
 const { withWcif } = require('./utils');
 
 module.exports = {
+  _id: ({ id, wcif }) => {
+    return `${wcif.id}:${id}`;
+  },
   format: ({ format }) => formatById(format),
   event: ({ id, wcif }) => {
     const { eventId } = parseActivityCode(id);

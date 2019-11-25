@@ -23,6 +23,7 @@ const COMPETITION_QUERY = gql`
       id
       name
       events {
+        _id
         id
         name
         rounds {
@@ -36,10 +37,12 @@ const COMPETITION_QUERY = gql`
         venues {
           name
           rooms {
+            _id
             id
             name
             color
             activities {
+              _id
               id
               activityCode
               name

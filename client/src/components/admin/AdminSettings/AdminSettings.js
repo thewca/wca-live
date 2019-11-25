@@ -12,6 +12,7 @@ const COMPETITION_QUERY = gql`
     competition(id: $id) {
       id
       competitors {
+        _id
         id
         name
         avatar {

@@ -1,26 +1,42 @@
+# Note: some types have an `id` field, but it's unique only in the context
+# of the given competition, so they additionally define an _id field,
+# which is unique and can be used by Apollo client as a cache key.
+
 type Query {
   me: User
   competitions: Competitions!
   competition(id: ID!): Competition
-  round(competitionId: ID!, roundId: ID!): Round
-  competitor(competitionId: ID!, competitorId: ID!): Person
+  round(competitionId: ID!, roundId: String!): Round
+  competitor(competitionId: ID!, competitorId: Int!): Person
 }
 
 type Mutation {
   signOut: Boolean!
   importCompetition(id: ID!): Competition
   synchronize(competitionId: ID!): Competition
-  updateAccessSettings(competitionId: ID!, accessSettings: AccessSettingsInput!): Competition
+  updateAccessSettings(
+    competitionId: ID!
+    accessSettings: AccessSettingsInput!
+  ): Competition
   signIn(competitionId: ID!, password: String!): Boolean!
-  updateResult(competitionId: ID!, roundId: ID!, result: ResultInput!): Round
-  openRound(competitionId: ID!, roundId: ID!): Round
-  clearRound(competitionId: ID!, roundId: ID!): Round
-  quitCompetitor(competitionId: ID!, roundId: ID!, competitorId: ID!, replace: Boolean!): Round
-  addCompetitor(competitionId: ID!, roundId: ID!, competitorId: ID!): Round
+  updateResult(
+    competitionId: ID!
+    roundId: String!
+    result: ResultInput!
+  ): Round
+  openRound(competitionId: ID!, roundId: String!): Round
+  clearRound(competitionId: ID!, roundId: String!): Round
+  quitCompetitor(
+    competitionId: ID!
+    roundId: String!
+    competitorId: Int!
+    replace: Boolean!
+  ): Round
+  addCompetitor(competitionId: ID!, roundId: String!, competitorId: Int!): Round
 }
 
 type Subscription {
-  roundUpdate(competitionId: ID!, roundId: ID!): Round
+  roundUpdate(competitionId: ID!, roundId: String!): Round
 }
 
 type Competitions {
@@ -63,13 +79,15 @@ type Competition {
 }
 
 type Event {
-  id: ID!
+  _id: ID!
+  id: String!
   name: String!
   rounds: [Round!]!
 }
 
 type Round {
-  id: ID!
+  _id: ID!
+  id: String!
   name: String!
   label: String
   event: Event!
@@ -103,6 +121,7 @@ type Cutoff {
 }
 
 type Result {
+  _id: ID!
   person: Person!
   ranking: Int
   attempts: [Int]!
@@ -133,6 +152,8 @@ type Schedule {
 }
 
 type Venue {
+  _id: ID!
+  id: Int!
   name: String!
   rooms: [Room!]!
   latitude: Float!
@@ -140,14 +161,16 @@ type Venue {
 }
 
 type Room {
-  id: ID!
+  _id: ID!
+  id: Int!
   name: String!
   color: String!
   activities: [Activity!]!
 }
 
 type Activity {
-  id: ID!
+  _id: ID!
+  id: Int!
   name: String!
   activityCode: String!
   startTime: String!
@@ -156,7 +179,8 @@ type Activity {
 }
 
 type Person {
-  id: ID!
+  _id: ID!
+  id: Int!
   name: String!
   wcaId: String
   country: Country!
@@ -173,12 +197,12 @@ type Country {
 # Inputs
 
 input ResultInput {
-  personId: ID!
+  personId: Int!
   attempts: [Int!]!
 }
 
 input AccessSettingsInput {
-  scoretakerIds: [ID!]!
+  scoretakerIds: [Int!]!
   passwordAuthEnabled: Boolean!
   password: String!
 }

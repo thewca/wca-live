@@ -75,9 +75,7 @@ const synchronize = async competition => {
 };
 
 const updateAccessSettings = async (competition, accessSettings) => {
-  const scoretakerIds = accessSettings.scoretakerIds.map(id =>
-    parseInt(id, 10)
-  );
+  const { scoretakerIds, passwordAuthEnabled, password } = accessSettings;
   const scoretakerWcaUserIds = scoretakerIds.map(
     id => personById(competition.wcif, id).wcaUserId
   );
@@ -87,7 +85,6 @@ const updateAccessSettings = async (competition, accessSettings) => {
       ? uniq([...person.roles, 'staff-dataentry'])
       : person.roles.filter(role => role !== 'staff-dataentry'),
   }));
-  const { passwordAuthEnabled, password } = accessSettings;
   const encryptedPassword = passwordAuthEnabled
     ? password
       ? await bcrypt.hash(password, 12)

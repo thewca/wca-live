@@ -73,7 +73,7 @@ module.exports = {
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
       const attempts = result.attempts.map(attempt => ({ result: attempt }));
-      const personId = parseInt(result.personId, 10);
+      const personId = result.personId;
       const updatedWcif = updateResult(
         competition.wcif,
         roundId,
@@ -126,12 +126,7 @@ module.exports = {
     await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
-      const updatedWcif = quitCompetitor(
-        competition.wcif,
-        roundId,
-        parseInt(competitorId, 10),
-        replace
-      );
+      const updatedWcif = quitCompetitor(competition.wcif, roundId, competitorId, replace);
       await competitionLoader.update(
         { ...competition, wcif: updatedWcif },
         { resultsOnly: true }
@@ -147,11 +142,7 @@ module.exports = {
     await requireRole('scoretaker', competitionId, user, session);
     return await competitionLoader.executeTask(competitionId, async () => {
       const competition = await competitionLoader.get(competitionId);
-      const updatedWcif = addCompetitor(
-        competition.wcif,
-        roundId,
-        parseInt(competitorId, 10)
-      );
+      const updatedWcif = addCompetitor(competition.wcif, roundId, competitorId);
       await competitionLoader.update(
         { ...competition, wcif: updatedWcif },
         { resultsOnly: true }

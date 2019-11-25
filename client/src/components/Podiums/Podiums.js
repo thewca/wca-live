@@ -11,8 +11,10 @@ const PODIUMS_QUERY = gql`
     competition(id: $competitionId) {
       id
       podiums {
+        _id
         id
         event {
+          _id
           id
           name
         }
@@ -21,12 +23,14 @@ const PODIUMS_QUERY = gql`
           sortBy
         }
         results {
+          _id
           ranking
           advancable
           attempts
           best
           average
           person {
+            _id
             id
             name
             country {

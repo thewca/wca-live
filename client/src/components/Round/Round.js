@@ -15,11 +15,13 @@ import RoundResults from '../RoundResults/RoundResults';
 import { RESULTS_UPDATE_FRAGMENT } from '../../logic/graphql-fragments';
 
 const ROUND_QUERY = gql`
-  query Round($competitionId: ID!, $roundId: ID!) {
+  query Round($competitionId: ID!, $roundId: String!) {
     round(competitionId: $competitionId, roundId: $roundId) {
+      _id
       id
       name
       event {
+        _id
         id
         name
       }
@@ -28,12 +30,14 @@ const ROUND_QUERY = gql`
         sortBy
       }
       results {
+        _id
         ranking
         advancable
         attempts
         best
         average
         person {
+          _id
           id
           name
           country {
@@ -51,9 +55,9 @@ const ROUND_QUERY = gql`
 `;
 
 const ROUND_UPDATE_SUBSCRIPTION = gql`
-  subscription RoundUpdate($competitionId: ID!, $roundId: ID!) {
+  subscription RoundUpdate($competitionId: ID!, $roundId: String!) {
     roundUpdate(competitionId: $competitionId, roundId: $roundId) {
-      id
+      _id
       ...resultsUpdate
     }
   }
@@ -90,7 +94,7 @@ const Round = ({ match }) => {
                     <IconButton
                       component="a"
                       target="_blank"
-                      href={`/pdfs/competitions/${competitionId}/rounds/${round.id}`}
+                      href={`/pdfs/competitions/${competitionId}/rounds/${roundId}`}
                     >
                       <PrintIcon />
                     </IconButton>
@@ -98,7 +102,7 @@ const Round = ({ match }) => {
                   <Tooltip title="Projector view" placement="top">
                     <IconButton
                       component={Link}
-                      to={`/competitions/${competitionId}/rounds/${round.id}/projector`}
+                      to={`/competitions/${competitionId}/rounds/${roundId}/projector`}
                     >
                       <TvIcon />
                     </IconButton>
@@ -109,21 +113,21 @@ const Round = ({ match }) => {
             <Switch>
               <Route
                 exact
-                path={`/competitions/${competitionId}/rounds/${round.id}/projector`}
+                path={`/competitions/${competitionId}/rounds/${roundId}/projector`}
                 render={() => (
                   <ResultsProjector
                     results={round.results}
                     format={round.format}
                     eventId={round.event.id}
                     title={`${round.event.name} - ${round.name}`}
-                    exitUrl={`/competitions/${competitionId}/rounds/${round.id}`}
+                    exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
                     competitionId={competitionId}
                   />
                 )}
               />
               <Route
                 exact
-                path={`/competitions/${competitionId}/rounds/${round.id}`}
+                path={`/competitions/${competitionId}/rounds/${roundId}`}
                 render={() => (
                   <RoundResults
                     results={round.results}
@@ -134,7 +138,7 @@ const Round = ({ match }) => {
                 )}
               />
               <Redirect
-                to={`/competitions/${competitionId}/rounds/${round.id}`}
+                to={`/competitions/${competitionId}/rounds/${roundId}`}
               />
             </Switch>
           </Fragment>

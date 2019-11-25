@@ -9,6 +9,7 @@ const COMPETITION_QUERY = gql`
     competition(id: $competitionId) {
       id
       competitors {
+        _id
         id
         name
         country {

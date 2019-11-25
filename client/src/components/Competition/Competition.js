@@ -33,9 +33,11 @@ const COMPETITION_QUERY = gql`
       id
       name
       events {
+        _id
         id
         name
         rounds {
+          _id
           id
           name
           label
@@ -109,6 +111,7 @@ const Competition = ({ match, location }) => {
     <CustomQuery
       query={COMPETITION_QUERY}
       variables={{ id: match.params.id }}
+      fetchPolicy="network-only"
       pollInterval={60 * 1000}
     >
       {({ data: { competition } }) => {

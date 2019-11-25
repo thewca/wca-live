@@ -10,12 +10,13 @@ import CustomQuery from '../CustomQuery/CustomQuery';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
 import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
-import { groupBy } from '../../logic/utils';
+import { groupBy, toInt } from '../../logic/utils';
 import { wcaUrl } from '../../logic/url-utils';
 
 const COMPETITOR_QUERY = gql`
-  query Competitor($competitionId: ID!, $competitorId: ID!) {
+  query Competitor($competitionId: ID!, $competitorId: Int!) {
     competitor(competitionId: $competitionId, competitorId: $competitorId) {
+      _id
       id
       name
       wcaId
@@ -23,6 +24,7 @@ const COMPETITOR_QUERY = gql`
         iso2
       }
       results {
+        _id
         ranking
         advancable
         attempts
@@ -33,9 +35,11 @@ const COMPETITOR_QUERY = gql`
           average
         }
         round {
+          _id
           id
           name
           event {
+            _id
             id
             name
           }
@@ -66,7 +70,7 @@ const Competitor = ({ match }) => {
   return (
     <CustomQuery
       query={COMPETITOR_QUERY}
-      variables={{ competitionId, competitorId }}
+      variables={{ competitionId, competitorId: toInt(competitorId) }}
     >
       {({ data }) => {
         const { competitor } = data;

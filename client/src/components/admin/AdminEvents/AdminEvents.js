@@ -21,9 +21,11 @@ const EVENTS_QUERY = gql`
     competition(id: $id) {
       id
       events {
+        _id
         id
         name
         rounds {
+          _id
           id
           name
           open
@@ -35,18 +37,18 @@ const EVENTS_QUERY = gql`
 `;
 
 const OPEN_ROUND_MUTATION = gql`
-  mutation OpenRound($competitionId: ID!, $roundId: ID!) {
+  mutation OpenRound($competitionId: ID!, $roundId: String!) {
     openRound(competitionId: $competitionId, roundId: $roundId) {
-      id
+      _id
       open
     }
   }
 `;
 
 const CLEAR_ROUND_MUTATION = gql`
-  mutation ClearRound($competitionId: ID!, $roundId: ID!) {
+  mutation ClearRound($competitionId: ID!, $roundId: String!) {
     clearRound(competitionId: $competitionId, roundId: $roundId) {
-      id
+      _id
       open
     }
   }

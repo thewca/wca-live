@@ -9,6 +9,8 @@ const Round = require('./Round');
 const Result = require('./Result');
 const Schedule = require('./Schedule');
 const Venue = require('./Venue');
+const Room = require('./Room');
+const Activity = require('./Activity');
 
 module.exports = {
   Query,
@@ -22,4 +24,6 @@ module.exports = {
   Result,
   Schedule,
   Venue,
+  Room,
+  Activity,
 };

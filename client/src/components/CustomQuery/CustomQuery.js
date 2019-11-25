@@ -6,19 +6,20 @@ import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 
 /* Wrapper around Query with common error and loading logic. */
 const CustomQuery = ({ children, ...props }) => (
-  /* Note: network-only means that a query never reads initial data from the cache.
-     This ensures that people always get fresh data. Apollo defaults to cache-first
-     but there are several issues with caching:
-     - event/round/competitor ids are not globally unique, which breaks the cache
-     - some actions introduce many changes to data, which makes updating cache unconvenient
-       (e.g. opening a round clears missing results from previous round, so we'd need to
-       load all the results from previous round in order for the cache to update automatically) */
-  <Query {...props} fetchPolicy="network-only">
+  /* Note: cache-and-network is a good default in our case as we always want
+     to show the up-to-data, but using cache for faster  */
+  <Query {...props} fetchPolicy="cache-and-network">
     {(...args) => {
-      const [{ loading, error }] = args;
+      const [{ loading, error, data }] = args;
       if (error) return <ErrorSnackbar message="Something went wrong 😔" />;
-      if (loading) return <Loading />;
-      return children(...args);
+      if (loading && !data) return <Loading />;
+      /* If there is any data already, render it while indicating loading. */
+      return (
+        <React.Fragment>
+          {loading && <Loading />}
+          {children(...args)}
+        </React.Fragment>
+      );
     }}
   </Query>
 );

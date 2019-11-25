@@ -15,10 +15,12 @@ import CustomMutation from '../../CustomMutation/CustomMutation';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const NEXT_QUALIFYING_QUERY = gql`
-  query NextQualifying($competitionId: ID!, $roundId: ID!) {
+  query NextQualifying($competitionId: ID!, $roundId: String!) {
     round(competitionId: $competitionId, roundId: $roundId) {
+      _id
       id
       nextQualifying {
+        _id
         id
         name
       }
@@ -29,8 +31,8 @@ const NEXT_QUALIFYING_QUERY = gql`
 const QUIT_COMPETITOR_MUTATION = gql`
   mutation QuitCompetitor(
     $competitionId: ID!
-    $roundId: ID!
-    $competitorId: ID!
+    $roundId: String!
+    $competitorId: Int!
     $replace: Boolean!
   ) {
     quitCompetitor(
@@ -39,7 +41,7 @@ const QUIT_COMPETITOR_MUTATION = gql`
       competitorId: $competitorId
       replace: $replace
     ) {
-      id
+      _id
       ...resultsUpdate
     }
   }

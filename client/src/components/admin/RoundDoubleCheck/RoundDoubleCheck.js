@@ -12,11 +12,13 @@ import ResultForm from '../ResultForm/ResultForm';
 import { sortBy } from '../../../logic/utils';
 
 const ROUND_QUERY = gql`
-  query Round($competitionId: ID!, $roundId: ID!) {
+  query Round($competitionId: ID!, $roundId: String!) {
     round(competitionId: $competitionId, roundId: $roundId) {
+      _id
       id
       name
       event {
+        _id
         id
         name
       }
@@ -32,8 +34,10 @@ const ROUND_QUERY = gql`
         attemptResult
       }
       results {
+        _id
         attempts
         person {
+          _id
           id
           name
         }
@@ -46,7 +50,7 @@ const ROUND_QUERY = gql`
 const SET_RESULT_MUTATION = gql`
   mutation UpdateResult(
     $competitionId: ID!
-    $roundId: ID!
+    $roundId: String!
     $result: ResultInput!
   ) {
     updateResult(
@@ -54,10 +58,12 @@ const SET_RESULT_MUTATION = gql`
       roundId: $roundId
       result: $result
     ) {
+      _id
       id
       results {
         attempts
         person {
+          _id
           id
           name
         }
