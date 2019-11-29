@@ -26,6 +26,11 @@ module.exports = {
     const today = dateToUTCDateString(new Date());
     const competitions = await db.competitions
       .find({})
+      /* Note: this projection means we won't resolve some GraphQL queries,
+         but this is only expected to be used on the main competition page,
+         and projection provides an enormous speed boost
+         (as loading all results and people into the memory is slow). */
+      .project({ 'wcif.persons': 0, 'wcif.events': 0 })
       .sort({
         'wcif.schedule.startDate': 1,
         'wcif.schedule.numberOfDays': 1,
