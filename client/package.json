@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && rm -rf build-prod && mv build build-prod",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build && rm -rf build-prod && mv build build-prod",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "dependencies": {
@@ -46,9 +46,11 @@
     ]
   },
   "devDependencies": {
+    "customize-cra": "^0.9.1",
     "husky": "^3.0.1",
     "lint-staged": "^9.2.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "react-app-rewired": "^2.1.5"
   },
   "husky": {
     "hooks": {
