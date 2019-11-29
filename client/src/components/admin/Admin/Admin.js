@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
@@ -129,23 +130,36 @@ const Admin = ({ history }) => {
                   </Paper>
                 </Grid>
                 <Grid item>
-                  <CustomMutation
-                    mutation={SIGN_OUT_MUTATION}
-                    onCompleted={data => {
-                      client.clearStore().then(() => history.push('/'));
-                    }}
-                  >
-                    {(signOut, { loading }) => (
+                  <Grid container spacing={2}>
+                    <Grid item>
+                      <CustomMutation
+                        mutation={SIGN_OUT_MUTATION}
+                        onCompleted={data => {
+                          client.clearStore().then(() => history.push('/'));
+                        }}
+                      >
+                        {(signOut, { loading }) => (
+                          <Button
+                            variant="outlined"
+                            onClick={signOut}
+                            disabled={loading}
+                          >
+                            Sign out
+                          </Button>
+                        )}
+                      </CustomMutation>
+                    </Grid>
+                    <Grid item>
                       <Button
                         variant="outlined"
-                        color="default"
-                        onClick={signOut}
-                        disabled={loading}
+                        color="primary"
+                        component={Link}
+                        to="/"
                       >
-                        Sign out
+                        Home
                       </Button>
-                    )}
-                  </CustomMutation>
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
             </Box>
