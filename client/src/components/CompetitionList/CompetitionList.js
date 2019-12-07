@@ -22,7 +22,7 @@ const CompetitionList = ({ title, competitions }) => {
   const classes = useStyles();
   return (
     <List dense={true} disablePadding>
-      <ListSubheader disableSticky>{title}</ListSubheader>
+      {title && <ListSubheader disableSticky>{title}</ListSubheader>}
       <div className={classes.container}>
         {competitions.map(competition => (
           <ListItem

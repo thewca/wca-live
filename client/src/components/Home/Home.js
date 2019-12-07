@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import Footer from '../Footer/Footer';
 import logo from './logo.svg';
 import CustomQuery from '../CustomQuery/CustomQuery';
-import CompetitionList from '../CompetitionList/CompetitionList';
+import Competitions from '../Competitions/Competitions';
 import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
 import {
   geolocationAvailable,
@@ -80,51 +80,34 @@ const Home = ({ history }) => {
             },
           }) => (
             <Fragment>
-              {inProgress.length > 0 && (
-                <Fragment>
-                  {geolocationAvailable && (
-                    <Grid
-                      item
-                      className={classNames(classes.fullWidth, classes.center)}
-                    >
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => {
-                          nearestCompetition(inProgress).then(competition => {
-                            history.push(`/competitions/${competition.id}`);
-                          });
-                        }}
-                        aria-label="Nearest competition"
-                      >
-                        Nearest competition
-                      </Button>
-                    </Grid>
-                  )}
-                  <Grid item className={classes.fullWidth}>
-                    <Paper>
-                      <CompetitionList
-                        title="Happening right now!"
-                        competitions={inProgress}
-                      />
-                    </Paper>
-                  </Grid>
-                </Fragment>
-              )}
-              {upcoming.length > 0 && (
-                <Grid item className={classes.fullWidth}>
-                  <Paper>
-                    <CompetitionList title="Upcoming" competitions={upcoming} />
-                  </Paper>
+              {inProgress.length > 0 && geolocationAvailable && (
+                <Grid
+                  item
+                  className={classNames(classes.fullWidth, classes.center)}
+                >
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => {
+                      nearestCompetition(inProgress).then(competition => {
+                        history.push(`/competitions/${competition.id}`);
+                      });
+                    }}
+                    aria-label="Nearest competition"
+                  >
+                    Nearest competition
+                  </Button>
                 </Grid>
               )}
-              {past.length > 0 && (
-                <Grid item className={classes.fullWidth}>
-                  <Paper>
-                    <CompetitionList title="Past" competitions={past} />
-                  </Paper>
-                </Grid>
-              )}
+              <Grid item>
+                <Paper>
+                  <Competitions
+                    upcoming={upcoming}
+                    inProgress={inProgress}
+                    past={past}
+                  />
+                </Paper>
+              </Grid>
             </Fragment>
           )}
         </CustomQuery>
