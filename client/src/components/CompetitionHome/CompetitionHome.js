@@ -22,6 +22,9 @@ const COMPETITION_QUERY = gql`
     competition(id: $id) {
       id
       name
+      countries {
+        name
+      }
       events {
         _id
         id
@@ -85,7 +88,13 @@ const CompetitionHome = ({ match }) => {
                 Welcome to {competition.name}!
               </Typography>
               <Typography>
-                {`Check out the `}
+                {`This competition takes place in
+                  ${
+                    competition.countries.length === 1
+                      ? competition.countries[0].name
+                      : 'multiple countries'
+                  }.
+                  Check out the `}
                 <Link
                   href={wcaUrl(`/competitions/${competition.id}`)}
                   target="_blank"
