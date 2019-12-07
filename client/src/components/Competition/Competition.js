@@ -118,18 +118,20 @@ const Competition = ({ match, location }) => {
         const drawerContent = (
           <Fragment>
             <div className={classes.toolbar}>
-              <IconButton component={Link} to="/">
+              <IconButton component={Link} to="/" aria-label="Home page">
                 <HomeIcon />
               </IconButton>
               <IconButton
                 component={Link}
                 to={`/competitions/${competition.id}/competitors`}
+                aria-label="Competitor"
               >
                 <PeopleIcon />
               </IconButton>
               <IconButton
                 component={Link}
                 to={`/competitions/${competition.id}/podiums`}
+                aria-label="Podiums"
               >
                 <FormatListNumberedRoundedIcon />
               </IconButton>
@@ -157,6 +159,7 @@ const Competition = ({ match, location }) => {
                   color="inherit"
                   className={classes.menuButton}
                   onClick={() => setMobileOpen(true)}
+                  aria-label="Menu"
                 >
                   <MenuIcon />
                 </IconButton>

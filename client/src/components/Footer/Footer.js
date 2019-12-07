@@ -29,7 +29,11 @@ const Footer = () => {
   return (
     <Grid container spacing={1}>
       <Grid item>
-        <IconButton size="small" onClick={toggleTheme}>
+        <IconButton
+          size="small"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+        >
           {theme.palette.type === 'dark' ? (
             <EmojiObjectsIcon />
           ) : (
