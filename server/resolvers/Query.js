@@ -1,7 +1,7 @@
 const { withAuthentication, requireCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
 const { db } = require('../mongo-connector');
-const { roundById, personById, startDate, endDate } = require('../logic/wcif');
+const { roundById, personById, isInProgress, isUpcoming, isPast } = require('../logic/wcif');
 const { dateToUTCDateString } = require('../logic/date');
 const { withWcif } = require('./utils');
 
@@ -37,12 +37,10 @@ module.exports = {
         'wcif.shortName': 1,
       })
       .toArray();
-    const upcoming = competitions.filter(({ wcif }) => startDate(wcif) > today);
-    const inProgress = competitions.filter(
-      ({ wcif }) => startDate(wcif) <= today && today <= endDate(wcif)
-    );
+    const upcoming = competitions.filter(({ wcif }) => isUpcoming(wcif));
+    const inProgress = competitions.filter(({ wcif }) => isInProgress(wcif));
     const past = competitions
-      .filter(({ wcif }) => endDate(wcif) < today)
+      .filter(({ wcif }) => isPast(wcif))
       .reverse();
 
     return { upcoming, inProgress, past };

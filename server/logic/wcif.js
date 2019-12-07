@@ -1,4 +1,4 @@
-const { uniq } = require('./utils');
+const { uniq, flatMap } = require('./utils');
 const { addDays } = require('../logic/date');
 
 const parseActivityCode = activityCode => {
@@ -86,6 +86,58 @@ const competitionCountryIso2s = wcif => {
   return uniq(wcif.schedule.venues.map(({ countryIso2 }) => countryIso2));
 };
 
+const topLevelActivities = wcif => {
+  const rooms = flatMap(wcif.schedule.venues, venue => venue.rooms);
+  return flatMap(rooms, room => room.activities);
+};
+
+const firstActivityStartTime = wcif => {
+  const startTimes = topLevelActivities(wcif)
+    .map(activity => new Date(activity.startTime));
+  return new Date(Math.min(...startTimes));
+};
+
+const lastActivityEndTime = wcif => {
+  const endTimes = topLevelActivities(wcif)
+    .map(activity => new Date(activity.endTime));
+  return new Date(Math.max(...endTimes));
+};
+
+const definitelyInPast = wcif => {
+  const { startDate, numberOfDays } = wcif.schedule;
+  const now = new Date().getTime();
+  const oneDayAfter = new Date(startDate).getTime() + (numberOfDays + 1) * 24 * 60 * 60 * 1000;
+  return oneDayAfter < now;
+};
+
+const definitelyInFuture = wcif => {
+  const { startDate } = wcif.schedule;
+  const now = new Date().getTime();
+  const oneDayBefore = new Date(startDate).getTime() - 24 * 60 * 60 * 1000;
+  return oneDayBefore > now;
+};
+
+const isPast = wcif => {
+  if (definitelyInPast(wcif)) return true;
+  if (definitelyInFuture(wcif)) return false;
+  const now = new Date().getTime();
+  const oneHourAfterEnd = lastActivityEndTime(wcif).getTime() + 60 * 60 * 1000;
+  return oneHourAfterEnd < now;
+};
+
+const isUpcoming = wcif => {
+  if (definitelyInFuture(wcif)) return true;
+  if (definitelyInPast(wcif)) return false;
+  const { startDate } = wcif.schedule;
+  const now = new Date().getTime();
+  const oneHourBeforeStart = firstActivityStartTime(wcif) - 60 * 60 * 1000;
+  return now < oneHourBeforeStart;
+};
+
+const isInProgress = wcif => {
+  return !isPast(wcif) && !isUpcoming(wcif);
+};
+
 module.exports = {
   parseActivityCode,
   eventById,
@@ -99,4 +151,7 @@ module.exports = {
   updateEvent,
   updateRound,
   competitionCountryIso2s,
+  isPast,
+  isUpcoming,
+  isInProgress,
 };
