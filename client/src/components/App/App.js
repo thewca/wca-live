@@ -42,6 +42,10 @@ const wsLink = new WebSocketLink({
       : 'ws://localhost:4000/api',
   options: {
     reconnect: true,
+    /* Establish the connection lazily and disconnect when there are no active
+       subscriptions to reduce the number of websocket connections. */
+    lazy: true,
+    inactivityTimeout: 10000,
   },
 });
 

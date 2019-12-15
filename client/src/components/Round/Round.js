@@ -20,6 +20,8 @@ const ROUND_QUERY = gql`
       _id
       id
       name
+      finished
+      active
       event {
         _id
         id
@@ -70,10 +72,12 @@ const Round = ({ match }) => {
   return (
     <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
       {({ data: { round }, subscribeToMore }) => {
-        subscribeToMore({
-          document: ROUND_UPDATE_SUBSCRIPTION,
-          variables: { competitionId, roundId },
-        });
+        if (!round.finished || round.active) {
+          subscribeToMore({
+            document: ROUND_UPDATE_SUBSCRIPTION,
+            variables: { competitionId, roundId },
+          });
+        }
 
         return (
           <Fragment>
