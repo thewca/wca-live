@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
+import { useMutation } from 'react-apollo';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -9,12 +10,12 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
-import CustomMutation from '../../CustomMutation/CustomMutation';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import PersonList from '../PersonList/PersonList';
 
 const UPDATE_ACCESS_SETTINGS_MUTATION = gql`
-  mutation updateAccessSettings(
+  mutation UpdateAccessSettings(
     $competitionId: ID!
     $accessSettings: AccessSettingsInput!
   ) {
@@ -56,6 +57,21 @@ const AccessSettings = ({ competition }) => {
     }
     return true;
   };
+
+  const [updateAccessSettings, { error, loading }] = useMutation(
+    UPDATE_ACCESS_SETTINGS_MUTATION,
+    {
+      variables: {
+        competitionId: competition.id,
+        accessSettings: {
+          scoretakerIds: scoretakers.map(person => person.id),
+          passwordAuthEnabled,
+          password,
+        },
+      },
+      onCompleted: () => setPassword(''),
+    }
+  );
 
   return (
     <Grid container direction="column" spacing={1}>
@@ -128,31 +144,15 @@ const AccessSettings = ({ competition }) => {
         />
       </Grid>
       <Grid item style={{ marginTop: 16 }}>
-        <CustomMutation
-          mutation={UPDATE_ACCESS_SETTINGS_MUTATION}
-          variables={{
-            competitionId: competition.id,
-            accessSettings: {
-              scoretakerIds: scoretakers.map(person => person.id),
-              passwordAuthEnabled,
-              password,
-            },
-          }}
-          onCompleted={() => {
-            setPassword('');
-          }}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={updateAccessSettings}
+          disabled={loading || !passwordValid()}
         >
-          {(update, { loading }) => (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={update}
-              disabled={loading || !passwordValid()}
-            >
-              Save
-            </Button>
-          )}
-        </CustomMutation>
+          Save
+        </Button>
+        {error && <ErrorSnackbar error={error} />}
       </Grid>
     </Grid>
   );

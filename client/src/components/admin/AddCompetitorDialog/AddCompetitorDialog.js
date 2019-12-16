@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
+import { useQuery, useMutation } from 'react-apollo';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -9,8 +10,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
-import CustomQuery from '../../CustomQuery/CustomQuery';
-import CustomMutation from '../../CustomMutation/CustomMutation';
+import Loading from '../../Loading/Loading';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
@@ -61,69 +62,67 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
     onClose();
   };
 
+  const { data, loading, error } = useQuery(MISSING_QUALIFYING_QUERY, {
+    variables: { competitionId, roundId },
+  });
+
+  const [
+    addCompetitor,
+    { loading: mutationLoading, error: mutationError },
+  ] = useMutation(ADD_COMPETITOR_MUTATION, {
+    variables: {
+      competitionId,
+      roundId,
+      competitorId: selectedCompetitor && selectedCompetitor.id,
+    },
+    onCompleted: handleClose,
+  });
+
+  if (error) return <ErrorSnackbar />;
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+      {loading && <Loading />}
       <DialogTitle>Add qualifying competitor</DialogTitle>
       <DialogContent>
-        <CustomQuery
-          query={MISSING_QUALIFYING_QUERY}
-          variables={{ competitionId, roundId }}
-        >
-          {({
-            data: {
-              round: {
-                missingQualifying: { qualifying, excess },
-              },
-            },
-          }) =>
-            qualifying.length > 0 ? (
-              <Grid container direction="column" spacing={2}>
-                <Grid item>
-                  <PersonSelect
-                    persons={qualifying}
-                    value={selectedCompetitor}
-                    onChange={setSelectedCompetitor}
-                    TextFieldProps={{ autoFocus: true, fullWidth: true }}
-                  />
-                </Grid>
-                {excess.length > 0 && (
-                  <Grid item>
-                    <Typography color="error">
-                      {`This will also remove the following competitors from this round: `}
-                      <span style={{ fontWeight: 500 }}>
-                        {excess.map(person => person.name).join(', ')}
-                      </span>
-                    </Typography>
-                  </Grid>
-                )}
+        {data &&
+          (data.round.missingQualifying.qualifying.length > 0 ? (
+            <Grid container direction="column" spacing={2}>
+              <Grid item>
+                <PersonSelect
+                  persons={data.round.missingQualifying.qualifying}
+                  value={selectedCompetitor}
+                  onChange={setSelectedCompetitor}
+                  TextFieldProps={{ autoFocus: true, fullWidth: true }}
+                />
               </Grid>
-            ) : (
-              <DialogContentText>{`No one else qualifies to this round.`}</DialogContentText>
-            )
-          }
-        </CustomQuery>
+              {data.round.missingQualifying.excess.length > 0 && (
+                <Grid item>
+                  <Typography color="error">
+                    {`This will also remove the following competitors from this round: `}
+                    <span style={{ fontWeight: 500 }}>
+                      {data.round.missingQualifying.excess
+                        .map(person => person.name)
+                        .join(', ')}
+                    </span>
+                  </Typography>
+                </Grid>
+              )}
+            </Grid>
+          ) : (
+            <DialogContentText>{`No one else qualifies to this round.`}</DialogContentText>
+          ))}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <CustomMutation
-          mutation={ADD_COMPETITOR_MUTATION}
-          variables={{
-            competitionId,
-            roundId,
-            competitorId: selectedCompetitor && selectedCompetitor.id,
-          }}
-          onCompleted={handleClose}
+        <Button
+          onClick={addCompetitor}
+          color="primary"
+          disabled={!selectedCompetitor || mutationLoading}
         >
-          {(addCompetitor, { loading }) => (
-            <Button
-              onClick={addCompetitor}
-              color="primary"
-              disabled={!selectedCompetitor || loading}
-            >
-              Confirm
-            </Button>
-          )}
-        </CustomMutation>
+          Confirm
+        </Button>
+        {mutationError && <ErrorSnackbar error={mutationError} />}
       </DialogActions>
     </Dialog>
   );

@@ -81,6 +81,11 @@ const client = new ApolloClient({
       return null;
     },
   }),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
+    },
+  },
 });
 
 const App = () => (

@@ -1,14 +1,14 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
-import { Link } from 'react-router-dom';
+import { useMutation } from 'react-apollo';
+import { withRouter, Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import withConfirm from 'material-ui-confirm';
 
-import CustomMutation from '../../CustomMutation/CustomMutation';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import { formatDateRange } from '../../../logic/date';
 
 const IMPORT_COMPETITION_MUTATION = gql`
@@ -23,10 +23,18 @@ const IMPORT_COMPETITION_MUTATION = gql`
 const AdminCompetitionList = ({
   manageableCompetitions,
   importableCompetitions,
-  adminQuery,
   confirm,
   history,
 }) => {
+  const [importCompetition, { loading, error }] = useMutation(
+    IMPORT_COMPETITION_MUTATION,
+    {
+      onCompleted: ({ importCompetition }) => {
+        history.push(`/admin/competitions/${importCompetition.id}`);
+      },
+    }
+  );
+
   return (
     <List dense={true}>
       <ListSubheader disableSticky>Manageable competitions</ListSubheader>
@@ -48,50 +56,27 @@ const AdminCompetitionList = ({
       ))}
       <ListSubheader disableSticky>Importable competitions</ListSubheader>
       {importableCompetitions.map(competition => (
-        <CustomMutation
+        <ListItem
           key={competition.id}
-          mutation={IMPORT_COMPETITION_MUTATION}
-          variables={{ id: competition.id }}
-          onCompleted={() =>
-            history.push(`/admin/competitions/${competition.id}`)
-          }
-          update={(cache, { data: { importCompetition } }) => {
-            const { me } = cache.readQuery({ query: adminQuery });
-            cache.writeQuery({
-              query: adminQuery,
-              data: {
-                me: {
-                  ...me,
-                  manageableCompetitions: me.manageableCompetitions.concat(
-                    importCompetition
-                  ),
-                  importableCompetitions: me.importableCompetitions.filter(
-                    importable => importable.id !== importCompetition.id
-                  ),
-                },
-              },
-            });
-          }}
-        >
-          {(importCompetition, { loading }) => (
-            <ListItem
-              button
-              onClick={confirm(importCompetition, {
-                description: `This will import ${competition.name} from the WCA website.`,
-              })}
-              disabled={loading}
-            >
-              <ListItemText
-                primary={competition.name}
-                secondary={formatDateRange(
-                  competition.schedule.startDate,
-                  competition.schedule.endDate
-                )}
-              />
-            </ListItem>
+          button
+          onClick={confirm(
+            () => importCompetition({ variables: { id: competition.id } }),
+            {
+              description: `This will import ${competition.name} from the WCA website.`,
+            }
           )}
-        </CustomMutation>
+          disabled={loading}
+        >
+          <ListItemText
+            primary={competition.name}
+            secondary={formatDateRange(
+              competition.schedule.startDate,
+              competition.schedule.endDate
+            )}
+          />
+        </ListItem>
       ))}
+      {error && <ErrorSnackbar error={error} />}
     </List>
   );
 };

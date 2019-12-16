@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
+import { useMutation } from 'react-apollo';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 
-import CustomMutation from '../CustomMutation/CustomMutation';
+import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 
 const SIGN_IN_MUTATION = gql`
   mutation SignIn($competitionId: ID!, $password: String!) {
@@ -17,6 +18,15 @@ const SIGN_IN_MUTATION = gql`
 const CompetitionSignInForm = ({ history }) => {
   const [competitionId, setCompetitionId] = useState('');
   const [password, setPassword] = useState('');
+
+  const [signIn, { loading, error }] = useMutation(SIGN_IN_MUTATION, {
+    variables: { competitionId, password },
+    onCompleted: data => {
+      if (data.signIn) {
+        history.push(`/admin/competitions/${competitionId}`);
+      }
+    },
+  });
 
   return (
     <Box p={2}>
@@ -39,25 +49,14 @@ const CompetitionSignInForm = ({ history }) => {
           />
         </Grid>
         <Grid item>
-          <CustomMutation
-            mutation={SIGN_IN_MUTATION}
-            variables={{ competitionId, password }}
-            onCompleted={data => {
-              if (data.signIn) {
-                history.push(`/admin/competitions/${competitionId}`);
-              }
-            }}
+          <Button
+            variant="outlined"
+            onClick={signIn}
+            disabled={loading || !competitionId || !password}
           >
-            {(signIn, { loading }) => (
-              <Button
-                variant="outlined"
-                onClick={signIn}
-                disabled={loading || !competitionId || !password}
-              >
-                Sign in
-              </Button>
-            )}
-          </CustomMutation>
+            Sign in
+          </Button>
+          {error && <ErrorSnackbar error={error} />}
         </Grid>
       </Grid>
     </Box>

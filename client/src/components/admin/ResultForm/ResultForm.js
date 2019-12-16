@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useMutation } from 'react-apollo';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -6,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import KeyboardIcon from '@material-ui/icons/Keyboard';
 import withConfirm from 'material-ui-confirm';
 
-import CustomMutation from '../../CustomMutation/CustomMutation';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AttemptField from '../AttemptField/AttemptField';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import { setAt, times, trimTrailingZeros } from '../../../logic/utils';
@@ -55,6 +56,23 @@ const ResultForm = ({
   const persons = useMemo(() => {
     return results.map(result => result.person);
   }, [results]);
+
+  const [updateResult, { loading, error }] = useMutation(updateResultMutation, {
+    variables: {
+      competitionId,
+      roundId,
+      result: {
+        personId: result && result.person.id,
+        attempts: trimTrailingZeros(attempts),
+      },
+    },
+    onCompleted: () => {
+      const resultInput = rootRef.current.getElementsByTagName('input')[0];
+      resultInput.focus();
+      /* Clear the form. */
+      onResultChange(null);
+    },
+  });
 
   return (
     <Grid container spacing={1} ref={rootRef}>
@@ -124,44 +142,23 @@ const ResultForm = ({
       <Grid item xs={12}>
         <Grid container alignItems="flex-end">
           <Grid item>
-            <CustomMutation
-              mutation={updateResultMutation}
-              variables={{
-                competitionId,
-                roundId,
-                result: {
-                  personId: result && result.person.id,
-                  attempts: trimTrailingZeros(attempts),
-                },
-              }}
-              onCompleted={() => {
-                const resultInput = rootRef.current.getElementsByTagName(
-                  'input'
-                )[0];
-                resultInput.focus();
-                /* Clear the form. */
-                onResultChange(null);
-              }}
+            <Button
+              type="submit"
+              variant="outlined"
+              color="primary"
+              disabled={!result || loading}
+              onClick={
+                submissionWarning
+                  ? confirm(updateResult, {
+                      description: submissionWarning,
+                      confirmationText: 'Submit',
+                    })
+                  : updateResult
+              }
             >
-              {(updateResult, { loading }) => (
-                <Button
-                  type="submit"
-                  variant="outlined"
-                  color="primary"
-                  disabled={!result || loading}
-                  onClick={
-                    submissionWarning
-                      ? confirm(updateResult, {
-                          description: submissionWarning,
-                          confirmationText: 'Submit',
-                        })
-                      : updateResult
-                  }
-                >
-                  Submit
-                </Button>
-              )}
-            </CustomMutation>
+              Submit
+            </Button>
+            {error && <ErrorSnackbar error={error} />}
           </Grid>
           <Grid item style={{ flexGrow: 1 }} />
           <Grid item>

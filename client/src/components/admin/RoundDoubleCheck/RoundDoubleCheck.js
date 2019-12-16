@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
@@ -7,7 +8,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
-import CustomQuery from '../../CustomQuery/CustomQuery';
+import Loading from '../../Loading/Loading';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import ResultForm from '../ResultForm/ResultForm';
 import { sortBy } from '../../../logic/utils';
 
@@ -98,72 +100,70 @@ const RoundDoubleCheck = ({ match }) => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
+  const { data, loading, error } = useQuery(ROUND_QUERY, {
+    variables: { competitionId, roundId },
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { round } = data;
+  const results = sortBy(round.results, result => -new Date(result.updatedAt));
+
   return (
-    <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
-      {({ data: { round } }) => {
-        const results = sortBy(
-          round.results,
-          result => -new Date(result.updatedAt)
-        );
-        return (
-          <Grid container direction="row" alignItems="center" spacing={2}>
-            <Grid item md className={classes.centerContent}>
-              <IconButton
-                ref={leftButtonRef}
-                onClick={() => updateResultIndex(resultIndex - 1)}
-                disabled={resultIndex === 0}
-              >
-                <ChevronLeftIcon />
-              </IconButton>
-            </Grid>
-            <Grid item md={3}>
-              <ResultForm
-                result={results[resultIndex]}
-                results={round.results}
-                format={round.format}
-                eventId={round.event.id}
-                timeLimit={round.timeLimit}
-                cutoff={round.cutoff}
-                competitionId={competitionId}
-                roundId={roundId}
-                updateResultMutation={SET_RESULT_MUTATION}
-                onResultChange={result => {
-                  /* Disable clearing as we don't want to lose track of the currently viewed result. */
-                  if (result !== null) {
-                    updateResultIndex(results.indexOf(result));
-                  }
-                }}
-              />
-            </Grid>
-            <Grid item md className={classes.centerContent}>
-              <IconButton
-                ref={rightButtonRef}
-                autoFocus
-                onClick={() => updateResultIndex(resultIndex + 1)}
-                disabled={resultIndex === results.length - 1}
-              >
-                <ChevronRightIcon />
-              </IconButton>
-            </Grid>
-            <Grid item md={5}>
-              <Typography variant="h5" align="center">
-                {round.event.name} - {round.name}
-              </Typography>
-              <Typography variant="subtitle1" align="center" gutterBottom>
-                Double-check
-              </Typography>
-              <Typography align="justify">
-                {`Here you can iterate over results ordered by entry time (newest first).
-                  When doing double-check you can place a scorecard
-                  next to the form to quickly compare attempt results.
-                  For optimal experience make sure to always put entered/updated
-                  scorecard at the top of the pile.`}
-              </Typography>
-            </Grid>
-          </Grid>
-        );
-      }}
-    </CustomQuery>
+    <Grid container direction="row" alignItems="center" spacing={2}>
+      <Grid item md className={classes.centerContent}>
+        <IconButton
+          ref={leftButtonRef}
+          onClick={() => updateResultIndex(resultIndex - 1)}
+          disabled={resultIndex === 0}
+        >
+          <ChevronLeftIcon />
+        </IconButton>
+      </Grid>
+      <Grid item md={3}>
+        <ResultForm
+          result={results[resultIndex]}
+          results={round.results}
+          format={round.format}
+          eventId={round.event.id}
+          timeLimit={round.timeLimit}
+          cutoff={round.cutoff}
+          competitionId={competitionId}
+          roundId={roundId}
+          updateResultMutation={SET_RESULT_MUTATION}
+          onResultChange={result => {
+            /* Disable clearing as we don't want to lose track of the currently viewed result. */
+            if (result !== null) {
+              updateResultIndex(results.indexOf(result));
+            }
+          }}
+        />
+      </Grid>
+      <Grid item md className={classes.centerContent}>
+        <IconButton
+          ref={rightButtonRef}
+          autoFocus
+          onClick={() => updateResultIndex(resultIndex + 1)}
+          disabled={resultIndex === results.length - 1}
+        >
+          <ChevronRightIcon />
+        </IconButton>
+      </Grid>
+      <Grid item md={5}>
+        <Typography variant="h5" align="center">
+          {round.event.name} - {round.name}
+        </Typography>
+        <Typography variant="subtitle1" align="center" gutterBottom>
+          Double-check
+        </Typography>
+        <Typography align="justify">
+          {`Here you can iterate over results ordered by entry time (newest first).
+            When doing double-check you can place a scorecard
+            next to the form to quickly compare attempt results.
+            For optimal experience make sure to always put entered/updated
+            scorecard at the top of the pile.`}
+        </Typography>
+      </Grid>
+    </Grid>
   );
 };
 

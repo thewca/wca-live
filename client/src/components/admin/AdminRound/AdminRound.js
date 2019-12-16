@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
+import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,7 +10,8 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import CheckIcon from '@material-ui/icons/Check';
 import PrintIcon from '@material-ui/icons/Print';
 
-import CustomQuery from '../../CustomQuery/CustomQuery';
+import Loading from '../../Loading/Loading';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
@@ -91,88 +93,90 @@ const AdminRound = ({ match }) => {
     });
   }, []);
 
+  const { data, loading, error } = useQuery(ROUND_QUERY, {
+    variables: { competitionId, roundId },
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { round } = data;
+
   return (
-    <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
-      {({ data: { round } }) => (
-        <div>
-          <Grid container direction="row" spacing={2}>
-            <Grid item xs={12} md={3}>
-              <ResultForm
-                result={editedResult}
-                results={round.results}
-                onResultChange={result => {
-                  setEditedResult(result);
-                }}
-                format={round.format}
-                eventId={round.event.id}
-                timeLimit={round.timeLimit}
-                cutoff={round.cutoff}
-                competitionId={competitionId}
-                roundId={roundId}
-                updateResultMutation={SET_RESULT_MUTATION}
-              />
-            </Grid>
-            <Grid item xs={12} md={9}>
-              <Grid container alignItems="center">
-                <Grid item>
-                  <Typography variant="h5" align="center">
-                    {round.event.name} - {round.name}
-                  </Typography>
-                </Grid>
-                <Grid item style={{ flexGrow: 1 }} />
-                <Grid item>
-                  <Tooltip title="PDF" placement="top">
-                    <IconButton
-                      component="a"
-                      target="_blank"
-                      href={`/pdfs/competitions/${competitionId}/rounds/${round.id}`}
-                    >
-                      <PrintIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Add competitor" placement="top">
-                    <IconButton onClick={() => setAddDialogOpen(true)}>
-                      <PersonAddIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Double-check" placement="top">
-                    <IconButton
-                      component={Link}
-                      to={`${match.url}/doublecheck`}
-                    >
-                      <CheckIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-              <div style={{ overflowX: 'auto', paddingRight: 4 }}>
-                <AdminResultsTable
-                  results={round.results}
-                  format={round.format}
-                  eventId={round.event.id}
-                  competitionId={competitionId}
-                  onResultClick={handleResultClick}
-                />
-              </div>
-            </Grid>
-          </Grid>
-          <ResultMenu
-            {...resultMenuProps}
-            onClose={() => updateResultMenuProps({})}
-            onEditClick={() => setEditedResult(resultMenuProps.result)}
+    <div>
+      <Grid container direction="row" spacing={2}>
+        <Grid item xs={12} md={3}>
+          <ResultForm
+            result={editedResult}
+            results={round.results}
+            onResultChange={result => {
+              setEditedResult(result);
+            }}
+            format={round.format}
+            eventId={round.event.id}
+            timeLimit={round.timeLimit}
+            cutoff={round.cutoff}
             competitionId={competitionId}
             roundId={roundId}
             updateResultMutation={SET_RESULT_MUTATION}
           />
-          <AddCompetitorDialog
-            open={addDialogOpen}
-            onClose={() => setAddDialogOpen(false)}
-            competitionId={competitionId}
-            roundId={roundId}
-          />
-        </div>
+        </Grid>
+        <Grid item xs={12} md={9}>
+          <Grid container alignItems="center">
+            <Grid item>
+              <Typography variant="h5" align="center">
+                {round.event.name} - {round.name}
+              </Typography>
+            </Grid>
+            <Grid item style={{ flexGrow: 1 }} />
+            <Grid item>
+              <Tooltip title="PDF" placement="top">
+                <IconButton
+                  component="a"
+                  target="_blank"
+                  href={`/pdfs/competitions/${competitionId}/rounds/${round.id}`}
+                >
+                  <PrintIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add competitor" placement="top">
+                <IconButton onClick={() => setAddDialogOpen(true)}>
+                  <PersonAddIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Double-check" placement="top">
+                <IconButton component={Link} to={`${match.url}/doublecheck`}>
+                  <CheckIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
+          <div style={{ overflowX: 'auto', paddingRight: 4 }}>
+            <AdminResultsTable
+              results={round.results}
+              format={round.format}
+              eventId={round.event.id}
+              competitionId={competitionId}
+              onResultClick={handleResultClick}
+            />
+          </div>
+        </Grid>
+      </Grid>
+      <ResultMenu
+        {...resultMenuProps}
+        onClose={() => updateResultMenuProps({})}
+        onEditClick={() => setEditedResult(resultMenuProps.result)}
+        competitionId={competitionId}
+        roundId={roundId}
+        updateResultMutation={SET_RESULT_MUTATION}
+      />
+      {addDialogOpen && (
+        <AddCompetitorDialog
+          open={addDialogOpen}
+          onClose={() => setAddDialogOpen(false)}
+          competitionId={competitionId}
+          roundId={roundId}
+        />
       )}
-    </CustomQuery>
+    </div>
   );
 };
 

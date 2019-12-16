@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
@@ -19,7 +20,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import PeopleIcon from '@material-ui/icons/People';
 import FormatListNumberedRoundedIcon from '@material-ui/icons/FormatListNumberedRounded';
 
-import CustomQuery from '../CustomQuery/CustomQuery';
+import Loading from '../Loading/Loading';
+import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import EventList from '../EventList/EventList';
 import CompetitionHome from '../CompetitionHome/CompetitionHome';
 import Round from '../Round/Round';
@@ -107,140 +109,134 @@ const Competition = ({ match, location }) => {
   const classes = useStyles();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const { data, loading, error } = useQuery(COMPETITION_QUERY, {
+    variables: { id: match.params.id },
+    fetchPolicy: 'network-only',
+    pollInterval: 60 * 1000,
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { competition } = data;
+
+  const drawerContent = (
+    <Fragment>
+      <div className={classes.toolbar}>
+        <IconButton component={Link} to="/" aria-label="Home page">
+          <HomeIcon />
+        </IconButton>
+        <IconButton
+          component={Link}
+          to={`/competitions/${competition.id}/competitors`}
+          aria-label="Competitor"
+        >
+          <PeopleIcon />
+        </IconButton>
+        <IconButton
+          component={Link}
+          to={`/competitions/${competition.id}/podiums`}
+          aria-label="Podiums"
+        >
+          <FormatListNumberedRoundedIcon />
+        </IconButton>
+      </div>
+      <Divider />
+      <EventList events={competition.events} competitionId={competition.id} />
+    </Fragment>
+  );
+
+  /* See: https://material-ui.com/components/drawers/#swipeable-temporary-drawer */
+  const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
   return (
-    <CustomQuery
-      query={COMPETITION_QUERY}
-      variables={{ id: match.params.id }}
-      fetchPolicy="network-only"
-      pollInterval={60 * 1000}
-    >
-      {({ data: { competition } }) => {
-        const drawerContent = (
-          <Fragment>
-            <div className={classes.toolbar}>
-              <IconButton component={Link} to="/" aria-label="Home page">
-                <HomeIcon />
-              </IconButton>
-              <IconButton
-                component={Link}
-                to={`/competitions/${competition.id}/competitors`}
-                aria-label="Competitor"
-              >
-                <PeopleIcon />
-              </IconButton>
-              <IconButton
-                component={Link}
-                to={`/competitions/${competition.id}/podiums`}
-                aria-label="Podiums"
-              >
-                <FormatListNumberedRoundedIcon />
-              </IconButton>
-            </div>
-            <Divider />
-            <EventList
-              events={competition.events}
-              competitionId={competition.id}
-            />
-          </Fragment>
-        );
-
-        /* See: https://material-ui.com/components/drawers/#swipeable-temporary-drawer */
-        const iOS =
-          process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-        return (
-          <Fragment>
-            <AppBar
-              position="sticky"
-              className={classNames(classes.appBar, classes.appBarShift)}
+    <Fragment>
+      <AppBar
+        position="sticky"
+        className={classNames(classes.appBar, classes.appBarShift)}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            className={classes.menuButton}
+            onClick={() => setMobileOpen(true)}
+            aria-label="Menu"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            color="inherit"
+            className={classes.title}
+            noWrap={true}
+          >
+            <Link
+              to={`/competitions/${competition.id}`}
+              className={classes.titleLink}
             >
-              <Toolbar>
-                <IconButton
-                  color="inherit"
-                  className={classes.menuButton}
-                  onClick={() => setMobileOpen(true)}
-                  aria-label="Menu"
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Typography
-                  variant="h6"
-                  color="inherit"
-                  className={classes.title}
-                  noWrap={true}
-                >
-                  <Link
-                    to={`/competitions/${competition.id}`}
-                    className={classes.titleLink}
-                  >
-                    {competition.name}
-                  </Link>
-                </Typography>
-                <div style={{ flexGrow: 1 }} />
-                {competition.currentUserScoretakerAccess && (
-                  <Tooltip title="Admin view">
-                    <IconButton
-                      color="inherit"
-                      component={Link}
-                      to={`/admin${location.pathname}`}
-                    >
-                      <LockIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Toolbar>
-            </AppBar>
-            <Hidden lgUp>
-              <SwipeableDrawer
-                open={mobileOpen}
-                onOpen={() => setMobileOpen(true)}
-                onClose={() => setMobileOpen(false)}
-                onClick={() => setMobileOpen(false)}
-                classes={{ paper: classes.drawer }}
-                disableBackdropTransition={!iOS}
-                disableDiscovery={iOS}
+              {competition.name}
+            </Link>
+          </Typography>
+          <div style={{ flexGrow: 1 }} />
+          {competition.currentUserScoretakerAccess && (
+            <Tooltip title="Admin view">
+              <IconButton
+                color="inherit"
+                component={Link}
+                to={`/admin${location.pathname}`}
               >
-                {drawerContent}
-              </SwipeableDrawer>
-            </Hidden>
-            <Hidden mdDown>
-              <Drawer variant="permanent" classes={{ paper: classes.drawer }}>
-                {drawerContent}
-              </Drawer>
-            </Hidden>
-            <div className={classNames(classes.content, classes.appBarShift)}>
-              <Switch>
-                <Route
-                  exact
-                  path="/competitions/:competitionId"
-                  component={CompetitionHome}
-                />
-                <Route
-                  path="/competitions/:competitionId/rounds/:roundId"
-                  component={Round}
-                />
-                <Route
-                  exact
-                  path="/competitions/:competitionId/competitors"
-                  component={Competitors}
-                />
-                <Route
-                  exact
-                  path="/competitions/:competitionId/competitors/:competitorId"
-                  component={Competitor}
-                />
-                <Route
-                  exact
-                  path="/competitions/:competitionId/podiums"
-                  component={Podiums}
-                />
-                <Redirect to={`/competitions/${competition.id}`} />
-              </Switch>
-            </div>
-          </Fragment>
-        );
-      }}
-    </CustomQuery>
+                <LockIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Toolbar>
+      </AppBar>
+      <Hidden lgUp>
+        <SwipeableDrawer
+          open={mobileOpen}
+          onOpen={() => setMobileOpen(true)}
+          onClose={() => setMobileOpen(false)}
+          onClick={() => setMobileOpen(false)}
+          classes={{ paper: classes.drawer }}
+          disableBackdropTransition={!iOS}
+          disableDiscovery={iOS}
+        >
+          {drawerContent}
+        </SwipeableDrawer>
+      </Hidden>
+      <Hidden mdDown>
+        <Drawer variant="permanent" classes={{ paper: classes.drawer }}>
+          {drawerContent}
+        </Drawer>
+      </Hidden>
+      <div className={classNames(classes.content, classes.appBarShift)}>
+        <Switch>
+          <Route
+            exact
+            path="/competitions/:competitionId"
+            component={CompetitionHome}
+          />
+          <Route
+            path="/competitions/:competitionId/rounds/:roundId"
+            component={Round}
+          />
+          <Route
+            exact
+            path="/competitions/:competitionId/competitors"
+            component={Competitors}
+          />
+          <Route
+            exact
+            path="/competitions/:competitionId/competitors/:competitorId"
+            component={Competitor}
+          />
+          <Route
+            exact
+            path="/competitions/:competitionId/podiums"
+            component={Podiums}
+          />
+          <Redirect to={`/competitions/${competition.id}`} />
+        </Switch>
+      </div>
+    </Fragment>
   );
 };
 

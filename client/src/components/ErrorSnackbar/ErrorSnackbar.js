@@ -4,7 +4,11 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 
-const ErrorSnackbar = ({ message }) => {
+const ErrorSnackbar = ({ error = null }) => {
+  const message =
+    error && error.graphQLErrors.length > 0
+      ? error.graphQLErrors[0].message
+      : 'Something went wrong 😔';
   const [open, setOpen] = useState(true);
 
   /* Make sure the snackbar is rendered relatively to the body. (https://github.com/mui-org/material-ui/issues/12201#issuecomment-406434406) */

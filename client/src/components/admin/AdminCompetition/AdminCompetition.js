@@ -1,6 +1,7 @@
 import React from 'react';
-import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import gql from 'graphql-tag';
+import { useQuery, useMutation, useApolloClient } from 'react-apollo';
+import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,8 +16,8 @@ import SyncIcon from '@material-ui/icons/Sync';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
 
-import CustomQuery from '../../CustomQuery/CustomQuery';
-import CustomMutation from '../../CustomMutation/CustomMutation';
+import Loading from '../../Loading/Loading';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AdminEvents from '../AdminEvents/AdminEvents';
 import Synchronize from '../Synchronize/Synchronize';
 import AdminSettings from '../AdminSettings/AdminSettings';
@@ -66,140 +67,139 @@ const useStyles = makeStyles(theme => ({
 
 const AdminCompetition = ({ match, location, history }) => {
   const classes = useStyles();
-  return (
-    <CustomQuery query={COMPETITION_QUERY} variables={{ id: match.params.id }}>
-      {({ data, client }) => {
-        const { competition, me } = data;
-        const {
-          currentUserManagerAccess,
-          currentUserScoretakerAccess,
-        } = competition;
-        if (!currentUserScoretakerAccess) {
-          return <Redirect to={`/competitions/${competition.id}`} />;
-        }
 
-        return (
-          <div>
-            <AppBar position="sticky" className={classes.appBar}>
-              <Toolbar>
-                <Link
-                  to={`/admin/competitions/${competition.id}`}
-                  className={classes.titleLink}
-                >
-                  <Typography variant="h6" color="inherit" component="span">
-                    {competition.name}
-                  </Typography>
-                  <Typography
-                    variant="overline"
-                    component="span"
-                    className={classes.admin}
-                  >
-                    Admin
-                  </Typography>
-                </Link>
-                <div className={classes.grow} />
-                <Tooltip title="Events">
-                  <IconButton
-                    color="inherit"
-                    component={Link}
-                    to={`/admin/competitions/${competition.id}`}
-                  >
-                    <ViewListIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Synchronization">
-                  <IconButton
-                    color="inherit"
-                    component={Link}
-                    to={`/admin/competitions/${competition.id}/sync`}
-                  >
-                    <SyncIcon />
-                  </IconButton>
-                </Tooltip>
-                {currentUserManagerAccess && (
-                  <Tooltip title="Settings">
-                    <IconButton
-                      color="inherit"
-                      component={Link}
-                      to={`/admin/competitions/${competition.id}/settings`}
-                    >
-                      <SettingsIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-                <Tooltip title="Public view">
-                  <IconButton
-                    color="inherit"
-                    component={Link}
-                    to={location.pathname.replace(/^\/admin/, '')}
-                  >
-                    <RemoveRedEyeIcon />
-                  </IconButton>
-                </Tooltip>
-                {me ? (
-                  <Tooltip title="My competitions">
-                    <IconButton color="inherit" component={Link} to="/admin">
-                      <AccountCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <CustomMutation
-                    mutation={SIGN_OUT_MUTATION}
-                    onCompleted={data => {
-                      client.clearStore().then(() => history.push('/'));
-                    }}
-                  >
-                    {(signOut, { loading }) => (
-                      <Tooltip title="Sign out">
-                        <IconButton
-                          color="inherit"
-                          onClick={signOut}
-                          disabled={loading}
-                        >
-                          <ExitToAppIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </CustomMutation>
-                )}
-              </Toolbar>
-            </AppBar>
-            <div className={classes.content}>
-              <Switch>
-                <Route
-                  exact
-                  path="/admin/competitions/:competitionId"
-                  component={AdminEvents}
-                />
-                <Route
-                  exact
-                  path="/admin/competitions/:competitionId/sync"
-                  component={Synchronize}
-                />
-                {currentUserManagerAccess && (
-                  <Route
-                    exact
-                    path="/admin/competitions/:competitionId/settings"
-                    component={AdminSettings}
-                  />
-                )}
-                <Route
-                  exact
-                  path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"
-                  component={RoundDoubleCheck}
-                />
-                <Route
-                  exact
-                  path="/admin/competitions/:competitionId/rounds/:roundId"
-                  component={AdminRound}
-                />
-                <Redirect to={`/admin/competitions/${competition.id}`} />
-              </Switch>
-            </div>
-          </div>
-        );
-      }}
-    </CustomQuery>
+  const apolloClient = useApolloClient();
+  const [
+    signOut,
+    { loading: signOutLoading, error: signOutError },
+  ] = useMutation(SIGN_OUT_MUTATION, {
+    onCompleted: data => {
+      apolloClient.clearStore().then(() => history.push('/'));
+    },
+  });
+
+  const { data, loading, error } = useQuery(COMPETITION_QUERY, {
+    variables: { id: match.params.id },
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { competition, me } = data;
+  const { currentUserManagerAccess, currentUserScoretakerAccess } = competition;
+  if (!currentUserScoretakerAccess) {
+    return <Redirect to={`/competitions/${competition.id}`} />;
+  }
+
+  return (
+    <div>
+      <AppBar position="sticky" className={classes.appBar}>
+        <Toolbar>
+          <Link
+            to={`/admin/competitions/${competition.id}`}
+            className={classes.titleLink}
+          >
+            <Typography variant="h6" color="inherit" component="span">
+              {competition.name}
+            </Typography>
+            <Typography
+              variant="overline"
+              component="span"
+              className={classes.admin}
+            >
+              Admin
+            </Typography>
+          </Link>
+          <div className={classes.grow} />
+          <Tooltip title="Events">
+            <IconButton
+              color="inherit"
+              component={Link}
+              to={`/admin/competitions/${competition.id}`}
+            >
+              <ViewListIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Synchronization">
+            <IconButton
+              color="inherit"
+              component={Link}
+              to={`/admin/competitions/${competition.id}/sync`}
+            >
+              <SyncIcon />
+            </IconButton>
+          </Tooltip>
+          {currentUserManagerAccess && (
+            <Tooltip title="Settings">
+              <IconButton
+                color="inherit"
+                component={Link}
+                to={`/admin/competitions/${competition.id}/settings`}
+              >
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          <Tooltip title="Public view">
+            <IconButton
+              color="inherit"
+              component={Link}
+              to={location.pathname.replace(/^\/admin/, '')}
+            >
+              <RemoveRedEyeIcon />
+            </IconButton>
+          </Tooltip>
+          {me ? (
+            <Tooltip title="My competitions">
+              <IconButton color="inherit" component={Link} to="/admin">
+                <AccountCircleIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Sign out">
+              <IconButton
+                color="inherit"
+                onClick={signOut}
+                disabled={signOutLoading}
+              >
+                <ExitToAppIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          {signOutError && <ErrorSnackbar error={signOutError} />}
+        </Toolbar>
+      </AppBar>
+      <div className={classes.content}>
+        <Switch>
+          <Route
+            exact
+            path="/admin/competitions/:competitionId"
+            component={AdminEvents}
+          />
+          <Route
+            exact
+            path="/admin/competitions/:competitionId/sync"
+            component={Synchronize}
+          />
+          {currentUserManagerAccess && (
+            <Route
+              exact
+              path="/admin/competitions/:competitionId/settings"
+              component={AdminSettings}
+            />
+          )}
+          <Route
+            exact
+            path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"
+            component={RoundDoubleCheck}
+          />
+          <Route
+            exact
+            path="/admin/competitions/:competitionId/rounds/:roundId"
+            component={AdminRound}
+          />
+          <Redirect to={`/admin/competitions/${competition.id}`} />
+        </Switch>
+      </div>
+    </div>
   );
 };
 

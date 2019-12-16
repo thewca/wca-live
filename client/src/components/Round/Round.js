@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 import { Switch, Route, Redirect, Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
@@ -9,7 +10,8 @@ import Typography from '@material-ui/core/Typography';
 import TvIcon from '@material-ui/icons/Tv';
 import PrintIcon from '@material-ui/icons/Print';
 
-import CustomQuery from '../CustomQuery/CustomQuery';
+import Loading from '../Loading/Loading';
+import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import ResultsProjector from '../ResultsProjector/ResultsProjector';
 import RoundResults from '../RoundResults/RoundResults';
 import { RESULTS_UPDATE_FRAGMENT } from '../../logic/graphql-fragments';
@@ -68,83 +70,81 @@ const ROUND_UPDATE_SUBSCRIPTION = gql`
 
 const Round = ({ match }) => {
   const { competitionId, roundId } = match.params;
+  const { data, loading, error, subscribeToMore } = useQuery(ROUND_QUERY, {
+    variables: { competitionId, roundId },
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { round } = data;
+  if (!round.finished || round.active) {
+    subscribeToMore({
+      document: ROUND_UPDATE_SUBSCRIPTION,
+      variables: { competitionId, roundId },
+    });
+  }
 
   return (
-    <CustomQuery query={ROUND_QUERY} variables={{ competitionId, roundId }}>
-      {({ data: { round }, subscribeToMore }) => {
-        if (!round.finished || round.active) {
-          subscribeToMore({
-            document: ROUND_UPDATE_SUBSCRIPTION,
-            variables: { competitionId, roundId },
-          });
-        }
-
-        return (
-          <Fragment>
-            <Grid container alignItems="center">
-              <Grid item>
-                <Typography variant="h5">
-                  {round.event.name} - {round.name}
-                </Typography>
-              </Grid>
-              <Grid item style={{ flexGrow: 1 }} />
-              <Hidden smDown>
-                <Grid item>
-                  <Tooltip title="PDF" placement="top">
-                    <IconButton
-                      component="a"
-                      target="_blank"
-                      href={`/pdfs/competitions/${competitionId}/rounds/${roundId}`}
-                    >
-                      <PrintIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Projector view" placement="top">
-                    <IconButton
-                      component={Link}
-                      to={`/competitions/${competitionId}/rounds/${roundId}/projector`}
-                    >
-                      <TvIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-              </Hidden>
-            </Grid>
-            <Switch>
-              <Route
-                exact
-                path={`/competitions/${competitionId}/rounds/${roundId}/projector`}
-                render={() => (
-                  <ResultsProjector
-                    results={round.results}
-                    format={round.format}
-                    eventId={round.event.id}
-                    title={`${round.event.name} - ${round.name}`}
-                    exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
-                    competitionId={competitionId}
-                  />
-                )}
-              />
-              <Route
-                exact
-                path={`/competitions/${competitionId}/rounds/${roundId}`}
-                render={() => (
-                  <RoundResults
-                    results={round.results}
-                    format={round.format}
-                    eventId={round.event.id}
-                    competitionId={competitionId}
-                  />
-                )}
-              />
-              <Redirect
-                to={`/competitions/${competitionId}/rounds/${roundId}`}
-              />
-            </Switch>
-          </Fragment>
-        );
-      }}
-    </CustomQuery>
+    <Fragment>
+      {loading && <Loading />}
+      <Grid container alignItems="center">
+        <Grid item>
+          <Typography variant="h5">
+            {round.event.name} - {round.name}
+          </Typography>
+        </Grid>
+        <Grid item style={{ flexGrow: 1 }} />
+        <Hidden smDown>
+          <Grid item>
+            <Tooltip title="PDF" placement="top">
+              <IconButton
+                component="a"
+                target="_blank"
+                href={`/pdfs/competitions/${competitionId}/rounds/${roundId}`}
+              >
+                <PrintIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Projector view" placement="top">
+              <IconButton
+                component={Link}
+                to={`/competitions/${competitionId}/rounds/${roundId}/projector`}
+              >
+                <TvIcon />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+        </Hidden>
+      </Grid>
+      <Switch>
+        <Route
+          exact
+          path={`/competitions/${competitionId}/rounds/${roundId}/projector`}
+          render={() => (
+            <ResultsProjector
+              results={round.results}
+              format={round.format}
+              eventId={round.event.id}
+              title={`${round.event.name} - ${round.name}`}
+              exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
+              competitionId={competitionId}
+            />
+          )}
+        />
+        <Route
+          exact
+          path={`/competitions/${competitionId}/rounds/${roundId}`}
+          render={() => (
+            <RoundResults
+              results={round.results}
+              format={round.format}
+              eventId={round.event.id}
+              competitionId={competitionId}
+            />
+          )}
+        />
+        <Redirect to={`/competitions/${competitionId}/rounds/${roundId}`} />
+      </Switch>
+    </Fragment>
   );
 };
 

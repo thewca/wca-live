@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { makeStyles } from '@material-ui/core/styles';
 
-import CustomQuery from '../../CustomQuery/CustomQuery';
+import Loading from '../../Loading/Loading';
+import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AccessSettings from '../AccessSettings/AccessSettings';
 
 const COMPETITION_QUERY = gql`
@@ -48,29 +50,29 @@ const useStyles = makeStyles(theme => ({
 
 const AdminSettings = ({ match }) => {
   const classes = useStyles();
-  const { competitionId } = match.params;
   const [tabValue, setTabValue] = useState('access');
 
+  const { data, loading, error } = useQuery(COMPETITION_QUERY, {
+    variables: { id: match.params.competitionId },
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { competition } = data;
+
   return (
-    <CustomQuery query={COMPETITION_QUERY} variables={{ id: competitionId }}>
-      {({ data: { competition } }) => (
-        <div className={classes.root}>
-          <Tabs
-            orientation="vertical"
-            value={tabValue}
-            onChange={(event, value) => setTabValue(value)}
-            className={classes.tabs}
-          >
-            <Tab label="Access" value="access" />
-          </Tabs>
-          <div className={classes.tabContent}>
-            {tabValue === 'access' && (
-              <AccessSettings competition={competition} />
-            )}
-          </div>
-        </div>
-      )}
-    </CustomQuery>
+    <div className={classes.root}>
+      <Tabs
+        orientation="vertical"
+        value={tabValue}
+        onChange={(event, value) => setTabValue(value)}
+        className={classes.tabs}
+      >
+        <Tab label="Access" value="access" />
+      </Tabs>
+      <div className={classes.tabContent}>
+        {tabValue === 'access' && <AccessSettings competition={competition} />}
+      </div>
+    </div>
   );
 };
 

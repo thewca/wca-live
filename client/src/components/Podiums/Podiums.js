@@ -1,9 +1,11 @@
 import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
-import CustomQuery from '../CustomQuery/CustomQuery';
+import Loading from '../Loading/Loading';
+import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import RoundResults from '../RoundResults/RoundResults';
 
 const PODIUMS_QUERY = gql`
@@ -48,43 +50,36 @@ const PODIUMS_QUERY = gql`
 `;
 
 const Podiums = ({ match }) => {
-  const { competitionId } = match.params;
+  const { data, loading, error } = useQuery(PODIUMS_QUERY, {
+    variables: { competitionId: match.params.competitionId },
+  });
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorSnackbar />;
+  const { competition } = data;
 
   return (
-    <CustomQuery query={PODIUMS_QUERY} variables={{ competitionId }}>
-      {({
-        data: {
-          competition: { podiums },
-        },
-      }) => {
-        return (
-          <Fragment>
-            <Typography variant="h5" gutterBottom>
-              Podiums
-            </Typography>
-            {podiums.length > 0 ? (
-              <Grid container direction="column" spacing={2}>
-                {podiums.map(round => (
-                  <Grid item key={round.id}>
-                    <Typography variant="subtitle1">
-                      {round.event.name}
-                    </Typography>
-                    <RoundResults
-                      results={round.results}
-                      format={round.format}
-                      eventId={round.event.id}
-                      competitionId={competitionId}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Typography>{`There are no podiums yet!`}</Typography>
-            )}
-          </Fragment>
-        );
-      }}
-    </CustomQuery>
+    <Fragment>
+      <Typography variant="h5" gutterBottom>
+        Podiums
+      </Typography>
+      {competition.podiums.length > 0 ? (
+        <Grid container direction="column" spacing={2}>
+          {competition.podiums.map(round => (
+            <Grid item key={round.id}>
+              <Typography variant="subtitle1">{round.event.name}</Typography>
+              <RoundResults
+                results={round.results}
+                format={round.format}
+                eventId={round.event.id}
+                competitionId={competition.id}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Typography>{`There are no podiums yet!`}</Typography>
+      )}
+    </Fragment>
   );
 };
 
