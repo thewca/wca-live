@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/react-hooks';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';

@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery, useMutation, useApolloClient } from 'react-apollo';
+import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks';
 import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';

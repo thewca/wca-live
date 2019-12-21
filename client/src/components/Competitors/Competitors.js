@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/react-hooks';
 
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';

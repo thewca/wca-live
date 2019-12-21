@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/react-hooks';
 import { Switch, Route, Redirect, Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';

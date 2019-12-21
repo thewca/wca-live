@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useMutation } from 'react-apollo';
+import { useMutation } from '@apollo/react-hooks';
 import { withRouter, Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';

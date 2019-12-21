@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider } from '@apollo/react-hooks';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, split } from 'apollo-link';
 import { createHttpLink } from 'apollo-link-http';
