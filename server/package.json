@@ -10,19 +10,19 @@
     "test:once": "jest --verbose"
   },
   "dependencies": {
-    "apollo-server-express": "^2.6.7",
-    "bcrypt": "^3.0.6",
-    "connect-mongo": "^3.0.0",
-    "dotenv": "^8.0.0",
+    "apollo-server-express": "^2.9.14",
+    "bcrypt": "^3.0.7",
+    "connect-mongo": "^3.2.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-session": "^1.16.2",
-    "graphql": "^14.4.2",
-    "mongodb": "^3.2.7",
+    "express-session": "^1.17.0",
+    "graphql": "^14.5.8",
+    "mongodb": "^3.4.1",
     "node-fetch": "^2.6.0",
-    "pdfmake": "^0.1.59"
+    "pdfmake": "^0.1.63"
   },
   "devDependencies": {
     "jest": "^24.9.0",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.4"
   }
 }
