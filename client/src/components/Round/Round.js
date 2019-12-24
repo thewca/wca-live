@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import { Switch, Route, Redirect, Link } from 'react-router-dom';
@@ -73,15 +73,22 @@ const Round = ({ match }) => {
   const { data, loading, error, subscribeToMore } = useQuery(ROUND_QUERY, {
     variables: { competitionId, roundId },
   });
+
+  const { id, finished, active } = data ? data.round : {};
+  useEffect(() => {
+    if (!id) return;
+    if (!finished || active) {
+      const unsubscribe = subscribeToMore({
+        document: ROUND_UPDATE_SUBSCRIPTION,
+        variables: { competitionId, roundId: id },
+      });
+      return unsubscribe;
+    }
+  }, [subscribeToMore, competitionId, id, finished, active]);
+
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { round } = data;
-  if (!round.finished || round.active) {
-    subscribeToMore({
-      document: ROUND_UPDATE_SUBSCRIPTION,
-      variables: { competitionId, roundId },
-    });
-  }
 
   return (
     <Fragment>
