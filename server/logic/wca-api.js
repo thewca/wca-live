@@ -12,10 +12,10 @@ module.exports = (user = null) => {
   };
 
   const getUpcomingManageableCompetitions = () => {
-    const now = new Date();
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
     const params = new URLSearchParams({
       managed_by_me: true,
-      start: now.toISOString(),
+      start: twoDaysAgo.toISOString(),
     });
     return wcaApiFetch(`/competitions?${params.toString()}`);
   };
