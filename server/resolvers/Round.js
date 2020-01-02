@@ -23,10 +23,10 @@ module.exports = {
     const event = eventById(wcif, eventId);
     return withWcif(wcif)(event);
   },
-  name: ({ id, cutoff, wcif }) => {
+  name: ({ id, wcif }) => {
     const { eventId, roundNumber } = parseActivityCode(id);
     const event = eventById(wcif, eventId);
-    return friendlyRoundName(roundNumber, event.rounds.length, cutoff);
+    return friendlyRoundName(roundNumber, event.rounds.length);
   },
   label: round => {
     return roundLabel(round);

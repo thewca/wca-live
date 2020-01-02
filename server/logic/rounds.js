@@ -13,18 +13,18 @@ const {
 const { formatById } = require('./formats');
 const { flatMap } = require('./utils');
 
-const friendlyRoundName = (roundNumber, numberOfRounds, cutoff) => {
+const friendlyRoundName = (roundNumber, numberOfRounds) => {
   if (roundNumber === numberOfRounds) {
-    return cutoff ? 'Combined Final' : 'Final';
+    return 'Final';
   }
   if (roundNumber === 1) {
-    return cutoff ? 'Combined First' : 'First Round';
+    return 'First Round';
   }
   if (roundNumber === 2) {
-    return cutoff ? 'Combined Second' : 'Second Round';
+    return 'Second Round';
   }
   if (roundNumber === 3) {
-    return cutoff ? 'Combined Third' : 'Semi Final';
+    return 'Third Round';
   }
   return null;
 };

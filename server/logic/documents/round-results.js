@@ -113,8 +113,7 @@ module.exports = (wcif, roundId) => {
   const eventName = eventNameById(event.id);
   const roundName = friendlyRoundName(
     roundNumber,
-    event.rounds.length,
-    round.cutoff
+    event.rounds.length
   );
   const advancing = advancingResults(round, wcif);
   const stats = statsToDisplay(format, eventId);
