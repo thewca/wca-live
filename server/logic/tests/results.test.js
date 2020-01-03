@@ -18,6 +18,7 @@ const {
   updateRecordTags,
   sortedResults,
   resultFinished,
+  updateResult,
 } = require('../results');
 
 describe('updateRanking', () => {
@@ -357,5 +358,78 @@ describe('resultFinished', () => {
     const result = Result({ personId: 1, attempts: [{ result: 24 }] });
     const cutoff = { attemptResult: 25, numberOfAttempts: 1 };
     expect(resultFinished(result, 3, cutoff)).toEqual(false);
+  });
+});
+
+describe('updateResult', () => {
+  beforeEach(() => {
+    records.getRecordByIdCopy.mockReturnValue({});
+  });
+
+  test('updates attempts, best and average', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [Person({ registrantId: 1 })],
+    });
+    const attempts = [{ result: 1000 }, { result: 1100 }, { result: 900 }, { result: 1000 }, { result: 800 }];
+    const updatedWcif = updateResult(wcif, '333-r1', 1, attempts);
+    const result = updatedWcif.events[0].rounds[0].results[0];
+    expect(result.best).toEqual(800);
+    expect(result.average).toEqual(967);
+    expect(result.attempts.map(({ result }) => result)).toEqual([1000, 1100, 900, 1000, 800]);
+  });
+
+  test('throws an error if all attempts are DNS', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [Person({ registrantId: 1 })],
+    });
+    expect(() => {
+      const attempts = [{ result: -2 }, { result: -2 }, { result: -2 }, { result: -2 }, { result: -2 }];
+      updateResult(wcif, '333-r1', 1, attempts);
+    }).toThrow(
+      new Error('Cannot have all attempts of DNS, remove the competitor from this round instead.')
+    );
+  });
+
+  test('throws an error if all cutoff attempts are DNS', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1 })],
+      cutoff: { attemptResult: 1000, numberOfAttempts: 2 },
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [Person({ registrantId: 1 })],
+    });
+    expect(() => {
+      const attempts = [{ result: -2 }, { result: -2 }];
+      updateResult(wcif, '333-r1', 1, attempts);
+    }).toThrow(
+      new Error('Cannot have all attempts of DNS, remove the competitor from this round instead.')
+    );
+  });
+
+  test('does not throw an error if some attempts are DNS and remaining are skipped', () => {
+    const round1 = Round({
+      id: '333-r1',
+      results: [Result({ personId: 1 })],
+    });
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [round1] })],
+      persons: [Person({ registrantId: 1 })],
+    });
+    expect(() => {
+      const attempts = [{ result: -2 }, { result: -2 }, { result: -2 }];
+      updateResult(wcif, '333-r1', 1, attempts);
+    }).not.toThrow();
   });
 });

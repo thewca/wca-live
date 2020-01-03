@@ -144,6 +144,10 @@ const updateResult = (wcif, roundId, personId, attempts) => {
   const { solveCount } = formatById(round.format);
   const { eventId } = parseActivityCode(roundId);
   const attemptResults = attempts.map(({ result }) => result);
+  const allDns = attemptResults.every(attemptResult => attemptResult === -2);
+  if (allDns && (round.cutoff ? round.cutoff.numberOfAttempts : solveCount) === attempts.length) {
+    throw new Error('Cannot have all attempts of DNS, remove the competitor from this round instead.');
+  }
   const updatedWcif = updateRound(wcif, {
     ...round,
     results: round.results.map(current =>
