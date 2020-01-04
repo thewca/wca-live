@@ -2,23 +2,18 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 
 import Footer from '../Footer/Footer';
 import logo from './logo.svg';
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import Competitions from '../Competitions/Competitions';
+import HomeToolbar from '../HomeToolbar/HomeToolbar';
 import RecordList from '../RecordList/RecordList';
 import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
-import {
-  geolocationAvailable,
-  nearestCompetition,
-} from '../../logic/geolocation';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {
@@ -83,22 +78,13 @@ const Home = ({ history }) => {
             Live results from competitions all around the world!
           </Typography>
         </Grid>
-        {inProgress.length > 0 && geolocationAvailable && (
-          <Grid item className={classNames(classes.fullWidth, classes.center)}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => {
-                nearestCompetition(inProgress).then(competition => {
-                  history.push(`/competitions/${competition.id}`);
-                });
-              }}
-              aria-label="Nearest competition"
-            >
-              Nearest competition
-            </Button>
-          </Grid>
-        )}
+        <Grid item>
+          <HomeToolbar
+            upcoming={upcoming}
+            inProgress={inProgress}
+            past={past}
+          />
+        </Grid>
         <Grid item>
           <Paper>
             <Competitions

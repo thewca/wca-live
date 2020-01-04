@@ -5,9 +5,11 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import { createMuiTheme } from '@material-ui/core/styles';
+import {
+  createMuiTheme,
+  ThemeProvider as MuiThemeProvider,
+} from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { ThemeProvider as MuiThemeProvider } from '@material-ui/styles';
 import { blue, grey, pink } from '@material-ui/core/colors';
 
 const themes = {
