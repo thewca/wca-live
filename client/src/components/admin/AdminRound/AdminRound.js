@@ -4,6 +4,8 @@ import { useQuery } from '@apollo/react-hooks';
 import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -16,6 +18,7 @@ import ResultForm from '../ResultForm/ResultForm';
 import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
 import AddCompetitorDialog from '../AddCompetitorDialog/AddCompetitorDialog';
+import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
 
 const ROUND_QUERY = gql`
@@ -57,6 +60,10 @@ const ROUND_QUERY = gql`
           single
           average
         }
+      }
+      next {
+        id
+        open
       }
     }
   }
@@ -102,6 +109,15 @@ const AdminRound = ({ match }) => {
 
   return (
     <div>
+      {round.next && round.next.open && (
+        <ClosableSnackbar
+          message="The next round has already been open, any changes won't affect it!"
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+        />
+      )}
       <Grid container direction="row" spacing={2}>
         <Grid item xs={12} md={3}>
           <ResultForm

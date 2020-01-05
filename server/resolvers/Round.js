@@ -1,5 +1,5 @@
 const { formatById } = require('../logic/formats');
-const { parseActivityCode, eventById, personById } = require('../logic/wcif');
+const { parseActivityCode, eventById, personById, nextRound } = require('../logic/wcif');
 const {
   friendlyRoundName,
   roundLabel,
@@ -63,5 +63,9 @@ module.exports = {
         .map(personId => personById(wcif, personId))
         .map(withWcif(wcif)),
     };
+  },
+  next: ({ id, wcif }) => {
+    const next = nextRound(wcif, id);
+    return next ? withWcif(wcif)(next) : null;
   },
 };

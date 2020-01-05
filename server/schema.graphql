@@ -111,6 +111,7 @@ type Round {
   active: Boolean!
   nextQualifying: [Person!] # People who would qualify to this round if one person quit.
   missingQualifying: MissingQualifying
+  next: Round
 }
 
 type Format {
