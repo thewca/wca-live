@@ -21,6 +21,16 @@ const EVENTS_QUERY = gql`
           name
           open
           finished
+          previous {
+            _id
+            open
+            finished
+          }
+          next {
+            _id
+            open
+            finished
+          }
         }
       }
     }

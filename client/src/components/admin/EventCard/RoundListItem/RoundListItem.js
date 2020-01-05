@@ -28,18 +28,12 @@ const CLEAR_ROUND_MUTATION = gql`
   }
 `;
 
-const roundOpenable = (round, rounds) => {
-  if (round.open) return false;
-  const roundIndex = rounds.indexOf(round);
-  if (roundIndex === 0) return true;
-  return rounds[roundIndex - 1].open;
+const roundOpenable = round => {
+  return !round.open && (!round.previous || round.previous.open);
 };
 
-const roundClearable = (round, rounds) => {
-  if (!round.open) return false;
-  const roundIndex = rounds.indexOf(round);
-  if (roundIndex === rounds.length - 1) return true;
-  return !rounds[roundIndex + 1].open;
+const roundClearable = round => {
+  return round.open && (!round.next || !round.next.open);
 };
 
 const RoundListItem = ({ event, round, competitionId, confirm }) => {
@@ -57,8 +51,6 @@ const RoundListItem = ({ event, round, competitionId, confirm }) => {
     variables: { competitionId, roundId: round.id },
   });
 
-  const index = event.rounds.indexOf(round);
-
   return (
     <ListItem
       key={round.id}
@@ -69,11 +61,11 @@ const RoundListItem = ({ event, round, competitionId, confirm }) => {
     >
       <ListItemText primary={round.name} />
       <ListItemSecondaryAction>
-        {roundOpenable(round, event.rounds) && (
+        {roundOpenable(round) && (
           <Button
             size="small"
             onClick={
-              index > 0 && !event.rounds[index - 1].finished
+              round.previous && !round.previous.finished
                 ? confirm(openRound, {
                     description: `
                       There are some missing results in the previous round.
@@ -88,7 +80,7 @@ const RoundListItem = ({ event, round, competitionId, confirm }) => {
           </Button>
         )}
         {openError && <ErrorSnackbar error={openError} />}
-        {roundClearable(round, event.rounds) && (
+        {roundClearable(round) && (
           <Button
             size="small"
             onClick={confirm(clearRound, {
