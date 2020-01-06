@@ -30,6 +30,7 @@ const ResultForm = ({
   updateResultMutation,
   competitionId,
   roundId,
+  focusOnResultChange = false,
   confirm,
 }) => {
   const { solveCount } = format;
@@ -41,6 +42,18 @@ const ResultForm = ({
       times(solveCount, index => (result && result.attempts[index]) || 0)
     );
   }, [result, solveCount]);
+
+  useEffect(() => {
+    if (focusOnResultChange && result) {
+      const firstAttemptInput = rootRef.current.getElementsByTagName(
+        'input'
+      )[1];
+      setTimeout(() => {
+        firstAttemptInput.focus();
+        firstAttemptInput.select();
+      }, 0);
+    }
+  }, [result, focusOnResultChange]);
 
   useKeyNavigation(rootRef.current);
 

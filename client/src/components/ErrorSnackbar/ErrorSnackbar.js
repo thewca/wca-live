@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import Snackbar from '@material-ui/core/Snackbar';
+import React from 'react';
 import Portal from '@material-ui/core/Portal';
 
 import ClosableSnackbar from '../ClosableSnackbar/ClosableSnackbar';

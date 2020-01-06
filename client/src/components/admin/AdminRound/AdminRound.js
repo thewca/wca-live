@@ -4,8 +4,6 @@ import { useQuery } from '@apollo/react-hooks';
 import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
-import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -130,6 +128,7 @@ const AdminRound = ({ match }) => {
             eventId={round.event.id}
             timeLimit={round.timeLimit}
             cutoff={round.cutoff}
+            focusOnResultChange={true}
             competitionId={competitionId}
             roundId={roundId}
             updateResultMutation={SET_RESULT_MUTATION}
