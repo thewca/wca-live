@@ -51,6 +51,9 @@ const groupBy = (arr, fn) => {
   );
 };
 
+const diff = (xs, ys) => {
+  return xs.filter(x => !ys.includes(x));
+};
 
 module.exports = {
   flatMap,
@@ -62,4 +65,5 @@ module.exports = {
   times,
   haveSameElements,
   groupBy,
+  diff,
 };
