@@ -59,8 +59,8 @@ const synchronizeWcif = (oldWcif, newWcif) => {
   });
   const wcifWithUpdatedEvents = { ...newWcif, events };
   /* Make empty rounds reflect new registration events. */
-  const wcifWithUpdatedRegistrations = newWcif.persons.reduce((wcif, newPerson) => {
-    if (!newPerson.registration) return wcif;
+  const wcifWithUpdatedRegistrationEvents = newWcif.persons.reduce((wcif, newPerson) => {
+    if (!newPerson.registration || newPerson.registration.status !== 'accepted') return wcif;
     const oldPerson = personById(oldWcif, newPerson.registrantId);
     const addedEventIds = oldPerson
       ? diff(newPerson.registration.eventIds, oldPerson.registration.eventIds)
@@ -75,11 +75,11 @@ const synchronizeWcif = (oldWcif, newWcif) => {
       ) {
         return wcif;
       }
-      return addCompetitor(wcif, event.rounds[0].id, newPerson.registrantId, false);
+      return addCompetitor(wcif, firstRound.id, newPerson.registrantId, false);
     }, wcif);
   }, wcifWithUpdatedEvents);
 
-  return wcifWithUpdatedRegistrations;
+  return wcifWithUpdatedRegistrationEvents;
 };
 
 /* Gets current WCIF from the WCA website, combines it with the local WCIF
@@ -161,6 +161,7 @@ const hasAccess = (role, competition, user, session) => {
 
 module.exports = {
   importCompetition,
+  synchronizeWcif,
   synchronize,
   updateAccessSettings,
   hasAccess,
