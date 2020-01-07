@@ -58,7 +58,7 @@ const synchronizeWcif = (oldWcif, newWcif) => {
     return { ...newEvent, rounds };
   });
   const wcifWithUpdatedEvents = { ...newWcif, events };
-  /* Make empty rounds reflect new registration events. */
+  /* Make empty results reflect new registration events. */
   const wcifWithUpdatedRegistrationEvents = newWcif.persons.reduce((wcif, newPerson) => {
     if (!newPerson.registration || newPerson.registration.status !== 'accepted') return wcif;
     const oldPerson = personById(oldWcif, newPerson.registrantId);
