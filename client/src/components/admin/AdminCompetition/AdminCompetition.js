@@ -15,6 +15,7 @@ import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import SyncIcon from '@material-ui/icons/Sync';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
+import PeopleIcon from '@material-ui/icons/People';
 
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
@@ -23,6 +24,7 @@ import Synchronize from '../Synchronize/Synchronize';
 import AdminSettings from '../AdminSettings/AdminSettings';
 import RoundDoubleCheck from '../RoundDoubleCheck/RoundDoubleCheck';
 import AdminRound from '../AdminRound/AdminRound';
+import AdminCompetitors from '../AdminCompetitors/AdminCompetitors';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -127,6 +129,15 @@ const AdminCompetition = ({ match, location, history }) => {
               <SyncIcon />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Competitors">
+            <IconButton
+              color="inherit"
+              component={Link}
+              to={`/admin/competitions/${competition.id}/competitors`}
+            >
+              <PeopleIcon />
+            </IconButton>
+          </Tooltip>
           {currentUserManagerAccess && (
             <Tooltip title="Settings">
               <IconButton
@@ -195,6 +206,11 @@ const AdminCompetition = ({ match, location, history }) => {
             exact
             path="/admin/competitions/:competitionId/rounds/:roundId"
             component={AdminRound}
+          />
+          <Route
+            exact
+            path="/admin/competitions/:competitionId/competitors"
+            component={AdminCompetitors}
           />
           <Redirect to={`/admin/competitions/${competition.id}`} />
         </Switch>

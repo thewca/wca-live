@@ -7,13 +7,18 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.type === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.54)',
     fontSize: 24,
   },
+  iconSmall: {
+    fontSize: 16,
+  },
 }));
 
-const CubingIcon = ({ eventId, ...props }) => {
+const CubingIcon = ({ eventId, small = false, ...props }) => {
   const classes = useStyles();
   return (
     <span
-      className={classNames('cubing-icon', `event-${eventId}`, classes.icon)}
+      className={classNames('cubing-icon', `event-${eventId}`, classes.icon, {
+        [classes.iconSmall]: small,
+      })}
       {...props}
     />
   );
