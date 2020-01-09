@@ -8,6 +8,8 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import TextField from '@material-ui/core/TextField';
+import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
@@ -31,29 +33,58 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [search, setSearch] = useState('');
 
-  const handleChangePage = (event, newPage) => {
+  const handleSearchChange = event => {
+    setSearch(event.target.value);
+    setPage(0);
+  };
+
+  const handlePageChange = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = event => {
+  const handleRowsPerPageChange = event => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const sortedCompetitors = useMemo(() => {
-    return competitors.sort((person1, person2) =>
-      person1.name.localeCompare(person2.name)
-    );
+    return competitors
+      .slice()
+      .sort((person1, person2) => person1.name.localeCompare(person2.name));
   }, [competitors]);
-
-  const displayedCompetitors = sortedCompetitors.slice(
+  const filteredCompetitors = search
+    ? sortedCompetitors.filter(competitor => {
+        const matchAgainst = [
+          competitor.name,
+          competitor.wcaId,
+          competitor.country.name,
+        ];
+        return search
+          .toLowerCase()
+          .split(/\s+/)
+          .every(part =>
+            matchAgainst.some(
+              phrase => phrase && phrase.toLowerCase().includes(part)
+            )
+          );
+      })
+    : sortedCompetitors;
+  const displayedCompetitors = filteredCompetitors.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
 
   return (
     <Paper>
+      <Toolbar>
+        <TextField
+          label="Search"
+          value={search}
+          onChange={handleSearchChange}
+        />
+      </Toolbar>
       <TableContainer>
         <Table size="small">
           <TableHead>
@@ -125,8 +156,8 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
         count={competitors.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onChangePage={handlePageChange}
+        onChangeRowsPerPage={handleRowsPerPageChange}
       />
     </Paper>
   );
