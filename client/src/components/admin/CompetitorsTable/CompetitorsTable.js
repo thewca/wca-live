@@ -60,6 +60,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
           competitor.name,
           competitor.wcaId,
           competitor.country.name,
+          competitor.id.toString(),
         ];
         return search
           .toLowerCase()
@@ -94,7 +95,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
               <TableCell>Country</TableCell>
               <TableCell>WCA ID</TableCell>
               <TableCell align="center" colSpan={events.length}>
-                Events
+                Results
               </TableCell>
             </TableRow>
           </TableHead>
@@ -133,7 +134,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
                           title={
                             result.attempts.length > 0
                               ? 'Competed'
-                              : 'Awaiting results'
+                              : 'Awaiting result'
                           }
                           placement="top"
                         >
