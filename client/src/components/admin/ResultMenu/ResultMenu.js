@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import withConfirm from 'material-ui-confirm';
+import { useConfirm } from 'material-ui-confirm';
 
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import QuitCompetitorDialog from '../QuitCompetitorDialog/QuitCompetitorDialog';
@@ -17,8 +17,8 @@ const ResultMenu = ({
   competitionId,
   roundId,
   updateResultMutation,
-  confirm,
 }) => {
+  const confirm = useConfirm();
   const [quitDialogOpen, setQuitDialogOpen] = useState(false);
 
   const [
@@ -63,9 +63,11 @@ const ResultMenu = ({
         </MenuItem>
         {result.attempts.length > 0 ? (
           <MenuItem
-            onClick={confirm(clearResult, {
-              description: `This will clear all attempts of ${result.person.name}.`,
-            })}
+            onClick={() => {
+              confirm({
+                description: `This will clear all attempts of ${result.person.name}.`,
+              }).then(clearResult);
+            }}
             disabled={clearLoading}
           >
             Clear
@@ -91,4 +93,4 @@ const ResultMenu = ({
   );
 };
 
-export default withConfirm(ResultMenu);
+export default ResultMenu;

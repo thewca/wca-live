@@ -9,6 +9,7 @@ import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { BrowserRouter } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { ConfirmProvider } from 'material-ui-confirm';
 
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 import Navigation from '../Navigation/Navigation';
@@ -92,8 +93,10 @@ const App = () => (
   <BrowserRouter>
     <ApolloProvider client={client}>
       <ThemeProvider>
-        <CssBaseline />
-        <Navigation />
+        <ConfirmProvider>
+          <CssBaseline />
+          <Navigation />
+        </ConfirmProvider>
       </ThemeProvider>
     </ApolloProvider>
   </BrowserRouter>

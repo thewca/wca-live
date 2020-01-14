@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import KeyboardIcon from '@material-ui/icons/Keyboard';
-import withConfirm from 'material-ui-confirm';
+import { useConfirm } from 'material-ui-confirm';
 
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AttemptField from '../AttemptField/AttemptField';
@@ -31,8 +31,8 @@ const ResultForm = ({
   competitionId,
   roundId,
   focusOnResultChange = false,
-  confirm,
 }) => {
+  const confirm = useConfirm();
   const { solveCount } = format;
   const [attempts, setAttempts] = useState(times(solveCount, () => 0));
   const rootRef = useRef(null);
@@ -160,14 +160,16 @@ const ResultForm = ({
               variant="outlined"
               color="primary"
               disabled={!result || loading}
-              onClick={
-                submissionWarning
-                  ? confirm(updateResult, {
-                      description: submissionWarning,
-                      confirmationText: 'Submit',
-                    })
-                  : updateResult
-              }
+              onClick={() => {
+                if (submissionWarning) {
+                  confirm({
+                    description: submissionWarning,
+                    confirmationText: 'Submit',
+                  }).then(updateResult);
+                } else {
+                  updateResult();
+                }
+              }}
             >
               Submit
             </Button>
@@ -272,4 +274,4 @@ const useKeyNavigation = container => {
   }, [container]);
 };
 
-export default withConfirm(ResultForm);
+export default ResultForm;

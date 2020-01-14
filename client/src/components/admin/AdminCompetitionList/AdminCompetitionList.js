@@ -6,7 +6,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import withConfirm from 'material-ui-confirm';
+import { useConfirm } from 'material-ui-confirm';
 
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import { formatDateRange } from '../../../logic/date';
@@ -23,9 +23,9 @@ const IMPORT_COMPETITION_MUTATION = gql`
 const AdminCompetitionList = ({
   manageableCompetitions,
   importableCompetitions,
-  confirm,
   history,
 }) => {
+  const confirm = useConfirm();
   const [importCompetition, { loading, error }] = useMutation(
     IMPORT_COMPETITION_MUTATION,
     {
@@ -59,12 +59,13 @@ const AdminCompetitionList = ({
         <ListItem
           key={competition.id}
           button
-          onClick={confirm(
-            () => importCompetition({ variables: { id: competition.id } }),
-            {
+          onClick={() => {
+            confirm({
               description: `This will import ${competition.name} from the WCA website.`,
-            }
-          )}
+            }).then(() =>
+              importCompetition({ variables: { id: competition.id } })
+            );
+          }}
           disabled={loading}
         >
           <ListItemText
@@ -81,4 +82,4 @@ const AdminCompetitionList = ({
   );
 };
 
-export default withRouter(withConfirm(AdminCompetitionList));
+export default withRouter(AdminCompetitionList);
