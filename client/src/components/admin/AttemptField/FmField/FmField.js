@@ -32,16 +32,18 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={numberToInput(value)}
       spellCheck={false}
-      onChange={event => {
-        const input = event.target.value;
-        if (input.includes('d') || input.includes('/')) {
+      onKeyPress={event => {
+        if (['d', 'D', '*'].includes(event.key)) {
           setValue(-1);
-        } else if (input.includes('s') || input.includes('*')) {
+          event.preventDefault();
+        } else if (['s', 'S', '*'].includes(event.key)) {
           setValue(-2);
-        } else {
-          const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
-          setValue(newValue);
+          event.preventDefault();
         }
+      }}
+      onChange={event => {
+        const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
+        setValue(newValue);
       }}
       onBlur={() => {
         onValue(validateFmResult(value));

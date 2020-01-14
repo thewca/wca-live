@@ -32,17 +32,18 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
     }
   };
 
-  const handleAnyInputChange = event => {
-    const input = event.target.value;
-    if (input.includes('d') || input.includes('/')) {
+  const handleAnyKeyPress = event => {
+    if (['d', 'D', '*'].includes(event.key)) {
       handleDecodedValueChange(decodeMbldAttempt(-1));
-    } else if (input.includes('s') || input.includes('*')) {
+      event.preventDefault();
+    } else if (['s', 'S', '*'].includes(event.key)) {
       handleDecodedValueChange(decodeMbldAttempt(-2));
+      event.preventDefault();
     }
   };
 
   return (
-    <Grid container direction="row" spacing={1} onChange={handleAnyInputChange}>
+    <Grid container direction="row" spacing={1} onKeyPress={handleAnyKeyPress}>
       <Grid item xs={2}>
         <CubesField
           initialValue={decodedValue.solved}

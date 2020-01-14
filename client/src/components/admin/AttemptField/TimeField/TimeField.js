@@ -5,8 +5,6 @@ import { toInt } from '../../../../logic/utils';
 import { roundOver10Mins } from '../../../../logic/stats';
 
 const reformatInput = input => {
-  if (input.includes('d') || input.includes('/')) return 'DNF';
-  if (input.includes('s') || input.includes('*')) return 'DNS';
   const number = toInt(input.replace(/\D/g, '')) || 0;
   if (number === 0) return '';
   const str = '00000000' + number.toString().slice(0, 8);
@@ -60,6 +58,15 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={input}
       spellCheck={false}
+      onKeyPress={event => {
+        if (['d', 'D', '*'].includes(event.key)) {
+          setInput('DNF');
+          event.preventDefault();
+        } else if (['s', 'S', '*'].includes(event.key)) {
+          setInput('DNS');
+          event.preventDefault();
+        }
+      }}
       onChange={event => setInput(reformatInput(event.target.value))}
       onBlur={() => {
         const attempt =
