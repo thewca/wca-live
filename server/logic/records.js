@@ -33,7 +33,7 @@ const initialize = async () => {
   setInterval(async () => {
     try {
       await updateRecords();
-    } catch (e) {
+    } catch (error) {
       console.error(`Failed to update records: ${error}`);
     }
   }, 60 * 60 * 1000);
