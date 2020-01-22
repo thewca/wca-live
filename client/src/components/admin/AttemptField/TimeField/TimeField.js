@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 
+import { dnfKeys, dnsKeys } from '../keybindings';
 import { toInt } from '../../../../logic/utils';
 import { roundOver10Mins } from '../../../../logic/stats';
 
@@ -59,10 +60,10 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       value={input}
       spellCheck={false}
       onKeyPress={event => {
-        if (['d', 'D', '*'].includes(event.key)) {
+        if (dnfKeys.includes(event.key)) {
           setInput('DNF');
           event.preventDefault();
-        } else if (['s', 'S', '*'].includes(event.key)) {
+        } else if (dnsKeys.includes(event.key)) {
           setInput('DNS');
           event.preventDefault();
         }

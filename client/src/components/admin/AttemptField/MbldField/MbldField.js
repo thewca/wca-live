@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
+import { dnfKeys, dnsKeys } from '../keybindings';
 import TimeField from '../TimeField/TimeField';
 import CubesField from '../CubesField/CubesField';
 import {
@@ -33,10 +34,10 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
   };
 
   const handleAnyKeyPress = event => {
-    if (['d', 'D', '*'].includes(event.key)) {
+    if (dnfKeys.includes(event.key)) {
       handleDecodedValueChange(decodeMbldAttempt(-1));
       event.preventDefault();
-    } else if (['s', 'S', '*'].includes(event.key)) {
+    } else if (dnsKeys.includes(event.key)) {
       handleDecodedValueChange(decodeMbldAttempt(-2));
       event.preventDefault();
     }

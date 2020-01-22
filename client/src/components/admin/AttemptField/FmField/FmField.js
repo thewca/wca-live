@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 
+import { dnfKeys, dnsKeys } from '../keybindings';
 import { toInt } from '../../../../logic/utils';
 
 const numberToInput = number => {
@@ -33,10 +34,10 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       value={numberToInput(value)}
       spellCheck={false}
       onKeyPress={event => {
-        if (['d', 'D', '*'].includes(event.key)) {
+        if (dnfKeys.includes(event.key)) {
           setValue(-1);
           event.preventDefault();
-        } else if (['s', 'S', '*'].includes(event.key)) {
+        } else if (dnsKeys.includes(event.key)) {
           setValue(-2);
           event.preventDefault();
         }
