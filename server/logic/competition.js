@@ -62,7 +62,7 @@ const synchronizeWcif = (oldWcif, newWcif) => {
   const wcifWithUpdatedRegistrationEvents = newWcif.persons.reduce((wcif, newPerson) => {
     if (!newPerson.registration || newPerson.registration.status !== 'accepted') return wcif;
     const oldPerson = personById(oldWcif, newPerson.registrantId);
-    const addedEventIds = oldPerson
+    const addedEventIds = oldPerson && oldPerson.registration.status === 'accepted'
       ? diff(newPerson.registration.eventIds, oldPerson.registration.eventIds)
       : newPerson.registration.eventIds;
     return addedEventIds.reduce((wcif, eventId) => {

@@ -89,7 +89,7 @@ describe('synchronizeWcif', () => {
       expect(updatedRound.results.map(result => result.personId)).toEqual([1, 2]);
     });
 
-    test('does not add empty results when unapproved registration events change', () => {
+    test('does not add empty results when unaccepted registration events change', () => {
       const oldRound1 = Round({
         id: '333-r1',
         results: [Result({ personId: 1 })],
@@ -196,6 +196,34 @@ describe('synchronizeWcif', () => {
         persons: [
           Person({ registrantId: 1 }),
           Person({ registrantId: 2, registration: { eventIds: ['333'] } }),
+        ],
+      });
+      const updatedWcif = synchronizeWcif(oldWcif, newWcif);
+      const updatedRound = updatedWcif.events[0].rounds[0];
+      expect(updatedRound.results.length).toEqual(2);
+    });
+
+    test('adds an empty result when a registration is accepted and the first round is open', () => {
+      const oldRound1 = Round({
+        id: '333-r1',
+        results: [Result({ personId: 1 })],
+      });
+      const oldWcif = Competition({
+        events: [Event({ id: '333', rounds: [oldRound1] })],
+        persons: [
+          Person({ registrantId: 1 }),
+          Person({ registrantId: 2, registration: { eventIds: ['333'], status: 'pending' } }),
+        ],
+      });
+      const newRound1 = Round({
+        id: '333-r1',
+        results: [],
+      });
+      const newWcif = Competition({
+        events: [Event({ id: '333', rounds: [newRound1] })],
+        persons: [
+          Person({ registrantId: 1 }),
+          Person({ registrantId: 2, registration: { eventIds: ['333'], status: 'accepted' } }),
         ],
       });
       const updatedWcif = synchronizeWcif(oldWcif, newWcif);
