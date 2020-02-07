@@ -121,9 +121,29 @@ const ResultForm = ({
             initialValue={attempt}
             disabled={!result || index >= disabledFromIndex}
             onValue={value => {
-              const updatedValue =
-                timeLimit && value >= timeLimit.centiseconds ? -1 : value;
-              const updatedAttempts = setAt(attempts, index, updatedValue);
+              var updatedAttempts = setAt(attempts, index, value);
+              if (timeLimit) {
+                if (timeLimit.cumulativeRoundIds.length === 1) {
+                  var totalTime = 0,
+                    i;
+                  for (i = 0; i < updatedAttempts.length; i++) {
+                    if (updatedAttempts[i] > 0) {
+                      totalTime += updatedAttempts[i];
+                      if (totalTime >= timeLimit.centiseconds) {
+                        updatedAttempts[i] = -1;
+                        break;
+                      }
+                    }
+                  }
+                  for (; i < updatedAttempts.length; i++) {
+                    if (updatedAttempts[i] > 0) {
+                      updatedAttempts[i] = -1;
+                    }
+                  }
+                } else if (value >= timeLimit.centiseconds) {
+                  updatedAttempts[index] = -1;
+                }
+              }
               setAttempts(
                 meetsCutoff(updatedAttempts, cutoff, eventId)
                   ? updatedAttempts
