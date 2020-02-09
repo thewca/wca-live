@@ -1,68 +1,46 @@
-import { sortBy } from './utils';
+import { closestIndexTo, parseISO, startOfToday, format } from 'date-fns';
 
 export const formatDateRange = (startString, endString) => {
-  const start = dateStringToLocalDateObject(startString);
-  const end = dateStringToLocalDateObject(endString);
-  const startDay = start.getDate();
-  const endDay = end.getDate();
-  const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
-  const endMonth = end.toLocaleDateString('en-US', { month: 'short' });
-  const startYear = start.getFullYear();
-  const endYear = end.getFullYear();
+  const [startDay, startMonth, startYear] = format(
+    parseISO(startString),
+    'd MMM yyyy'
+  ).split(' ');
+  const [endDay, endMonth, endYear] = format(
+    parseISO(endString),
+    'd MMM yyyy'
+  ).split(' ');
 
   if (startString === endString) {
     return `${startMonth} ${startDay}, ${startYear}`;
   }
-
-  const firstPart =
-    startYear === endYear
-      ? `${startMonth} ${startDay}`
-      : `${startMonth} ${startDay}, ${startYear}`;
-
-  const secondPart =
-    startMonth === endMonth
-      ? `${endDay}, ${endYear}`
-      : `${endMonth} ${endDay}, ${endYear}`;
-
-  return `${firstPart} - ${secondPart}`;
+  if (startMonth === endMonth && startYear === endYear) {
+    return `${startMonth} ${startDay} - ${endDay}, ${endYear}`;
+  }
+  if (startYear === endYear) {
+    return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${startYear}`;
+  }
+  return `${startMonth} ${startDay}, ${startYear} - ${endMonth} ${endDay}, ${endYear}`;
 };
 
 export const shortLocalTime = isoString => {
-  return new Date(isoString).toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: 'numeric',
-  });
+  return format(parseISO(isoString), 'HH:mm');
 };
 
 export const shortDate = dateString => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    timeZone: 'UTC' /* Make sure we return the given date. */,
-    month: 'short',
-    day: 'numeric',
-    weekday: 'long',
-  });
+  return format(parseISO(dateString), 'EEEE, MMM d');
 };
 
 export const toLocalDateString = isoString => {
-  const date = new Date(isoString);
-  const utcDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return utcDate.toISOString().slice(0, 10);
+  return format(parseISO(isoString), 'yyyy-MM-dd');
 };
 
 /**
  * Returns date string closest the current day.
  */
 export const closestDateString = dateStrings => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const [closest] = sortBy(dateStrings, dateString =>
-    Math.abs(dateStringToLocalDateObject(dateString) - today)
+  const closestIndex = closestIndexTo(
+    startOfToday(),
+    dateStrings.map(parseISO)
   );
-  return closest;
-};
-
-/* Returns a date object with local date part matching the given date string and local time of 0. */
-const dateStringToLocalDateObject = dateString => {
-  return new Date(`${dateString}T00:00:00.000`);
+  return dateStrings[closestIndex];
 };
