@@ -6,27 +6,23 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import PublicIcon from '@material-ui/icons/Public';
-import { makeStyles } from '@material-ui/core/styles';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
+import VirtualList from '../VirtualList/VirtualList';
 import { formatDateRange } from '../../logic/date';
 
-const useStyles = makeStyles(theme => ({
-  container: {
-    maxHeight: 300,
-    overflowY: 'auto',
-  },
-}));
-
 const CompetitionList = ({ title, competitions }) => {
-  const classes = useStyles();
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
-      <div className={classes.container}>
-        {competitions.map(competition => (
+      <VirtualList
+        height={300}
+        itemHeigh={60}
+        items={competitions}
+        renderItem={(competition, { style }) => (
           <ListItem
             key={competition.id}
+            style={style}
             button
             component={Link}
             to={`/competitions/${competition.id}`}
@@ -49,8 +45,8 @@ const CompetitionList = ({ title, competitions }) => {
               )}
             />
           </ListItem>
-        ))}
-      </div>
+        )}
+      />
     </List>
   );
 };
