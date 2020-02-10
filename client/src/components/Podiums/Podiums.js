@@ -63,7 +63,6 @@ const Podiums = ({ match }) => {
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
-  console.log(competition);
 
   return (
     <Fragment>
@@ -84,15 +83,17 @@ const Podiums = ({ match }) => {
             </Grid>
           ))}
           {competition.events.length !== competition.podiums.length && (
-            <Grid item key={`events_not_completed`}>
-              <Typography>{`Podiums for the following events are yet to be determined:`}</Typography>
+            <Grid item>
+              <Grid item>
+                <Typography>{`Podiums for the following events are yet to be determined:`}</Typography>
+              </Grid>
               <Grid container direction="row" spacing={3}>
                 {competition.events
                   .filter(
                     event =>
-                      competition.podiums.filter(
+                      !competition.podiums.some(
                         podium => podium.event.id === event.id
-                      ).length === 0
+                      )
                   )
                   .map(event => (
                     <Grid item key={event.id}>
