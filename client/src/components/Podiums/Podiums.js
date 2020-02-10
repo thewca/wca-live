@@ -3,15 +3,22 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import RoundResults from '../RoundResults/RoundResults';
+import CubingIcon from '../CubingIcon/CubingIcon';
 
 const PODIUMS_QUERY = gql`
   query Podiums($competitionId: ID!) {
     competition(id: $competitionId) {
       id
+      events {
+        _id
+        id
+        name
+      }
       podiums {
         _id
         id
@@ -75,6 +82,31 @@ const Podiums = ({ match }) => {
               />
             </Grid>
           ))}
+          {competition.events.length !== competition.podiums.length && (
+            <Grid item>
+              <Grid item>
+                <Typography>{`Podiums for the following events are yet to be determined:`}</Typography>
+              </Grid>
+              <Grid container direction="row" spacing={3}>
+                {competition.events
+                  .filter(
+                    event =>
+                      !competition.podiums.some(
+                        podium => podium.event.id === event.id
+                      )
+                  )
+                  .map(event => (
+                    <Grid item key={event.id}>
+                      <Tooltip title={event.name}>
+                        <span>
+                          <CubingIcon eventId={event.id} />
+                        </span>
+                      </Tooltip>
+                    </Grid>
+                  ))}
+              </Grid>
+            </Grid>
+          )}
         </Grid>
       ) : (
         <Typography>{`There are no podiums yet!`}</Typography>
