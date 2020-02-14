@@ -51,15 +51,26 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.type === 'dark' ? '#fff' : null,
     backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
   },
+  toolbar: {
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'center',
+    },
+  },
   titleLink: {
     color: 'inherit',
     textDecoration: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   admin: {
     marginLeft: theme.spacing(1),
   },
   grow: {
     flexGrow: 1,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   content: {
     position: 'relative' /* For LinearProgress */,
@@ -94,7 +105,7 @@ const AdminCompetition = ({ match, location, history }) => {
   return (
     <div>
       <AppBar position="sticky" className={classes.appBar}>
-        <Toolbar>
+        <Toolbar className={classes.toolbar}>
           <Link
             to={`/admin/competitions/${competition.id}`}
             className={classes.titleLink}
