@@ -59,16 +59,16 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={input}
       spellCheck={false}
-      onKeyDown={event => {
-        if (dnfKeys.includes(event.key)) {
+      onChange={event => {
+        const key = event.nativeEvent.data;
+        if (dnfKeys.includes(key)) {
           setInput('DNF');
-          event.preventDefault();
-        } else if (dnsKeys.includes(event.key)) {
+        } else if (dnsKeys.includes(key)) {
           setInput('DNS');
-          event.preventDefault();
+        } else {
+          setInput(reformatInput(event.target.value));
         }
       }}
-      onChange={event => setInput(reformatInput(event.target.value))}
       onBlur={() => {
         const attempt =
           input === normalize(input)

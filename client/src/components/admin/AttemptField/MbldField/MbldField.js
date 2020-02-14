@@ -33,18 +33,19 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
     }
   };
 
-  const handleAnyKeyPress = event => {
-    if (dnfKeys.includes(event.key)) {
+  const handleAnyInput = event => {
+    const key = event.nativeEvent.data;
+    if (dnfKeys.includes(key)) {
       handleDecodedValueChange(decodeMbldAttempt(-1));
       event.preventDefault();
-    } else if (dnsKeys.includes(event.key)) {
+    } else if (dnsKeys.includes(key)) {
       handleDecodedValueChange(decodeMbldAttempt(-2));
       event.preventDefault();
     }
   };
 
   return (
-    <Grid container direction="row" spacing={1} onKeyDown={handleAnyKeyPress}>
+    <Grid container direction="row" spacing={1} onInputCapture={handleAnyInput}>
       <Grid item xs={2}>
         <CubesField
           initialValue={decodedValue.solved}

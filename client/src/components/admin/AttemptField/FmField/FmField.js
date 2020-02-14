@@ -33,18 +33,16 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={numberToInput(value)}
       spellCheck={false}
-      onKeyDown={event => {
-        if (dnfKeys.includes(event.key)) {
-          setValue(-1);
-          event.preventDefault();
-        } else if (dnsKeys.includes(event.key)) {
-          setValue(-2);
-          event.preventDefault();
-        }
-      }}
       onChange={event => {
-        const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
-        setValue(newValue);
+        const key = event.nativeEvent.data;
+        if (dnfKeys.includes(key)) {
+          setValue(-1);
+        } else if (dnsKeys.includes(key)) {
+          setValue(-2);
+        } else {
+          const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
+          setValue(newValue);
+        }
       }}
       onBlur={() => {
         onValue(validateFmResult(value));

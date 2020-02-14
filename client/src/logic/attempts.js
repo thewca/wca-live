@@ -135,7 +135,7 @@ export const applyTimeLimit = (attempts, timeLimit) => {
   } else {
     /* Note: for now cross-round cumulative time limits are handled
        as single-round cumulative time limits for each of the rounds. */
-    const [updatedAttempts, sum] = attempts.reduce(
+    const [updatedAttempts] = attempts.reduce(
       ([updatedAttempts, sum], attempt) => {
         const updatedSum = attempt > 0 ? sum + attempt : sum;
         const updatedAttempt =
