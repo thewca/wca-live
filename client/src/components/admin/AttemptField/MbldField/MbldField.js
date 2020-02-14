@@ -44,7 +44,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
   };
 
   return (
-    <Grid container direction="row" spacing={1} onKeyPress={handleAnyKeyPress}>
+    <Grid container direction="row" spacing={1} onKeyDown={handleAnyKeyPress}>
       <Grid item xs={2}>
         <CubesField
           initialValue={decodedValue.solved}

@@ -59,7 +59,7 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={input}
       spellCheck={false}
-      onKeyPress={event => {
+      onKeyDown={event => {
         if (dnfKeys.includes(event.key)) {
           setInput('DNF');
           event.preventDefault();

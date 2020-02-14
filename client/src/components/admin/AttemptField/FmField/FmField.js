@@ -33,7 +33,7 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={numberToInput(value)}
       spellCheck={false}
-      onKeyPress={event => {
+      onKeyDown={event => {
         if (dnfKeys.includes(event.key)) {
           setValue(-1);
           event.preventDefault();
