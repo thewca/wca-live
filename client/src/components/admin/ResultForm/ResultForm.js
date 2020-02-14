@@ -15,6 +15,8 @@ import {
   meetsCutoff,
   formatAttemptResult,
   attemptsWarning,
+  applyTimeLimit,
+  applyCutOff,
 } from '../../../logic/attempts';
 import { best, average } from '../../../logic/stats';
 import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
@@ -121,35 +123,11 @@ const ResultForm = ({
             initialValue={attempt}
             disabled={!result || index >= disabledFromIndex}
             onValue={value => {
-              var updatedAttempts = setAt(attempts, index, value);
-              if (timeLimit) {
-                if (timeLimit.cumulativeRoundIds.length === 1) {
-                  var totalTime = 0,
-                    i;
-                  for (i = 0; i < updatedAttempts.length; i++) {
-                    if (updatedAttempts[i] > 0) {
-                      totalTime += updatedAttempts[i];
-                      if (totalTime >= timeLimit.centiseconds) {
-                        updatedAttempts[i] = -1;
-                        break;
-                      }
-                    }
-                  }
-                  for (; i < updatedAttempts.length; i++) {
-                    if (updatedAttempts[i] > 0) {
-                      updatedAttempts[i] = -1;
-                    }
-                  }
-                } else if (value >= timeLimit.centiseconds) {
-                  updatedAttempts[index] = -1;
-                }
-              }
               setAttempts(
-                meetsCutoff(updatedAttempts, cutoff, eventId)
-                  ? updatedAttempts
-                  : updatedAttempts.map((attempt, index) =>
-                      index < cutoff.numberOfAttempts ? attempt : 0
-                    )
+                applyTimeLimit(
+                  applyCutOff(setAt(attempts, index, value), cutoff, eventId),
+                  timeLimit
+                )
               );
             }}
           />
