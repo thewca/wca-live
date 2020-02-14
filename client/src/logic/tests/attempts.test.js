@@ -5,7 +5,7 @@ import {
   meetsCutoff,
   attemptsWarning,
   applyTimeLimit,
-  applyCutOff,
+  applyCutoff,
 } from '../attempts';
 
 describe('formatAttemptResult', () => {
@@ -225,7 +225,7 @@ describe('applyTimeLimit', () => {
     ]);
   });
 
-  it('3th attempt becomes DNF because of exceeding cumulative time limit', () => {
+  it('3rd attempt becomes DNF because of exceeding cumulative time limit', () => {
     const attempts = [3000, 13000, 5000];
     const timeLimit = {
       cumulativeRoundIds: ['333bf'],
@@ -235,15 +235,15 @@ describe('applyTimeLimit', () => {
   });
 });
 
-describe('applyCutOff', () => {
-  it('3rd attempt becomes empty because the first two attempts did not meet cutoff', () => {
+describe('applyCutoff', () => {
+  it('3rd attempt becomes skipped because the first two attempts did not meet cutoff', () => {
     const attempts = [1000, 1100, 1200, 0, 0];
     const cutoff = {
       numberOfAttempts: 2,
       attemptResult: 800,
     };
     const eventId = '333bf';
-    expect(applyCutOff(attempts, cutoff, eventId)).toEqual([
+    expect(applyCutoff(attempts, cutoff, eventId)).toEqual([
       1000,
       1100,
       0,

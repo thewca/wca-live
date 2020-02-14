@@ -147,8 +147,8 @@ export const applyTimeLimit = (attempts, timeLimit) => {
   }
 };
 
-export const applyCutOff = (attempts, cutoff, eventId) => {
-  return meetsCutoff(attempts, cutoff, eventId)
+export const applyCutoff = (attempts, cutoff) => {
+  return meetsCutoff(attempts, cutoff)
     ? attempts
     : attempts.map((attempt, index) =>
         index < cutoff.numberOfAttempts ? attempt : 0
