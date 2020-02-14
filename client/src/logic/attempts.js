@@ -125,3 +125,32 @@ export const attemptsWarning = (attempts, eventId) => {
   }
   return null;
 };
+
+export const applyTimeLimit = (attempts, timeLimit) => {
+  if (timeLimit.cumulativeRoundIds.length === 0) {
+    return attempts.map(attempt =>
+      attempt >= timeLimit.centiseconds ? -1 : attempt
+    );
+  } else {
+    /* Note: for now cross-round cumulative time limits are handled
+       as single-round cumulative time limits for each of the rounds. */
+    const [updatedAttempts, sum] = attempts.reduce(
+      ([updatedAttempts, sum], attempt) => {
+        const updatedSum = attempt > 0 ? sum + attempt : sum;
+        const updatedAttempt =
+          attempt > 0 && updatedSum >= timeLimit.centiseconds ? -1 : attempt;
+        return [updatedAttempts.concat(updatedAttempt), updatedSum];
+      },
+      [[], 0]
+    );
+    return updatedAttempts;
+  }
+};
+
+export const applyCutoff = (attempts, cutoff) => {
+  return meetsCutoff(attempts, cutoff)
+    ? attempts
+    : attempts.map((attempt, index) =>
+        index < cutoff.numberOfAttempts ? attempt : 0
+      );
+};

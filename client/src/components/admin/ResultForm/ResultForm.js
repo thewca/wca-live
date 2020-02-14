@@ -15,6 +15,8 @@ import {
   meetsCutoff,
   formatAttemptResult,
   attemptsWarning,
+  applyTimeLimit,
+  applyCutoff,
 } from '../../../logic/attempts';
 import { best, average } from '../../../logic/stats';
 import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
@@ -62,7 +64,7 @@ const ResultForm = ({
 
   const submissionWarning = attemptsWarning(attempts, eventId);
 
-  const disabledFromIndex = meetsCutoff(attempts, cutoff, eventId)
+  const disabledFromIndex = meetsCutoff(attempts, cutoff)
     ? solveCount
     : cutoff.numberOfAttempts;
 
@@ -121,15 +123,11 @@ const ResultForm = ({
             initialValue={attempt}
             disabled={!result || index >= disabledFromIndex}
             onValue={value => {
-              const updatedValue =
-                timeLimit && value >= timeLimit.centiseconds ? -1 : value;
-              const updatedAttempts = setAt(attempts, index, updatedValue);
               setAttempts(
-                meetsCutoff(updatedAttempts, cutoff, eventId)
-                  ? updatedAttempts
-                  : updatedAttempts.map((attempt, index) =>
-                      index < cutoff.numberOfAttempts ? attempt : 0
-                    )
+                applyCutoff(
+                  applyTimeLimit(setAt(attempts, index, value), timeLimit),
+                  cutoff
+                )
               );
             }}
           />

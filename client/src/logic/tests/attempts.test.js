@@ -4,6 +4,8 @@ import {
   validateMbldAttempt,
   meetsCutoff,
   attemptsWarning,
+  applyTimeLimit,
+  applyCutoff,
 } from '../attempts';
 
 describe('formatAttemptResult', () => {
@@ -204,5 +206,49 @@ describe('attemptsWarning', () => {
   it('doas not treat trailing skipped attempts as omitted', () => {
     const attempts = [1000, 0, 0];
     expect(attemptsWarning(attempts, '333')).toEqual(null);
+  });
+});
+
+describe('applyTimeLimit', () => {
+  it('4th attempt becomes DNF because of exceeding time limit', () => {
+    const attempts = [1000, 1100, 1200, 1300, 0];
+    const timeLimit = {
+      cumulativeRoundIds: [],
+      centiseconds: 1250,
+    };
+    expect(applyTimeLimit(attempts, timeLimit)).toEqual([
+      1000,
+      1100,
+      1200,
+      -1,
+      0,
+    ]);
+  });
+
+  it('3rd attempt becomes DNF because of exceeding cumulative time limit', () => {
+    const attempts = [3000, 13000, 5000];
+    const timeLimit = {
+      cumulativeRoundIds: ['333bf'],
+      centiseconds: 20000,
+    };
+    expect(applyTimeLimit(attempts, timeLimit)).toEqual([3000, 13000, -1]);
+  });
+});
+
+describe('applyCutoff', () => {
+  it('3rd attempt becomes skipped because the first two attempts did not meet cutoff', () => {
+    const attempts = [1000, 1100, 1200, 0, 0];
+    const cutoff = {
+      numberOfAttempts: 2,
+      attemptResult: 800,
+    };
+    const eventId = '333bf';
+    expect(applyCutoff(attempts, cutoff, eventId)).toEqual([
+      1000,
+      1100,
+      0,
+      0,
+      0,
+    ]);
   });
 });
