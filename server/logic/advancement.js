@@ -13,11 +13,13 @@ const {
   previousRound,
 } = require('./wcif');
 const { updateRanking } = require('./results');
+const { formatById } = require('./formats');
 
 const satisfiesAdvancementCondition = (
   result,
   advancementCondition,
-  resultCount
+  resultCount,
+  formatId
 ) => {
   const { type, level } = advancementCondition;
   if (type === 'ranking') {
@@ -27,12 +29,13 @@ const satisfiesAdvancementCondition = (
     return result.ranking <= Math.floor(resultCount * level * 0.01);
   }
   if (type === 'attemptResult') {
-    return result.best > 0 && result.best < level;
+    const { sortBy } = formatById(formatId);
+    return result[sortBy] > 0 && result[sortBy] < level;
   }
   throw new Error(`Unrecognised AdvancementCondition type: '${type}'`);
 };
 
-const qualifyingResults = (results, advancementCondition) => {
+const qualifyingResults = (results, advancementCondition, formatId) => {
   if (results.length === 0) return [];
   if (!advancementCondition) {
     /* Mark top 3 in the finals. */
@@ -59,7 +62,8 @@ const qualifyingResults = (results, advancementCondition) => {
         satisfiesAdvancementCondition(
           result,
           advancementCondition,
-          results.length
+          results.length,
+          formatId
         )
     );
   }
@@ -74,7 +78,7 @@ const advancingResults = (round, wcif) => {
       advancingPersonIds.includes(result.personId)
     );
   } else {
-    return qualifyingResults(round.results, round.advancementCondition);
+    return qualifyingResults(round.results, round.advancementCondition, round.format);
   }
 };
 
@@ -105,7 +109,7 @@ const qualifyingIdsIgnoring = (round, ignoredIds) => {
       : result
   );
   const withHypoteticalRanking = updateRanking(hypotheticalResults, format);
-  return qualifyingResults(withHypoteticalRanking, advancementCondition).map(
+  return qualifyingResults(withHypoteticalRanking, advancementCondition, round.format).map(
     ({ personId }) => personId
   );
 };

@@ -16,7 +16,7 @@ const {
 describe('qualifyingResults', () => {
   test('returns an empty array if no results are given', () => {
     const advancementCondition = { type: 'ranking', level: 3 };
-    expect(qualifyingResults([], advancementCondition)).toEqual([]);
+    expect(qualifyingResults([], advancementCondition, 'a')).toEqual([]);
   });
 
   describe('ranking', () => {
@@ -29,7 +29,7 @@ describe('qualifyingResults', () => {
         Result({ ranking: 5, personId: 5 }),
       ];
       const advancementCondition = { type: 'ranking', level: 3 };
-      expect(qualifyingResults(results, advancementCondition)).toEqual(
+      expect(qualifyingResults(results, advancementCondition, 'a')).toEqual(
         results.slice(0, 3)
       );
     });
@@ -45,25 +45,43 @@ describe('qualifyingResults', () => {
         Result({ ranking: 5, personId: 5, best: 1400 }),
       ];
       const advancementCondition = { type: 'percent', level: 50 };
-      expect(qualifyingResults(results, advancementCondition)).toEqual(
+      expect(qualifyingResults(results, advancementCondition, 'a')).toEqual(
         results.slice(0, 2)
       );
     });
   });
 
   describe('attemptResult', () => {
-    test('returns results with an attempt *better than* the specified one', () => {
-      const results = [
-        Result({ ranking: 1, personId: 1, best: 1000 }),
-        Result({ ranking: 2, personId: 2, best: 1100 }),
-        Result({ ranking: 3, personId: 3, best: 1200 }),
-        Result({ ranking: 4, personId: 4, best: 1300 }),
-        Result({ ranking: 5, personId: 5, best: 1400 }),
-      ];
-      const advancementCondition = { type: 'attemptResult', level: 1200 };
-      expect(qualifyingResults(results, advancementCondition)).toEqual(
-        results.slice(0, 2)
-      );
+    describe('when the format sorts by best', () => {
+      test('returns results with best *better than* the specified value', () => {
+        const results = [
+          Result({ ranking: 1, personId: 1, best: 1000 }),
+          Result({ ranking: 2, personId: 2, best: 1100 }),
+          Result({ ranking: 3, personId: 3, best: 1200 }),
+          Result({ ranking: 4, personId: 4, best: 1300 }),
+          Result({ ranking: 5, personId: 5, best: 1400 }),
+        ];
+        const advancementCondition = { type: 'attemptResult', level: 1200 };
+        expect(qualifyingResults(results, advancementCondition, '3')).toEqual(
+          results.slice(0, 2)
+        );
+      });
+    });
+
+    describe('when the format sorts by average', () => {
+      test('returns results with average *better than* the specified value', () => {
+        const results = [
+          Result({ ranking: 1, personId: 1, average: 1000 }),
+          Result({ ranking: 2, personId: 2, average: 1100 }),
+          Result({ ranking: 3, personId: 3, average: 1200 }),
+          Result({ ranking: 4, personId: 4, average: 1300 }),
+          Result({ ranking: 5, personId: 5, average: 1400 }),
+        ];
+        const advancementCondition = { type: 'attemptResult', level: 1200 };
+        expect(qualifyingResults(results, advancementCondition, 'a')).toEqual(
+          results.slice(0, 2)
+        );
+      });
     });
   });
 
@@ -76,7 +94,7 @@ describe('qualifyingResults', () => {
       Result({ ranking: 5, personId: 5 }),
     ];
     const advancementCondition = { type: 'ranking', level: 3 };
-    expect(qualifyingResults(results, advancementCondition)).toEqual(
+    expect(qualifyingResults(results, advancementCondition, 'a')).toEqual(
       results.slice(0, 2)
     );
   });
@@ -90,7 +108,7 @@ describe('qualifyingResults', () => {
       Result({ ranking: 5, personId: 5 }),
     ];
     const advancementCondition = { type: 'ranking', level: 4 };
-    expect(qualifyingResults(results, advancementCondition)).toEqual(
+    expect(qualifyingResults(results, advancementCondition, 'a')).toEqual(
       results.slice(0, 3)
     );
   });
@@ -110,7 +128,7 @@ describe('qualifyingResults', () => {
       Result({ ranking: null, personId: 5 }),
     ];
     const advancementCondition = { type: 'ranking', level: 3 };
-    expect(qualifyingResults(results, advancementCondition)).toEqual(
+    expect(qualifyingResults(results, advancementCondition, 'a')).toEqual(
       results.slice(0, 1)
     );
   });
@@ -131,7 +149,7 @@ describe('qualifyingResults', () => {
       }),
     ];
     const advancementCondition = { type: 'attemptResult', level: 1500 };
-    expect(qualifyingResults(results, advancementCondition)).toEqual([]);
+    expect(qualifyingResults(results, advancementCondition, '2')).toEqual([]);
   });
 
   describe('when no advancement condition is given', () => {
@@ -143,7 +161,7 @@ describe('qualifyingResults', () => {
         Result({ ranking: 4, personId: 4 }),
         Result({ ranking: 5, personId: 5 }),
       ];
-      expect(qualifyingResults(results, null)).toEqual(results.slice(0, 3));
+      expect(qualifyingResults(results, null, 'a')).toEqual(results.slice(0, 3));
     });
 
     test('returns more than 3 people if there are ties', () => {
@@ -154,7 +172,7 @@ describe('qualifyingResults', () => {
         Result({ ranking: 3, personId: 4 }),
         Result({ ranking: 5, personId: 5 }),
       ];
-      expect(qualifyingResults(results, null)).toEqual(results.slice(0, 4));
+      expect(qualifyingResults(results, null, 'a')).toEqual(results.slice(0, 4));
     });
 
     test('does not return people without any successful attempt', () => {
@@ -163,7 +181,7 @@ describe('qualifyingResults', () => {
         Result({ ranking: 2, personId: 2 }),
         Result({ ranking: 3, personId: 3, best: -1 }),
       ];
-      expect(qualifyingResults(results, null)).toEqual(results.slice(0, 2));
+      expect(qualifyingResults(results, null, 'a')).toEqual(results.slice(0, 2));
     });
   });
 
@@ -174,7 +192,7 @@ describe('qualifyingResults', () => {
     ];
     const advancementCondition = { type: 'cat', level: 100 };
     expect(() => {
-      qualifyingResults(results, advancementCondition);
+      qualifyingResults(results, advancementCondition, 'a');
     }).toThrow(new Error(`Unrecognised AdvancementCondition type: 'cat'`));
   });
 });
