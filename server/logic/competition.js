@@ -75,7 +75,7 @@ const synchronizeWcif = (oldWcif, newWcif) => {
       ) {
         return wcif;
       }
-      return addCompetitor(wcif, firstRound.id, newPerson.registrantId, false);
+      return addCompetitor(wcif, firstRound.id, newPerson.registrantId);
     }, wcif);
   }, wcifWithUpdatedEvents);
 
@@ -156,7 +156,6 @@ const hasAccess = (role, competition, user, session) => {
   } else {
     throw new Error(`Unrecognised role: ${role}`);
   }
-  return false;
 };
 
 module.exports = {

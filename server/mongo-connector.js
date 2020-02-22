@@ -6,6 +6,7 @@ module.exports.db = {};
 module.exports.connect = async () => {
   const client = await MongoClient.connect(MONGO_URI, {
     useNewUrlParser: true,
+    useUnifiedTopology: true,
   });
   const db = client.db();
   if (!PRODUCTION) {

@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { AuthenticationError } = require('apollo-server-express');
 const { requireCompetition, requireRole } = require('./middleware');
 const competitionLoader = require('../competition-loader');
 const pubsub = require('./pubsub');

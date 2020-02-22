@@ -128,7 +128,6 @@ const isPast = wcif => {
 const isUpcoming = wcif => {
   if (definitelyInFuture(wcif)) return true;
   if (definitelyInPast(wcif)) return false;
-  const { startDate } = wcif.schedule;
   const now = new Date().getTime();
   const oneHourBeforeStart = firstActivityStartTime(wcif) - 60 * 60 * 1000;
   return now < oneHourBeforeStart;

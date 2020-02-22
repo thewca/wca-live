@@ -1,5 +1,3 @@
-const { sortBy } = require('./utils');
-
 const events = [
   {
     id: '333',

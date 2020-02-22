@@ -1,4 +1,4 @@
-const { withAuthentication, requireCompetition } = require('./middleware');
+const { requireCompetition } = require('./middleware');
 const { ObjectId } = require('mongodb');
 const { db } = require('../mongo-connector');
 const { roundById, personById, isInProgress, isUpcoming, isPast } = require('../logic/wcif');
@@ -42,8 +42,7 @@ module.exports = {
       .toArray();
     return computeRecords(competitions);
   },
-  competitions: async (parent, args) => {
-    const today = dateToUTCDateString(new Date());
+  competitions: async () => {
     const competitions = await db.competitions
       .find({})
       /* Note: this projection means we won't resolve some GraphQL queries,

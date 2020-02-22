@@ -1,6 +1,4 @@
 const { flatMap, sortByArray, groupBy } = require('./utils');
-const { dateToUTCDateString } = require('./date');
-const { recordId } = require('./records');
 const { tagsWithRecordId } = require('./results');
 const { eventIndexById } = require('./events');
 

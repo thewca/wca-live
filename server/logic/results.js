@@ -6,7 +6,6 @@ const {
   eventById,
   roundById,
   acceptedPeople,
-  previousRound,
   updateEvent,
   updateRound,
 } = require('./wcif');

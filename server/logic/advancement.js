@@ -6,7 +6,6 @@
 
 const {
   parseActivityCode,
-  eventById,
   roundById,
   acceptedPeople,
   nextRound,

@@ -1,6 +1,4 @@
 const { AuthenticationError } = require('apollo-server-express');
-const { ObjectId } = require('mongodb');
-const { db } = require('../mongo-connector');
 const competitionLoader = require('../competition-loader');
 const { hasAccess } = require('../logic/competition');
 

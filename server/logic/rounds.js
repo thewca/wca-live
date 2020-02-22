@@ -134,7 +134,7 @@ const quitCompetitor = (wcif, roundId, competitorId, replace) => {
   return processRoundChange(updatedWcif, round.id);
 };
 
-const addCompetitor = (wcif, roundId, competitorId, replace) => {
+const addCompetitor = (wcif, roundId, competitorId) => {
   const round = roundById(wcif, roundId);
   const { qualifyingIds, excessIds } = missingQualifyingIds(wcif, roundId);
   if (!qualifyingIds.includes(competitorId)) {

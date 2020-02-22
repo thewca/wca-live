@@ -27,7 +27,7 @@ const competitionJsonToCompetition = ({
 
 module.exports = {
   id: parent => parent._id,
-  importableCompetitions: async (parent, args) => {
+  importableCompetitions: async (parent) => {
     const competitions = await wcaApi(
       parent
     ).getUpcomingManageableCompetitions();
@@ -41,7 +41,7 @@ module.exports = {
       .filter(competition => !importedCompetitionIds.includes(competition.id))
       .map(competitionJsonToCompetition);
   },
-  manageableCompetitions: async (parent, args) => {
+  manageableCompetitions: async (parent) => {
     return await db.competitions
       .find({
         $or: [
