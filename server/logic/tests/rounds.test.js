@@ -417,6 +417,13 @@ describe('addCompetitor', () => {
 });
 
 describe('podiums', () => {
+  test('ignores events with no rounds', () => {
+    const wcif = Competition({
+      events: [Event({ id: '333', rounds: [] })],
+    });
+    expect(podiums(wcif).map(round => round.id)).toEqual([]);
+  });
+
   test('returns final rounds only', () => {
     const round1 = Round({
       id: '333-r1',

@@ -154,6 +154,7 @@ const addCompetitor = (wcif, roundId, competitorId) => {
  */
 const podiums = wcif => {
   const finals = wcif.events
+    .filter(event => event.rounds.length > 0)
     .map(event => event.rounds[event.rounds.length - 1])
     .filter(roundFinished);
   const withTop3Results = finals.map(round => ({
