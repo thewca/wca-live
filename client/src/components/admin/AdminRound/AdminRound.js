@@ -85,6 +85,13 @@ const SET_RESULT_MUTATION = gql`
   ${RESULTS_UPDATE_FRAGMENT}
 `;
 
+const roundDescription = round => {
+  const enteredResults = round.results.filter(
+    result => result.attempts.length > 0
+  );
+  return `${enteredResults.length} of ${round.results.length} entered`;
+};
+
 const AdminRound = ({ match }) => {
   const { competitionId, roundId } = match.params;
   const [editedResult, setEditedResult] = useState(null);
@@ -137,8 +144,11 @@ const AdminRound = ({ match }) => {
         <Grid item xs={12} md={9}>
           <Grid container alignItems="center">
             <Grid item>
-              <Typography variant="h5" align="center">
+              <Typography variant="h5">
                 {round.event.name} - {round.name}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {roundDescription(round)}
               </Typography>
             </Grid>
             <Grid item style={{ flexGrow: 1 }} />
