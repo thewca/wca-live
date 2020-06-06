@@ -11,7 +11,7 @@
     "test:once": "jest --verbose"
   },
   "dependencies": {
-    "apollo-server-express": "^2.9.14",
+    "apollo-server-express": "^2.14.2",
     "bcrypt": "^3.0.7",
     "connect-mongo": "^3.2.0",
     "dotenv": "^8.2.0",
