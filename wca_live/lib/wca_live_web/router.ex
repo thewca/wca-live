@@ -5,6 +5,11 @@ defmodule WcaLiveWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/oauth", WcaLiveWeb do
+    get "/authorize", AuthController, :authorize
+    get "/callback", AuthController, :callback
+  end
+
   scope "/api", WcaLiveWeb do
     pipe_through :api
   end

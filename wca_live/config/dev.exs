@@ -55,3 +55,12 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :wca_live, WcaLive.Wca.OAuth,
+  client_id: "example-application-id",
+  client_secret: "example-secret",
+  redirect_uri: "http://localhost:4000/oauth/callback",
+  authorize_url: "https://staging.worldcubeassociation.org/oauth/authorize",
+  token_url: "https://staging.worldcubeassociation.org/oauth/token"
+
+config :wca_live, WcaLive.Wca.Api, api_url: "https://staging.worldcubeassociation.org/api/v0"
