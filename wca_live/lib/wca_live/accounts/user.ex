@@ -2,12 +2,16 @@ defmodule WcaLive.Accounts.User do
   use WcaLive.Schema
   import Ecto.Changeset
 
+  alias WcaLive.Accounts.AccessToken
+
   schema "users" do
     field :avatar_thumb_url, :string
     field :avatar_url, :string
     field :name, :string
     field :wca_id, :string
     field :wca_user_id, :integer
+
+    has_one :access_token, AccessToken
 
     timestamps()
   end
