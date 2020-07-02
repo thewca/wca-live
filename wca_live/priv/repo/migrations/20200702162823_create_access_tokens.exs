@@ -7,8 +7,6 @@ defmodule WcaLive.Repo.Migrations.CreateAccessTokens do
       add :refresh_token, :string, null: false
       add :expires_at, :utc_datetime, null: false
       add :user_id, references(:users, on_delete: :delete_all), null: false
-
-      timestamps()
     end
 
     create index(:access_tokens, [:user_id])

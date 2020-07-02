@@ -10,8 +10,6 @@ defmodule WcaLive.Accounts.AccessToken do
     field :refresh_token, :string
 
     belongs_to :user, User
-
-    timestamps()
   end
 
   @doc false

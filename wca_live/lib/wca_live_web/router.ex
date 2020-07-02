@@ -1,11 +1,17 @@
 defmodule WcaLiveWeb.Router do
   use WcaLiveWeb, :router
 
+  pipeline :browser do
+    plug :fetch_session
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   scope "/oauth", WcaLiveWeb do
+    pipe_through :browser
     get "/authorize", AuthController, :authorize
     get "/callback", AuthController, :callback
   end
