@@ -4,6 +4,9 @@ defmodule WcaLive.Accounts.User do
 
   alias WcaLive.Accounts.AccessToken
 
+  @required_fields [:wca_user_id, :name]
+  @optional_fields [:wca_id, :avatar_url, :avatar_thumb_url]
+
   schema "users" do
     field :avatar_thumb_url, :string
     field :avatar_url, :string
@@ -11,7 +14,7 @@ defmodule WcaLive.Accounts.User do
     field :wca_id, :string
     field :wca_user_id, :integer
 
-    has_one :access_token, AccessToken
+    has_one :access_token, AccessToken, on_replace: :update
 
     timestamps()
   end
@@ -19,7 +22,7 @@ defmodule WcaLive.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:wca_user_id, :wca_id, :name, :avatar_url, :avatar_thumb_url])
-    |> validate_required([:wca_user_id, :name, :avatar_url, :avatar_thumb_url])
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end

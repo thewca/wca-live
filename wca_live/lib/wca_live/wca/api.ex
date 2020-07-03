@@ -8,7 +8,18 @@ defmodule WcaLive.Wca.Api do
   """
   @spec get_me(String.t()) :: {:ok, any()} | {:error, any()}
   def get_me(access_token) do
-    HTTPoison.get(url("/me"), headers(access_token: access_token))
+    api_url("/me")
+    |> HTTPoison.get(headers(access_token: access_token))
+    |> parse_response()
+  end
+
+  @doc """
+  Fetches WCIF for the given competition id.
+  """
+  @spec get_wcif(String.t(), String.t()) :: {:ok, any()} | {:error, any()}
+  def get_wcif(competition_wca_id, access_token) do
+    api_url("/competitions/#{competition_wca_id}/wcif")
+    |> HTTPoison.get(headers(access_token: access_token))
     |> parse_response()
   end
 
@@ -16,7 +27,7 @@ defmodule WcaLive.Wca.Api do
     Application.get_env(:wca_live, __MODULE__)
   end
 
-  defp url(path) do
+  defp api_url(path) do
     root = Keyword.fetch!(config(), :api_url)
     root <> path
   end

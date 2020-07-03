@@ -4,6 +4,9 @@ defmodule WcaLive.Accounts.AccessToken do
 
   alias WcaLive.Accounts.User
 
+  @required_fields [:access_token, :refresh_token, :expires_at]
+  @optional_fields []
+
   schema "access_tokens" do
     field :access_token, :string
     field :expires_at, :utc_datetime
@@ -15,7 +18,7 @@ defmodule WcaLive.Accounts.AccessToken do
   @doc false
   def changeset(access_token, attrs) do
     access_token
-    |> cast(attrs, [:access_token, :refresh_token, :expires_at])
-    |> validate_required([:access_token, :refresh_token, :expires_at])
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 end
