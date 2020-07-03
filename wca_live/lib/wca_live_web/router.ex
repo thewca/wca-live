@@ -10,14 +10,26 @@ defmodule WcaLiveWeb.Router do
     plug :fetch_session
   end
 
+  pipeline :graphql do
+    plug WcaLiveWeb.Context
+  end
+
   scope "/oauth", WcaLiveWeb do
     pipe_through :browser
+
     get "/authorize", AuthController, :authorize
     get "/callback", AuthController, :callback
   end
 
-  scope "/api", WcaLiveWeb do
+  scope "/api" do
     pipe_through :api
+    pipe_through :graphql
+
+    if Mix.env() == :dev do
+      forward "/graphiql", Absinthe.Plug.GraphiQL, schema: WcaLiveWeb.Schema
+    end
+
+    forward "/", Absinthe.Plug, schema: WcaLiveWeb.Schema
   end
 
   # Enables LiveDashboard only for development
