@@ -1,12 +1,12 @@
 defmodule WcaLive.Competitions.Format do
-  defstruct [:id, :name, :short_name, :solve_count, :sort_by]
+  defstruct [:id, :name, :short_name, :number_of_attempts, :sort_by]
 
   @type t :: %__MODULE__{
           id: String.t(),
           name: String.t(),
           short_name: String.t(),
-          solve_count: integer(),
-          sort_by: String.t()
+          number_of_attempts: integer(),
+          sort_by: atom()
         }
 
   @format_attrs [
@@ -14,36 +14,36 @@ defmodule WcaLive.Competitions.Format do
       id: "1",
       name: "Best of 1",
       short_name: "Bo1",
-      solve_count: 1,
-      sort_by: "best"
+      number_of_attempts: 1,
+      sort_by: :best
     },
     %{
       id: "2",
       name: "Best of 2",
       short_name: "Bo2",
-      solve_count: 2,
-      sort_by: "best"
+      number_of_attempts: 2,
+      sort_by: :best
     },
     %{
       id: "3",
       name: "Best of 3",
       short_name: "Bo3",
-      solve_count: 3,
-      sort_by: "best"
+      number_of_attempts: 3,
+      sort_by: :best
     },
     %{
       id: "m",
       name: "Mean of 3",
       short_name: "Mo3",
-      solve_count: 3,
-      sort_by: "average"
+      number_of_attempts: 3,
+      sort_by: :average
     },
     %{
       id: "a",
       name: "Average of 5",
       short_name: "Ao5",
-      solve_count: 5,
-      sort_by: "average"
+      number_of_attempts: 5,
+      sort_by: :average
     }
   ]
 

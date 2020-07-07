@@ -40,4 +40,21 @@ defmodule WcaLive.Competitions.Result do
       }
     end
   end
+
+  def meets_cutoff?(_result, nil), do: true
+
+  def meets_cutoff?(result, cutoff) do
+    result.attempts
+    |> Enum.take(cutoff.number_of_attempts)
+    # TODO: use comparator function to account for DNF DNS, etc
+    |> Enum.any?(fn attempt -> attempt.result < cutoff.attempt_result end)
+  end
+
+  def has_expected_attempts?(result, max_attempts, cutoff) do
+    if meets_cutoff?(result, cutoff) do
+      length(result.attempts) == max_attempts
+    else
+      length(result.attempts) == cutoff.number_of_attempts
+    end
+  end
 end

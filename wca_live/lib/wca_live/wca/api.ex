@@ -23,13 +23,31 @@ defmodule WcaLive.Wca.Api do
     |> parse_response()
   end
 
+  @doc """
+  Fetches upcoming competitions manageable by the authorized user.
+  """
+  @spec get_me(String.t()) :: {:ok, any()} | {:error, any()}
+  def get_upcoming_manageable_competitions(access_token) do
+    two_days_ago = Date.utc_today() |> Date.add(-2)
+
+    params = %{
+      "managed_by_me" => true,
+      "start" => two_days_ago
+    }
+
+    api_url("/competitions", params)
+    |> HTTPoison.get(headers(access_token: access_token))
+    |> parse_response()
+  end
+
   defp config() do
     Application.get_env(:wca_live, __MODULE__)
   end
 
-  defp api_url(path) do
+  defp api_url(path, params \\ %{}) do
+    query = URI.encode_query(params)
     root = Keyword.fetch!(config(), :api_url)
-    root <> path
+    root <> path <> "?" <> query
   end
 
   defp headers(params \\ [])

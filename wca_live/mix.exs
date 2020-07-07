@@ -44,7 +44,8 @@ defmodule WcaLive.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:httpoison, "~> 1.6"},
       {:absinthe, "~> 1.5"},
-      {:absinthe_plug, "~> 1.5"}
+      {:absinthe_plug, "~> 1.5"},
+      {:dataloader, "~> 1.0"}
     ]
   end
 

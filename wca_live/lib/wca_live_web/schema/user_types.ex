@@ -7,18 +7,12 @@ defmodule WcaLiveWeb.Schema.UserTypes do
   object :user do
     field :id, non_null(:id)
     field :wca_user_id, non_null(:integer)
-    field :wca_id, non_null(:string)
+    field :wca_id, :string
     field :name, non_null(:string)
 
-    field :avatar, non_null(:avatar) do
+    field :avatar, :avatar do
       resolve &Resolvers.Users.user_avatar/3
     end
-  end
-
-  @desc "An avatar."
-  object :avatar do
-    field :url, :string
-    field :thumb_url, :string
   end
 
   object :user_queries do

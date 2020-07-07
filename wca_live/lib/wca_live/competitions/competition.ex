@@ -22,8 +22,8 @@ defmodule WcaLive.Competitions.Competition do
     field :wca_id, :string
     field :name, :string
     field :short_name, :string
-    field :end_date, :date
     field :start_date, :date
+    field :end_date, :date
     field :start_time, :utc_datetime
     field :end_time, :utc_datetime
     field :competitor_limit, :integer
@@ -93,7 +93,7 @@ defmodule WcaLive.Competitions.Competition do
   end
 
   def find_round_by_activity_code(competition, activity_code) do
-    if Wcif.ActivityCode.is_round?(activity_code) do
+    if Wcif.ActivityCode.round?(activity_code) do
       %{event_id: event_id, round_number: round_number} = activity_code
       competition_event = competition.competition_events |> Enum.find(&(&1.event_id == event_id))
       competition_event.rounds |> Enum.find(&(&1.number == round_number))

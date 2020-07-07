@@ -78,10 +78,10 @@ defmodule WcaLive.Wcif.ActivityCode do
     end
   end
 
-  def is_round?(%Official{} = ac) do
+  def round?(%Official{} = ac) do
     ac.event_id != nil and ac.round_number != nil and
       ac.group_name == nil and ac.attempt_number == nil
   end
 
-  def is_round?(_), do: false
+  def round?(_), do: false
 end
