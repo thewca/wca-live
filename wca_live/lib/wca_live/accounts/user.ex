@@ -25,4 +25,14 @@ defmodule WcaLive.Accounts.User do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
+
+  def wca_json_to_attrs(json) do
+    %{
+      wca_user_id: json["id"],
+      wca_id: json["wca_id"],
+      name: json["name"],
+      avatar_url: json["avatar"]["url"],
+      avatar_thumb_url: json["avatar"]["thumb_url"]
+    }
+  end
 end

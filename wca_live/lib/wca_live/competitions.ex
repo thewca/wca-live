@@ -3,6 +3,7 @@ defmodule WcaLive.Competitions do
   alias WcaLive.Repo
   alias WcaLive.Wcif
   alias WcaLive.Wca
+  alias WcaLive.Accounts
   alias WcaLive.Accounts.User
   alias WcaLive.Competitions.{Competition, Round, Person, CompetitionBrief}
 
@@ -34,9 +35,8 @@ defmodule WcaLive.Competitions do
   def get_person(id), do: Repo.get(Person, id)
 
   def import_competition(wca_id, user) do
-    user = user |> Repo.preload(:access_token)
-
-    with {:ok, wcif} <- Wca.Api.get_wcif(wca_id, user.access_token.access_token) do
+    with {:ok, access_token} <- Accounts.get_valid_access_token(user),
+         {:ok, wcif} <- Wca.Api.get_wcif(wca_id, access_token.access_token) do
       %Competition{}
       |> Ecto.Changeset.change()
       |> Ecto.Changeset.put_assoc(:imported_by, user)
@@ -45,10 +45,10 @@ defmodule WcaLive.Competitions do
   end
 
   def synchronize_competition(competition) do
-    competition = competition |> Repo.preload(imported_by: [:access_token])
-    %{wca_id: wca_id, imported_by: imported_by} = competition
+    imported_by = competition |> Ecto.assoc(:imported_by) |> Repo.one!()
 
-    with {:ok, wcif} <- Wca.Api.get_wcif(wca_id, imported_by.access_token.access_token) do
+    with {:ok, access_token} <- Accounts.get_valid_access_token(imported_by),
+         {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token) do
       Wcif.Import.import_competition(competition, wcif)
     end
 
