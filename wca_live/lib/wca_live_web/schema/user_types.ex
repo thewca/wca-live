@@ -13,6 +13,10 @@ defmodule WcaLiveWeb.Schema.UserTypes do
     field :avatar, :avatar do
       resolve &Resolvers.Users.user_avatar/3
     end
+
+    field :importable_competitions, non_null(list_of(non_null(:competition_brief))) do
+      resolve &Resolvers.Users.user_importable_competitions/3
+    end
   end
 
   object :user_queries do

@@ -24,6 +24,7 @@ defmodule WcaLiveWeb.Schema do
   end
 
   mutation do
+    import_fields :competition_mutations
     import_fields :result_mutations
   end
 

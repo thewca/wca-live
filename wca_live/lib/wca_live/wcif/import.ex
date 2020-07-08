@@ -30,6 +30,10 @@ defmodule WcaLive.Wcif.Import do
       competition_people_changeset(competition, wcif)
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{with_people: competition}} -> {:ok, competition}
+      {:error, _, _, _} -> {:error, "import failed"}
+    end
   end
 
   defp competition_events_changeset(competition, wcif) do

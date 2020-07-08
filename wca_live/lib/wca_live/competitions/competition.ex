@@ -43,6 +43,7 @@ defmodule WcaLive.Competitions.Competition do
     competition
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> unique_constraint(:wca_id)
   end
 
   defimpl WcaLive.Wcif.Type do
