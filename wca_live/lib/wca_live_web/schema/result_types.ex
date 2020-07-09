@@ -33,7 +33,7 @@ defmodule WcaLiveWeb.Schema.ResultTypes do
   end
 
   input_object :result_input do
-    field :attempt_inputs, non_null(list_of(non_null(:attempt_input)))
+    field :attempts, non_null(list_of(non_null(:attempt_input)))
   end
 
   input_object :attempt_input do

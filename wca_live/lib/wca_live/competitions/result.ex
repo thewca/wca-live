@@ -2,10 +2,10 @@ defmodule WcaLive.Competitions.Result do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Person, Round, Attempt}
+  alias WcaLive.Competitions.{Person, Round, Attempt, AttemptResult}
 
-  @required_fields [:attempts]
-  @optional_fields [:ranking, :best, :average, :average_record_tag, :single_record_tag]
+  @required_fields []
+  @optional_fields []
 
   schema "results" do
     field :ranking, :integer
@@ -23,10 +23,41 @@ defmodule WcaLive.Competitions.Result do
   end
 
   @doc false
-  def changeset(result, attrs) do
+  def changeset(result, attrs, event_id, number_of_attempts) do
     result
     |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast_embed(:attempts)
+    |> compute_best_and_average(event_id, number_of_attempts)
     |> validate_required(@required_fields)
+    |> validate_no_trailing_skipped()
+  end
+
+  defp validate_no_trailing_skipped(changeset) do
+    attempt_changesets = get_change(changeset, :attempts)
+
+    last_attempt_result =
+      if attempt_changesets && length(attempt_changesets) > 0 do
+        attempt_changesets |> List.last() |> get_change(:result)
+      end
+
+    if last_attempt_result && AttemptResult.skipped?(last_attempt_result) do
+      add_error(changeset, :attempts, "can't have trailing skipped attempt result")
+    else
+      changeset
+    end
+  end
+
+  defp compute_best_and_average(changeset, event_id, number_of_attempts) do
+    %{attempts: attempts} = apply_changes(changeset)
+
+    attempt_results =
+      attempts
+      |> Enum.map(& &1.result)
+      |> AttemptResult.pad_skipped(number_of_attempts)
+
+    changeset
+    |> put_change(:best, AttemptResult.best(attempt_results))
+    |> put_change(:average, AttemptResult.average(attempt_results, event_id))
   end
 
   defimpl WcaLive.Wcif.Type do
@@ -46,8 +77,9 @@ defmodule WcaLive.Competitions.Result do
   def meets_cutoff?(result, cutoff) do
     result.attempts
     |> Enum.take(cutoff.number_of_attempts)
-    # TODO: use comparator function to account for DNF DNS, etc
-    |> Enum.any?(fn attempt -> attempt.result < cutoff.attempt_result end)
+    |> Enum.any?(fn attempt ->
+      AttemptResult.better?(attempt.result, cutoff.attempt_result)
+    end)
   end
 
   def has_expected_attempts?(result, max_attempts, cutoff) do
