@@ -28,4 +28,9 @@ defmodule WcaLiveWeb.Resolvers.Rounds do
   def get_round(_parent, %{id: id}, _resolution) do
     {:ok, Competitions.get_round(id)}
   end
+
+  def open_round(_parent, %{id: id}, _resolution) do
+    round = Competitions.get_round!(id)
+    Competitions.open_round(round)
+  end
 end

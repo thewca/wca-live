@@ -13,6 +13,7 @@ defmodule WcaLiveWeb.Schema.ResultTypes do
     # TODO: maybe include tags in best/average
     field :average_record_tag, :string
     field :single_record_tag, :string
+    field :advancing, non_null(:boolean)
 
     field :attempts, non_null(list_of(non_null(:attempt)))
 

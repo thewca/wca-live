@@ -7,7 +7,7 @@ defmodule WcaLive.Repo.Migrations.CreateRegistrations do
       add :status, :string, null: false
       add :guests, :integer, null: false
       add :comments, :string, null: false
-      add :event_ids, {:array, :string}, null: false
+      add :event_ids, {:array, :string}, null: false, default: []
       add :person_id, references(:people, on_delete: :delete_all), null: false
     end
 

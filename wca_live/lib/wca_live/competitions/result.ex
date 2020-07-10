@@ -13,6 +13,7 @@ defmodule WcaLive.Competitions.Result do
     field :average, :integer
     field :average_record_tag, :string
     field :single_record_tag, :string
+    field :advancing, :boolean, default: false
 
     embeds_many :attempts, Attempt, on_replace: :delete
 
@@ -89,4 +90,6 @@ defmodule WcaLive.Competitions.Result do
       length(result.attempts) == cutoff.number_of_attempts
     end
   end
+
+  def empty?(result), do: length(result.attempts) == 0
 end

@@ -27,7 +27,7 @@ defmodule WcaLive.Competitions.Round do
     embeds_one :time_limit, TimeLimit, on_replace: :update
 
     belongs_to :competition_event, CompetitionEvent
-    has_many :results, Result
+    has_many :results, Result, on_replace: :delete
   end
 
   @doc false

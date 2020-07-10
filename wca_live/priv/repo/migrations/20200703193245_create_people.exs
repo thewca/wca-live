@@ -13,7 +13,7 @@ defmodule WcaLive.Repo.Migrations.CreatePeople do
       add :email, :string, null: false
       add :avatar_url, :string
       add :avatar_thumb_url, :string
-      add :roles, {:array, :string}, null: false
+      add :roles, {:array, :string}, null: false, default: []
       add :competition_id, references(:competitions, on_delete: :delete_all), null: false
     end
 

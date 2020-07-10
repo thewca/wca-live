@@ -75,4 +75,11 @@ defmodule WcaLiveWeb.Schema.RoundTypes do
       resolve &Resolvers.Rounds.get_round/3
     end
   end
+
+  object :round_mutations do
+    field :open_round, :round do
+      arg :id, non_null(:id)
+      resolve &Resolvers.Rounds.open_round/3
+    end
+  end
 end
