@@ -81,5 +81,10 @@ defmodule WcaLiveWeb.Schema.RoundTypes do
       arg :id, non_null(:id)
       resolve &Resolvers.Rounds.open_round/3
     end
+
+    field :clear_round, :round do
+      arg :id, non_null(:id)
+      resolve &Resolvers.Rounds.clear_round/3
+    end
   end
 end

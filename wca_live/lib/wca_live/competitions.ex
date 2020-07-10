@@ -353,7 +353,7 @@ defmodule WcaLive.Competitions do
     # See: https://www.worldcubeassociation.org/regulations/#9m3
     if length(actual_results) < 8 do
       # TODO: quite weird message given the function name, also there's not really closing as any round with results is open!
-      {:error, "cannot open this round as the previous has less than 8 competitors"}
+      {:error, "cannot open this round as the previous one has less than 8 competitors"}
     else
       round
       |> Ecto.Changeset.change()
@@ -452,8 +452,7 @@ defmodule WcaLive.Competitions do
          _total_results,
          format
        ) do
-    # TODO: handle dnf dns comparison again
-    Map.get(result, format.sort_by) < level
+    AttemptResult.better?(Map.get(result, format.sort_by), level)
   end
 
   defp qualifying_results([], _advancement_condition, _format), do: []
@@ -490,9 +489,6 @@ defmodule WcaLive.Competitions do
     next = get_next_round(round) |> Repo.preload(:results)
 
     if next != nil and Round.open?(next) do
-      # TODO: do we need that branch if advancing is stored in the db?
-      # (actually that's needed to compute when people are quit, but then
-      # we can handle it manually, reconsider all of that)
       # If the next round is open use its results to determine who advanced.
       advancing_person_ids = Enum.map(next.results, & &1.person_id)
 
@@ -502,6 +498,22 @@ defmodule WcaLive.Competitions do
     else
       format = Format.get_by_id!(round.format_id)
       qualifying_results(round.results, round.advancement_condition, format)
+    end
+  end
+
+  # ------- Round closing --------
+
+  def clear_round(round) do
+    round = round |> Repo.preload(:results)
+    next = get_next_round(round) |> Repo.preload(:results)
+
+    if next && Round.open?(next) do
+      {:error, "cannot clear this round as the next one is already open"}
+    else
+      round
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:results, [])
+      |> Repo.update()
     end
   end
 end
