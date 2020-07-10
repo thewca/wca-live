@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.TimeLimit do
+defmodule WcaLive.Scoretaking.TimeLimit do
   use WcaLive.Schema
   import Ecto.Changeset
 

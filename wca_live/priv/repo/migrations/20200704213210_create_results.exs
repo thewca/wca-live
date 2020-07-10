@@ -5,8 +5,8 @@ defmodule WcaLive.Repo.Migrations.CreateResults do
     create table(:results) do
       add :ranking, :integer
       add :attempts, {:array, :map}, null: false, default: []
-      add :best, :integer
-      add :average, :integer
+      add :best, :integer, null: false
+      add :average, :integer, null: false
       add :single_record_tag, :string
       add :average_record_tag, :string
       add :advancing, :boolean, null: false, default: false

@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.Cutoff do
+defmodule WcaLive.Scoretaking.Cutoff do
   use WcaLive.Schema
   import Ecto.Changeset
 

@@ -1,8 +1,9 @@
-defmodule WcaLive.Competitions.Result do
+defmodule WcaLive.Scoretaking.Result do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Person, Round, Attempt, AttemptResult}
+  alias WcaLive.Competitions.Person
+  alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult}
 
   @required_fields []
   @optional_fields []

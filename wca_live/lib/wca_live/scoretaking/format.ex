@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.Format do
+defmodule WcaLive.Scoretaking.Format do
   defstruct [:id, :name, :short_name, :number_of_attempts, :sort_by]
 
   @type t :: %__MODULE__{

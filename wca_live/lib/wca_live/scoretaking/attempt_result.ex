@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.AttemptResult do
+defmodule WcaLive.Scoretaking.AttemptResult do
   @skipped_value 0
   @dnf_value -1
   # @dns_value -2

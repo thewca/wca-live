@@ -1,11 +1,12 @@
-defmodule WcaLive.Competitions.Round do
+defmodule WcaLive.Scoretaking.Round do
   use WcaLive.Schema
   import Ecto.Changeset
 
   alias WcaLive.Wcif
 
-  alias WcaLive.Competitions.{
-    CompetitionEvent,
+  alias WcaLive.Competitions.CompetitionEvent
+
+  alias WcaLive.Scoretaking.{
     Result,
     AdvancementCondition,
     Cutoff,

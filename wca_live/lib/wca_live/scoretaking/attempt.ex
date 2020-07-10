@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.Attempt do
+defmodule WcaLive.Scoretaking.Attempt do
   use WcaLive.Schema
   import Ecto.Changeset
 

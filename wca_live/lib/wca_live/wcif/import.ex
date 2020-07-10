@@ -13,9 +13,10 @@ defmodule WcaLive.Wcif.Import do
     Person,
     PersonalBest,
     Room,
-    Round,
     Venue
   }
+
+  alias WcaLive.Scoretaking.Round
 
   def import_competition(competition, wcif) do
     Multi.new()

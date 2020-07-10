@@ -2,7 +2,8 @@ defmodule WcaLive.Competitions.CompetitionEvent do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Competition, Round, Qualification}
+  alias WcaLive.Competitions.{Competition, Qualification}
+  alias WcaLive.Scoretaking.Round
 
   @required_fields [:event_id]
   @optional_fields [:competitor_limit]

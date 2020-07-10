@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.AdvancementCondition do
+defmodule WcaLive.Scoretaking.AdvancementCondition do
   use WcaLive.Schema
   import Ecto.Changeset
 

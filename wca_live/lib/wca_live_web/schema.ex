@@ -46,8 +46,8 @@ defmodule WcaLiveWeb.Schema do
   import Ecto.Query, warn: false
 
   # TODO: figure out if there's a better option than always preloading that.
-  def query(WcaLive.Competitions.Round, _args) do
-    from p in WcaLive.Competitions.Round, preload: [:results]
+  def query(WcaLive.Scoretaking.Round, _args) do
+    from p in WcaLive.Scoretaking.Round, preload: [:results]
   end
 
   def query(querable, _args), do: querable

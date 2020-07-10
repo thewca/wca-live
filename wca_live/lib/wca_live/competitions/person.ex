@@ -2,7 +2,8 @@ defmodule WcaLive.Competitions.Person do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Competition, Registration, PersonalBest, Assignment, Result}
+  alias WcaLive.Competitions.{Competition, Registration, PersonalBest, Assignment}
+  alias WcaLive.Scoretaking.Result
 
   @required_fields [
     :wca_user_id,
