@@ -1,8 +1,9 @@
 defmodule WcaLiveWeb.Resolvers.Rounds do
   alias WcaLive.Scoretaking
+  alias WcaLive.Wca.Format
 
   def round_format(%{format_id: format_id}, _args, _resolution) do
-    {:ok, Scoretaking.Format.get_by_id!(format_id)}
+    {:ok, Format.get_by_id!(format_id)}
   end
 
   def round_name(round, _args, _resolution) do

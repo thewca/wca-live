@@ -3,17 +3,9 @@ defmodule WcaLive.Scoretaking.Round do
   import Ecto.Changeset
 
   alias WcaLive.Wcif
-
   alias WcaLive.Competitions.CompetitionEvent
-
-  alias WcaLive.Scoretaking.{
-    Result,
-    AdvancementCondition,
-    Cutoff,
-    TimeLimit,
-    Round,
-    Format
-  }
+  alias WcaLive.Scoretaking.{AdvancementCondition, Cutoff, Result, Round, TimeLimit}
+  alias WcaLive.Wca.Format
 
   @required_fields [:number, :format_id, :scramble_set_count]
   @optional_fields []

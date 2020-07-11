@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.Event do
+defmodule WcaLive.Wca.Event do
   defstruct [:id, :name]
 
   @type t :: %__MODULE__{

@@ -14,9 +14,11 @@ defmodule WcaLive.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: WcaLive.PubSub},
       # Start the Endpoint (http/https)
-      WcaLiveWeb.Endpoint
+      WcaLiveWeb.Endpoint,
       # Start a worker by calling: WcaLive.Worker.start_link(arg)
       # {WcaLive.Worker, arg}
+      # Start RecordsStore with official WCA records cache
+      WcaLive.Wca.RecordsStore
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -3,15 +3,10 @@ defmodule WcaLive.Scoretaking do
   alias Ecto.{Changeset, Multi}
   alias WcaLive.Repo
 
-  alias WcaLive.Competitions.{Person, Country}
-
-  alias WcaLive.Scoretaking.{
-    AdvancementCondition,
-    AttemptResult,
-    Format,
-    Result,
-    Round
-  }
+  alias WcaLive.Competitions.Person
+  alias WcaLive.Wca
+  alias WcaLive.Wca.{Country, Format}
+  alias WcaLive.Scoretaking.{AdvancementCondition, AttemptResult, Result, Round}
 
   @doc """
   Gets a single round.
@@ -150,7 +145,7 @@ defmodule WcaLive.Scoretaking do
     rounds = competition_event.rounds
     event_id = competition_event.event_id
 
-    regional_records = get_regional_records()
+    regional_records = Wca.RecordsStore.get_regional_records()
 
     personal_records =
       hd(rounds).results
@@ -202,29 +197,25 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
-  # TODO: implement a service for that
-  defp get_regional_records() do
-    %{}
-  end
-
-  defp record_key(event_id, type, scope) do
-    event_id <> "#" <> type <> "#" <> scope
-  end
-
   defp tags_with_record_key(person, event_id, type) do
     country = Country.get_by_iso2!(person.country_iso2)
 
     [
-      %{tag: "WR", record_key: record_key(event_id, type, "world")},
-      %{tag: "CR", record_key: record_key(event_id, type, to_string(country.continent_name))},
-      %{tag: "NR", record_key: record_key(event_id, type, to_string(country.iso2))},
-      %{tag: "PB", record_key: record_key(event_id, type, "person:" <> to_string(person.id))}
+      %{tag: "WR", record_key: Wca.Records.record_key(event_id, type, "world")},
+      %{tag: "CR", record_key: Wca.Records.record_key(event_id, type, country.continent_name)},
+      %{tag: "NR", record_key: Wca.Records.record_key(event_id, type, country.iso2)},
+      %{
+        tag: "PB",
+        record_key: Wca.Records.record_key(event_id, type, person_record_scope(person))
+      }
     ]
   end
 
+  defp person_record_scope(person), do: "person:" <> to_string(person.id)
+
   defp person_records(person) do
     Map.new(person.personal_bests, fn %{event_id: event_id, type: type, best: best} ->
-      {record_key(event_id, type, "person:" <> to_string(person.id)), best}
+      {Wca.Records.record_key(event_id, type, person_record_scope(person)), best}
     end)
   end
 

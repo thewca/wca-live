@@ -26,7 +26,7 @@ defmodule WcaLive.Wca.Api do
   @doc """
   Fetches upcoming competitions manageable by the authorized user.
   """
-  @spec get_me(String.t()) :: {:ok, any()} | {:error, any()}
+  @spec get_upcoming_manageable_competitions(String.t()) :: {:ok, any()} | {:error, any()}
   def get_upcoming_manageable_competitions(access_token) do
     two_days_ago = Date.utc_today() |> Date.add(-2)
 
@@ -37,6 +37,16 @@ defmodule WcaLive.Wca.Api do
 
     api_url("/competitions", params)
     |> HTTPoison.get(headers(access_token: access_token))
+    |> parse_response()
+  end
+
+  @doc """
+  Fetches official regional records.
+  """
+  @spec get_records() :: {:ok, any()} | {:error, any()}
+  def get_records() do
+    api_url("/records")
+    |> HTTPoison.get(headers())
     |> parse_response()
   end
 
