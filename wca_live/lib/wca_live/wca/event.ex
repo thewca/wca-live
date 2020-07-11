@@ -92,4 +92,16 @@ defmodule WcaLive.Wca.Event do
         struct(__MODULE__, attrs)
     end
   end
+
+  def get_rank_by_id!(id) do
+    @event_attrs
+    |> Enum.find_index(fn event -> event.id == id end)
+    |> case do
+      nil ->
+        raise ArgumentError, message: "Invalid event id \"#{id}\"."
+
+      index ->
+        index
+    end
+  end
 end

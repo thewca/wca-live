@@ -5,7 +5,7 @@ defmodule WcaLive.Scoretaking do
 
   alias WcaLive.Competitions.Person
   alias WcaLive.Wca
-  alias WcaLive.Wca.{Country, Format}
+  alias WcaLive.Wca.{Country, Format, Event}
   alias WcaLive.Scoretaking.{AdvancementCondition, AttemptResult, Result, Round}
 
   @doc """
@@ -397,7 +397,7 @@ defmodule WcaLive.Scoretaking do
         |> Repo.preload(:registration)
 
       people
-      |> Enum.filter(&accepted?/1)
+      |> Enum.filter(&Person.competitor?/1)
       |> Enum.filter(fn person -> event_id in person.registration.event_ids end)
       |> Enum.map(& &1.id)
     end
@@ -408,9 +408,6 @@ defmodule WcaLive.Scoretaking do
     |> Result.changeset(%{}, event_id, format.number_of_attempts)
     |> Changeset.put_change(:person_id, person_id)
   end
-
-  defp accepted?(%Person{registration: %{status: "accepted"}}), do: true
-  defp accepted?(_person), do: false
 
   def clear_round(round) do
     round = round |> Repo.preload(:results)
@@ -425,4 +422,90 @@ defmodule WcaLive.Scoretaking do
       |> Repo.update()
     end
   end
+
+  @type record :: %{
+          id: String.t(),
+          result: %Result{},
+          type: String.t(),
+          record_tag: String.t(),
+          attempt_result: integer()
+        }
+
+  @spec list_recent_records() :: list(record())
+  def list_recent_records(opts \\ []) do
+    days = Keyword.get(opts, :days, 10)
+    tags = Keyword.get(opts, :tags, ["WR", "CR", "NR"])
+
+    from_date = Date.utc_today() |> Date.add(-days)
+
+    results =
+      Repo.all(
+        from result in Result,
+          join: round in assoc(result, :round),
+          join: competition_event in assoc(round, :competition_event),
+          join: competition in assoc(competition_event, :competition),
+          where:
+            result.single_record_tag in ^tags or
+              result.average_record_tag in ^tags,
+          where: competition.start_date >= ^from_date,
+          preload: [:person, round: {round, competition_event: competition_event}]
+      )
+
+    single_records =
+      results
+      |> Enum.filter(fn result -> result.single_record_tag in tags end)
+      |> Enum.map(fn result ->
+        %{
+          result: result,
+          type: "single",
+          tag: result.single_record_tag,
+          attempt_result: result.best
+        }
+      end)
+
+    average_records =
+      results
+      |> Enum.filter(fn result -> result.average_record_tag in tags end)
+      |> Enum.map(fn result ->
+        %{
+          result: result,
+          type: "average",
+          tag: result.average_record_tag,
+          attempt_result: result.average
+        }
+      end)
+
+    # Group by record key, then pick best in each group,
+    # so that we show only one record of each type.
+    (single_records ++ average_records)
+    |> Enum.map(fn record ->
+      person = record.result.person
+      event_id = record.result.round.competition_event.event_id
+
+      %{record_key: record_key} =
+        tags_with_record_key(person, event_id, record.type)
+        |> Enum.find(fn %{tag: tag} -> tag == record.tag end)
+
+      Map.put(record, :id, record_key)
+    end)
+    |> Enum.group_by(& &1.id)
+    |> Enum.flat_map(fn {_, records} ->
+      # Note: if there is a tie, we want both records.
+      min_attempt_result = records |> Enum.map(& &1.attempt_result) |> Enum.min()
+      Enum.filter(records, & &1.attempt_result == min_attempt_result)
+    end)
+    |> Enum.sort_by(fn record ->
+      event_id = record.result.round.competition_event.event_id
+
+      {record_tag_rank(record.tag), Event.get_rank_by_id!(event_id),
+       record_type_rank(record.type), record.attempt_result}
+    end)
+  end
+
+  defp record_tag_rank("WR"), do: 1
+  defp record_tag_rank("CR"), do: 2
+  defp record_tag_rank("NR"), do: 3
+
+  defp record_type_rank("single"), do: 1
+  defp record_type_rank("average"), do: 2
 end

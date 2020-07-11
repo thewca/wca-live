@@ -2,7 +2,7 @@ defmodule WcaLive.Competitions.Person do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Competition, Registration, PersonalBest, Assignment}
+  alias WcaLive.Competitions.{Competition, Registration, PersonalBest, Assignment, Person}
   alias WcaLive.Scoretaking.Result
 
   @required_fields [
@@ -71,4 +71,7 @@ defmodule WcaLive.Competitions.Person do
       }
     end
   end
+
+  def competitor?(%Person{registration: %{status: "accepted"}}), do: true
+  def competitor?(%Person{registration: %{status: _other}}), do: false
 end

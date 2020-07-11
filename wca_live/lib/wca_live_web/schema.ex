@@ -11,6 +11,7 @@ defmodule WcaLiveWeb.Schema do
   import_types WcaLiveWeb.Schema.EventTypes
   import_types WcaLiveWeb.Schema.PersonTypes
   import_types WcaLiveWeb.Schema.ResultTypes
+  import_types WcaLiveWeb.Schema.RecordTypes
   import_types WcaLiveWeb.Schema.RoomTypes
   import_types WcaLiveWeb.Schema.RoundTypes
   import_types WcaLiveWeb.Schema.UserTypes
@@ -21,6 +22,7 @@ defmodule WcaLiveWeb.Schema do
     import_fields :competition_queries
     import_fields :round_queries
     import_fields :person_queries
+    import_fields :record_queries
   end
 
   mutation do
