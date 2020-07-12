@@ -1,4 +1,4 @@
-defmodule WcaLive.Competitions.CompetitionBrief do
+defmodule WcaLive.Synchronization.CompetitionBrief do
   defstruct [:wca_id, :name, :short_name, :start_date, :end_date]
 
   @type t :: %__MODULE__{

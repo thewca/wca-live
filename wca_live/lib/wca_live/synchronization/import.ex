@@ -1,4 +1,4 @@
-defmodule WcaLive.Wcif.Import do
+defmodule WcaLive.Synchronization.Import do
   alias WcaLive.Repo
   alias Ecto.Multi
   import Ecto.Changeset

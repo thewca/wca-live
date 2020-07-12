@@ -1,4 +1,4 @@
-defmodule WcaLive.Wcif.Export do
+defmodule WcaLive.Synchronization.Export do
   alias WcaLive.Repo
   alias WcaLive.Wcif
 
