@@ -48,4 +48,5 @@ defmodule WcaLive.Competitions.Person do
 
   def competitor?(%Person{registration: %{status: "accepted"}}), do: true
   def competitor?(%Person{registration: %{status: _other}}), do: false
+  def competitor?(%Person{registration: nil}), do: false
 end
