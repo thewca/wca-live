@@ -43,6 +43,16 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :results, non_null(list_of(non_null(:result))) do
       resolve dataloader(:db)
     end
+
+    @desc "People who would qualify to this round, if one person quit."
+    field :next_qualifying, non_null(list_of(non_null(:person))) do
+      resolve &Resolvers.Scoretaking.round_next_qualifying/3
+    end
+
+    @desc "Describes qualifying people who could be manually added to this round."
+    field :advancement_candidates, non_null(:advancement_candidates) do
+      resolve &Resolvers.Scoretaking.round_advancement_candidates/3
+    end
   end
 
   object :format do
@@ -107,6 +117,17 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :result, non_null(:result)
   end
 
+  @desc "A structure describing which people can be added to the given round."
+  object :advancement_candidates do
+    @desc "People who qualify to this round, but are not in it."
+    field :qualifying, non_null(list_of(non_null(:person)))
+
+    @desc "People who would be removed from this round if one of the other qualifying people was added. " <>
+            "If this list is not empty, it means the qualifying people have quit before, " <>
+            "and thus may supersede whoever replaced them."
+    field :revocable, non_null(list_of(non_null(:person)))
+  end
+
   input_object :result_input do
     field :attempts, non_null(list_of(non_null(:attempt_input)))
   end
@@ -128,21 +149,34 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
   end
 
   object :scoretaking_mutations do
-    field :open_round, :round do
+    field :open_round, non_null(:round) do
       arg :id, non_null(:id)
       resolve &Resolvers.Scoretaking.open_round/3
     end
 
-    field :clear_round, :round do
+    field :clear_round, non_null(:round) do
       arg :id, non_null(:id)
       resolve &Resolvers.Scoretaking.clear_round/3
     end
 
     # TODO: what type to return
-    field :update_result, :result do
+    field :update_result, non_null(:result) do
       arg :id, non_null(:id)
       arg :input, non_null(:result_input)
       resolve &Resolvers.Scoretaking.update_result/3
+    end
+
+    field :add_person_to_round, non_null(:round) do
+      arg :round_id, non_null(:id)
+      arg :person_id, non_null(:id)
+      resolve &Resolvers.Scoretaking.add_person_to_round/3
+    end
+
+    field :remove_person_from_round, non_null(:round) do
+      arg :round_id, non_null(:id)
+      arg :person_id, non_null(:id)
+      arg :replace, non_null(:boolean)
+      resolve &Resolvers.Scoretaking.remove_person_from_round/3
     end
   end
 end

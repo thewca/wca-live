@@ -51,8 +51,7 @@ defmodule WcaLive.Synchronization.Export do
             "thumbUrl" => person.avatar_thumb_url
           },
       "roles" => person.roles,
-      "registration" =>
-        person.registration && person.registration |> registration_to_wcif(),
+      "registration" => person.registration && person.registration |> registration_to_wcif(),
       "assignments" => person.assignments |> Enum.map(&assignment_to_wcif/1),
       "personalBests" => person.personal_bests |> Enum.map(&personal_best_to_wcif/1)
     }
@@ -92,7 +91,8 @@ defmodule WcaLive.Synchronization.Export do
       "id" => competition_event.event_id,
       "competitorLimit" => competition_event.competitor_limit,
       "qualification" =>
-        competition_event.qualification && competition_event.qualification |> qualification_to_wcif(),
+        competition_event.qualification &&
+          competition_event.qualification |> qualification_to_wcif(),
       "rounds" => competition_event.rounds |> Enum.map(&round_to_wcif/1)
     }
   end
@@ -112,7 +112,8 @@ defmodule WcaLive.Synchronization.Export do
       "timeLimit" => round.time_limit && round.time_limit |> time_limit_to_wcif(),
       "cutoff" => round.cutoff && round.cutoff |> cutoff_to_wcif(),
       "advancementCondition" =>
-        round.advancement_condition && round.advancement_condition |> advancement_condition_to_wcif(),
+        round.advancement_condition &&
+          round.advancement_condition |> advancement_condition_to_wcif(),
       "results" => round.results |> Enum.map(&result_to_wcif/1),
       "scrambleSetCount" => round.scramble_set_count
       # "scrambleSets" => [] # ignored for now

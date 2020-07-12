@@ -25,4 +25,9 @@ defmodule WcaLive.Competitions do
   Gets a single person.
   """
   def get_person(id), do: Repo.get(Person, id)
+
+  @doc """
+  Gets a single person.
+  """
+  def get_person!(id), do: Repo.get!(Person, id)
 end

@@ -10,8 +10,8 @@ defmodule WcaLive.Scoretaking.Result do
 
   schema "results" do
     field :ranking, :integer
-    field :best, :integer
-    field :average, :integer
+    field :best, :integer, default: 0
+    field :average, :integer, default: 0
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, :boolean, default: false

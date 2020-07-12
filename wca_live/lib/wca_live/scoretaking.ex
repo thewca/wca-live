@@ -257,21 +257,25 @@ defmodule WcaLive.Scoretaking do
         result.person_id in advancing_person_ids
       end)
     else
-      format = Format.get_by_id!(round.format_id)
-      qualifying_results(round.results, round.advancement_condition, format)
+      qualifying_results(round)
     end
   end
 
-  defp qualifying_results([], _advancement_condition, _format), do: []
+  defp qualifying_results(%Round{results: []}), do: []
 
-  defp qualifying_results(results, nil = _advancement_condition, _format) do
+  defp qualifying_results(%Round{advancement_condition: nil} = round) do
     # Mark top 3 in the finals (unless DNFed).
-    Enum.filter(results, fn result ->
+    Enum.filter(round.results, fn result ->
       result.best > 0 and result.ranking != nil and result.ranking <= 3
     end)
   end
 
-  defp qualifying_results(results, advancement_condition, format) do
+  defp qualifying_results(round) do
+    %{results: results, advancement_condition: advancement_condition, format_id: format_id} =
+      round
+
+    format = Format.get_by_id!(format_id)
+
     # See: https://www.worldcubeassociation.org/regulations/#9p1
     max_qualifying = floor(length(results) * 0.75)
     rankings = results |> Enum.map(& &1.ranking) |> Enum.reject(&is_nil/1) |> Enum.sort()
@@ -356,7 +360,6 @@ defmodule WcaLive.Scoretaking do
       # Note: we remove empty results, so we need to recompute advancing results,
       # because an advancement condition may depend on the total number of results (i.e. "percent" type).
 
-      # TODO: any cleaner way?
       Multi.new()
       |> Multi.update(:remove_empty, put_results_in_round(actual_results, round))
       |> Multi.update(:recompute_advancing, fn %{remove_empty: round} ->
@@ -371,12 +374,9 @@ defmodule WcaLive.Scoretaking do
   end
 
   defp create_empty_results(round, previous) do
-    event_id = Repo.preload(round, :competition_event).competition_event.event_id
-    format = Format.get_by_id!(round.format_id)
-
     empty_results =
-      person_ids_for_round(round, previous, event_id)
-      |> Enum.map(&empty_result_for_person(&1, event_id, format))
+      person_ids_for_round(round, previous)
+      |> Enum.map(&empty_result_for_person_id/1)
 
     if Enum.empty?(empty_results) do
       {:error,
@@ -389,7 +389,9 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
-  defp person_ids_for_round(round, previous, event_id) do
+  defp person_ids_for_round(round, previous) do
+    %{event_id: event_id} = round |> Ecto.assoc(:competition_event) |> Repo.one!()
+
     if previous do
       previous.results
       |> Enum.filter(& &1.advancing)
@@ -408,9 +410,9 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
-  def empty_result_for_person(person_id, event_id, format) do
+  def empty_result_for_person_id(person_id) do
     %Result{}
-    |> Result.changeset(%{}, event_id, format.number_of_attempts)
+    |> Changeset.change()
     |> Changeset.put_change(:person_id, person_id)
   end
 
@@ -421,10 +423,27 @@ defmodule WcaLive.Scoretaking do
     if next && Round.open?(next) do
       {:error, "cannot clear this round as the next one is already open"}
     else
-      round
-      |> Changeset.change()
-      |> Changeset.put_assoc(:results, [])
-      |> Repo.update()
+      put_results_in_round([], round)
+      |> update_round_and_previous_advancing()
+    end
+  end
+
+  defp update_round_and_previous_advancing(round_changeset) do
+    Multi.new()
+    |> Multi.update(:round, round_changeset)
+    |> Multi.run(:previous, fn _, %{round: round} ->
+      previous = get_previous_round(round) |> Repo.preload(:results)
+
+      if previous == nil do
+        {:ok, nil}
+      else
+        previous |> compute_advancing() |> Repo.update()
+      end
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{round: round}} -> {:ok, round}
+      {:error, _, reason, _} -> {:error, reason}
     end
   end
 
@@ -513,4 +532,187 @@ defmodule WcaLive.Scoretaking do
 
   defp record_type_rank("single"), do: 1
   defp record_type_rank("average"), do: 2
+
+  def next_qualifying_to_round(round) do
+    previous = get_previous_round(round) |> Repo.preload(results: :person)
+
+    cond do
+      previous == nil ->
+        # Given a first round, so there is no *next* person who qualifies to it.
+        []
+
+      not Enum.any?(previous.results, & &1.advancing) ->
+        # This is only possible if the given round has no results (not open yet)
+        # and no one from the previous round satisfies the advancement condition.
+        # In this case there is no one who could qualify.
+        []
+
+      true ->
+        already_quit = already_quit_results(previous.results)
+
+        first_advancing =
+          previous.results |> Enum.filter(& &1.advancing) |> Enum.min_by(& &1.ranking)
+
+        candidates_to_qualify =
+          Enum.filter(previous.results, fn result ->
+            not result.advancing and result not in already_quit
+          end)
+
+        # Take already quit results and the first advancing one,
+        # then *pretend* they got the worst results and didn't qualify
+        # (ended up at the very bottom of results).
+        # This way we see who else would advance.
+        ignored_results = [first_advancing | already_quit]
+        hypothetically_qualifying = qualifying_results_ignoring(previous, ignored_results)
+
+        hypothetically_qualifying
+        |> Enum.filter(fn result -> result in candidates_to_qualify end)
+        |> Enum.map(& &1.person)
+    end
+  end
+
+  # Returns results that quit the next round by looking at the "gaps" in advancement.
+  # Note: if the last advancing result quits then this approach doesn't detect it,
+  # but it's still pretty much the best heuristic. We could compare qualifying and advancing results,
+  # but this wouldn't work when many results quit.
+  defp already_quit_results(results) do
+    max_advancing_ranking =
+      results
+      |> Enum.filter(& &1.advancing)
+      |> Enum.map(& &1.ranking)
+      |> Enum.max()
+
+    results
+    # Should advance...
+    |> Enum.filter(fn result -> result.ranking <= max_advancing_ranking end)
+    # ...but didn't, because they quit the next round.
+    |> Enum.filter(fn result -> not result.advancing end)
+  end
+
+  defp qualifying_results_ignoring(round, ignored_results) do
+    # Empty attempts rank ignored people at the end (making sure they don't qualify).
+    # Then recompute rankings and see who would qualify as a result.
+    hypothetical_results =
+      Enum.map(round.results, fn result ->
+        if result in ignored_results do
+          %{result | attempts: [], best: 0, average: 0}
+        else
+          result
+        end
+      end)
+
+    hypothetical_round =
+      compute_ranking(%{round | results: hypothetical_results}) |> Ecto.Changeset.apply_changes()
+
+    qualifying_results(hypothetical_round)
+    |> Enum.map(fn hypothetical_result ->
+      Enum.find(round.results, &(&1.id == hypothetical_result.id))
+    end)
+  end
+
+  def advancement_candidates(round) do
+    round = round |> Repo.preload(:results)
+    previous = get_previous_round(round) |> Repo.preload(results: :person)
+
+    if previous == nil do
+      # Anyone qualifies to the first round.
+
+      people =
+        round
+        |> Ecto.assoc([:competition_event, :competition, :people])
+        |> Repo.all()
+        |> Repo.preload(:registration)
+
+      qualifying =
+        people
+        |> Enum.filter(&Person.competitor?/1)
+        |> Enum.reject(fn person ->
+          Enum.any?(round.results, fn result -> result.person_id == person.id end)
+        end)
+
+      %{qualifying: qualifying, revocable: []}
+    else
+      already_quit = already_quit_results(previous.results)
+
+      could_just_advance =
+        qualifying_results_ignoring(previous, already_quit)
+        |> Enum.reject(& &1.advancing)
+
+      cond do
+        not Enum.empty?(could_just_advance) ->
+          qualifying = (already_quit ++ could_just_advance) |> Enum.map(& &1.person)
+          %{qualifying: qualifying, revocable: []}
+
+        not Enum.empty?(already_quit) ->
+          # See who wouldn't qualify if we un-quit one person.
+          new_qualifying = qualifying_results_ignoring(previous, Enum.drop(already_quit, 1))
+
+          revocable =
+            previous.results
+            |> Enum.filter(& &1.advancing)
+            |> Enum.filter(fn result -> result not in new_qualifying end)
+            |> Enum.map(& &1.person)
+
+          qualifying = already_quit |> Enum.map(& &1.person)
+          %{qualifying: qualifying, revocable: revocable}
+
+        true ->
+          # Everyone qualifying is already in the round.
+          %{qualifying: [], revocable: []}
+      end
+    end
+  end
+
+  def add_person_to_round(person, round) do
+    round = round |> Repo.preload(:results)
+
+    if Enum.any?(round.results, &(&1.person_id == person.id)) do
+      {:error, "cannot add person as they are already in this round"}
+    else
+      %{qualifying: qualifying, revocable: revocable} = advancement_candidates(round)
+      qualifies? = Enum.any?(qualifying, &(&1.id == person.id))
+
+      if not qualifies? do
+        {:error, "cannot add person as they don't qualify"}
+      else
+        new_result = empty_result_for_person_id(person.id)
+
+        results =
+          Enum.reject(round.results, fn result ->
+            Enum.any?(revocable, fn person -> person.id == result.person_id end)
+          end)
+
+        [new_result | results]
+        |> put_results_in_round(round)
+        |> update_round_and_previous_advancing()
+      end
+    end
+  end
+
+  def remove_person_from_round(person, round, replace) do
+    round = round |> Repo.preload(:results)
+
+    result = Enum.find(round.results, &(&1.person_id == person.id))
+
+    if result == nil do
+      {:error, "cannot remove person as they are not in this round"}
+    else
+      substitutes = next_qualifying_to_round(round)
+
+      new_results =
+        if replace do
+          substitutes
+          |> Enum.map(& &1.id)
+          |> Enum.map(&empty_result_for_person_id/1)
+        else
+          []
+        end
+
+      results = List.delete(round.results, result) ++ new_results
+
+      results
+      |> put_results_in_round(round)
+      |> update_round_and_previous_advancing()
+    end
+  end
 end
