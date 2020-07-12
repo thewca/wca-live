@@ -1,4 +1,4 @@
-defmodule WcaLiveWeb.Schema.UserTypes do
+defmodule WcaLiveWeb.Schema.AccountsTypes do
   use Absinthe.Schema.Notation
 
   alias WcaLiveWeb.Resolvers
@@ -11,17 +11,17 @@ defmodule WcaLiveWeb.Schema.UserTypes do
     field :name, non_null(:string)
 
     field :avatar, :avatar do
-      resolve &Resolvers.Users.user_avatar/3
+      resolve &Resolvers.Accounts.user_avatar/3
     end
 
     field :importable_competitions, non_null(list_of(non_null(:competition_brief))) do
-      resolve &Resolvers.Users.user_importable_competitions/3
+      resolve &Resolvers.Accounts.user_importable_competitions/3
     end
   end
 
-  object :user_queries do
+  object :accounts_queries do
     field :current_user, :user do
-      resolve &Resolvers.Users.current_user/3
+      resolve &Resolvers.Accounts.current_user/3
     end
   end
 end

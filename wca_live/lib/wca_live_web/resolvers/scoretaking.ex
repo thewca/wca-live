@@ -1,6 +1,8 @@
-defmodule WcaLiveWeb.Resolvers.Rounds do
+defmodule WcaLiveWeb.Resolvers.Scoretaking do
   alias WcaLive.Scoretaking
   alias WcaLive.Wca.Format
+
+  # Rounds
 
   def round_format(%{format_id: format_id}, _args, _resolution) do
     {:ok, Format.get_by_id!(format_id)}
@@ -38,5 +40,18 @@ defmodule WcaLiveWeb.Resolvers.Rounds do
   def clear_round(_parent, %{id: id}, _resolution) do
     round = Scoretaking.get_round!(id)
     Scoretaking.clear_round(round)
+  end
+
+  # Results
+
+  def update_result(_parent, %{id: id, input: input}, _resolution) do
+    result = Scoretaking.get_result!(id)
+    Scoretaking.update_result(result, input)
+  end
+
+  # Records
+
+  def list_recent_records(_parent, _args, _resolution) do
+    {:ok, Scoretaking.list_recent_records()}
   end
 end

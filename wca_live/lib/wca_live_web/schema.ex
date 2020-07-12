@@ -2,33 +2,20 @@ defmodule WcaLiveWeb.Schema do
   use Absinthe.Schema
 
   import_types Absinthe.Type.Custom
-  import_types WcaLiveWeb.Schema.ActivityTypes
-  import_types WcaLiveWeb.Schema.AssignmentTypes
-  import_types WcaLiveWeb.Schema.AvatarTypes
-  import_types WcaLiveWeb.Schema.CompetitionEventTypes
-  import_types WcaLiveWeb.Schema.CompetitionTypes
-  import_types WcaLiveWeb.Schema.CountryTypes
-  import_types WcaLiveWeb.Schema.EventTypes
-  import_types WcaLiveWeb.Schema.PersonTypes
-  import_types WcaLiveWeb.Schema.ResultTypes
-  import_types WcaLiveWeb.Schema.RecordTypes
-  import_types WcaLiveWeb.Schema.RoomTypes
-  import_types WcaLiveWeb.Schema.RoundTypes
-  import_types WcaLiveWeb.Schema.UserTypes
-  import_types WcaLiveWeb.Schema.VenueTypes
+  import_types WcaLiveWeb.Schema.SharedTypes
+  import_types WcaLiveWeb.Schema.AccountsTypes
+  import_types WcaLiveWeb.Schema.CompetitionsTypes
+  import_types WcaLiveWeb.Schema.ScoretakingTypes
 
   query do
-    import_fields :user_queries
-    import_fields :competition_queries
-    import_fields :round_queries
-    import_fields :person_queries
-    import_fields :record_queries
+    import_fields :accounts_queries
+    import_fields :competitions_queries
+    import_fields :scoretaking_queries
   end
 
   mutation do
-    import_fields :competition_mutations
-    import_fields :round_mutations
-    import_fields :result_mutations
+    import_fields :competitions_mutations
+    import_fields :scoretaking_mutations
   end
 
   def context(context) do

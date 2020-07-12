@@ -492,7 +492,7 @@ defmodule WcaLive.Scoretaking do
     |> Enum.flat_map(fn {_, records} ->
       # Note: if there is a tie, we want both records.
       min_attempt_result = records |> Enum.map(& &1.attempt_result) |> Enum.min()
-      Enum.filter(records, & &1.attempt_result == min_attempt_result)
+      Enum.filter(records, &(&1.attempt_result == min_attempt_result))
     end)
     |> Enum.sort_by(fn record ->
       event_id = record.result.round.competition_event.event_id

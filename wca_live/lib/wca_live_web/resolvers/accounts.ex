@@ -1,4 +1,4 @@
-defmodule WcaLiveWeb.Resolvers.Users do
+defmodule WcaLiveWeb.Resolvers.Accounts do
   alias WcaLive.Competitions
 
   def user_avatar(%{avatar_url: url, avatar_thumb_url: thumb_url}, _args, _resolution) do
