@@ -17,13 +17,4 @@ defmodule WcaLive.Scoretaking.TimeLimit do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(time_limit) do
-      %{
-        "centiseconds" => time_limit.centiseconds,
-        "cumulativeRoundIds" => time_limit.cumulative_round_wcif_ids
-      }
-    end
-  end
 end

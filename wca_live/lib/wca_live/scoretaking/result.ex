@@ -62,18 +62,6 @@ defmodule WcaLive.Scoretaking.Result do
     |> put_change(:average, AttemptResult.average(attempt_results, event_id))
   end
 
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(result) do
-      %{
-        "personId" => result.person.registrant_id,
-        "ranking" => result.ranking,
-        "attempts" => result.attempts |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1),
-        "best" => result.best,
-        "average" => result.average
-      }
-    end
-  end
-
   def meets_cutoff?(_result, nil), do: true
 
   def meets_cutoff?(result, cutoff) do

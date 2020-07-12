@@ -22,15 +22,4 @@ defmodule WcaLive.Competitions.Room do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(room) do
-      %{
-        "id" => room.wcif_id,
-        "name" => room.name,
-        "color" => room.color,
-        "activities" => room.activities |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1)
-      }
-    end
-  end
 end

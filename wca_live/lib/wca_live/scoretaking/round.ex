@@ -2,7 +2,6 @@ defmodule WcaLive.Scoretaking.Round do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Wcif
   alias WcaLive.Competitions.CompetitionEvent
   alias WcaLive.Scoretaking.{AdvancementCondition, Cutoff, Result, Round, TimeLimit}
   alias WcaLive.Wca.Format
@@ -28,30 +27,6 @@ defmodule WcaLive.Scoretaking.Round do
     round
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-  end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(round) do
-      %{
-        "id" => wcif_id(round),
-        "format" => round.format_id,
-        "timeLimit" => round.time_limit && round.time_limit |> Wcif.Type.to_wcif(),
-        "cutoff" => round.cutoff && round.cutoff |> Wcif.Type.to_wcif(),
-        "advancementCondition" =>
-          round.advancement_condition && round.advancement_condition |> Wcif.Type.to_wcif(),
-        "results" => round.results |> Enum.map(&Wcif.Type.to_wcif/1),
-        "scrambleSetCount" => round.scramble_set_count
-        # "scrambleSets" => [] # ignored for now
-      }
-    end
-
-    defp wcif_id(round) do
-      %Wcif.ActivityCode.Official{
-        event_id: round.competition_event.event_id,
-        round_number: round.number
-      }
-      |> to_string()
-    end
   end
 
   @doc """

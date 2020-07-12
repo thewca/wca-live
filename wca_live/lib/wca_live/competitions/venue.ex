@@ -32,18 +32,4 @@ defmodule WcaLive.Competitions.Venue do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(venue) do
-      %{
-        "id" => venue.wcif_id,
-        "name" => venue.name,
-        "latitudeMicrodegrees" => venue.latitude_microdegrees,
-        "longitudeMicrodegrees" => venue.longitude_microdegrees,
-        "countryIso2" => venue.country_iso2,
-        "timezone" => venue.timezone,
-        "rooms" => venue.rooms |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1)
-      }
-    end
-  end
 end

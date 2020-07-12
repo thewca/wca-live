@@ -20,14 +20,4 @@ defmodule WcaLive.Competitions.Assignment do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(assignment) do
-      %{
-        "activityId" => assignment.activity.wcif_id,
-        "assignmentCode" => assignment.assignment_code,
-        "stationNumber" => assignment.station_number
-      }
-    end
-  end
 end

@@ -46,32 +46,6 @@ defmodule WcaLive.Competitions.Person do
     |> validate_inclusion(:gender, ["m", "f", "o"])
   end
 
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(person) do
-      %{
-        "registrantId" => person.registrant_id,
-        "name" => person.name,
-        "wcaUserId" => person.wca_user_id,
-        "wcaId" => person.wca_id,
-        "countryIso2" => person.country_iso2,
-        "gender" => person.gender,
-        "birthdate" => person.birthdate |> Date.to_iso8601(),
-        "email" => person.email,
-        "avatar" =>
-          person.avatar_url && person.avatar_thumb_url &&
-            %{
-              "url" => person.avatar_url,
-              "thumbUrl" => person.avatar_thumb_url
-            },
-        "roles" => person.roles,
-        "registration" =>
-          person.registration && person.registration |> WcaLive.Wcif.Type.to_wcif(),
-        "assignments" => person.assignments |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1),
-        "personalBests" => person.personal_bests |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1)
-      }
-    end
-  end
-
   def competitor?(%Person{registration: %{status: "accepted"}}), do: true
   def competitor?(%Person{registration: %{status: _other}}), do: false
 end

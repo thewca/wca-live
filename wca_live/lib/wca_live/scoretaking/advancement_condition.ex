@@ -18,13 +18,4 @@ defmodule WcaLive.Scoretaking.AdvancementCondition do
     |> validate_required(@required_fields)
     |> validate_inclusion(:type, ["ranking", "percent", "attemptResult"])
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(advancement_condition) do
-      %{
-        "type" => advancement_condition.type,
-        "level" => advancement_condition.level
-      }
-    end
-  end
 end

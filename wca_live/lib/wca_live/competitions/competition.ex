@@ -46,25 +46,6 @@ defmodule WcaLive.Competitions.Competition do
     |> unique_constraint(:wca_id)
   end
 
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(competition) do
-      %{
-        "formatVersion" => "1.0",
-        "id" => competition.wca_id,
-        "name" => competition.name,
-        "shortName" => competition.short_name,
-        "persons" => competition.people |> Enum.map(&Wcif.Type.to_wcif/1),
-        "events" => competition.competition_events |> Enum.map(&Wcif.Type.to_wcif/1),
-        "schedule" => %{
-          "startDate" => competition.start_date |> Date.to_iso8601(),
-          "numberOfDays" => Date.diff(competition.end_date, competition.start_date),
-          "venues" => competition.venues |> Enum.map(&Wcif.Type.to_wcif/1)
-        },
-        "competitorLimit" => competition.competitor_limit
-      }
-    end
-  end
-
   def find_activity_by_wcif_id!(competition, wcif_id) do
     case find_activity_by_wcif_id(competition, wcif_id) do
       nil -> raise ArgumentError, message: "Activity with WCIF id \"#{wcif_id}\" not found."

@@ -32,17 +32,4 @@ defmodule WcaLive.Competitions.PersonalBest do
     |> validate_required(@required_fields)
     |> validate_inclusion(:type, ["single", "average"])
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(personal_best) do
-      %{
-        "eventId" => personal_best.event_id,
-        "type" => personal_best.type,
-        "best" => personal_best.best,
-        "worldRanking" => personal_best.world_ranking,
-        "continentalRanking" => personal_best.continental_ranking,
-        "nationalRanking" => personal_best.national_ranking
-      }
-    end
-  end
 end

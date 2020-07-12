@@ -17,13 +17,4 @@ defmodule WcaLive.Scoretaking.Cutoff do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(cutoff) do
-      %{
-        "attemptResult" => cutoff.attempt_result,
-        "numberOfAttempts" => cutoff.number_of_attempts
-      }
-    end
-  end
 end

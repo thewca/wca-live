@@ -17,13 +17,4 @@ defmodule WcaLive.Scoretaking.Attempt do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(attempt) do
-      %{
-        "result" => attempt.result,
-        "reconstruction" => attempt.reconstruction
-      }
-    end
-  end
 end

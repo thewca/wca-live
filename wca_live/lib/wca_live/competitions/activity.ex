@@ -28,18 +28,4 @@ defmodule WcaLive.Competitions.Activity do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(activity) do
-      %{
-        "id" => activity.wcif_id,
-        "name" => activity.name,
-        "activityCode" => activity.activity_code,
-        "startTime" => activity.start_time |> DateTime.to_iso8601(),
-        "endTime" => activity.end_time |> DateTime.to_iso8601(),
-        "childActivities" => activity.activities |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1)
-        # "scrambleSetId" => nil # ignored for now
-      }
-    end
-  end
 end

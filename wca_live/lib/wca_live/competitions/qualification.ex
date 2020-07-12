@@ -19,14 +19,4 @@ defmodule WcaLive.Competitions.Qualification do
     |> validate_required(@required_fields)
     |> validate_inclusion(:type, ["single", "average"])
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(qualification) do
-      %{
-        "type" => qualification.type,
-        "when" => qualification.when |> DateTime.to_iso8601(),
-        "attemptResult" => qualification.attempt_result
-      }
-    end
-  end
 end

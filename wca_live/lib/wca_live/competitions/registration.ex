@@ -24,16 +24,4 @@ defmodule WcaLive.Competitions.Registration do
     |> validate_required(@required_fields)
     |> validate_inclusion(:status, ["accepted", "pending", "deleted"])
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(registration) do
-      %{
-        "wcaRegistrationId" => registration.wca_registration_id,
-        "eventIds" => registration.event_ids,
-        "status" => registration.status,
-        "guests" => registration.guests,
-        "comments" => registration.comments
-      }
-    end
-  end
 end

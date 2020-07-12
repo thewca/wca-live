@@ -24,17 +24,4 @@ defmodule WcaLive.Competitions.CompetitionEvent do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
-
-  defimpl WcaLive.Wcif.Type do
-    def to_wcif(competition_event) do
-      %{
-        "id" => competition_event.event_id,
-        "competitorLimit" => competition_event.competitor_limit,
-        "qualification" =>
-          competition_event.qualification &&
-            competition_event.qualification |> WcaLive.Wcif.Type.to_wcif(),
-        "rounds" => competition_event.rounds |> Enum.map(&WcaLive.Wcif.Type.to_wcif/1)
-      }
-    end
-  end
 end
