@@ -3,7 +3,7 @@ defmodule WcaLive.Scoretaking do
   alias Ecto.{Changeset, Multi}
   alias WcaLive.Repo
 
-  alias WcaLive.Competitions.Person
+  alias WcaLive.Competitions.{Person, Registration}
   alias WcaLive.Wca
   alias WcaLive.Wca.{Country, Format, Event}
   alias WcaLive.Scoretaking.{AdvancementCondition, AttemptResult, Result, Round}
@@ -389,23 +389,20 @@ defmodule WcaLive.Scoretaking do
   end
 
   defp person_ids_for_round(round, previous) do
-    %{event_id: event_id} = round |> Ecto.assoc(:competition_event) |> Repo.one!()
-
     if previous do
       previous.results
       |> Enum.filter(& &1.advancing)
       |> Enum.map(& &1.person_id)
     else
-      people =
+      registrations =
         round
-        |> Ecto.assoc([:competition_event, :competition, :people])
+        |> Ecto.assoc([:competition_event, :registrations])
         |> Repo.all()
-        |> Repo.preload(:registration)
+        |> Repo.preload(:competition_events)
 
-      people
-      |> Enum.filter(&Person.competitor?/1)
-      |> Enum.filter(fn person -> event_id in person.registration.event_ids end)
-      |> Enum.map(& &1.id)
+      registrations
+      |> Enum.filter(&Registration.accepted?/1)
+      |> Enum.map(& &1.person_id)
     end
   end
 

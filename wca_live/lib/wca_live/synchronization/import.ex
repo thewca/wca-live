@@ -12,6 +12,7 @@ defmodule WcaLive.Synchronization.Import do
     CompetitionEvent,
     Person,
     PersonalBest,
+    Registration,
     Room,
     Venue
   }
@@ -33,7 +34,7 @@ defmodule WcaLive.Synchronization.Import do
     |> Repo.transaction()
     |> case do
       {:ok, %{update_people: competition}} -> {:ok, competition}
-      {:error, _, _, _} -> {:error, "import failed"}
+      {:error, _, reason, _} -> {:error, reason}
     end
   end
 
@@ -71,8 +72,9 @@ defmodule WcaLive.Synchronization.Import do
   defp competition_people_changeset(competition, wcif) do
     competition
     |> Repo.preload(
+      competition_events: [],
       venues: [rooms: [activities: [:activities]]],
-      people: [:registration, :personal_bests, [assignments: [:activity]]]
+      people: [personal_bests: [], registration: :competition_events, assignments: [:activity]]
     )
     |> change()
     |> build_assoc_changesets(
@@ -242,10 +244,13 @@ defmodule WcaLive.Synchronization.Import do
       email: wcif_person["email"],
       avatar_url: wcif_person["avatar"]["url"],
       avatar_thumb_url: wcif_person["avatar"]["thumbUrl"],
-      roles: wcif_person["roles"],
-      registration: wcif_person["registration"] |> wcif_registration_to_attrs()
+      roles: wcif_person["roles"]
     })
-    |> cast_assoc(:registration)
+    |> build_assoc_changeset(
+      :registration,
+      wcif_person["registration"],
+      &registration_changeset(&1, &2, competition)
+    )
     |> build_assoc_changesets(
       :personal_bests,
       wcif_person["personalBests"],
@@ -266,16 +271,20 @@ defmodule WcaLive.Synchronization.Import do
     )
   end
 
-  defp wcif_registration_to_attrs(nil), do: nil
+  defp registration_changeset(_registration, nil = _wcif_registration, _competition), do: nil
 
-  defp wcif_registration_to_attrs(wcif_registration) do
-    %{
+  defp registration_changeset(registration, wcif_registration, competition) do
+    competition_events =
+      Enum.filter(competition.competition_events, &(&1.event_id in wcif_registration["eventIds"]))
+
+    registration
+    |> Registration.changeset(%{
       wca_registration_id: wcif_registration["wcaRegistrationId"],
       status: wcif_registration["status"],
-      event_ids: wcif_registration["eventIds"],
       guests: wcif_registration["guests"],
       comments: wcif_registration["comments"]
-    }
+    })
+    |> put_assoc(:competition_events, competition_events)
   end
 
   defp personal_best_changeset(personal_best, wcif_personal_best, _competition) do
@@ -311,6 +320,16 @@ defmodule WcaLive.Synchronization.Import do
         Enum.find(structs, default, &compare.(&1, params))
         |> build_changeset.(params)
       end)
+
+    put_assoc(changeset, name, assoc)
+  end
+
+  defp build_assoc_changeset(changeset, name, params, build_changeset) do
+    built? = Ecto.get_meta(changeset.data, :state) == :built
+    default = Ecto.build_assoc(changeset.data, name)
+    struct = if built?, do: default, else: Map.get(changeset.data, name)
+
+    assoc = build_changeset.(struct, params)
 
     put_assoc(changeset, name, assoc)
   end

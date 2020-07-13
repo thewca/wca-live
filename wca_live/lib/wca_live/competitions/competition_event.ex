@@ -2,7 +2,7 @@ defmodule WcaLive.Competitions.CompetitionEvent do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Competition, Qualification}
+  alias WcaLive.Competitions.{Competition, Qualification, Registration}
   alias WcaLive.Scoretaking.Round
 
   @required_fields [:event_id]
@@ -16,6 +16,7 @@ defmodule WcaLive.Competitions.CompetitionEvent do
 
     belongs_to :competition, Competition
     has_many :rounds, Round, on_replace: :delete
+    many_to_many :registrations, Registration, join_through: "registration_competition_events"
   end
 
   @doc false

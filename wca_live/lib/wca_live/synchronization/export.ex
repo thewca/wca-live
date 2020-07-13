@@ -13,7 +13,7 @@ defmodule WcaLive.Synchronization.Export do
     |> Repo.preload(
       competition_events: [rounds: [:competition_event, results: [:person]]],
       venues: [rooms: [activities: [:round, [activities: [:round, [activities: [:round]]]]]]],
-      people: [:registration, :personal_bests, [assignments: [:activity]]]
+      people: [:personal_bests, registration: :competition_events, assignments: [:activity]]
     )
   end
 
@@ -60,7 +60,7 @@ defmodule WcaLive.Synchronization.Export do
   def registration_to_wcif(registration) do
     %{
       "wcaRegistrationId" => registration.wca_registration_id,
-      "eventIds" => registration.event_ids,
+      "eventIds" => registration.competition_events |> Enum.map(& &1.event_id),
       "status" => registration.status,
       "guests" => registration.guests,
       "comments" => registration.comments
