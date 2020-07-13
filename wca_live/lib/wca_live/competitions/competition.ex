@@ -13,8 +13,7 @@ defmodule WcaLive.Competitions.Competition do
     :end_date,
     :start_date,
     :end_time,
-    :start_time,
-    :synchronized_at
+    :start_time
   ]
   @optional_fields [:competitor_limit, :encrypted_password]
 

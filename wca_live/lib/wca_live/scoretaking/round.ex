@@ -26,6 +26,9 @@ defmodule WcaLive.Scoretaking.Round do
   def changeset(round, attrs) do
     round
     |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast_embed(:time_limit)
+    |> cast_embed(:cutoff)
+    |> cast_embed(:advancement_condition)
     |> validate_required(@required_fields)
   end
 

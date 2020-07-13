@@ -22,6 +22,7 @@ defmodule WcaLive.Competitions.CompetitionEvent do
   def changeset(competition_event, attrs) do
     competition_event
     |> cast(attrs, @required_fields ++ @optional_fields)
+    |> cast_embed(:qualification)
     |> validate_required(@required_fields)
   end
 end

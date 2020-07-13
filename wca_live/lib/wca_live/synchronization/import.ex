@@ -21,18 +21,18 @@ defmodule WcaLive.Synchronization.Import do
   def import_competition(competition, wcif) do
     Multi.new()
     |> Multi.insert_or_update(:competition, competition_changeset(competition, wcif))
-    |> Multi.update(:with_events, fn %{competition: competition} ->
+    |> Multi.update(:update_events, fn %{competition: competition} ->
       competition_events_changeset(competition, wcif)
     end)
-    |> Multi.update(:with_schedule, fn %{with_events: competition} ->
+    |> Multi.update(:update_schedule, fn %{update_events: competition} ->
       competition_schedule_changeset(competition, wcif)
     end)
-    |> Multi.update(:with_people, fn %{with_schedule: competition} ->
+    |> Multi.update(:update_people, fn %{update_schedule: competition} ->
       competition_people_changeset(competition, wcif)
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{with_people: competition}} -> {:ok, competition}
+      {:ok, %{update_people: competition}} -> {:ok, competition}
       {:error, _, _, _} -> {:error, "import failed"}
     end
   end
@@ -95,9 +95,9 @@ defmodule WcaLive.Synchronization.Import do
       start_date: Wcif.Utils.start_date(wcif),
       end_date: Wcif.Utils.end_date(wcif),
       start_time: Wcif.Utils.first_activity_start_time(wcif),
-      end_time: Wcif.Utils.last_activity_end_time(wcif),
-      synchronized_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      end_time: Wcif.Utils.last_activity_end_time(wcif)
     })
+    |> put_change(:synchronized_at, DateTime.utc_now() |> DateTime.truncate(:second))
   end
 
   defp competition_event_changeset(competition_event, wcif_event, competition) do
@@ -107,7 +107,6 @@ defmodule WcaLive.Synchronization.Import do
       competitor_limit: wcif_event["competitorLimit"],
       qualification: wcif_event["qualification"] |> wcif_qualification_to_attrs()
     })
-    |> cast_embed(:qualification)
     |> build_assoc_changesets(
       :rounds,
       wcif_event["rounds"],
@@ -140,9 +139,6 @@ defmodule WcaLive.Synchronization.Import do
         wcif_round["advancementCondition"] |> wcif_advancement_condition_to_attrs(),
       scramble_set_count: wcif_round["scrambleSetCount"]
     })
-    |> cast_embed(:time_limit)
-    |> cast_embed(:cutoff)
-    |> cast_embed(:advancement_condition)
   end
 
   defp wcif_time_limit_to_attrs(nil), do: nil
