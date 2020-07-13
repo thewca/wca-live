@@ -17,7 +17,7 @@ defmodule WcaLive.Synchronization.Export do
     )
   end
 
-  def competition_to_wcif(competition) do
+  defp competition_to_wcif(competition) do
     %{
       "formatVersion" => "1.0",
       "id" => competition.wca_id,
@@ -34,7 +34,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def person_to_wcif(person) do
+  defp person_to_wcif(person) do
     %{
       "registrantId" => person.registrant_id,
       "name" => person.name,
@@ -57,7 +57,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def registration_to_wcif(registration) do
+  defp registration_to_wcif(registration) do
     %{
       "wcaRegistrationId" => registration.wca_registration_id,
       "eventIds" => registration.competition_events |> Enum.map(& &1.event_id),
@@ -67,7 +67,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def assignment_to_wcif(assignment) do
+  defp assignment_to_wcif(assignment) do
     %{
       "activityId" => assignment.activity.wcif_id,
       "assignmentCode" => assignment.assignment_code,
@@ -75,7 +75,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def personal_best_to_wcif(personal_best) do
+  defp personal_best_to_wcif(personal_best) do
     %{
       "eventId" => personal_best.event_id,
       "type" => personal_best.type,
@@ -86,7 +86,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def competition_event_to_wcif(competition_event) do
+  defp competition_event_to_wcif(competition_event) do
     %{
       "id" => competition_event.event_id,
       "competitorLimit" => competition_event.competitor_limit,
@@ -97,7 +97,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def qualification_to_wcif(qualification) do
+  defp qualification_to_wcif(qualification) do
     %{
       "type" => qualification.type,
       "when" => qualification.when |> DateTime.to_iso8601(),
@@ -105,7 +105,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def round_to_wcif(round) do
+  defp round_to_wcif(round) do
     %{
       "id" => round_wcif_id(round),
       "format" => round.format_id,
@@ -128,28 +128,28 @@ defmodule WcaLive.Synchronization.Export do
     |> to_string()
   end
 
-  def time_limit_to_wcif(time_limit) do
+  defp time_limit_to_wcif(time_limit) do
     %{
       "centiseconds" => time_limit.centiseconds,
       "cumulativeRoundIds" => time_limit.cumulative_round_wcif_ids
     }
   end
 
-  def cutoff_to_wcif(cutoff) do
+  defp cutoff_to_wcif(cutoff) do
     %{
       "attemptResult" => cutoff.attempt_result,
       "numberOfAttempts" => cutoff.number_of_attempts
     }
   end
 
-  def advancement_condition_to_wcif(advancement_condition) do
+  defp advancement_condition_to_wcif(advancement_condition) do
     %{
       "type" => advancement_condition.type,
       "level" => advancement_condition.level
     }
   end
 
-  def result_to_wcif(result) do
+  defp result_to_wcif(result) do
     %{
       "personId" => result.person.registrant_id,
       "ranking" => result.ranking,
@@ -159,14 +159,14 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def attempt_to_wcif(attempt) do
+  defp attempt_to_wcif(attempt) do
     %{
       "result" => attempt.result,
       "reconstruction" => attempt.reconstruction
     }
   end
 
-  def venue_to_wcif(venue) do
+  defp venue_to_wcif(venue) do
     %{
       "id" => venue.wcif_id,
       "name" => venue.name,
@@ -178,7 +178,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def room_to_wcif(room) do
+  defp room_to_wcif(room) do
     %{
       "id" => room.wcif_id,
       "name" => room.name,
@@ -187,7 +187,7 @@ defmodule WcaLive.Synchronization.Export do
     }
   end
 
-  def activity_to_wcif(activity) do
+  defp activity_to_wcif(activity) do
     %{
       "id" => activity.wcif_id,
       "name" => activity.name,

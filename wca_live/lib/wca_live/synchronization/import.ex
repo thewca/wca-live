@@ -17,7 +17,7 @@ defmodule WcaLive.Synchronization.Import do
     Venue
   }
 
-  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Scoretaking.{Round, Result}
 
   def import_competition(competition, wcif) do
     Multi.new()
@@ -38,9 +38,20 @@ defmodule WcaLive.Synchronization.Import do
     end
   end
 
+  # Note: the top-level functions preload associations for efficiency reasons,
+  # but the specific changeset functions still make calls to `Repo.preload/1`.
+  # That's because those functions may receive a newly build struct
+  # with associations being NotLoaded, in which case calling `preload`
+  # sets an empty list as expected. The key fact is that `preload`
+  # doesn't trigger any queries if the data is already preloaded
+  # and that's why we preload everything in the top-level functions.
+
   defp competition_events_changeset(competition, wcif) do
+    competition =
+      competition
+      |> Repo.preload(competition_events: [:rounds])
+
     competition
-    |> Repo.preload(competition_events: [:rounds])
     |> change()
     |> build_assoc_changesets(
       :competition_events,
@@ -53,11 +64,14 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp competition_schedule_changeset(competition, wcif) do
+    competition =
+      competition
+      |> Repo.preload(
+        competition_events: [:rounds],
+        venues: [rooms: [activities: [:round, activities: [:round, activities: [:round]]]]]
+      )
+
     competition
-    |> Repo.preload(
-      competition_events: [:rounds],
-      venues: [rooms: [activities: [:round, [activities: [:round, [activities: [:round]]]]]]]
-    )
     |> change()
     |> build_assoc_changesets(
       :venues,
@@ -70,12 +84,20 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp competition_people_changeset(competition, wcif) do
+    competition =
+      competition
+      |> Repo.preload(
+        competition_events: [rounds: [:results]],
+        venues: [rooms: [activities: [:activities]]],
+        people: [
+          :results,
+          :personal_bests,
+          registration: [:competition_events],
+          assignments: [:activity]
+        ]
+      )
+
     competition
-    |> Repo.preload(
-      competition_events: [],
-      venues: [rooms: [activities: [:activities]]],
-      people: [personal_bests: [], registration: :competition_events, assignments: [:activity]]
-    )
     |> change()
     |> build_assoc_changesets(
       :people,
@@ -103,6 +125,8 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp competition_event_changeset(competition_event, wcif_event, competition) do
+    competition_event = competition_event |> Repo.preload(:rounds)
+
     competition_event
     |> CompetitionEvent.changeset(%{
       event_id: wcif_event["id"],
@@ -171,6 +195,8 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp venue_changeset(venue, wcif_venue, competition) do
+    venue = venue |> Repo.preload(:rooms)
+
     venue
     |> Venue.changeset(%{
       wcif_id: wcif_venue["id"],
@@ -191,6 +217,8 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp room_changeset(room, wcif_room, competition) do
+    room = room |> Repo.preload(:activities)
+
     room
     |> Room.changeset(%{
       wcif_id: wcif_room["id"],
@@ -208,6 +236,8 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp activity_changeset(activity, wcif_activity, competition) do
+    activity = activity |> Repo.preload(:activities)
+
     round = Competition.find_round_by_activity_code(competition, wcif_activity["activityCode"])
 
     activity
@@ -230,7 +260,7 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp person_changeset(person, wcif_person, competition) do
-    # TODO: add/remove person from first rounds when registration events change.
+    person = person |> Repo.preload([:results, :registration, :personal_bests, :assignments])
 
     person
     |> Person.changeset(%{
@@ -269,11 +299,14 @@ defmodule WcaLive.Synchronization.Import do
           assignment.assignment_code == wcif_assignment["assignmentCode"]
       end
     )
+    |> put_assoc(:results, person_results(person, wcif_person, competition))
   end
 
   defp registration_changeset(_registration, nil = _wcif_registration, _competition), do: nil
 
   defp registration_changeset(registration, wcif_registration, competition) do
+    registration = registration |> Repo.preload(:competition_events)
+
     competition_events =
       Enum.filter(competition.competition_events, &(&1.event_id in wcif_registration["eventIds"]))
 
@@ -310,14 +343,52 @@ defmodule WcaLive.Synchronization.Import do
     |> put_assoc(:activity, activity)
   end
 
-  defp build_assoc_changesets(changeset, name, params_list, build_changeset, compare) do
-    built? = Ecto.get_meta(changeset.data, :state) == :built
-    structs = if built?, do: [], else: Map.get(changeset.data, name)
+  # Checks for new registration events and adds builds empty results,
+  # if the corresponding first round is already open, but not finished.
+  defp person_results(person, wcif_person, competition) do
+    current_event_ids = accepted_person_event_ids(person)
+    updated_event_ids = accepted_wcif_person_event_ids(wcif_person)
+
+    new_event_ids = updated_event_ids -- current_event_ids
+
+    new_results =
+      competition.competition_events
+      |> Enum.filter(&(&1.event_id in new_event_ids))
+      |> Enum.map(fn competition_event ->
+        Enum.find(competition_event.rounds, &(&1.number == 1))
+      end)
+      |> Enum.filter(fn round -> Round.open?(round) and not Round.finished?(round) end)
+      |> Enum.filter(fn round ->
+        not Enum.any?(person.results, fn result -> result.round_id == round.id end)
+      end)
+      |> Enum.map(&Result.empty_result(round: &1))
+
+    new_results ++ person.results
+  end
+
+  defp accepted_person_event_ids(%Person{registration: %{status: "accepted"}} = person) do
+    Enum.map(person.registration.competition_events, & &1.event_id)
+  end
+
+  defp accepted_person_event_ids(%Person{}), do: []
+
+  defp accepted_wcif_person_event_ids(
+         %{"registration" => %{"status" => "accepted"}} = wcif_person
+       ) do
+    wcif_person["registration"]["eventIds"]
+  end
+
+  defp accepted_wcif_person_event_ids(_wcif_person), do: []
+
+  # Utils
+
+  defp build_assoc_changesets(changeset, name, params_list, build_changeset, equality) do
+    structs = Map.get(changeset.data, name)
     default = Ecto.build_assoc(changeset.data, name)
 
     assoc =
       Enum.map(params_list, fn params ->
-        Enum.find(structs, default, &compare.(&1, params))
+        Enum.find(structs, default, &equality.(&1, params))
         |> build_changeset.(params)
       end)
 
@@ -325,9 +396,8 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp build_assoc_changeset(changeset, name, params, build_changeset) do
-    built? = Ecto.get_meta(changeset.data, :state) == :built
     default = Ecto.build_assoc(changeset.data, name)
-    struct = if built?, do: default, else: Map.get(changeset.data, name)
+    struct = Map.get(changeset.data, name) || default
 
     assoc = build_changeset.(struct, params)
 

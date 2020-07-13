@@ -35,7 +35,7 @@ defmodule WcaLive.Competitions.Person do
     has_one :registration, Registration, on_replace: :update
     has_many :personal_bests, PersonalBest, on_replace: :delete
     has_many :assignments, Assignment, on_replace: :delete
-    has_many :results, Result
+    has_many :results, Result, on_replace: :delete
   end
 
   @doc false

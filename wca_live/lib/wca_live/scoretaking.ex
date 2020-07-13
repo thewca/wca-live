@@ -376,7 +376,7 @@ defmodule WcaLive.Scoretaking do
   defp create_empty_results(round, previous) do
     empty_results =
       person_ids_for_round(round, previous)
-      |> Enum.map(&empty_result(person_id: &1))
+      |> Enum.map(&Result.empty_result(person_id: &1))
 
     if Enum.empty?(empty_results) do
       {:error,
@@ -398,16 +398,11 @@ defmodule WcaLive.Scoretaking do
         round
         |> Ecto.assoc([:competition_event, :registrations])
         |> Repo.all()
-        |> Repo.preload(:competition_events)
 
       registrations
       |> Enum.filter(&Registration.accepted?/1)
       |> Enum.map(& &1.person_id)
     end
-  end
-
-  def empty_result(attrs \\ []) do
-    Changeset.change(%Result{}, attrs)
   end
 
   def clear_round(round) do
@@ -669,7 +664,7 @@ defmodule WcaLive.Scoretaking do
       if not qualifies? do
         {:error, "cannot add person as they don't qualify"}
       else
-        new_result = empty_result(person: person)
+        new_result = Result.empty_result(person: person)
 
         results =
           Enum.reject(round.results, fn result ->
@@ -695,7 +690,7 @@ defmodule WcaLive.Scoretaking do
 
       new_results =
         if replace do
-          Enum.map(substitutes, &empty_result(person: &1))
+          Enum.map(substitutes, &Result.empty_result(person: &1))
         else
           []
         end

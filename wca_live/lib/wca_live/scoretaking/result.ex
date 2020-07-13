@@ -3,7 +3,7 @@ defmodule WcaLive.Scoretaking.Result do
   import Ecto.Changeset
 
   alias WcaLive.Competitions.Person
-  alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult}
+  alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult, Result}
 
   @required_fields []
   @optional_fields []
@@ -32,6 +32,10 @@ defmodule WcaLive.Scoretaking.Result do
     |> compute_best_and_average(event_id, number_of_attempts)
     |> validate_required(@required_fields)
     |> validate_no_trailing_skipped()
+  end
+
+  def empty_result(attrs \\ []) do
+    change(%Result{}, attrs)
   end
 
   defp validate_no_trailing_skipped(changeset) do
