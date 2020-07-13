@@ -159,8 +159,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
       resolve &Resolvers.Scoretaking.clear_round/3
     end
 
-    # TODO: what type to return
-    field :update_result, non_null(:result) do
+    field :update_result, non_null(:round) do
       arg :id, non_null(:id)
       arg :input, non_null(:result_input)
       resolve &Resolvers.Scoretaking.update_result/3

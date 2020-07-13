@@ -55,7 +55,7 @@ defmodule WcaLive.Scoretaking do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, _} -> {:ok, Repo.get!(Result, result.id)}
+      {:ok, _} -> {:ok, get_round!(result.round_id)}
       {:error, _, reason, _} -> {:error, reason}
     end
   end
