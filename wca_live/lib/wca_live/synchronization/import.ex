@@ -1,8 +1,9 @@
 defmodule WcaLive.Synchronization.Import do
-  alias WcaLive.Repo
-  alias Ecto.Multi
+  import Ecto.Query, warn: false
   import Ecto.Changeset
 
+  alias WcaLive.Repo
+  alias Ecto.Multi
   alias WcaLive.Wcif
 
   alias WcaLive.Competitions.{
@@ -14,14 +15,19 @@ defmodule WcaLive.Synchronization.Import do
     PersonalBest,
     Registration,
     Room,
+    StaffMember,
     Venue
   }
 
   alias WcaLive.Scoretaking.{Round, Result}
+  alias WcaLive.Accounts.User
 
   def import_competition(competition, wcif) do
     Multi.new()
     |> Multi.insert_or_update(:competition, competition_changeset(competition, wcif))
+    |> Multi.update(:update_managers, fn %{competition: competition} ->
+      competition_staff_members_changeset(competition, wcif)
+    end)
     |> Multi.update(:update_events, fn %{competition: competition} ->
       competition_events_changeset(competition, wcif)
     end)
@@ -36,6 +42,115 @@ defmodule WcaLive.Synchronization.Import do
       {:ok, %{update_people: competition}} -> {:ok, competition}
       {:error, _, reason, _} -> {:error, reason}
     end
+  end
+
+  # TODO: document this diffing approach right away, refactor (?)
+  # Wording node: _wids <=> _wca_user_ids
+  defp competition_staff_members_changeset(competition, wcif) do
+    competition = competition |> Repo.preload([:people, staff_members: :user])
+
+    wcif_staff_members = Enum.filter(wcif["persons"], &any_staff_role?(&1["roles"]))
+
+    new_wcif_staff_wuids =
+      wcif_staff_members
+      |> Enum.map(& &1["wcaUserId"])
+      |> MapSet.new()
+
+    old_wcif_staff_wuids =
+      competition.people
+      |> Enum.filter(&any_staff_role?(&1.roles))
+      |> Enum.map(& &1.wca_user_id)
+      |> MapSet.new()
+
+    staff_member_wuids =
+      competition.staff_members
+      |> Enum.map(& &1.user.wca_user_id)
+      |> MapSet.new()
+
+    added_staff_wuids =
+      MapSet.union(
+        MapSet.difference(staff_member_wuids, old_wcif_staff_wuids),
+        MapSet.difference(new_wcif_staff_wuids, old_wcif_staff_wuids)
+      )
+
+    unchanged_staff_wuids =
+      staff_member_wuids
+      |> MapSet.intersection(old_wcif_staff_wuids)
+      |> MapSet.intersection(new_wcif_staff_wuids)
+
+    final_staff_wuids = MapSet.union(unchanged_staff_wuids, added_staff_wuids) |> MapSet.to_list()
+
+    users = Repo.all(from u in User, where: u.wca_user_id in ^final_staff_wuids)
+
+    staff_members =
+      Enum.map(final_staff_wuids, fn staff_wca_user_id ->
+        wcif_person = Enum.find(wcif["persons"], &(&1["wcaUserId"] == staff_wca_user_id))
+
+        person = Enum.find(competition.people, &(&1.wca_user_id == staff_wca_user_id))
+
+        staff_member =
+          Enum.find(
+            competition.staff_members,
+            %StaffMember{},
+            &(&1.user.wca_user_id == staff_wca_user_id)
+          )
+
+        new_user = wcif_person && wcif_person_to_user_changeset(wcif_person)
+        user = Enum.find(users, new_user, &(&1.wca_user_id == staff_wca_user_id))
+
+        new_wcif_roles =
+          if(wcif_person, do: wcif_person["roles"], else: []) |> staff_roles() |> MapSet.new()
+
+        old_new_wcif_roles =
+          if(person, do: person.roles, else: []) |> staff_roles() |> MapSet.new()
+
+        staff_member_roles = staff_member.roles |> staff_roles() |> MapSet.new()
+
+        added_roles =
+          MapSet.union(
+            MapSet.difference(staff_member_roles, old_new_wcif_roles),
+            MapSet.difference(new_wcif_roles, old_new_wcif_roles)
+          )
+
+        unchanged_roles =
+          staff_member_roles
+          |> MapSet.intersection(old_new_wcif_roles)
+          |> MapSet.intersection(new_wcif_roles)
+
+        roles = MapSet.union(unchanged_roles, added_roles) |> MapSet.to_list()
+
+        staff_member
+        |> StaffMember.changeset(%{roles: roles})
+        |> put_assoc(:user, user)
+      end)
+
+    competition
+    |> change()
+    |> put_assoc(:staff_members, staff_members)
+  end
+
+  # TODO: should come from StaffMember module
+  @staff_roles ["delegate", "organizer", "staff-dataentry"]
+
+  defp staff_role?(role), do: role in @staff_roles
+
+  defp any_staff_role?(roles) do
+    Enum.any?(roles, &staff_role?/1)
+  end
+
+  defp staff_roles(new_wcif_roles) do
+    Enum.filter(new_wcif_roles, &staff_role?/1)
+  end
+
+  defp wcif_person_to_user_changeset(wcif_person) do
+    User.changeset(%User{}, %{
+      wca_user_id: wcif_person["wcaUserId"],
+      name: wcif_person["name"],
+      wca_id: wcif_person["wcaId"],
+      country_iso2: wcif_person["countryIso2"],
+      avatar_url: wcif_person["avatar"]["url"],
+      avatar_thumb_url: wcif_person["avatar"]["thumbUrl"]
+    })
   end
 
   # Note: the top-level functions preload associations for efficiency reasons,
@@ -94,7 +209,8 @@ defmodule WcaLive.Synchronization.Import do
           :personal_bests,
           registration: [:competition_events],
           assignments: [:activity]
-        ]
+        ],
+        staff_members: [:user]
       )
 
     competition
@@ -274,7 +390,7 @@ defmodule WcaLive.Synchronization.Import do
       email: wcif_person["email"],
       avatar_url: wcif_person["avatar"]["url"],
       avatar_thumb_url: wcif_person["avatar"]["thumbUrl"],
-      roles: wcif_person["roles"]
+      roles: person_roles(person, wcif_person, competition)
     })
     |> build_assoc_changeset(
       :registration,
@@ -300,6 +416,21 @@ defmodule WcaLive.Synchronization.Import do
       end
     )
     |> put_assoc(:results, person_results(person, wcif_person, competition))
+  end
+
+  defp person_roles(_person, wcif_person, competition) do
+    # Staff roles should be synchronized at this point, so we take them.
+    staff_member_roles =
+      Enum.find_value(competition.staff_members, [], fn staff_member ->
+        if staff_member.user.wca_user_id == wcif_person["wcaUserId"] do
+          staff_member.roles
+        end
+      end)
+
+    # Copy any other roles that we don't store in staff members.
+    other_wcif_roles = Enum.reject(wcif_person["roles"], &staff_role?/1)
+
+    staff_member_roles ++ other_wcif_roles
   end
 
   defp registration_changeset(_registration, nil = _wcif_registration, _competition), do: nil

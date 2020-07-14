@@ -48,6 +48,7 @@ defmodule WcaLive.Scoretaking do
     |> Multi.update(:updated_result, fn _changes ->
       format = Format.get_by_id!(result.round.format_id)
       event_id = result.round.competition_event.event_id
+
       result
       |> Result.changeset(attrs, event_id, format.number_of_attempts)
       |> Changeset.put_change(:entered_by_id, user.id)

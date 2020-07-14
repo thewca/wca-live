@@ -18,6 +18,9 @@ defmodule WcaLive.Synchronization do
   end
 
   def synchronize_competition(competition) do
+    # Use oauth credentials of whoever imported the competition to do synchronization,
+    # because plain scoretakers don't have permissions to save WCIF to the WCA website,
+    # yet we still want them to be able to synchronize results.
     imported_by = competition |> Ecto.assoc(:imported_by) |> Repo.one!()
 
     with {:ok, access_token} <- Accounts.get_valid_access_token(imported_by),

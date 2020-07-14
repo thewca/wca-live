@@ -3,7 +3,7 @@ defmodule WcaLive.Competitions.Competition do
   import Ecto.Changeset
 
   alias WcaLive.Accounts.User
-  alias WcaLive.Competitions.{Competition, Venue, Person, CompetitionEvent, Activity}
+  alias WcaLive.Competitions.{Competition, Venue, Person, CompetitionEvent, Activity, StaffMember}
   alias WcaLive.Wcif
 
   @required_fields [
@@ -33,6 +33,8 @@ defmodule WcaLive.Competitions.Competition do
     has_many :competition_events, CompetitionEvent, on_replace: :delete
     has_many :venues, Venue, on_replace: :delete
     has_many :people, Person, on_replace: :delete
+
+    has_many :staff_members, StaffMember, on_replace: :delete
 
     timestamps()
   end
