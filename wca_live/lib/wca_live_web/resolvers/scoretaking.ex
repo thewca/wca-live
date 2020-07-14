@@ -69,9 +69,9 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
 
   # Results
 
-  def update_result(_parent, %{id: id, input: input}, _resolution) do
+  def update_result(_parent, %{id: id, input: input}, %{context: %{current_user: current_user}}) do
     result = Scoretaking.get_result!(id)
-    Scoretaking.update_result(result, input)
+    Scoretaking.update_result(result, input, current_user)
   end
 
   # Records

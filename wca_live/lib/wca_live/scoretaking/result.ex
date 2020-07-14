@@ -2,6 +2,7 @@ defmodule WcaLive.Scoretaking.Result do
   use WcaLive.Schema
   import Ecto.Changeset
 
+  alias WcaLive.Accounts.User
   alias WcaLive.Competitions.Person
   alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult, Result}
 
@@ -15,11 +16,13 @@ defmodule WcaLive.Scoretaking.Result do
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, :boolean, default: false
+    field :entered_at, :utc_datetime
 
     embeds_many :attempts, Attempt, on_replace: :delete
 
     belongs_to :person, Person
     belongs_to :round, Round
+    belongs_to :entered_by, User
 
     timestamps()
   end
