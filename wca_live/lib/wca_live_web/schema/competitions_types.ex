@@ -147,6 +147,20 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     end
   end
 
+  @desc "A virtual object representing a user being a part of competition staff."
+  object :staff_member do
+    field :id, non_null(:id)
+    field :roles, non_null(list_of(non_null(:string)))
+
+    field :user, non_null(:user) do
+      resolve dataloader(:db)
+    end
+
+    field :competition, non_null(:competition) do
+      resolve dataloader(:db)
+    end
+  end
+
   object :competitions_queries do
     field :competitions, non_null(list_of(non_null(:competition))) do
       resolve &Resolvers.Competitions.list_competitions/3

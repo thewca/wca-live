@@ -41,38 +41,75 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
     {:ok, Scoretaking.get_round(id)}
   end
 
-  def open_round(_parent, %{id: id}, _resolution) do
+  def open_round(_parent, %{id: id}, %{context: %{current_user: current_user}}) do
     round = Scoretaking.get_round!(id)
-    Scoretaking.open_round(round)
+
+    if Scoretaking.Access.can_manage_round?(current_user, round) do
+      Scoretaking.open_round(round)
+    else
+      {:error, "access denied"}
+    end
   end
 
-  def clear_round(_parent, %{id: id}, _resolution) do
+  def open_round(_parent, _args, _resolution), do: {:error, "not authenticated"}
+
+  def clear_round(_parent, %{id: id}, %{context: %{current_user: current_user}}) do
     round = Scoretaking.get_round!(id)
-    Scoretaking.clear_round(round)
+
+    if Scoretaking.Access.can_manage_round?(current_user, round) do
+      Scoretaking.clear_round(round)
+    else
+      {:error, "access denied"}
+    end
   end
 
-  def add_person_to_round(_parent, %{round_id: round_id, person_id: person_id}, _resolution) do
+  def clear_round(_parent, _args, _resolution), do: {:error, "not authenticated"}
+
+  def add_person_to_round(_parent, %{round_id: round_id, person_id: person_id}, %{
+        context: %{current_user: current_user}
+      }) do
     round = Scoretaking.get_round!(round_id)
     person = Competitions.get_person!(person_id)
-    Scoretaking.add_person_to_round(person, round)
+
+    if Scoretaking.Access.can_manage_round?(current_user, round) do
+      Scoretaking.add_person_to_round(person, round)
+    else
+      {:error, "access denied"}
+    end
   end
+
+  def add_person_to_round(_parent, _args, _resolution), do: {:error, "not authenticated"}
 
   def remove_person_from_round(
         _parent,
         %{round_id: round_id, person_id: person_id, replace: replace},
-        _resolution
+        %{context: %{current_user: current_user}}
       ) do
     round = Scoretaking.get_round!(round_id)
     person = Competitions.get_person!(person_id)
-    Scoretaking.remove_person_from_round(person, round, replace)
+
+    if Scoretaking.Access.can_manage_round?(current_user, round) do
+      Scoretaking.remove_person_from_round(person, round, replace)
+    else
+      {:error, "access denied"}
+    end
   end
+
+  def remove_person_from_round(_parent, _args, _resolution), do: {:error, "not authenticated"}
 
   # Results
 
   def update_result(_parent, %{id: id, input: input}, %{context: %{current_user: current_user}}) do
     result = Scoretaking.get_result!(id)
-    Scoretaking.update_result(result, input, current_user)
+
+    if Scoretaking.Access.can_manage_result?(current_user, result) do
+      Scoretaking.update_result(result, input, current_user)
+    else
+      {:error, "access denied"}
+    end
   end
+
+  def update_result(_parent, _args, _resolution), do: {:error, "not authenticated"}
 
   # Records
 

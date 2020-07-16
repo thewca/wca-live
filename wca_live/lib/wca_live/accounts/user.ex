@@ -3,6 +3,7 @@ defmodule WcaLive.Accounts.User do
   import Ecto.Changeset
 
   alias WcaLive.Accounts.AccessToken
+  alias WcaLive.Competitions.StaffMember
 
   @admin_teams ["wrt", "wst"]
 
@@ -19,6 +20,8 @@ defmodule WcaLive.Accounts.User do
     field :wca_teams, {:array, :string}, default: []
 
     has_one :access_token, AccessToken, on_replace: :update
+
+    has_many :staff_members, StaffMember
 
     timestamps()
   end

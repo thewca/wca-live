@@ -5,6 +5,7 @@ defmodule WcaLive.Competitions.StaffMember do
   alias WcaLive.Accounts.User
   alias WcaLive.Competitions.Competition
 
+  # TODO: remove/whatever
   # @allowed_roles ["delegate", "organizer", "scoretaker"]
   @allowed_roles ["delegate", "organizer", "staff-dataentry"]
 
@@ -24,5 +25,13 @@ defmodule WcaLive.Competitions.StaffMember do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_subset(:roles, @allowed_roles)
+  end
+
+  def manager?(staff_member) do
+    "delegate" in staff_member.roles or "organizer" in staff_member.roles
+  end
+
+  def scoretaker?(staff_member) do
+    "staff-dataentry" in staff_member.roles
   end
 end

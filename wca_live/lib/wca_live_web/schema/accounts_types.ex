@@ -1,6 +1,7 @@
 defmodule WcaLiveWeb.Schema.AccountsTypes do
   use Absinthe.Schema.Notation
 
+  import Absinthe.Resolution.Helpers
   alias WcaLiveWeb.Resolvers
 
   @desc "A user of the application, imported from the WCA website during the OAuth procedure."
@@ -16,6 +17,10 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
 
     field :importable_competitions, non_null(list_of(non_null(:competition_brief))) do
       resolve &Resolvers.Accounts.user_importable_competitions/3
+    end
+
+    field :staff_members, non_null(list_of(non_null(:staff_member))) do
+      resolve dataloader(:db)
     end
   end
 

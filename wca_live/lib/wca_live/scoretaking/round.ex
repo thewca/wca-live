@@ -19,6 +19,7 @@ defmodule WcaLive.Scoretaking.Round do
     embeds_one :time_limit, TimeLimit, on_replace: :update
 
     belongs_to :competition_event, CompetitionEvent
+    has_one :competition, through: [:competition_event, :competition]
     has_many :results, Result, on_replace: :delete
   end
 
