@@ -25,7 +25,7 @@ defmodule WcaLive.Synchronization.Import do
   def import_competition(competition, wcif) do
     Multi.new()
     |> Multi.insert_or_update(:competition, competition_changeset(competition, wcif))
-    |> Multi.update(:update_managers, fn %{competition: competition} ->
+    |> Multi.update(:update_staff_members, fn %{competition: competition} ->
       competition_staff_members_changeset(competition, wcif)
     end)
     |> Multi.update(:update_events, fn %{competition: competition} ->
@@ -44,12 +44,37 @@ defmodule WcaLive.Synchronization.Import do
     end
   end
 
-  # TODO: document this diffing approach right away, refactor (?)
-  # Wording node: _wids <=> _wca_user_ids
+  # Builds a changeset with updated competition staff members.
+  #
+  # WCIF carries some information about roles, but only for people in the WCIF (mostly competitors),
+  # whereas we want to allow adding any *user* as a staff member (e.g. a non-competing scoretaker).
+  # For this reason we define the StaffMember schema linking competition with relevant users
+  # that have some roles important from the app's point of view. It's an internal way of access management.
+  # Even though we have that separate schema, we want to do take WCIF role changes into consideration
+  # and also save any local StaffMember role changes back to the WCA website (whenever possible).
+  # This is a bit tricky, because roles may change both within the app and in the WCIF (by another tool),
+  # and we need to cleverly merge those changes.
+  #
+  # There are three sources of truth (roles):
+  #
+  # - WCIF Person#roles - roles in the new WCIF
+  # - Database Person#roles - roles in the old WCIF (from the last synchronization)
+  # - Database StaffMember#roles - roles managed by the application (storing a defined subset of roles)
+  #
+  # As the second source represents person roles from last synchronization, those may be considered
+  # as a base point from which WCIF roles and StaffMember roles diverged (like two branches).
+  # The synchronization algorithm takes roles common to all the sources
+  # and then adds roles added by either of those two "branches" (i.e. WCIF and local StaffMember).
+  # This approach also effectively removes the roles that were removed by either "branch".
+  #
+  # In the first step we use this approach to determine the new group of staff members
+  # and then for each of them we use the same approach to determine roles of the given staff member.
   defp competition_staff_members_changeset(competition, wcif) do
     competition = competition |> Repo.preload([:people, staff_members: :user])
 
     wcif_staff_members = Enum.filter(wcif["persons"], &any_staff_role?(&1["roles"]))
+
+    # To avoid longish names: `_wids` <=> `_wca_user_ids`.
 
     new_wcif_staff_wuids =
       wcif_staff_members
@@ -129,19 +154,17 @@ defmodule WcaLive.Synchronization.Import do
     |> put_assoc(:staff_members, staff_members)
   end
 
-  # TODO: should come from StaffMember module
-  @staff_roles ["delegate", "organizer", "staff-dataentry"]
-
-  defp staff_role?(role), do: role in @staff_roles
-
   defp any_staff_role?(roles) do
-    Enum.any?(roles, &staff_role?/1)
+    Enum.any?(roles, &StaffMember.valid_staff_role?/1)
   end
 
   defp staff_roles(new_wcif_roles) do
-    Enum.filter(new_wcif_roles, &staff_role?/1)
+    Enum.filter(new_wcif_roles, &StaffMember.valid_staff_role?/1)
   end
 
+  # Creates a new user changeset based on WCIF Person.
+  # The user has all the necessary information except for access token,
+  # which is created when the physical user signins in using OAuth.
   defp wcif_person_to_user_changeset(wcif_person) do
     User.changeset(%User{}, %{
       wca_user_id: wcif_person["wcaUserId"],
@@ -155,7 +178,7 @@ defmodule WcaLive.Synchronization.Import do
 
   # Note: the top-level functions preload associations for efficiency reasons,
   # but the specific changeset functions still make calls to `Repo.preload/1`.
-  # That's because those functions may receive a newly build struct
+  # That's because those functions may receive a newly built struct
   # with associations being NotLoaded, in which case calling `preload`
   # sets an empty list as expected. The key fact is that `preload`
   # doesn't trigger any queries if the data is already preloaded
@@ -428,7 +451,7 @@ defmodule WcaLive.Synchronization.Import do
       end)
 
     # Copy any other roles that we don't store in staff members.
-    other_wcif_roles = Enum.reject(wcif_person["roles"], &staff_role?/1)
+    other_wcif_roles = Enum.reject(wcif_person["roles"], &StaffMember.valid_staff_role?/1)
 
     staff_member_roles ++ other_wcif_roles
   end
