@@ -24,6 +24,19 @@ defmodule WcaLive.Wca.Api do
   end
 
   @doc """
+  Saves the given WCIF.
+  """
+  @spec patch_wcif(any(), String.t()) :: {:ok, any()} | {:error, any()}
+  def patch_wcif(wcif, access_token) do
+    competition_wca_id = wcif["id"]
+    body = Jason.encode!(wcif)
+
+    api_url("/competitions/#{competition_wca_id}/wcif")
+    |> HTTPoison.patch(body, headers(access_token: access_token))
+    |> parse_response()
+  end
+
+  @doc """
   Fetches upcoming competitions manageable by the authorized user.
   """
   @spec get_upcoming_manageable_competitions(String.t()) :: {:ok, any()} | {:error, any()}

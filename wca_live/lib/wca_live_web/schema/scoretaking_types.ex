@@ -65,7 +65,6 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
 
   object :time_limit do
     field :centiseconds, non_null(:integer)
-    # TODO: actual rounds (?)
     field :cumulative_round_wcif_ids, non_null(list_of(non_null(:integer)))
   end
 
@@ -105,7 +104,6 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
 
   @desc "A single attempt done by a competitor."
   object :attempt do
-    # TODO: is this the proper name though? ^^
     field :result, non_null(:integer)
     field :reconstruction, :string
   end

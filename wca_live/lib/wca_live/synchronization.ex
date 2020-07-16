@@ -24,11 +24,12 @@ defmodule WcaLive.Synchronization do
     imported_by = competition |> Ecto.assoc(:imported_by) |> Repo.one!()
 
     with {:ok, access_token} <- Accounts.get_valid_access_token(imported_by),
-         {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token) do
-      Synchronization.Import.import_competition(competition, wcif)
+         {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token),
+         {:ok, updated_competition} <- Synchronization.Import.import_competition(competition, wcif),
+         wcif <- Synchronization.Export.export_competition(updated_competition),
+         {:ok, _} <- Wca.Api.patch_wcif(wcif, access_token.access_token) do
+      {:ok, updated_competition}
     end
-
-    # TODO: save synchronized WCIF back to the WCA website (resutls part).
   end
 
   @spec get_importable_competition_briefs(%User{}) :: list(CompetitionBrief.t())
