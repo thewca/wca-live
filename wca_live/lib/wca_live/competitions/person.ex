@@ -1,6 +1,7 @@
 defmodule WcaLive.Competitions.Person do
   use WcaLive.Schema
   import Ecto.Changeset
+  import Ecto.Query, warn: false
 
   alias WcaLive.Competitions.{Competition, Registration, PersonalBest, Assignment, Person}
   alias WcaLive.Scoretaking.Result
@@ -49,4 +50,10 @@ defmodule WcaLive.Competitions.Person do
   def competitor?(%Person{registration: %{status: "accepted"}}), do: true
   def competitor?(%Person{registration: %{status: _other}}), do: false
   def competitor?(%Person{registration: nil}), do: false
+
+  def where_competitor(query) do
+    from p in query,
+      join: r in assoc(p, :registration),
+      where: r.status == "accepted"
+  end
 end

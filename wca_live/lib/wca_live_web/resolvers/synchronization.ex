@@ -11,6 +11,7 @@ defmodule WcaLiveWeb.Resolvers.Synchronization do
 
   def synchronize_competition(_parent, %{id: id}, %{context: %{current_user: current_user}}) do
     competition = Competitions.get_competition!(id)
+
     if Scoretaking.Access.can_scoretake_competition?(current_user, competition) do
       Synchronization.synchronize_competition(competition)
     else

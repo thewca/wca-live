@@ -25,7 +25,9 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
       resolve dataloader(:db)
     end
 
-    # TODO: competitors (only accepted?)
+    field :competitors, non_null(list_of(non_null(:person))) do
+      resolve dataloader(:db, :people, args: %{competitor: true})
+    end
   end
 
   @desc "A competition event."
@@ -38,7 +40,7 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     end
 
     field :rounds, non_null(list_of(non_null(:round))) do
-      resolve dataloader(:db)
+      resolve dataloader(:db, args: %{preload: :results})
     end
   end
 

@@ -25,7 +25,8 @@ defmodule WcaLive.Synchronization do
 
     with {:ok, access_token} <- Accounts.get_valid_access_token(imported_by),
          {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token),
-         {:ok, updated_competition} <- Synchronization.Import.import_competition(competition, wcif),
+         {:ok, updated_competition} <-
+           Synchronization.Import.import_competition(competition, wcif),
          wcif <- Synchronization.Export.export_competition(updated_competition),
          {:ok, _} <- Wca.Api.patch_wcif(wcif, access_token.access_token) do
       {:ok, updated_competition}

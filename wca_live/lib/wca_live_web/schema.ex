@@ -33,11 +33,16 @@ defmodule WcaLiveWeb.Schema do
     [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
   end
 
+  # TODO: where to place all of that?
+
   import Ecto.Query, warn: false
 
-  # TODO: figure out if there's a better option than always preloading that.
-  def query(WcaLive.Scoretaking.Round, _args) do
-    from p in WcaLive.Scoretaking.Round, preload: [:results]
+  def query(WcaLive.Competitions.Person, %{competitor: true}) do
+    WcaLive.Competitions.Person |> WcaLive.Competitions.Person.where_competitor()
+  end
+
+  def query(querable, %{preload: preload}) do
+    querable |> preload(^preload)
   end
 
   def query(querable, _args), do: querable
