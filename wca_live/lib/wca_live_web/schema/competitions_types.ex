@@ -40,7 +40,7 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     end
 
     field :rounds, non_null(list_of(non_null(:round))) do
-      resolve dataloader(:db, args: %{preload: :results})
+      resolve dataloader(:db)
     end
   end
 

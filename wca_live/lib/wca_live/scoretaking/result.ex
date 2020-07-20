@@ -37,8 +37,17 @@ defmodule WcaLive.Scoretaking.Result do
     |> validate_no_trailing_skipped()
   end
 
-  def empty_result(attrs \\ []) do
-    change(%Result{}, attrs)
+  defp compute_best_and_average(changeset, event_id, number_of_attempts) do
+    %{attempts: attempts} = apply_changes(changeset)
+
+    attempt_results =
+      attempts
+      |> Enum.map(& &1.result)
+      |> AttemptResult.pad_skipped(number_of_attempts)
+
+    changeset
+    |> put_change(:best, AttemptResult.best(attempt_results))
+    |> put_change(:average, AttemptResult.average(attempt_results, event_id))
   end
 
   defp validate_no_trailing_skipped(changeset) do
@@ -56,17 +65,8 @@ defmodule WcaLive.Scoretaking.Result do
     end
   end
 
-  defp compute_best_and_average(changeset, event_id, number_of_attempts) do
-    %{attempts: attempts} = apply_changes(changeset)
-
-    attempt_results =
-      attempts
-      |> Enum.map(& &1.result)
-      |> AttemptResult.pad_skipped(number_of_attempts)
-
-    changeset
-    |> put_change(:best, AttemptResult.best(attempt_results))
-    |> put_change(:average, AttemptResult.average(attempt_results, event_id))
+  def empty_result(attrs \\ []) do
+    change(%Result{}, attrs)
   end
 
   def meets_cutoff?(_result, nil), do: true

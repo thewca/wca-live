@@ -36,14 +36,14 @@ defmodule WcaLiveWeb.Schema do
 
   # TODO: where to place all of that?
 
-  import Ecto.Query, warn: false
+  require Ecto.Query
 
   def query(WcaLive.Competitions.Person, %{competitor: true}) do
     WcaLive.Competitions.Person |> WcaLive.Competitions.Person.where_competitor()
   end
 
-  def query(querable, %{preload: preload}) do
-    querable |> preload(^preload)
+  def query(WcaLive.Scoretaking.Round, _args) do
+    WcaLive.Scoretaking.Round |> Ecto.Query.preload(:results)
   end
 
   def query(querable, _args), do: querable
