@@ -11,6 +11,7 @@ defmodule WcaLiveWeb.Schema do
   query do
     import_fields :accounts_queries
     import_fields :competitions_queries
+    import_fields :synchronization_queries
     import_fields :scoretaking_queries
   end
 

@@ -12,6 +12,13 @@ defmodule WcaLiveWeb.Schema.SynchronizationTypes do
     field :end_date, non_null(:date)
   end
 
+  object :synchronization_queries do
+    @desc "A list of competitions that the current user may import from the WCA website."
+    field :importable_competitions, non_null(list_of(non_null(:competition_brief))) do
+      resolve &Resolvers.Synchronization.importable_competitions/3
+    end
+  end
+
   object :synchronization_mutations do
     field :import_competition, :competition do
       arg :wca_id, non_null(:string)

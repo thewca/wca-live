@@ -3,6 +3,10 @@ defmodule WcaLiveWeb.Resolvers.Synchronization do
   alias WcaLive.Synchronization
   alias WcaLive.Scoretaking
 
+  def importable_competitions(_parent, _args, %{context: %{current_user: current_user}}) do
+    {:ok, Synchronization.get_importable_competition_briefs(current_user)}
+  end
+
   def import_competition(_parent, %{wca_id: wca_id}, %{context: %{current_user: current_user}}) do
     Synchronization.import_competition(wca_id, current_user)
   end
