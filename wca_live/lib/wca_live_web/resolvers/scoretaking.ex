@@ -38,14 +38,17 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
   end
 
   def get_round(_parent, %{id: id}, _resolution) do
-    {:ok, Scoretaking.get_round(id)}
+    round = Scoretaking.get_round(id) |> Scoretaking.preload_results()
+    {:ok, round}
   end
 
   def open_round(_parent, %{id: id}, %{context: %{current_user: current_user}}) do
     round = Scoretaking.get_round!(id)
 
     if Scoretaking.Access.can_manage_round?(current_user, round) do
-      Scoretaking.open_round(round)
+      with {:ok, round} <- Scoretaking.open_round(round) do
+        {:ok, Scoretaking.preload_results(round)}
+      end
     else
       {:error, "access denied"}
     end
@@ -57,7 +60,9 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
     round = Scoretaking.get_round!(id)
 
     if Scoretaking.Access.can_manage_round?(current_user, round) do
-      Scoretaking.clear_round(round)
+      with {:ok, round} <- Scoretaking.clear_round(round) do
+        {:ok, Scoretaking.preload_results(round)}
+      end
     else
       {:error, "access denied"}
     end
@@ -72,7 +77,9 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
     person = Competitions.get_person!(person_id)
 
     if Scoretaking.Access.can_manage_round?(current_user, round) do
-      Scoretaking.add_person_to_round(person, round)
+      with {:ok, round} <- Scoretaking.add_person_to_round(person, round) do
+        {:ok, Scoretaking.preload_results(round)}
+      end
     else
       {:error, "access denied"}
     end
@@ -89,7 +96,9 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
     person = Competitions.get_person!(person_id)
 
     if Scoretaking.Access.can_manage_round?(current_user, round) do
-      Scoretaking.remove_person_from_round(person, round, replace)
+      with {:ok, round} <- Scoretaking.remove_person_from_round(person, round, replace) do
+        {:ok, Scoretaking.preload_results(round)}
+      end
     else
       {:error, "access denied"}
     end
@@ -103,7 +112,9 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
     result = Scoretaking.get_result!(id)
 
     if Scoretaking.Access.can_manage_result?(current_user, result) do
-      Scoretaking.update_result(result, input, current_user)
+      with {:ok, round} <- Scoretaking.update_result(result, input, current_user) do
+        {:ok, Scoretaking.preload_results(round)}
+      end
     else
       {:error, "access denied"}
     end

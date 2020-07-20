@@ -18,6 +18,8 @@ defmodule WcaLive.Scoretaking do
   """
   def get_round!(id), do: Repo.get!(Round, id)
 
+  def preload_results(round), do: Repo.preload(round, :results)
+
   def get_previous_round(round) do
     Repo.one(
       from r in Round,

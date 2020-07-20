@@ -13,7 +13,6 @@ defmodule WcaLiveWeb.Schema.SynchronizationTypes do
   end
 
   object :synchronization_mutations do
-    # TODO: more complex response with error fields (?)
     field :import_competition, :competition do
       arg :wca_id, non_null(:string)
       resolve &Resolvers.Synchronization.import_competition/3

@@ -84,7 +84,6 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :ranking, :integer
     field :best, :integer
     field :average, :integer
-    # TODO: maybe include tags in best/average
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, non_null(:boolean)
