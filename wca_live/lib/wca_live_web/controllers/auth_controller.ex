@@ -10,14 +10,13 @@ defmodule WcaLiveWeb.AuthController do
   end
 
   def callback(conn, %{"code" => code}) do
-    {:ok, token_attrs} = Wca.OAuth.get_token(code)
-    {:ok, data} = Wca.Api.get_me(token_attrs.access_token)
-    user_attrs = Accounts.User.wca_json_to_attrs(data["me"])
-
-    {:ok, user} = Accounts.import_user(user_attrs, token_attrs)
-
-    conn
-    |> put_session(:user_id, user.id)
-    |> redirect(to: "/")
+    with {:ok, token_attrs} <- Wca.OAuth.get_token(code),
+         {:ok, data} <- Wca.Api.get_me(token_attrs.access_token),
+         user_attrs <- Accounts.User.wca_json_to_attrs(data["me"]),
+         {:ok, user} <- Accounts.import_user(user_attrs, token_attrs) do
+      conn
+      |> put_session(:user_id, user.id)
+      |> redirect(to: "/")
+    end
   end
 end
