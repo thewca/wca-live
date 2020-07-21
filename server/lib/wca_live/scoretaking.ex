@@ -43,7 +43,7 @@ defmodule WcaLive.Scoretaking do
   """
   def get_result!(id), do: Repo.get!(Result, id)
 
-  def update_result(result, attrs, user) do
+  def enter_result_attempts(result, attempts, user) do
     result = Repo.preload(result, round: [:competition_event])
 
     Multi.new()
@@ -52,7 +52,7 @@ defmodule WcaLive.Scoretaking do
       event_id = result.round.competition_event.event_id
 
       result
-      |> Result.changeset(attrs, event_id, format.number_of_attempts)
+      |> Result.changeset(%{attempts: attempts}, event_id, format.number_of_attempts)
       |> Changeset.put_change(:entered_by_id, user.id)
       |> Changeset.put_change(:entered_at, DateTime.utc_now() |> DateTime.truncate(:second))
     end)
@@ -61,7 +61,7 @@ defmodule WcaLive.Scoretaking do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, _} -> {:ok, get_round!(result.round_id)}
+      {:ok, _} -> {:ok, get_result!(result.id)}
       {:error, _, reason, _} -> {:error, reason}
     end
   end

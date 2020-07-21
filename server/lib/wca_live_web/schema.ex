@@ -6,7 +6,10 @@ defmodule WcaLiveWeb.Schema do
   import_types WcaLiveWeb.Schema.AccountsTypes
   import_types WcaLiveWeb.Schema.CompetitionsTypes
   import_types WcaLiveWeb.Schema.SynchronizationTypes
+  import_types WcaLiveWeb.Schema.SynchronizationMutationTypes
   import_types WcaLiveWeb.Schema.ScoretakingTypes
+  import_types WcaLiveWeb.Schema.ScoretakingMutationTypes
+  import_types WcaLiveWeb.Schema.ScoretakingSubscriptionTypes
 
   query do
     import_fields :accounts_queries

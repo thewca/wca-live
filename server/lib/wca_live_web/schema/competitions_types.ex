@@ -4,6 +4,22 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
   import Absinthe.Resolution.Helpers
   alias WcaLiveWeb.Resolvers
 
+  object :competitions_queries do
+    field :competitions, non_null(list_of(non_null(:competition))) do
+      resolve &Resolvers.Competitions.list_competitions/3
+    end
+
+    field :competition, :competition do
+      arg :id, non_null(:id)
+      resolve &Resolvers.Competitions.get_competition/3
+    end
+
+    field :person, :person do
+      arg :id, non_null(:id)
+      resolve &Resolvers.Competitions.get_person/3
+    end
+  end
+
   @desc "A competition, imported from the WCA website."
   object :competition do
     field :id, non_null(:id)
@@ -160,22 +176,6 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :competition, non_null(:competition) do
       resolve dataloader(:db)
-    end
-  end
-
-  object :competitions_queries do
-    field :competitions, non_null(list_of(non_null(:competition))) do
-      resolve &Resolvers.Competitions.list_competitions/3
-    end
-
-    field :competition, :competition do
-      arg :id, non_null(:id)
-      resolve &Resolvers.Competitions.get_competition/3
-    end
-
-    field :person, :person do
-      arg :id, non_null(:id)
-      resolve &Resolvers.Competitions.get_person/3
     end
   end
 end

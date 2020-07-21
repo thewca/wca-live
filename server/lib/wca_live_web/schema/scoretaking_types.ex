@@ -4,6 +4,17 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
   import Absinthe.Resolution.Helpers
   alias WcaLiveWeb.Resolvers
 
+  object :scoretaking_queries do
+    field :round, :round do
+      arg :id, non_null(:id)
+      resolve &Resolvers.Scoretaking.get_round/3
+    end
+
+    field :recent_records, non_null(list_of(non_null(:record))) do
+      resolve &Resolvers.Scoretaking.list_recent_records/3
+    end
+  end
+
   @desc "A round."
   object :round do
     field :id, non_null(:id)
@@ -125,75 +136,5 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
             "If this list is not empty, it means the qualifying people have quit before, " <>
             "and thus may supersede whoever replaced them."
     field :revocable, non_null(list_of(non_null(:person)))
-  end
-
-  input_object :result_input do
-    field :attempts, non_null(list_of(non_null(:attempt_input)))
-  end
-
-  input_object :attempt_input do
-    field :result, non_null(:integer)
-    field :reconstruction, :string
-  end
-
-  object :scoretaking_queries do
-    field :round, :round do
-      arg :id, non_null(:id)
-      resolve &Resolvers.Scoretaking.get_round/3
-    end
-
-    field :recent_records, non_null(list_of(non_null(:record))) do
-      resolve &Resolvers.Scoretaking.list_recent_records/3
-    end
-  end
-
-  object :scoretaking_mutations do
-    field :open_round, non_null(:round) do
-      arg :id, non_null(:id)
-      resolve &Resolvers.Scoretaking.open_round/3
-    end
-
-    field :clear_round, non_null(:round) do
-      arg :id, non_null(:id)
-      resolve &Resolvers.Scoretaking.clear_round/3
-    end
-
-    field :update_result, non_null(:round) do
-      arg :id, non_null(:id)
-      arg :input, non_null(:result_input)
-      resolve &Resolvers.Scoretaking.update_result/3
-    end
-
-    field :add_person_to_round, non_null(:round) do
-      arg :round_id, non_null(:id)
-      arg :person_id, non_null(:id)
-      resolve &Resolvers.Scoretaking.add_person_to_round/3
-    end
-
-    field :remove_person_from_round, non_null(:round) do
-      arg :round_id, non_null(:id)
-      arg :person_id, non_null(:id)
-      arg :replace, non_null(:boolean)
-      resolve &Resolvers.Scoretaking.remove_person_from_round/3
-    end
-  end
-
-  object :scoretaking_subscriptions do
-    field :round_updated, non_null(:round) do
-      arg :id, non_null(:id)
-
-      config fn args, _resolution ->
-        # Setting a constant `context_id` means that
-        # if multiple users request the same subscription data,
-        # Absinthe runs the document only once and sends the data to all of the users.
-        {:ok, topic: args.id, context_id: "global"}
-      end
-
-      trigger :update_result, topic: fn round -> round.id end
-
-      trigger :add_person_to_round, topic: fn round -> round.id end
-
-      trigger :remove_person_from_round, topic: fn round -> round.id end
-    end
   end
 end

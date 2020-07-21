@@ -4,6 +4,12 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
   import Absinthe.Resolution.Helpers
   alias WcaLiveWeb.Resolvers
 
+  object :accounts_queries do
+    field :current_user, :user do
+      resolve &Resolvers.Accounts.current_user/3
+    end
+  end
+
   @desc "A user of the application, imported from the WCA website during the OAuth procedure."
   object :user do
     field :id, non_null(:id)
@@ -17,12 +23,6 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
 
     field :staff_members, non_null(list_of(non_null(:staff_member))) do
       resolve dataloader(:db)
-    end
-  end
-
-  object :accounts_queries do
-    field :current_user, :user do
-      resolve &Resolvers.Accounts.current_user/3
     end
   end
 end
