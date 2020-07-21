@@ -27,6 +27,12 @@ defmodule WcaLiveWeb.Schema do
     import_fields :scoretaking_subscriptions
   end
 
+  def middleware(middleware, _field, %{identifier: :mutation}) do
+    middleware ++ [WcaLiveWeb.Schema.Middleware.ChangesetErrors]
+  end
+
+  def middleware(middleware, _field, _object), do: middleware
+
   def context(context) do
     source = Dataloader.Ecto.new(WcaLive.Repo, query: &WcaLiveWeb.Schema.query/2)
 
