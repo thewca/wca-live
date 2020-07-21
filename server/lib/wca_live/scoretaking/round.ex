@@ -114,17 +114,17 @@ defmodule WcaLive.Scoretaking.Round do
   @doc """
   Checks if the given round is active.
 
-  A round is considered active if there were at least 3 result updates in the past 15 minutes.
+  A round is considered active if there were at least 3 results entered in the past 15 minutes.
 
   *Note: `round` must have `results` loaded.*
   """
   def active?(round) do
-    minus_15_minutes = DateTime.utc_now() |> DateTime.add(-15 * 60, :second)
-
     recent_updates =
       round.results
       |> Enum.filter(fn result -> length(result.attempts) > 0 end)
-      |> Enum.count(fn result -> result.updated_at > minus_15_minutes end)
+      |> Enum.count(fn result ->
+        DateTime.diff(DateTime.utc_now(), result.entered_at, :second) <= 15 * 60
+      end)
 
     recent_updates >= 3
   end

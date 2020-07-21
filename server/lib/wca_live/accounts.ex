@@ -23,10 +23,9 @@ defmodule WcaLive.Accounts do
   @spec get_valid_access_token(%User{}) :: {:ok, %AccessToken{}} | {:error, String.t()}
   def get_valid_access_token(user) do
     access_token = Ecto.assoc(user, :access_token) |> Repo.one!()
-    plus_2_minutes = DateTime.utc_now() |> DateTime.add(2 * 60, :second)
 
     # Refresh the token if it expires in less than 2 minutes.
-    if access_token.expires_at < plus_2_minutes do
+    if DateTime.diff(access_token.expires_at, DateTime.utc_now(), :second) <= 2 * 60 do
       with {:ok, token_attrs} <- Wca.OAuth.refresh_token(access_token.refresh_token),
            {:ok, new_access_token} <- update_access_token(access_token, token_attrs) do
         {:ok, new_access_token}
