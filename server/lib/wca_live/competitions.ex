@@ -19,7 +19,7 @@ defmodule WcaLive.Competitions do
   @doc """
   Gets a single competition.
   """
-  def get_competition!(id), do: Repo.get!(Competition, id)
+  def fetch_competition(id), do: Repo.fetch(Competition, id)
 
   @doc """
   Gets a single person.
@@ -29,5 +29,5 @@ defmodule WcaLive.Competitions do
   @doc """
   Gets a single person.
   """
-  def get_person!(id), do: Repo.get!(Person, id)
+  def fetch_person(id), do: Repo.fetch(Person, id)
 end

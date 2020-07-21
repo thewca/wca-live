@@ -17,6 +17,8 @@ defmodule WcaLive.Accounts do
 
   def get_user!(id), do: Repo.get!(User, id)
 
+  def fetch_user(id), do: Repo.fetch(User, id)
+
   @doc """
   Gets user's access token and refreshes it if it's expired.
   """

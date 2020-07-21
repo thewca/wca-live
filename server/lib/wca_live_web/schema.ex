@@ -28,7 +28,7 @@ defmodule WcaLiveWeb.Schema do
   end
 
   def middleware(middleware, _field, %{identifier: :mutation}) do
-    middleware ++ [WcaLiveWeb.Schema.Middleware.ChangesetErrors]
+    middleware ++ [WcaLiveWeb.Schema.Middleware.HandleErrors]
   end
 
   def middleware(middleware, _field, _object), do: middleware

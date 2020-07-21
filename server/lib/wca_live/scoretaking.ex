@@ -18,6 +18,11 @@ defmodule WcaLive.Scoretaking do
   """
   def get_round!(id), do: Repo.get!(Round, id)
 
+  @doc """
+  Gets a single round.
+  """
+  def fetch_round(id), do: Repo.fetch(Round, id)
+
   def preload_results(round), do: Repo.preload(round, :results)
 
   def get_previous_round(round) do
@@ -42,6 +47,11 @@ defmodule WcaLive.Scoretaking do
   Gets a single result.
   """
   def get_result!(id), do: Repo.get!(Result, id)
+
+  @doc """
+  Gets a single result.
+  """
+  def fetch_result(id), do: Repo.fetch(Result, id)
 
   def enter_result_attempts(result, attempts, user) do
     result = Repo.preload(result, round: [:competition_event])
