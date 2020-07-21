@@ -15,8 +15,8 @@ defmodule WcaLive.Application do
       {Phoenix.PubSub, name: WcaLive.PubSub},
       # Start the Endpoint (http/https)
       WcaLiveWeb.Endpoint,
-      # Start a worker by calling: WcaLive.Worker.start_link(arg)
-      # {WcaLive.Worker, arg}
+      # Start the Absinthe Subscription supervisor
+      {Absinthe.Subscription, WcaLiveWeb.Endpoint},
       # Start RecordsStore with official WCA records cache
       WcaLive.Wca.RecordsStore
     ]

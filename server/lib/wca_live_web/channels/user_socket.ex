@@ -1,6 +1,9 @@
 defmodule WcaLiveWeb.UserSocket do
   use Phoenix.Socket
 
+  # Absinthe subscriptions integration with Phoenix.
+  use Absinthe.Phoenix.Socket, schema: WcaLiveWeb.Schema
+
   ## Channels
   # channel "room:*", WcaLiveWeb.RoomChannel
 

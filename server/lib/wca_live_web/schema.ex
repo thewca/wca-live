@@ -20,6 +20,10 @@ defmodule WcaLiveWeb.Schema do
     import_fields :scoretaking_mutations
   end
 
+  subscription do
+    import_fields :scoretaking_subscriptions
+  end
+
   def context(context) do
     source = Dataloader.Ecto.new(WcaLive.Repo, query: &WcaLiveWeb.Schema.query/2)
 

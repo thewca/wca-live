@@ -26,7 +26,9 @@ defmodule WcaLiveWeb.Router do
     pipe_through :graphql
 
     if Mix.env() == :dev do
-      forward "/graphiql", Absinthe.Plug.GraphiQL, schema: WcaLiveWeb.Schema
+      forward "/graphiql", Absinthe.Plug.GraphiQL,
+        schema: WcaLiveWeb.Schema,
+        socket: WcaLiveWeb.UserSocket
     end
 
     forward "/", Absinthe.Plug, schema: WcaLiveWeb.Schema

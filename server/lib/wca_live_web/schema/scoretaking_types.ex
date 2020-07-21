@@ -177,4 +177,23 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
       resolve &Resolvers.Scoretaking.remove_person_from_round/3
     end
   end
+
+  object :scoretaking_subscriptions do
+    field :round_updated, non_null(:round) do
+      arg :id, non_null(:id)
+
+      config fn args, _resolution ->
+        # Setting a constant `context_id` means that
+        # if multiple users request the same subscription data,
+        # Absinthe runs the document only once and sends the data to all of the users.
+        {:ok, topic: args.id, context_id: "global"}
+      end
+
+      trigger :update_result, topic: fn round -> round.id end
+
+      trigger :add_person_to_round, topic: fn round -> round.id end
+
+      trigger :remove_person_from_round, topic: fn round -> round.id end
+    end
+  end
 end
