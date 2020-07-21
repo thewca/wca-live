@@ -33,7 +33,7 @@ defmodule WcaLive.Synchronization do
     end
   end
 
-  @spec get_importable_competition_briefs(%User{}) :: list(CompetitionBrief.t())
+  @spec get_importable_competition_briefs(%User{}) :: {:ok, list(CompetitionBrief.t())} | {:error, any()}
   def get_importable_competition_briefs(user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, data} <- Wca.Api.get_upcoming_manageable_competitions(access_token.access_token) do
@@ -47,9 +47,11 @@ defmodule WcaLive.Synchronization do
       imported_wca_ids =
         Repo.all(from c in Competition, where: c.wca_id in ^wca_ids, select: c.wca_id)
 
-      Enum.filter(competition_briefs, fn competition ->
+      importable = Enum.filter(competition_briefs, fn competition ->
         competition.wca_id not in imported_wca_ids
       end)
+
+      {:ok, importable}
     end
   end
 end
