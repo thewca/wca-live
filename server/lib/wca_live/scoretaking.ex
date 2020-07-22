@@ -3,7 +3,7 @@ defmodule WcaLive.Scoretaking do
   alias Ecto.{Changeset, Multi}
   alias WcaLive.Repo
   alias WcaLive.Wca.{Event, Format}
-  alias WcaLive.Competitions.{Person, Registration}
+  alias WcaLive.Competitions.{Person, Registration, Competition}
   alias WcaLive.Scoretaking.{Round, Result}
   alias WcaLive.Scoretaking.Computation
 
@@ -432,4 +432,30 @@ defmodule WcaLive.Scoretaking do
 
   defp record_type_rank("single"), do: 1
   defp record_type_rank("average"), do: 2
+
+  @type podium :: %{
+    round: %Round{},
+    results: list(%Result{})
+  }
+
+  @spec list_podiums(%Competition{}) :: list(podium())
+  def list_podiums(competition) do
+    competition_events =
+      competition
+      |> Ecto.assoc(:competition_events)
+      |> Repo.all()
+      |> Repo.preload(rounds: :results)
+
+    Enum.map(competition_events, fn competition_event ->
+      final_round = Enum.max_by(competition_event.rounds, & &1.number)
+      podium_results =
+        final_round.results
+        |> Enum.filter(fn result ->
+          result.best > 0 and result.ranking != nil and result.ranking <= 3
+        end)
+        |> Enum.sort_by(& &1.ranking)
+
+      %{round: final_round, results: podium_results}
+    end)
+  end
 end

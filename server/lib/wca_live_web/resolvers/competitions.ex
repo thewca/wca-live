@@ -1,5 +1,6 @@
 defmodule WcaLiveWeb.Resolvers.Competitions do
   alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
   alias WcaLive.Wca.{Country, Event}
 
   # Competitions
@@ -10,6 +11,10 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
 
   def get_competition(_parent, %{id: id}, _resolution) do
     {:ok, Competitions.get_competition(id)}
+  end
+
+  def competition_podiums(competition, _args, _resolution) do
+    {:ok, Scoretaking.list_podiums(competition)}
   end
 
   # Competition events

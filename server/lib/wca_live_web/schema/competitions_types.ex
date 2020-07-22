@@ -52,6 +52,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :competitors, non_null(list_of(non_null(:person))) do
       resolve dataloader(:db, :people, args: %{competitor: true})
     end
+
+    field :podiums, non_null(list_of(non_null(:podium))) do
+      resolve &Resolvers.Competitions.competition_podiums/3
+    end
   end
 
   @desc "A competition event."
@@ -185,5 +189,14 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :competition, non_null(:competition) do
       resolve dataloader(:db)
     end
+  end
+
+  @desc "An object representing a podium."
+  object :podium do
+    @desc "The corresponding final round."
+    field :round, non_null(:round)
+
+    @desc "Results on the podium."
+    field :results, non_null(list_of(non_null(:result)))
   end
 end
