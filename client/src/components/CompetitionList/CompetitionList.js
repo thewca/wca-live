@@ -17,7 +17,7 @@ const CompetitionList = ({ title, competitions }) => {
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
       <VirtualList
-        height={300}
+        maxHeight={300}
         itemHeigh={60}
         items={competitions}
         renderItem={(competition, { style }) => {
