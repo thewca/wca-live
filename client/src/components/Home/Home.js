@@ -13,29 +13,26 @@ import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import Competitions from '../Competitions/Competitions';
 import HomeToolbar from '../HomeToolbar/HomeToolbar';
 import RecordList from '../RecordList/RecordList';
-import { COMPETITION_INFO_FRAGMENT } from '../../logic/graphql-fragments';
+import { isUpcoming, isInProgress } from '../../logic/competitions';
+import { isPast } from 'date-fns';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {
     competitions {
-      upcoming {
-        ...competitionInfo
-      }
-      inProgress {
-        ...competitionInfo
-        schedule {
-          venues {
-            latitude
-            longitude
-          }
+      id
+      name
+      startDate
+      endDate
+      startTime
+      endTime
+      venues {
+        id
+        country {
+          iso2
         }
-      }
-      past {
-        ...competitionInfo
       }
     }
   }
-  ${COMPETITION_INFO_FRAGMENT}
 `;
 
 const useStyles = makeStyles((theme) => ({
@@ -59,14 +56,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Home = ({ history }) => {
+const Home = () => {
   const classes = useStyles();
   const { data, loading, error } = useQuery(COMPETITIONS_QUERY);
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
-  const {
-    competitions: { upcoming, inProgress, past },
-  } = data;
+  const { competitions } = data;
+
+  const upcoming = competitions.filter(isUpcoming);
+  const inProgress = competitions.filter(isInProgress);
+  const past = competitions.filter(isPast);
 
   return (
     <div className={classes.root}>

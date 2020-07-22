@@ -1,15 +1,14 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './apollo';
-
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 import Navigation from '../Navigation/Navigation';
 
 const App = () => (
-  <BrowserRouter>
+  <Router>
     <ApolloProvider client={client}>
       <ThemeProvider>
         <ConfirmProvider>
@@ -18,7 +17,7 @@ const App = () => (
         </ConfirmProvider>
       </ThemeProvider>
     </ApolloProvider>
-  </BrowserRouter>
+  </Router>
 );
 
 export default App;

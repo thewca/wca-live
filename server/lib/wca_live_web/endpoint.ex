@@ -51,5 +51,10 @@ defmodule WcaLiveWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  if Mix.env() == :dev do
+    plug CORSPlug, origin: ["http://localhost:3000"]
+  end
+
   plug WcaLiveWeb.Router
 end

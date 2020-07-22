@@ -10,6 +10,7 @@ import PublicIcon from '@material-ui/icons/Public';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import VirtualList from '../VirtualList/VirtualList';
 import { formatDateRange } from '../../logic/date';
+import { competitionCountryIso2s } from '../../logic/competitions';
 
 const CompetitionList = ({ title, competitions }) => {
   return (
@@ -19,33 +20,34 @@ const CompetitionList = ({ title, competitions }) => {
         height={300}
         itemHeigh={60}
         items={competitions}
-        renderItem={(competition, { style }) => (
-          <ListItem
-            key={competition.id}
-            style={style}
-            button
-            component={Link}
-            to={`/competitions/${competition.id}`}
-          >
-            <ListItemIcon>
-              {competition.countries.length === 1 ? (
-                <FlagIcon
-                  code={competition.countries[0].iso2.toLowerCase()}
-                  size="lg"
-                />
-              ) : (
-                <PublicIcon />
-              )}
-            </ListItemIcon>
-            <ListItemText
-              primary={competition.name}
-              secondary={formatDateRange(
-                competition.schedule.startDate,
-                competition.schedule.endDate
-              )}
-            />
-          </ListItem>
-        )}
+        renderItem={(competition, { style }) => {
+          const countryIso2s = competitionCountryIso2s(competition);
+
+          return (
+            <ListItem
+              key={competition.id}
+              style={style}
+              button
+              component={Link}
+              to={`/competitions/${competition.id}`}
+            >
+              <ListItemIcon>
+                {countryIso2s.length === 1 ? (
+                  <FlagIcon code={countryIso2s[0].toLowerCase()} size="lg" />
+                ) : (
+                  <PublicIcon />
+                )}
+              </ListItemIcon>
+              <ListItemText
+                primary={competition.name}
+                secondary={formatDateRange(
+                  competition.startDate,
+                  competition.endDate
+                )}
+              />
+            </ListItem>
+          );
+        }}
       />
     </List>
   );

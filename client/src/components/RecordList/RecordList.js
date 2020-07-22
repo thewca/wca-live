@@ -17,31 +17,30 @@ import { formatAttemptResult } from '../../logic/attempts';
 const RECENT_RECORDS_QUERY = gql`
   query RecentRecords {
     recentRecords {
-      competition {
-        id
-      }
-      event {
-        _id
-        id
-        name
-      }
-      round {
-        _id
-        id
-      }
+      id
+      tag
+      type
+      attemptResult
       result {
-        _id
+        id
         person {
-          _id
+          id
           name
           country {
             name
           }
         }
+        round {
+          id
+          competitionEvent {
+            id
+            event {
+              id
+              name
+            }
+          }
+        }
       }
-      type
-      recordTag
-      attemptResult
     }
   }
 `;
@@ -70,19 +69,19 @@ const RecordList = () => {
               key={index}
               button
               component={Link}
-              to={`/competitions/${record.competition.id}/rounds/${record.round.id}`}
+              to={`/rounds/${record.result.round.id}`}
             >
               <ListItemIcon>
-                <RecordTag recordTag={record.recordTag} />
+                <RecordTag recordTag={record.tag} />
               </ListItemIcon>
               <ListItemText
                 primary={
                   <span>
-                    <span>{`${record.event.name} ${record.type} of `}</span>
+                    <span>{`${record.result.round.competitionEvent.event.name} ${record.type} of `}</span>
                     <span style={{ fontWeight: 600 }}>
                       {`${formatAttemptResult(
                         record.attemptResult,
-                        record.event.id,
+                        record.result.round.competitionEvent.event.id,
                         record.type === 'average'
                       )}`}
                     </span>
