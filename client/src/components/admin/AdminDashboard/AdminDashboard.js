@@ -11,6 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
+import CompetitionList from '../../CompetitionList/CompetitionList';
 
 const SIGN_OUT_MUTATION = gql`
   mutation SignOut {
@@ -28,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdminDashboard = ({ me, history }) => {
+const AdminDashboard = ({ currentUser, history }) => {
   const classes = useStyles();
   const apolloClient = useApolloClient();
   const [signOut, { loading, error }] = useMutation(SIGN_OUT_MUTATION, {
@@ -36,7 +37,11 @@ const AdminDashboard = ({ me, history }) => {
       apolloClient.clearStore().then(() => history.push('/'));
     },
   });
-  const { name, avatar, manageableCompetitions, importableCompetitions } = me;
+  const { name, avatar, staffMembers } = currentUser;
+
+  const staffedCompetitions = staffMembers.map(
+    (staffMember) => staffMember.competition
+  );
 
   return (
     <Box p={3}>
@@ -49,9 +54,14 @@ const AdminDashboard = ({ me, history }) => {
         </Grid>
         <Grid item className={classes.fullWidth}>
           <Paper>
-            <AdminCompetitionList
+            {/* TODO: show staff member roles, sort, show importable (dialog or expansion panel) */}
+            {/* <AdminCompetitionList
               manageableCompetitions={manageableCompetitions}
               importableCompetitions={importableCompetitions}
+            /> */}
+            <CompetitionList
+              title="Staffed competitions"
+              competitions={staffedCompetitions}
             />
           </Paper>
         </Grid>

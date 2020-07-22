@@ -19,18 +19,3 @@ export const RESULTS_UPDATE_FRAGMENT = gql`
     }
   }
 `;
-
-// TODO: useful?
-export const COMPETITION_INFO_FRAGMENT = gql`
-  fragment competitionInfo on Competition {
-    id
-    name
-    schedule {
-      startDate
-      endDate
-    }
-    countries {
-      iso2
-    }
-  }
-`;

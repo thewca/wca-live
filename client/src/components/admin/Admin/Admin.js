@@ -8,30 +8,42 @@ import AdminDashboard from '../AdminDashboard/AdminDashboard';
 import { COMPETITION_INFO_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const ADMIN_QUERY = gql`
-  query Competitions {
-    me {
+  query Admin {
+    currentUser {
       id
       name
       avatar {
         thumbUrl
       }
-      manageableCompetitions {
-        ...competitionInfo
-      }
-      importableCompetitions {
-        ...competitionInfo
+      staffMembers {
+        id
+        competition {
+          id
+          name
+          startDate
+          endDate
+          venues {
+            id
+            country {
+              iso2
+            }
+          }
+        }
       }
     }
   }
-  ${COMPETITION_INFO_FRAGMENT}
 `;
 
 const Admin = () => {
   const { data, loading, error } = useQuery(ADMIN_QUERY);
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
-  const { me } = data;
-  return me ? <AdminDashboard me={me} /> : <AdminSignIn />;
+  const { currentUser } = data;
+  return currentUser ? (
+    <AdminDashboard currentUser={currentUser} />
+  ) : (
+    <AdminSignIn />
+  );
 };
 
 export default Admin;
