@@ -1,5 +1,6 @@
 defmodule WcaLive.Scoretaking.Round do
   use WcaLive.Schema
+  import Ecto.Query, warn: false
   import Ecto.Changeset
 
   alias WcaLive.Competitions.CompetitionEvent
@@ -31,6 +32,11 @@ defmodule WcaLive.Scoretaking.Round do
     |> cast_embed(:cutoff)
     |> cast_embed(:advancement_condition)
     |> validate_required(@required_fields)
+  end
+
+  @doc false
+  def put_results_in_round(results, round) do
+    round |> change() |> put_assoc(:results, results)
   end
 
   @doc """
@@ -127,5 +133,12 @@ defmodule WcaLive.Scoretaking.Round do
       end)
 
     recent_updates >= 3
+  end
+
+  def where_sibling(query, round, offset) do
+    from r in query,
+      where:
+        r.competition_event_id == ^round.competition_event_id and
+        r.number == ^(round.number + offset)
   end
 end
