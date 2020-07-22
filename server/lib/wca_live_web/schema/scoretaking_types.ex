@@ -51,6 +51,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
       resolve dataloader(:db)
     end
 
+    @desc "Results ordered by ranking and person name."
     field :results, non_null(list_of(non_null(:result))) do
       resolve dataloader(:db)
     end

@@ -18,8 +18,8 @@ defmodule WcaLive.Repo.Migrations.CreateResults do
       timestamps()
     end
 
-    create index(:results, [:person_id])
-    create unique_index(:results, [:round_id, :person_id])
+    create unique_index(:results, [:person_id, :round_id])
+    create index(:results, [:round_id, :ranking])
     create index(:results, [:single_record_tag])
     create index(:results, [:average_record_tag])
   end

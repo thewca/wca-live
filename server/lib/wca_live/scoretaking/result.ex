@@ -1,6 +1,7 @@
 defmodule WcaLive.Scoretaking.Result do
   use WcaLive.Schema
   import Ecto.Changeset
+  import Ecto.Query, warn: false
 
   alias WcaLive.Accounts.User
   alias WcaLive.Competitions.Person
@@ -88,4 +89,10 @@ defmodule WcaLive.Scoretaking.Result do
   end
 
   def empty?(result), do: length(result.attempts) == 0
+
+  def order_by_ranking(query) do
+    from r in query,
+      join: p in assoc(r, :person),
+      order_by: [asc_nulls_last: r.ranking, asc: p.name]
+  end
 end

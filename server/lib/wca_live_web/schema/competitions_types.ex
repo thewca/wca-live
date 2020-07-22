@@ -34,7 +34,15 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :synchronized_at, non_null(:datetime)
 
     field :competition_events, non_null(list_of(non_null(:competition_event))) do
-      resolve dataloader(:db)
+      resolve dataloader(:db,
+                callback: fn competition_events, _prent, _args ->
+                  {:ok,
+                   Enum.sort_by(
+                     competition_events,
+                     &WcaLive.Wca.Event.get_rank_by_id!(&1.event_id)
+                   )}
+                end
+              )
     end
 
     field :venues, non_null(list_of(non_null(:venue))) do
