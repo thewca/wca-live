@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { withRouter, Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -21,7 +21,7 @@ const IMPORT_COMPETITION_MUTATION = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   scrollable: {
     maxHeight: 240,
     overflowY: 'auto',
@@ -51,7 +51,7 @@ const AdminCompetitionList = ({
         {manageableCompetitions
           .slice()
           .reverse()
-          .map(competition => (
+          .map((competition) => (
             <ListItem
               key={competition.id}
               button
@@ -69,7 +69,7 @@ const AdminCompetitionList = ({
           ))}
       </div>
       <ListSubheader disableSticky>Importable competitions</ListSubheader>
-      {importableCompetitions.map(competition => (
+      {importableCompetitions.map((competition) => (
         <ListItem
           key={competition.id}
           button

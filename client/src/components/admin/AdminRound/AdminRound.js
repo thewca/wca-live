@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
@@ -85,9 +85,9 @@ const SET_RESULT_MUTATION = gql`
   ${RESULTS_UPDATE_FRAGMENT}
 `;
 
-const roundDescription = round => {
+const roundDescription = (round) => {
   const enteredResults = round.results.filter(
-    result => result.attempts.length > 0
+    (result) => result.attempts.length > 0
   );
   return `${enteredResults.length} of ${round.results.length} entered`;
 };
@@ -128,7 +128,7 @@ const AdminRound = ({ match }) => {
           <ResultForm
             result={editedResult}
             results={round.results}
-            onResultChange={result => {
+            onResultChange={(result) => {
               setEditedResult(result);
             }}
             format={round.format}

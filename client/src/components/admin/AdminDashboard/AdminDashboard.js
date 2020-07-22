@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import gql from 'graphql-tag';
-import { useMutation, useApolloClient } from '@apollo/react-hooks';
+import { useMutation, useApolloClient } from '@apollo/client';
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -19,7 +19,7 @@ const SIGN_OUT_MUTATION = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   avatar: {
     height: 64,
     width: 64,
@@ -33,7 +33,7 @@ const AdminDashboard = ({ me, history }) => {
   const classes = useStyles();
   const apolloClient = useApolloClient();
   const [signOut, { loading, error }] = useMutation(SIGN_OUT_MUTATION, {
-    onCompleted: data => {
+    onCompleted: (data) => {
       apolloClient.clearStore().then(() => history.push('/'));
     },
   });

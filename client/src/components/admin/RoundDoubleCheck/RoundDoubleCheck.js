@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
@@ -74,7 +74,7 @@ const SET_RESULT_MUTATION = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   centerContent: {
     textAlign: 'center',
   },
@@ -88,7 +88,7 @@ const RoundDoubleCheck = ({ match }) => {
   const rightButtonRef = useRef(null);
 
   useEffect(() => {
-    const handleKeyPress = event => {
+    const handleKeyPress = (event) => {
       if (event.target.tagName.toUpperCase() === 'INPUT') return;
       if (event.key === 'ArrowLeft') {
         leftButtonRef.current.click();
@@ -106,7 +106,10 @@ const RoundDoubleCheck = ({ match }) => {
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { round } = data;
-  const results = sortBy(round.results, result => -new Date(result.updatedAt));
+  const results = sortBy(
+    round.results,
+    (result) => -new Date(result.updatedAt)
+  );
 
   return (
     <Grid container direction="row" alignItems="center" spacing={2}>
@@ -130,7 +133,7 @@ const RoundDoubleCheck = ({ match }) => {
           competitionId={competitionId}
           roundId={roundId}
           updateResultMutation={SET_RESULT_MUTATION}
-          onResultChange={result => {
+          onResultChange={(result) => {
             /* Disable clearing as we don't want to lose track of the currently viewed result. */
             if (result !== null) {
               updateResultIndex(results.indexOf(result));

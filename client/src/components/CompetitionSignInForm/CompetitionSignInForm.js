@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -21,7 +21,7 @@ const CompetitionSignInForm = ({ history }) => {
 
   const [signIn, { loading, error }] = useMutation(SIGN_IN_MUTATION, {
     variables: { competitionId, password },
-    onCompleted: data => {
+    onCompleted: (data) => {
       if (data.signIn) {
         history.push(`/admin/competitions/${competitionId}`);
       }
@@ -36,7 +36,7 @@ const CompetitionSignInForm = ({ history }) => {
             label="Competition ID"
             variant="outlined"
             value={competitionId}
-            onChange={event => setCompetitionId(event.target.value)}
+            onChange={(event) => setCompetitionId(event.target.value)}
           />
         </Grid>
         <Grid item>
@@ -45,7 +45,7 @@ const CompetitionSignInForm = ({ history }) => {
             label="Password"
             variant="outlined"
             value={password}
-            onChange={event => setPassword(event.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
           />
         </Grid>
         <Grid item>

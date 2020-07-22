@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { Link } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import ListItem from '@material-ui/core/ListItem';
@@ -28,11 +28,11 @@ const CLEAR_ROUND_MUTATION = gql`
   }
 `;
 
-const roundOpenable = round => {
+const roundOpenable = (round) => {
   return !round.open && (!round.previous || round.previous.open);
 };
 
-const roundClearable = round => {
+const roundClearable = (round) => {
   return round.open && (!round.next || !round.next.open);
 };
 

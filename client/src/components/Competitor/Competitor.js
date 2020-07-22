@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Typography from '@material-ui/core/Typography';
@@ -55,7 +55,7 @@ const COMPETITOR_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   competitor: {
     marginBottom: theme.spacing(2),
   },
@@ -76,7 +76,7 @@ const Competitor = ({ match }) => {
   const { competitor } = data;
   const resultsByEvent = groupBy(
     competitor.results,
-    result => result.round.event.name
+    (result) => result.round.event.name
   );
 
   return (
@@ -108,7 +108,7 @@ const Competitor = ({ match }) => {
             <CompetitorResultsTable
               results={results}
               competitionId={competitionId}
-              onResultClick={result => setSelectedResult(result)}
+              onResultClick={(result) => setSelectedResult(result)}
             />
           </Grid>
         ))}

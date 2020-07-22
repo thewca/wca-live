@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery, useMutation, useApolloClient } from '@apollo/react-hooks';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
@@ -46,7 +46,7 @@ const SIGN_OUT_MUTATION = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   appBar: {
     color: theme.palette.type === 'dark' ? '#fff' : null,
     backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
@@ -86,7 +86,7 @@ const AdminCompetition = ({ match, location, history }) => {
     signOut,
     { loading: signOutLoading, error: signOutError },
   ] = useMutation(SIGN_OUT_MUTATION, {
-    onCompleted: data => {
+    onCompleted: (data) => {
       apolloClient.clearStore().then(() => history.push('/'));
     },
   });

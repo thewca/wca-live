@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import Typography from '@material-ui/core/Typography';
 
 import CompetitorsTable from '../CompetitorsTable/CompetitorsTable';

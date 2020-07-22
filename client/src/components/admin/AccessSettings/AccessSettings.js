@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -32,7 +32,7 @@ const UPDATE_ACCESS_SETTINGS_MUTATION = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   fullWidth: {
     width: '100%',
   },
@@ -40,9 +40,11 @@ const useStyles = makeStyles(theme => ({
 
 const AccessSettings = ({ competition }) => {
   const classes = useStyles();
-  const scoretakerIds = competition.scoretakers.map(person => person.id);
+  const scoretakerIds = competition.scoretakers.map((person) => person.id);
   const [scoretakers, setScoretakers] = useState(
-    competition.competitors.filter(person => scoretakerIds.includes(person.id))
+    competition.competitors.filter((person) =>
+      scoretakerIds.includes(person.id)
+    )
   );
   const [passwordAuthEnabled, setPasswordAuthEnabled] = useState(
     competition.passwordAuthEnabled
@@ -64,7 +66,7 @@ const AccessSettings = ({ competition }) => {
       variables: {
         competitionId: competition.id,
         accessSettings: {
-          scoretakerIds: scoretakers.map(person => person.id),
+          scoretakerIds: scoretakers.map((person) => person.id),
           passwordAuthEnabled,
           password,
         },
@@ -93,19 +95,19 @@ const AccessSettings = ({ competition }) => {
         </Typography>
         <PersonSelect
           persons={competition.competitors.filter(
-            person => !scoretakers.includes(person)
+            (person) => !scoretakers.includes(person)
           )}
           value={null}
-          onChange={person => setScoretakers([...scoretakers, person])}
+          onChange={(person) => setScoretakers([...scoretakers, person])}
           clearOnChange
           TextFieldProps={{ label: 'Add person', fullWidth: true }}
         />
         <Box mt={1}>
           <PersonList
             people={scoretakers}
-            onDelete={person =>
+            onDelete={(person) =>
               setScoretakers(
-                scoretakers.filter(scoretaker => scoretaker !== person)
+                scoretakers.filter((scoretaker) => scoretaker !== person)
               )
             }
           />
@@ -123,7 +125,7 @@ const AccessSettings = ({ competition }) => {
             control={
               <Checkbox
                 checked={passwordAuthEnabled}
-                onChange={event => {
+                onChange={(event) => {
                   const { checked } = event.target;
                   if (!checked) setPassword('');
                   setPasswordAuthEnabled(checked);
@@ -138,7 +140,7 @@ const AccessSettings = ({ competition }) => {
           type="password"
           label={competition.passwordAuthEnabled ? 'New password' : 'Password'}
           value={password}
-          onChange={event => setPassword(event.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
           disabled={!passwordAuthEnabled}
           helperText={!passwordValid() ? 'Must have at least 8 character' : ' '}
         />

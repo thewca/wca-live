@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -41,7 +41,7 @@ const ResultForm = ({
 
   useEffect(() => {
     setAttempts(
-      times(solveCount, index => (result && result.attempts[index]) || 0)
+      times(solveCount, (index) => (result && result.attempts[index]) || 0)
     );
   }, [result, solveCount]);
 
@@ -69,7 +69,7 @@ const ResultForm = ({
     : cutoff.numberOfAttempts;
 
   const persons = useMemo(() => {
-    return results.map(result => result.person);
+    return results.map((result) => result.person);
   }, [results]);
 
   const [updateResult, { loading, error }] = useMutation(updateResultMutation, {
@@ -105,11 +105,11 @@ const ResultForm = ({
         <PersonSelect
           persons={persons}
           value={
-            result ? persons.find(person => person === result.person) : null
+            result ? persons.find((person) => person === result.person) : null
           }
-          onChange={person => {
+          onChange={(person) => {
             onResultChange(
-              person ? results.find(result => result.person === person) : null
+              person ? results.find((result) => result.person === person) : null
             );
           }}
           TextFieldProps={{ autoFocus: true, fullWidth: true }}
@@ -122,7 +122,7 @@ const ResultForm = ({
             label={`Attempt ${index + 1}`}
             initialValue={attempt}
             disabled={!result || index >= disabledFromIndex}
-            onValue={value => {
+            onValue={(value) => {
               setAttempts(
                 applyCutoff(
                   applyTimeLimit(setAt(attempts, index, value), timeLimit),
@@ -197,16 +197,16 @@ const ResultForm = ({
   );
 };
 
-const getInputs = container => {
+const getInputs = (container) => {
   return Array.from(container.querySelectorAll('input, button')).filter(
-    input => !input.disabled
+    (input) => !input.disabled
   );
 };
 
-const useKeyNavigation = container => {
+const useKeyNavigation = (container) => {
   useEffect(() => {
     if (!container) return;
-    const handleKeyPress = event => {
+    const handleKeyPress = (event) => {
       if (event.key === 'Escape') {
         event.target.blur && event.target.blur();
         return;
@@ -232,9 +232,9 @@ const useKeyNavigation = container => {
       /* Other handlers may change which fields are disabled, so let them run first. */
       setTimeout(() => {
         const inputs = getInputs(container);
-        const index = inputs.findIndex(input => event.target === input);
+        const index = inputs.findIndex((input) => event.target === input);
         if (index === -1) return;
-        const mod = n => (n + inputs.length) % inputs.length;
+        const mod = (n) => (n + inputs.length) % inputs.length;
         if (event.key === 'ArrowUp') {
           const previousElement = inputs[mod(index - 1)];
           previousElement.focus();
@@ -255,7 +255,7 @@ const useKeyNavigation = container => {
 
   useEffect(() => {
     if (!container) return;
-    const handleKeyPress = event => {
+    const handleKeyPress = (event) => {
       if (
         ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key) &&
         event.target === document.body

@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import gql from 'graphql-tag';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -87,7 +87,7 @@ const QuitCompetitorDialog = ({
             </DialogContentText>
             <RadioGroup
               value={replace}
-              onChange={event => setReplace(event.target.value)}
+              onChange={(event) => setReplace(event.target.value)}
             >
               {data.round.nextQualifying.length > 0 && (
                 <FormControlLabel

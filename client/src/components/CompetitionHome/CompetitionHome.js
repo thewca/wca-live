@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import { Link as RouterLink } from 'react-router-dom';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -61,7 +61,7 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   fullWidth: {
     width: '100%',
   },
@@ -79,8 +79,8 @@ const CompetitionHome = ({ match }) => {
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
 
-  const active = flatMap(competition.events, event =>
-    event.rounds.filter(round => round.active).map(round => [event, round])
+  const active = flatMap(competition.events, (event) =>
+    event.rounds.filter((round) => round.active).map((round) => [event, round])
   );
 
   return (

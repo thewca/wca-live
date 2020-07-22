@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -102,7 +102,7 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
                     {`This will also remove the following competitors from this round: `}
                     <span style={{ fontWeight: 500 }}>
                       {data.round.missingQualifying.excess
-                        .map(person => person.name)
+                        .map((person) => person.name)
                         .join(', ')}
                     </span>
                   </Typography>

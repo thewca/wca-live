@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -71,7 +71,7 @@ const Podiums = ({ match }) => {
       </Typography>
       {competition.podiums.length > 0 ? (
         <Grid container direction="column" spacing={2}>
-          {competition.podiums.map(round => (
+          {competition.podiums.map((round) => (
             <Grid item key={round.id}>
               <Typography variant="subtitle1">{round.event.name}</Typography>
               <RoundResults
@@ -90,12 +90,12 @@ const Podiums = ({ match }) => {
               <Grid container direction="row" spacing={3}>
                 {competition.events
                   .filter(
-                    event =>
+                    (event) =>
                       !competition.podiums.some(
-                        podium => podium.event.id === event.id
+                        (podium) => podium.event.id === event.id
                       )
                   )
-                  .map(event => (
+                  .map((event) => (
                     <Grid item key={event.id}>
                       <Tooltip title={event.name}>
                         <span>

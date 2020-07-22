@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 
 import Loading from '../../Loading/Loading';
@@ -50,7 +50,7 @@ const AdminEvents = ({ match }) => {
 
   return (
     <Grid container spacing={2} direction="row">
-      {events.map(event => (
+      {events.map((event) => (
         <Grid item xs={12} md={4} key={event.id}>
           <EventCard event={event} competitionId={competitionId} />
         </Grid>
