@@ -8,19 +8,19 @@ const distanceKm = (lat1, lon1, lat2, lon2) => {
   return Math.sqrt(x * x + y * y) * R;
 };
 
-const toRadians = degrees => (degrees * Math.PI) / 180;
+const toRadians = (degrees) => (degrees * Math.PI) / 180;
 
-export const nearestCompetition = competitions => {
+export const nearestCompetition = (competitions) => {
   return new Promise((resolve, reject) => {
     const options = {
       /* Prevent the browser from asking the user to turn on GPS, we just need an estimate. */
       maximumAge: 5 * 60 * 1000,
     };
     navigator.geolocation.getCurrentPosition(
-      position => {
+      (position) => {
         const { latitude, longitude } = position.coords;
-        const [nearest] = sortBy(competitions, competition => {
-          const distances = competition.schedule.venues.map(venue =>
+        const [nearest] = sortBy(competitions, (competition) => {
+          const distances = competition.schedule.venues.map((venue) =>
             distanceKm(latitude, longitude, venue.latitude, venue.longitude)
           );
           return Math.min(...distances);

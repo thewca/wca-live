@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 
 import { dnfKeys, dnsKeys } from '../keybindings';
-import { toInt } from '../../../../logic/utils';
+import { toInt } from '../../../../lib/utils';
 
-const numberToInput = number => {
+const numberToInput = (number) => {
   if (number === 0) return '';
   if (number === -1) return 'DNF';
   if (number === -2) return 'DNS';
   return number.toString();
 };
 
-const validateFmResult = number => {
+const validateFmResult = (number) => {
   if (number > 80) return -1;
   return number;
 };
@@ -33,7 +33,7 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={numberToInput(value)}
       spellCheck={false}
-      onChange={event => {
+      onChange={(event) => {
         const key = event.nativeEvent.data;
         if (dnfKeys.includes(key)) {
           setValue(-1);

@@ -20,7 +20,7 @@ import {
   wcaUrl,
   groupifierUrl,
   scramblesMatcherUrl,
-} from '../../../logic/url-utils';
+} from '../../../lib/url-utils';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {

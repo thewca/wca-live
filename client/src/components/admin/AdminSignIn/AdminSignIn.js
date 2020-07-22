@@ -7,9 +7,9 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
 import CompetitionSignInForm from '../../CompetitionSignInForm/CompetitionSignInForm';
-import { signInUrl } from '../../../logic/auth';
+import { signInUrl } from '../../../lib/auth';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   screenHeight: {
     height: '100vh',
   },

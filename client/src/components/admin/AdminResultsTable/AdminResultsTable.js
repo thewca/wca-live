@@ -10,11 +10,11 @@ import classNames from 'classnames';
 import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
-import { times } from '../../../logic/utils';
-import { formatAttemptResult } from '../../../logic/attempts';
-import { statsToDisplay } from '../../../logic/results-table-utils';
+import { times } from '../../../lib/utils';
+import { formatAttemptResult } from '../../../lib/attempts';
+import { statsToDisplay } from '../../../lib/results-table-utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   row: {
     whiteSpace: 'nowrap',
     cursor: 'pointer',
@@ -55,7 +55,7 @@ const AdminResultsTable = React.memo(
             throw new Error(`Unrecognized order rule: ${orderBy}`);
           });
 
-    const handleSortClick = property => {
+    const handleSortClick = (property) => {
       if (orderBy !== property) {
         setOrderBy(property);
         setOrder('asc');
@@ -95,7 +95,7 @@ const AdminResultsTable = React.memo(
                 Name
               </TableSortLabel>
             </TableCell>
-            {times(format.solveCount, index => (
+            {times(format.solveCount, (index) => (
               <TableCell key={index} align="right">
                 {index + 1}
               </TableCell>
@@ -108,12 +108,12 @@ const AdminResultsTable = React.memo(
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedResults.map(result => (
+          {sortedResults.map((result) => (
             <TableRow
               key={result.person.id}
               hover
               className={classes.row}
-              onClick={event => onResultClick(result, event)}
+              onClick={(event) => onResultClick(result, event)}
             >
               <TableCell
                 align="right"
@@ -125,7 +125,7 @@ const AdminResultsTable = React.memo(
               </TableCell>
               <TableCell align="right">{result.person.id}</TableCell>
               <TableCell>{result.person.name}</TableCell>
-              {times(format.solveCount, index => (
+              {times(format.solveCount, (index) => (
                 <TableCell key={index} align="right">
                   {formatAttemptResult(result.attempts[index] || 0, eventId)}
                 </TableCell>

@@ -9,8 +9,8 @@ import PublicIcon from '@material-ui/icons/Public';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 import VirtualList from '../VirtualList/VirtualList';
-import { formatDateRange } from '../../logic/date';
-import { competitionCountryIso2s } from '../../logic/competitions';
+import { formatDateRange } from '../../lib/date';
+import { competitionCountryIso2s } from '../../lib/competitions';
 
 const CompetitionList = ({ title, competitions }) => {
   return (

@@ -15,9 +15,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 import CubingIcon from '../../CubingIcon/CubingIcon';
-import { wcaUrl } from '../../../logic/url-utils';
+import { wcaUrl } from '../../../lib/url-utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   row: {
     whiteSpace: 'nowrap',
   },
@@ -35,7 +35,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState('');
 
-  const handleSearchChange = event => {
+  const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setPage(0);
   };
@@ -44,7 +44,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
     setPage(newPage);
   };
 
-  const handleRowsPerPageChange = event => {
+  const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -55,7 +55,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
       .sort((person1, person2) => person1.name.localeCompare(person2.name));
   }, [competitors]);
   const filteredCompetitors = search
-    ? sortedCompetitors.filter(competitor => {
+    ? sortedCompetitors.filter((competitor) => {
         const matchAgainst = [
           competitor.name,
           competitor.wcaId,
@@ -65,9 +65,9 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
         return search
           .toLowerCase()
           .split(/\s+/)
-          .every(part =>
+          .every((part) =>
             matchAgainst.some(
-              phrase => phrase && phrase.toLowerCase().includes(part)
+              (phrase) => phrase && phrase.toLowerCase().includes(part)
             )
           );
       })
@@ -100,7 +100,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedCompetitors.map(person => (
+            {displayedCompetitors.map((person) => (
               <TableRow key={person.id} hover className={classes.row}>
                 <TableCell align="right">{person.id}</TableCell>
                 <TableCell>{person.name}</TableCell>
@@ -115,9 +115,9 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
                     </Link>
                   )}
                 </TableCell>
-                {events.map(event => {
+                {events.map((event) => {
                   const result = event.rounds[0].results.find(
-                    result => result.person.id === person.id
+                    (result) => result.person.id === person.id
                   );
                   return (
                     <TableCell

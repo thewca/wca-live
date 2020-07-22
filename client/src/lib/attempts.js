@@ -1,6 +1,6 @@
 import { trimTrailingZeros } from './utils';
 
-export const centisecondsToClockFormat = centiseconds => {
+export const centisecondsToClockFormat = (centiseconds) => {
   if (!Number.isFinite(centiseconds)) return null;
   if (centiseconds === 0) return '';
   if (centiseconds === -1) return 'DNF';
@@ -11,7 +11,7 @@ export const centisecondsToClockFormat = centiseconds => {
     .replace(/^[0:]*(?!\.)/g, '');
 };
 
-export const decodeMbldAttempt = value => {
+export const decodeMbldAttempt = (value) => {
   if (value <= 0) return { solved: 0, attempted: 0, centiseconds: value };
   const missed = value % 100;
   const seconds = Math.floor(value / 100) % 1e5;
@@ -46,7 +46,7 @@ export const validateMbldAttempt = ({ attempted, solved, centiseconds }) => {
   return { solved, attempted, centiseconds };
 };
 
-export const mbldAttemptToPoints = attempt => {
+export const mbldAttemptToPoints = (attempt) => {
   const { solved, attempted } = decodeMbldAttempt(attempt);
   const missed = attempted - solved;
   return solved - missed;
@@ -57,10 +57,10 @@ export const meetsCutoff = (attempts, cutoff) => {
   const { numberOfAttempts, attemptResult } = cutoff;
   return attempts
     .slice(0, numberOfAttempts)
-    .some(attempt => attempt > 0 && attempt < attemptResult);
+    .some((attempt) => attempt > 0 && attempt < attemptResult);
 };
 
-const formatMbldAttempt = attempt => {
+const formatMbldAttempt = (attempt) => {
   const { solved, attempted, centiseconds } = decodeMbldAttempt(attempt);
   const clockFormat = new Date(centiseconds * 10)
     .toISOString()
@@ -89,11 +89,12 @@ export const formatAttemptResult = (
 export const attemptsWarning = (attempts, eventId) => {
   const skippedGapIndex = trimTrailingZeros(attempts).indexOf(0);
   if (skippedGapIndex !== -1) {
-    return `You've omitted attempt ${skippedGapIndex +
-      1}. Make sure it's intentional.`;
+    return `You've omitted attempt ${
+      skippedGapIndex + 1
+    }. Make sure it's intentional.`;
   }
   if (eventId === '333mbf') {
-    const lowTimeIndex = attempts.findIndex(attempt => {
+    const lowTimeIndex = attempts.findIndex((attempt) => {
       const { attempted, centiseconds } = decodeMbldAttempt(attempt);
       return attempt > 0 && centiseconds / attempted < 30 * 100;
     });
@@ -107,7 +108,7 @@ export const attemptsWarning = (attempts, eventId) => {
       `;
     }
   } else {
-    const completeAttempts = attempts.filter(attempt => attempt > 0);
+    const completeAttempts = attempts.filter((attempt) => attempt > 0);
     if (completeAttempts.length > 0) {
       const bestSingle = Math.min(...completeAttempts);
       const worstSingle = Math.max(...completeAttempts);
@@ -129,7 +130,7 @@ export const attemptsWarning = (attempts, eventId) => {
 export const applyTimeLimit = (attempts, timeLimit) => {
   if (timeLimit === null) return attempts;
   if (timeLimit.cumulativeRoundIds.length === 0) {
-    return attempts.map(attempt =>
+    return attempts.map((attempt) =>
       attempt >= timeLimit.centiseconds ? -1 : attempt
     );
   } else {

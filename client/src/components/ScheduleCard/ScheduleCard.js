@@ -11,10 +11,10 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 import RoomLabel from '../RoomLabel/RoomLabel';
-import { parseActivityCode, eventRoundForActivityCode } from '../../logic/wcif';
-import { shortLocalTime } from '../../logic/date';
+import { parseActivityCode, eventRoundForActivityCode } from '../../lib/wcif';
+import { shortLocalTime } from '../../lib/date';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%',
     position: 'relative',

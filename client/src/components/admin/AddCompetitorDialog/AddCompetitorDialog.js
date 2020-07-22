@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
-import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
+import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const MISSING_QUALIFYING_QUERY = gql`
   query MissingQualifying($competitionId: ID!, $roundId: String!) {

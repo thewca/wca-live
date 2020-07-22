@@ -168,7 +168,7 @@ describe('meetsCutoff', () => {
 });
 
 describe('attemptsWarning', () => {
-  const normalize = string => string.replace(/\s+/g, ' ');
+  const normalize = (string) => string.replace(/\s+/g, ' ');
 
   describe('when 3x3x3 Multi-Blind attempts are given', () => {
     it('returns a warning if an attempt has impossibly low time', () => {

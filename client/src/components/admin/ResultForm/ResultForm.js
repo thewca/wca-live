@@ -10,16 +10,16 @@ import { useConfirm } from 'material-ui-confirm';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AttemptField from '../AttemptField/AttemptField';
 import PersonSelect from '../PersonSelect/PersonSelect';
-import { setAt, times, trimTrailingZeros } from '../../../logic/utils';
+import { setAt, times, trimTrailingZeros } from '../../../lib/utils';
 import {
   meetsCutoff,
   formatAttemptResult,
   attemptsWarning,
   applyTimeLimit,
   applyCutoff,
-} from '../../../logic/attempts';
-import { best, average } from '../../../logic/stats';
-import { cutoffToString, timeLimitToString } from '../../../logic/formatters';
+} from '../../../lib/attempts';
+import { best, average } from '../../../lib/stats';
+import { cutoffToString, timeLimitToString } from '../../../lib/formatters';
 
 const ResultForm = ({
   result,

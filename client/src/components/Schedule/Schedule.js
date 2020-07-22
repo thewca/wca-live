@@ -5,15 +5,15 @@ import Tabs from '@material-ui/core/Tabs';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ScheduleCard from '../ScheduleCard/ScheduleCard';
-import { flatMap, groupBy, uniq, sortBy } from '../../logic/utils';
+import { flatMap, groupBy, uniq, sortBy } from '../../lib/utils';
 import {
   shortDate,
   toLocalDateString,
   closestDateString,
-} from '../../logic/date';
-import { eventRoundForActivityCode } from '../../logic/wcif';
+} from '../../lib/date';
+import { eventRoundForActivityCode } from '../../lib/wcif';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   tabs: {
     marginBottom: theme.spacing(2),
   },
@@ -21,9 +21,9 @@ const useStyles = makeStyles(theme => ({
 
 const Schedule = ({ schedule, events, competitionId }) => {
   const classes = useStyles();
-  const rooms = flatMap(schedule.venues, venue => venue.rooms);
-  const allActivitiesWithRoom = flatMap(rooms, room =>
-    room.activities.map(activity => [activity, room])
+  const rooms = flatMap(schedule.venues, (venue) => venue.rooms);
+  const allActivitiesWithRoom = flatMap(rooms, (room) =>
+    room.activities.map((activity) => [activity, room])
   );
   const activitiesWithRoom = sortBy(
     allActivitiesWithRoom.filter(
@@ -60,7 +60,7 @@ const Schedule = ({ schedule, events, competitionId }) => {
         onChange={(event, value) => setSelectedDate(value)}
         className={classes.tabs}
       >
-        {dates.map(date => (
+        {dates.map((date) => (
           <Tab key={date} label={shortDate(date)} value={date} />
         ))}
       </Tabs>

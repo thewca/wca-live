@@ -8,7 +8,7 @@ import {
   decodeMbldAttempt,
   encodeMbldAttempt,
   validateMbldAttempt,
-} from '../../../../logic/attempts';
+} from '../../../../lib/attempts';
 
 const MbldField = ({ initialValue, onValue, disabled, label }) => {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
@@ -22,7 +22,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
     setPrevInitialValue(initialValue);
   }
 
-  const handleDecodedValueChange = decodedValue => {
+  const handleDecodedValueChange = (decodedValue) => {
     const updatedDecodedValue = validateMbldAttempt(decodedValue);
     if (encodeMbldAttempt(updatedDecodedValue) !== initialValue) {
       onValue(encodeMbldAttempt(updatedDecodedValue));
@@ -33,7 +33,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
     }
   };
 
-  const handleAnyInput = event => {
+  const handleAnyInput = (event) => {
     const key = event.nativeEvent.data;
     if (dnfKeys.includes(key)) {
       handleDecodedValueChange(decodeMbldAttempt(-1));
@@ -49,7 +49,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
       <Grid item xs={2}>
         <CubesField
           initialValue={decodedValue.solved}
-          onValue={solved =>
+          onValue={(solved) =>
             handleDecodedValueChange({ ...decodedValue, solved })
           }
           disabled={disabled}
@@ -58,7 +58,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
       <Grid item xs={2}>
         <CubesField
           initialValue={decodedValue.attempted}
-          onValue={attempted =>
+          onValue={(attempted) =>
             handleDecodedValueChange({ ...decodedValue, attempted })
           }
           disabled={disabled}
@@ -68,7 +68,7 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
         <TimeField
           label={label}
           initialValue={decodedValue.centiseconds}
-          onValue={centiseconds =>
+          onValue={(centiseconds) =>
             handleDecodedValueChange({ ...decodedValue, centiseconds })
           }
           disabled={disabled}

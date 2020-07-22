@@ -12,11 +12,11 @@ import classNames from 'classnames';
 import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { times } from '../../logic/utils';
-import { formatAttemptResult } from '../../logic/attempts';
-import { statsToDisplay } from '../../logic/results-table-utils';
+import { times } from '../../lib/utils';
+import { formatAttemptResult } from '../../lib/attempts';
+import { statsToDisplay } from '../../lib/results-table-utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   table: {
     tableLayout: 'fixed',
   },
@@ -55,7 +55,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
   const stats = statsToDisplay(format, event.id);
 
   const solveCount = Math.max(
-    ...results.map(result => result.round.format.solveCount)
+    ...results.map((result) => result.round.format.solveCount)
   );
 
   return (
@@ -72,7 +72,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
             Round
           </TableCell>
           <Hidden xsDown>
-            {times(solveCount, index => (
+            {times(solveCount, (index) => (
               <TableCell key={index} align="right">
                 {index + 1}
               </TableCell>
@@ -86,12 +86,12 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {results.map(result => (
+        {results.map((result) => (
           <TableRow
             key={result.round.id}
             hover
             className={classes.row}
-            onClick={event => onResultClick(result, event)}
+            onClick={(event) => onResultClick(result, event)}
           >
             <TableCell
               align="right"
@@ -113,7 +113,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
               <Hidden smUp>{result.round.name}</Hidden>
             </TableCell>
             <Hidden xsDown>
-              {times(solveCount, index => (
+              {times(solveCount, (index) => (
                 <TableCell key={index} align="right">
                   {formatAttemptResult(result.attempts[index] || 0, event.id)}
                 </TableCell>

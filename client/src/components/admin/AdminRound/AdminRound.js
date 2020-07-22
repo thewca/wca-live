@@ -17,7 +17,7 @@ import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
 import AddCompetitorDialog from '../AddCompetitorDialog/AddCompetitorDialog';
 import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
-import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
+import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: String!) {

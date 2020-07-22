@@ -6,16 +6,16 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import TextField from '@material-ui/core/TextField';
 
-import { uniq, toInt } from '../../../logic/utils';
+import { uniq, toInt } from '../../../lib/utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   popper: {
     marginTop: theme.spacing(1),
     zIndex: theme.zIndex.modal + 1,
   },
 }));
 
-const personToString = person => {
+const personToString = (person) => {
   return `${person.name} (${person.id})`;
 };
 
@@ -23,13 +23,13 @@ const searchPersons = (persons, search) => {
   const normalizedSearch = search.trim().toLowerCase();
   if (normalizedSearch.length === 0) return [];
   const matchingId = persons.find(
-    person => person.id === toInt(normalizedSearch)
+    (person) => person.id === toInt(normalizedSearch)
   );
   if (matchingId) return [matchingId];
-  const matchingNameStart = persons.filter(person =>
+  const matchingNameStart = persons.filter((person) =>
     person.name.toLowerCase().startsWith(normalizedSearch)
   );
-  const matchingName = persons.filter(person =>
+  const matchingName = persons.filter((person) =>
     person.name.toLowerCase().includes(normalizedSearch)
   );
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
@@ -45,7 +45,7 @@ const PersonSelect = ({
   const classes = useStyles();
   const textFieldRef = useRef();
 
-  const handleKeyDown = event => {
+  const handleKeyDown = (event) => {
     /* Mimic enter behavior on tab press. */
     if (event.key === 'Tab') {
       event.preventDefault();
@@ -67,7 +67,7 @@ const PersonSelect = ({
         }
         onChange(person);
       }}
-      itemToString={item => (item ? personToString(item) : '')}
+      itemToString={(item) => (item ? personToString(item) : '')}
       defaultHighlightedIndex={0}
     >
       {({

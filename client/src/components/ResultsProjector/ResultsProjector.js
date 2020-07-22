@@ -20,11 +20,11 @@ import CloseIcon from '@material-ui/icons/Close';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { times } from '../../logic/utils';
-import { formatAttemptResult } from '../../logic/attempts';
-import { statsToDisplay } from '../../logic/results-table-utils';
+import { times } from '../../lib/utils';
+import { formatAttemptResult } from '../../lib/attempts';
+import { statsToDisplay } from '../../lib/results-table-utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     maxHeight: '100vh',
     overflow: 'hidden',
@@ -99,7 +99,9 @@ const ResultsProjector = ({
 
   const stats = statsToDisplay(format, eventId);
 
-  const nonemptyResults = results.filter(result => result.attempts.length > 0);
+  const nonemptyResults = results.filter(
+    (result) => result.attempts.length > 0
+  );
 
   useEffect(() => {
     if (status === STATUS.SHOWN) {
@@ -121,7 +123,7 @@ const ResultsProjector = ({
     if (status === STATUS.HIDING) {
       const timeout = setTimeout(() => {
         setStatus(STATUS.SHOWING);
-        setTopResultIndex(topResultIndex => {
+        setTopResultIndex((topResultIndex) => {
           const newIndex = topResultIndex + getNumberOfRows();
           return newIndex >= nonemptyResults.length ? 0 : newIndex;
         });
@@ -146,11 +148,7 @@ const ResultsProjector = ({
               {title}
             </Typography>
             <div className={classes.grow} />
-            <IconButton
-              color="inherit"
-              component={Link}
-              to={exitUrl}
-            >
+            <IconButton color="inherit" component={Link} to={exitUrl}>
               <CloseIcon />
             </IconButton>
           </Toolbar>
@@ -170,7 +168,7 @@ const ResultsProjector = ({
               <TableCell
                 className={classNames(classes.cell, classes.country)}
               ></TableCell>
-              {times(format.solveCount, index => (
+              {times(format.solveCount, (index) => (
                 <TableCell key={index} className={classes.cell} align="right">
                   {index + 1}
                 </TableCell>
@@ -215,7 +213,7 @@ const ResultsProjector = ({
                         code={result.person.country.iso2.toLowerCase()}
                       />
                     </TableCell>
-                    {times(format.solveCount, index => (
+                    {times(format.solveCount, (index) => (
                       <TableCell
                         key={index}
                         className={classes.cell}

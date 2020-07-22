@@ -10,10 +10,16 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { formatAttemptResult } from '../../logic/attempts';
-import { statsToDisplay } from '../../logic/results-table-utils';
+import { formatAttemptResult } from '../../lib/attempts';
+import { statsToDisplay } from '../../lib/results-table-utils';
 
-const RoundResultDialog = ({ result, format, eventId, competitionId, onClose }) => {
+const RoundResultDialog = ({
+  result,
+  format,
+  eventId,
+  competitionId,
+  onClose,
+}) => {
   const stats = statsToDisplay(format, eventId);
 
   return (
@@ -51,7 +57,7 @@ const RoundResultDialog = ({ result, format, eventId, competitionId, onClose }) 
                     </Typography>
                     <Typography variant="body2">
                       {result.attempts
-                        .map(attempt => formatAttemptResult(attempt, eventId))
+                        .map((attempt) => formatAttemptResult(attempt, eventId))
                         .join(', ')}
                     </Typography>
                   </Grid>

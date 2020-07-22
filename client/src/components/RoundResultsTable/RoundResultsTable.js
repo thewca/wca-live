@@ -12,11 +12,11 @@ import classNames from 'classnames';
 import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { times } from '../../logic/utils';
-import { formatAttemptResult } from '../../logic/attempts';
-import { statsToDisplay } from '../../logic/results-table-utils';
+import { times } from '../../lib/utils';
+import { formatAttemptResult } from '../../lib/attempts';
+import { statsToDisplay } from '../../lib/results-table-utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   row: {
     whiteSpace: 'nowrap',
   },
@@ -72,7 +72,7 @@ const RoundResultsTable = React.memo(
               <TableCell className={classes.cell}>Country</TableCell>
             </Hidden>
             <Hidden xsDown>
-              {times(format.solveCount, index => (
+              {times(format.solveCount, (index) => (
                 <TableCell key={index} className={classes.cell} align="right">
                   {index + 1}
                 </TableCell>
@@ -86,12 +86,12 @@ const RoundResultsTable = React.memo(
           </TableRow>
         </TableHead>
         <TableBody>
-          {results.map(result => (
+          {results.map((result) => (
             <TableRow
               key={result.person.id}
               hover
               className={classes.row}
-              onClick={event => onResultClick && onResultClick(result, event)}
+              onClick={(event) => onResultClick && onResultClick(result, event)}
             >
               <TableCell
                 align="right"
@@ -118,7 +118,7 @@ const RoundResultsTable = React.memo(
                 </TableCell>
               </Hidden>
               <Hidden xsDown>
-                {times(format.solveCount, index => (
+                {times(format.solveCount, (index) => (
                   <TableCell key={index} className={classes.cell} align="right">
                     {formatAttemptResult(result.attempts[index] || 0, eventId)}
                   </TableCell>

@@ -6,7 +6,7 @@ import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AdminSignIn from '../AdminSignIn/AdminSignIn';
 import AdminDashboard from '../AdminDashboard/AdminDashboard';
-import { COMPETITION_INFO_FRAGMENT } from '../../../logic/graphql-fragments';
+import { COMPETITION_INFO_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const ADMIN_QUERY = gql`
   query Competitions {

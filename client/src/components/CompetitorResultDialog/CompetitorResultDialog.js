@@ -10,8 +10,8 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { formatAttemptResult } from '../../logic/attempts';
-import { statsToDisplay } from '../../logic/results-table-utils';
+import { formatAttemptResult } from '../../lib/attempts';
+import { statsToDisplay } from '../../lib/results-table-utils';
 
 const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
   if (!result) return null;
@@ -47,7 +47,7 @@ const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
                 </Typography>
                 <Typography variant="body2">
                   {result.attempts
-                    .map(attempt =>
+                    .map((attempt) =>
                       formatAttemptResult(attempt, round.event.id)
                     )
                     .join(', ')}

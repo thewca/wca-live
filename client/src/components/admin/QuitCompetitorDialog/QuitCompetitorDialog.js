@@ -13,7 +13,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
-import { RESULTS_UPDATE_FRAGMENT } from '../../../logic/graphql-fragments';
+import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const NEXT_QUALIFYING_QUERY = gql`
   query NextQualifying($competitionId: ID!, $roundId: String!) {

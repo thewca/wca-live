@@ -22,22 +22,22 @@ export const formatDateRange = (startString, endString) => {
   return `${startMonth} ${startDay}, ${startYear} - ${endMonth} ${endDay}, ${endYear}`;
 };
 
-export const shortLocalTime = isoString => {
+export const shortLocalTime = (isoString) => {
   return format(parseISO(isoString), 'HH:mm');
 };
 
-export const shortDate = dateString => {
+export const shortDate = (dateString) => {
   return format(parseISO(dateString), 'EEEE, MMM d');
 };
 
-export const toLocalDateString = isoString => {
+export const toLocalDateString = (isoString) => {
   return format(parseISO(isoString), 'yyyy-MM-dd');
 };
 
 /**
  * Returns date string closest the current day.
  */
-export const closestDateString = dateStrings => {
+export const closestDateString = (dateStrings) => {
   const closestIndex = closestIndexTo(
     startOfToday(),
     dateStrings.map(parseISO)

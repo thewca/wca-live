@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 
-import { toInt } from '../../../../logic/utils';
+import { toInt } from '../../../../lib/utils';
 
 const CubesField = ({ initialValue, onValue, ...props }) => {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
@@ -20,7 +20,7 @@ const CubesField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={value || ''}
       spellCheck={false}
-      onChange={event => {
+      onChange={(event) => {
         const newValue = toInt(event.target.value.replace(/\D/g, '')) || 0;
         if (newValue <= 99) setValue(newValue);
       }}

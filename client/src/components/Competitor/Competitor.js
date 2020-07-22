@@ -12,8 +12,8 @@ import wcaLogo from '../Home/logo.svg';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
 import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
-import { groupBy, toInt } from '../../logic/utils';
-import { wcaUrl } from '../../logic/url-utils';
+import { groupBy, toInt } from '../../lib/utils';
+import { wcaUrl } from '../../lib/url-utils';
 
 const COMPETITOR_QUERY = gql`
   query Competitor($competitionId: ID!, $competitorId: Int!) {

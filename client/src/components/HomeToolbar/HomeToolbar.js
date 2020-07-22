@@ -11,7 +11,7 @@ import CompetitionSelect from '../CompetitionSelect/CompetitionSelect';
 import {
   geolocationAvailable,
   nearestCompetition,
-} from '../../logic/geolocation';
+} from '../../lib/geolocation';
 
 const HomeToolbar = ({ upcoming, inProgress, past }) => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -25,7 +25,7 @@ const HomeToolbar = ({ upcoming, inProgress, past }) => {
           <Tooltip title="Find nearest competition" placement="top">
             <IconButton
               onClick={() => {
-                nearestCompetition(inProgress).then(competition => {
+                nearestCompetition(inProgress).then((competition) => {
                   history.push(`/competitions/${competition.id}`);
                 });
               }}
@@ -52,7 +52,7 @@ const HomeToolbar = ({ upcoming, inProgress, past }) => {
           <div>
             <CompetitionSelect
               competitions={[...inProgress, ...upcoming, ...past]}
-              onChange={competition =>
+              onChange={(competition) =>
                 history.push(`/competitions/${competition.id}`)
               }
               TextFieldProps={{

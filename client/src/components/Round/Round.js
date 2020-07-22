@@ -14,7 +14,7 @@ import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import ResultsProjector from '../ResultsProjector/ResultsProjector';
 import RoundResults from '../RoundResults/RoundResults';
-import { RESULTS_UPDATE_FRAGMENT } from '../../logic/graphql-fragments';
+import { RESULTS_UPDATE_FRAGMENT } from '../../lib/graphql-fragments';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: String!) {

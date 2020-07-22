@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 
 import { dnfKeys, dnsKeys } from '../keybindings';
-import { toInt } from '../../../../logic/utils';
-import { roundOver10Mins } from '../../../../logic/stats';
+import { toInt } from '../../../../lib/utils';
+import { roundOver10Mins } from '../../../../lib/stats';
 
-const reformatInput = input => {
+const reformatInput = (input) => {
   const number = toInt(input.replace(/\D/g, '')) || 0;
   if (number === 0) return '';
   const str = '00000000' + number.toString().slice(0, 8);
@@ -13,7 +13,7 @@ const reformatInput = input => {
   return `${hh}:${mm}:${ss}.${cc}`.replace(/^[0:]*(?!\.)/g, '');
 };
 
-const inputToCentiseconds = input => {
+const inputToCentiseconds = (input) => {
   if (input === '') return 0;
   if (input === 'DNF') return -1;
   if (input === 'DNS') return -2;
@@ -26,7 +26,7 @@ const inputToCentiseconds = input => {
   );
 };
 
-const centisecondsToInput = centiseconds => {
+const centisecondsToInput = (centiseconds) => {
   if (centiseconds === 0) return '';
   if (centiseconds === -1) return 'DNF';
   if (centiseconds === -2) return 'DNS';
@@ -36,11 +36,11 @@ const centisecondsToInput = centiseconds => {
     .replace(/^[0:]*(?!\.)/g, '');
 };
 
-const validateTimeResult = centiseconds => {
+const validateTimeResult = (centiseconds) => {
   return roundOver10Mins(centiseconds);
 };
 
-const normalize = input => centisecondsToInput(inputToCentiseconds(input));
+const normalize = (input) => centisecondsToInput(inputToCentiseconds(input));
 
 const TimeField = ({ initialValue, onValue, ...props }) => {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
@@ -59,7 +59,7 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       variant="outlined"
       value={input}
       spellCheck={false}
-      onChange={event => {
+      onChange={(event) => {
         const key = event.nativeEvent.data;
         if (dnfKeys.includes(key)) {
           setInput('DNF');

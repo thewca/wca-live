@@ -13,7 +13,7 @@ import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import Competitions from '../Competitions/Competitions';
 import HomeToolbar from '../HomeToolbar/HomeToolbar';
 import RecordList from '../RecordList/RecordList';
-import { isUpcoming, isInProgress } from '../../logic/competitions';
+import { isUpcoming, isInProgress } from '../../lib/competitions';
 import { isPast } from 'date-fns';
 
 const COMPETITIONS_QUERY = gql`

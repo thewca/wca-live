@@ -10,7 +10,7 @@ import { useConfirm } from 'material-ui-confirm';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
-import { formatDateRange } from '../../../logic/date';
+import { formatDateRange } from '../../../lib/date';
 
 const IMPORT_COMPETITION_MUTATION = gql`
   mutation ImportCompetition($id: ID!) {

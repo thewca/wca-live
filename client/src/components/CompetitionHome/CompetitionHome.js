@@ -14,8 +14,8 @@ import NotificationImportantIcon from '@material-ui/icons/NotificationImportant'
 
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import { wcaUrl } from '../../logic/url-utils';
-import { flatMap } from '../../logic/utils';
+import { wcaUrl } from '../../lib/url-utils';
+import { flatMap } from '../../lib/utils';
 import Schedule from '../Schedule/Schedule';
 import CubingIcon from '../CubingIcon/CubingIcon';
 

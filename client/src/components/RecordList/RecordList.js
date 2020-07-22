@@ -12,7 +12,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import RecordTag from '../RecordTag/RecordTag';
-import { formatAttemptResult } from '../../logic/attempts';
+import { formatAttemptResult } from '../../lib/attempts';
 
 const RECENT_RECORDS_QUERY = gql`
   query RecentRecords {

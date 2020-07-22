@@ -11,7 +11,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import ResultForm from '../ResultForm/ResultForm';
-import { sortBy } from '../../../logic/utils';
+import { sortBy } from '../../../lib/utils';
 
 const ROUND_QUERY = gql`
   query Round($competitionId: ID!, $roundId: String!) {
