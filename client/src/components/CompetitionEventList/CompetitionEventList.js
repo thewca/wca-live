@@ -11,7 +11,7 @@ import scrollIntoView from 'scroll-into-view-if-needed';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   labelChip: {
     borderRadius: 6,
     fontSize: '0.8em',
@@ -19,32 +19,34 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const EventList = ({ events, competitionId }) => {
+const CompetitionEventList = ({ competitionEvents, competitionId }) => {
   const classes = useStyles();
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   return (
     <List dense={true}>
-      {events.map(event => (
-        <Fragment key={event.id}>
+      {competitionEvents.map((competitionEvent) => (
+        <Fragment key={competitionEvent.id}>
           <ListItem
             button
-            onClick={e => {
-              setSelectedEvent(selectedEvent === event.id ? null : event.id);
+            onClick={(e) => {
+              setSelectedId(
+                selectedId === competitionEvent.id ? null : competitionEvent.id
+              );
               e.stopPropagation();
             }}
-            disabled={event.rounds.every(round => !round.open)}
+            disabled={competitionEvent.rounds.every((round) => !round.open)}
           >
             <ListItemIcon>
-              <CubingIcon eventId={event.id} />
+              <CubingIcon eventId={competitionEvent.event.id} />
             </ListItemIcon>
-            <ListItemText primary={event.name} />
+            <ListItemText primary={competitionEvent.event.name} />
           </ListItem>
           <Collapse
-            in={selectedEvent === event.id}
+            in={selectedId === competitionEvent.id}
             timeout="auto"
             unmountOnExit
-            onEntered={element => {
+            onEntered={(element) => {
               scrollIntoView(element, {
                 behavior: 'smooth',
                 scrollMode: 'if-needed',
@@ -53,7 +55,7 @@ const EventList = ({ events, competitionId }) => {
             }}
           >
             <List dense={true}>
-              {event.rounds.map(round => (
+              {competitionEvent.rounds.map((round) => (
                 <ListItem
                   key={round.id}
                   button
@@ -79,4 +81,4 @@ const EventList = ({ events, competitionId }) => {
   );
 };
 
-export default EventList;
+export default CompetitionEventList;

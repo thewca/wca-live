@@ -70,6 +70,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :rounds, non_null(list_of(non_null(:round))) do
       resolve dataloader(:db)
     end
+
+    field :competition, non_null(:competition) do
+      resolve dataloader(:db)
+    end
   end
 
   @desc "A person relevant to a competition."

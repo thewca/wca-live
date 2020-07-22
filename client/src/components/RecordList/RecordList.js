@@ -37,6 +37,9 @@ const RECENT_RECORDS_QUERY = gql`
               id
               name
             }
+            competition {
+              id
+            }
           }
         }
       }
@@ -68,7 +71,7 @@ const RecordList = () => {
               key={index}
               button
               component={Link}
-              to={`/rounds/${record.result.round.id}`}
+              to={`/competitions/${record.result.round.competitionEvent.competition.id}/rounds/${record.result.round.id}`}
             >
               <ListItemIcon>
                 <RecordTag recordTag={record.tag} />

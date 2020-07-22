@@ -21,7 +21,7 @@ import FormatListNumberedRoundedIcon from '@material-ui/icons/FormatListNumbered
 
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import EventList from '../EventList/EventList';
+import CompetitionEventList from '../CompetitionEventList/CompetitionEventList';
 import CompetitionHome from '../CompetitionHome/CompetitionHome';
 import Round from '../Round/Round';
 import Competitors from '../Competitors/Competitors';
@@ -33,19 +33,20 @@ const COMPETITION_QUERY = gql`
     competition(id: $id) {
       id
       name
-      events {
-        _id
+      competitionEvents {
         id
-        name
+        event {
+          id
+          name
+        }
         rounds {
-          _id
           id
           name
           label
           open
         }
       }
-      currentUserScoretakerAccess
+      # currentUserScoretakerAccess TODO
     }
   }
 `;
@@ -139,7 +140,10 @@ const Competition = ({ match, location }) => {
         </IconButton>
       </div>
       <Divider />
-      <EventList events={competition.events} competitionId={competition.id} />
+      <CompetitionEventList
+        competitionEvents={competition.competitionEvents}
+        competitionId={competition.id}
+      />
     </Fragment>
   );
 
@@ -207,7 +211,7 @@ const Competition = ({ match, location }) => {
         </Drawer>
       </Hidden>
       <div className={classNames(classes.content, classes.appBarShift)}>
-        <Switch>
+        {/* <Switch>
           <Route
             exact
             path="/competitions/:competitionId"
@@ -233,7 +237,7 @@ const Competition = ({ match, location }) => {
             component={Podiums}
           />
           <Redirect to={`/competitions/${competition.id}`} />
-        </Switch>
+        </Switch> */}
       </div>
     </Fragment>
   );
