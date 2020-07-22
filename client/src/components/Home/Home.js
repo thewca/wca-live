@@ -1,6 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -13,8 +12,7 @@ import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import Competitions from '../Competitions/Competitions';
 import HomeToolbar from '../HomeToolbar/HomeToolbar';
 import RecordList from '../RecordList/RecordList';
-import { isUpcoming, isInProgress } from '../../lib/competitions';
-import { isPast } from 'date-fns';
+import { isUpcoming, isInProgress, isPast } from '../../lib/competitions';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {

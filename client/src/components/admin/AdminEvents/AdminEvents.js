@@ -1,6 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 
 import Loading from '../../Loading/Loading';

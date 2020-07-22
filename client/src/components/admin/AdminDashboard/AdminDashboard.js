@@ -1,7 +1,6 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
-import gql from 'graphql-tag';
-import { useMutation, useApolloClient } from '@apollo/client';
+import { gql, useMutation, useApolloClient } from '@apollo/client';
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
