@@ -62,7 +62,7 @@ export const attemptsWarning = (attempts, eventId) => {
 
 export const applyTimeLimit = (attempts, timeLimit) => {
   if (timeLimit === null) return attempts;
-  if (timeLimit.cumulativeRoundIds.length === 0) {
+  if (timeLimit.cumulativeRoundWcifIds.length === 0) {
     return attempts.map((attempt) =>
       attempt >= timeLimit.centiseconds ? -1 : attempt
     );

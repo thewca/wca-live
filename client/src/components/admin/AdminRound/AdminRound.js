@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -16,7 +16,6 @@ import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
 import AddCompetitorDialog from '../AddCompetitorDialog/AddCompetitorDialog';
 import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
-import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -53,6 +52,7 @@ const ROUND_QUERY = gql`
         average
         person {
           id
+          registrantId
           name
         }
         singleRecordTag
@@ -67,22 +67,34 @@ const ROUND_QUERY = gql`
   }
 `;
 
-const SET_RESULT_MUTATION = gql`
-  mutation UpdateResult(
-    $competitionId: ID!
-    $roundId: String!
-    $result: ResultInput!
-  ) {
-    updateResult(
-      competitionId: $competitionId
-      roundId: $roundId
-      result: $result
-    ) {
-      _id
-      ...resultsUpdate
+const ENTER_RESULT_ATTEMPTS = gql`
+  mutation EnterResultAttempts($input: EnterResultAttemptsInput!) {
+    enterResultAttempts(input: $input) {
+      result {
+        id
+        round {
+          id
+          results {
+            id
+            ranking
+            advancing
+            attempts {
+              result
+            }
+            best
+            average
+            person {
+              id
+              registrantId
+              name
+            }
+            singleRecordTag
+            averageRecordTag
+          }
+        }
+      }
     }
   }
-  ${RESULTS_UPDATE_FRAGMENT}
 `;
 
 const roundDescription = (round) => {
@@ -92,8 +104,8 @@ const roundDescription = (round) => {
   return `${enteredResults.length} of ${round.results.length} entered`;
 };
 
-const AdminRound = ({ match }) => {
-  const { competitionId, roundId } = match.params;
+const AdminRound = () => {
+  const { competitionId, roundId } = useParams();
   const [editedResult, setEditedResult] = useState(null);
   const [resultMenuProps, updateResultMenuProps] = useState({});
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -138,7 +150,7 @@ const AdminRound = ({ match }) => {
             focusOnResultChange={true}
             competitionId={competitionId}
             roundId={roundId}
-            updateResultMutation={SET_RESULT_MUTATION}
+            updateResultMutation={ENTER_RESULT_ATTEMPTS}
           />
         </Grid>
         <Grid item xs={12} md={9}>
@@ -168,7 +180,10 @@ const AdminRound = ({ match }) => {
                 </IconButton>
               </Tooltip>
               <Tooltip title="Double-check" placement="top">
-                <IconButton component={Link} to={`${match.url}/doublecheck`}>
+                <IconButton
+                  component={RouterLink}
+                  to={`/competitions/${competitionId}/rounds/${round.id}/doublecheck`}
+                >
                   <CheckIcon />
                 </IconButton>
               </Tooltip>
@@ -191,7 +206,7 @@ const AdminRound = ({ match }) => {
         onEditClick={() => setEditedResult(resultMenuProps.result)}
         competitionId={competitionId}
         roundId={roundId}
-        updateResultMutation={SET_RESULT_MUTATION}
+        updateResultMutation={ENTER_RESULT_ATTEMPTS}
       />
       {addDialogOpen && (
         <AddCompetitorDialog

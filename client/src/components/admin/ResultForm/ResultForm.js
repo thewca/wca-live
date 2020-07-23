@@ -35,14 +35,15 @@ const ResultForm = ({
 }) => {
   const confirm = useConfirm();
   const { numberOfAttempts } = format;
-  const [attempts, setAttempts] = useState(times(numberOfAttempts, () => 0));
+  const [attemptResults, setAttemptResults] = useState(
+    times(numberOfAttempts, () => 0)
+  );
   const rootRef = useRef(null);
 
   useEffect(() => {
-    setAttempts(
-      times(
-        numberOfAttempts,
-        (index) => (result && result.attempts[index]) || 0
+    setAttemptResults(
+      times(numberOfAttempts, (index) =>
+        result && result.attempts[index] ? result.attempts[index].result : 0
       )
     );
   }, [result, numberOfAttempts]);
@@ -64,9 +65,9 @@ const ResultForm = ({
   const computeAverage =
     [3, 5].includes(format.numberOfAttempts) && eventId !== '333mbf';
 
-  const submissionWarning = attemptsWarning(attempts, eventId);
+  const submissionWarning = attemptsWarning(attemptResults, eventId);
 
-  const disabledFromIndex = meetsCutoff(attempts, cutoff)
+  const disabledFromIndex = meetsCutoff(attemptResults, cutoff)
     ? numberOfAttempts
     : cutoff.numberOfAttempts;
 
@@ -76,11 +77,11 @@ const ResultForm = ({
 
   const [updateResult, { loading, error }] = useMutation(updateResultMutation, {
     variables: {
-      competitionId,
-      roundId,
-      result: {
-        personId: result && result.person.id,
-        attempts: trimTrailingZeros(attempts),
+      input: {
+        id: result && result.id,
+        attempts: trimTrailingZeros(attemptResults).map((result) => ({
+          result,
+        })),
       },
     },
     onCompleted: () => {
@@ -107,27 +108,34 @@ const ResultForm = ({
         <PersonSelect
           persons={persons}
           value={
-            result ? persons.find((person) => person === result.person) : null
+            result
+              ? persons.find((person) => person.id === result.person.id)
+              : null
           }
           onChange={(person) => {
             onResultChange(
-              person ? results.find((result) => result.person === person) : null
+              person
+                ? results.find((result) => result.person.id === person.id)
+                : null
             );
           }}
           TextFieldProps={{ autoFocus: true, fullWidth: true }}
         />
       </Grid>
-      {attempts.map((attempt, index) => (
+      {attemptResults.map((attemptResult, index) => (
         <Grid item xs={12} key={index}>
           <AttemptField
             eventId={eventId}
             label={`Attempt ${index + 1}`}
-            initialValue={attempt}
+            initialValue={attemptResult}
             disabled={!result || index >= disabledFromIndex}
             onValue={(value) => {
-              setAttempts(
+              setAttemptResults(
                 applyCutoff(
-                  applyTimeLimit(setAt(attempts, index, value), timeLimit),
+                  applyTimeLimit(
+                    setAt(attemptResults, index, value),
+                    timeLimit
+                  ),
                   cutoff
                 )
               );
@@ -137,7 +145,7 @@ const ResultForm = ({
       ))}
       <Grid item xs={6}>
         <Typography variant="body2">
-          Best: {formatAttemptResult(best(attempts), eventId)}
+          Best: {formatAttemptResult(best(attemptResults), eventId)}
         </Typography>
       </Grid>
       <Grid item xs={6}>
@@ -145,7 +153,7 @@ const ResultForm = ({
           <Typography variant="body2">
             Average:{' '}
             {formatAttemptResult(
-              average(attempts, eventId, numberOfAttempts),
+              average(attemptResults, eventId, numberOfAttempts),
               eventId
             )}
           </Typography>

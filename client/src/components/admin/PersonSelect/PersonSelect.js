@@ -16,14 +16,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const personToString = (person) => {
-  return `${person.name} (${person.id})`;
+  return `${person.name} (${person.registrantId})`;
 };
 
 const searchPersons = (persons, search) => {
   const normalizedSearch = search.trim().toLowerCase();
   if (normalizedSearch.length === 0) return [];
   const matchingId = persons.find(
-    (person) => person.id === toInt(normalizedSearch)
+    (person) => person.registrantId === toInt(normalizedSearch)
   );
   if (matchingId) return [matchingId];
   const matchingNameStart = persons.filter((person) =>
