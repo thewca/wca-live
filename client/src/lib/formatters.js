@@ -16,13 +16,14 @@ export const cutoffToString = (cutoff, eventId) => {
 
 export const timeLimitToString = (timeLimit, eventId) => {
   if (['333mbf', '333fm'].includes(eventId)) return 'Regulated';
-  const { centiseconds, cumulativeRoundIds } = timeLimit;
+  const { centiseconds, cumulativeRoundWcifIds } = timeLimit;
   const clockFormat = centisecondsToClockFormat(centiseconds);
-  if (cumulativeRoundIds.length === 0) {
+  // TODO: perhaps return an enum/boolean from API
+  if (cumulativeRoundWcifIds.length === 0) {
     return clockFormat;
-  } else if (cumulativeRoundIds.length === 1) {
+  } else if (cumulativeRoundWcifIds.length === 1) {
     return `${clockFormat} in total`;
   } else {
-    return `${clockFormat} total for ${cumulativeRoundIds.join(', ')}`;
+    return `${clockFormat} total for ${cumulativeRoundWcifIds.join(', ')}`;
   }
 };

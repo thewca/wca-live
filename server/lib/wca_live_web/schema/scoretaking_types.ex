@@ -79,7 +79,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
 
   object :time_limit do
     field :centiseconds, non_null(:integer)
-    field :cumulative_round_wcif_ids, non_null(list_of(non_null(:integer)))
+    field :cumulative_round_wcif_ids, non_null(list_of(non_null(:string)))
   end
 
   object :cutoff do

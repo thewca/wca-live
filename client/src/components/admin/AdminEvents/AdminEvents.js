@@ -10,26 +10,18 @@ const EVENTS_QUERY = gql`
   query Events($id: ID!) {
     competition(id: $id) {
       id
-      events {
-        _id
+      competitionEvents {
         id
-        name
-        rounds {
-          _id
+        event {
           id
+          name
+        }
+        rounds {
+          id
+          number
           name
           open
           finished
-          previous {
-            _id
-            open
-            finished
-          }
-          next {
-            _id
-            open
-            finished
-          }
         }
       }
     }
@@ -44,14 +36,17 @@ const AdminEvents = ({ match }) => {
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const {
-    competition: { events },
+    competition: { competitionEvents },
   } = data;
 
   return (
     <Grid container spacing={2} direction="row">
-      {events.map((event) => (
-        <Grid item xs={12} md={4} key={event.id}>
-          <EventCard event={event} competitionId={competitionId} />
+      {competitionEvents.map((competitionEvent) => (
+        <Grid item xs={12} md={4} key={competitionEvent.id}>
+          <EventCard
+            competitionEvent={competitionEvent}
+            competitionId={competitionId}
+          />
         </Grid>
       ))}
     </Grid>

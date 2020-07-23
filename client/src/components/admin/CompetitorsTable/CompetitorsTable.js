@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CompetitorsTable = React.memo(({ competitors, events }) => {
+const CompetitorsTable = React.memo(({ competitors, competitionEvents }) => {
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -94,7 +94,7 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
               <TableCell>Name</TableCell>
               <TableCell>Country</TableCell>
               <TableCell>WCA ID</TableCell>
-              <TableCell align="center" colSpan={events.length}>
+              <TableCell align="center" colSpan={competitionEvents.length}>
                 Results
               </TableCell>
             </TableRow>
@@ -115,13 +115,13 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
                     </Link>
                   )}
                 </TableCell>
-                {events.map((event) => {
-                  const result = event.rounds[0].results.find(
+                {competitionEvents.map((competitionEvent) => {
+                  const result = competitionEvent.rounds[0].results.find(
                     (result) => result.person.id === person.id
                   );
                   return (
                     <TableCell
-                      key={event.id}
+                      key={competitionEvent.id}
                       align="center"
                       className={classNames({
                         [classes.awaitingResults]:
@@ -139,7 +139,10 @@ const CompetitorsTable = React.memo(({ competitors, events }) => {
                           placement="top"
                         >
                           <span>
-                            <CubingIcon eventId={event.id} small={true} />
+                            <CubingIcon
+                              eventId={competitionEvent.event.id}
+                              small={true}
+                            />
                           </span>
                         </Tooltip>
                       )}

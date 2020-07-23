@@ -127,10 +127,13 @@ const AdminResultsTable = React.memo(
               <TableCell>{result.person.name}</TableCell>
               {times(format.numberOfAttempts, (index) => (
                 <TableCell key={index} align="right">
-                  {formatAttemptResult(result.attempts[index] || 0, eventId)}
+                  {formatAttemptResult(
+                    result.attempts[index] ? result.attempts[index].result : 0,
+                    eventId
+                  )}
                 </TableCell>
               ))}
-              {stats.map(({ name, type, recordType }, index) => (
+              {stats.map(({ name, type, recordTagField }, index) => (
                 <TableCell
                   key={name}
                   align="right"
@@ -140,7 +143,7 @@ const AdminResultsTable = React.memo(
                 >
                   <ResultWithRecordTag
                     result={formatAttemptResult(result[type], eventId)}
-                    recordTag={result.recordTags[recordType]}
+                    recordTag={result[recordTagField]}
                     showPb={false}
                   />
                 </TableCell>

@@ -30,18 +30,10 @@ const COMPETITION_QUERY = gql`
     competition(id: $id) {
       id
       name
-      currentUserManagerAccess
-      currentUserScoretakerAccess
+      # TODO
+      # currentUserManagerAccess
+      # currentUserScoretakerAccess
     }
-    me {
-      id
-    }
-  }
-`;
-
-const SIGN_OUT_MUTATION = gql`
-  mutation SignOut {
-    signOut
   }
 `;
 
@@ -80,23 +72,17 @@ const useStyles = makeStyles((theme) => ({
 const AdminCompetition = ({ match, location, history }) => {
   const classes = useStyles();
 
-  const apolloClient = useApolloClient();
-  const [
-    signOut,
-    { loading: signOutLoading, error: signOutError },
-  ] = useMutation(SIGN_OUT_MUTATION, {
-    onCompleted: (data) => {
-      apolloClient.clearStore().then(() => history.push('/'));
-    },
-  });
-
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
     variables: { id: match.params.id },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
-  const { competition, me } = data;
-  const { currentUserManagerAccess, currentUserScoretakerAccess } = competition;
+  const { competition } = data;
+  // TODO
+  const {
+    currentUserManagerAccess = true,
+    currentUserScoretakerAccess = true,
+  } = {};
   if (!currentUserScoretakerAccess) {
     return <Redirect to={`/competitions/${competition.id}`} />;
   }
@@ -168,24 +154,11 @@ const AdminCompetition = ({ match, location, history }) => {
               <RemoveRedEyeIcon />
             </IconButton>
           </Tooltip>
-          {me ? (
-            <Tooltip title="My competitions">
-              <IconButton color="inherit" component={Link} to="/admin">
-                <AccountCircleIcon />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip title="Sign out">
-              <IconButton
-                color="inherit"
-                onClick={signOut}
-                disabled={signOutLoading}
-              >
-                <ExitToAppIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-          {signOutError && <ErrorSnackbar error={signOutError} />}
+          <Tooltip title="My competitions">
+            <IconButton color="inherit" component={Link} to="/admin">
+              <AccountCircleIcon />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <div className={classes.content}>

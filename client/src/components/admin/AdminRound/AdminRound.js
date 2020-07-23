@@ -19,15 +19,16 @@ import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const ROUND_QUERY = gql`
-  query Round($competitionId: ID!, $roundId: String!) {
-    round(competitionId: $competitionId, roundId: $roundId) {
-      _id
+  query Round($id: ID!) {
+    round(id: $id) {
       id
       name
-      event {
-        _id
+      competitionEvent {
         id
-        name
+        event {
+          id
+          name
+        }
       }
       format {
         numberOfAttempts
@@ -35,33 +36,33 @@ const ROUND_QUERY = gql`
       }
       timeLimit {
         centiseconds
-        cumulativeRoundIds
+        cumulativeRoundWcifIds
       }
       cutoff {
         numberOfAttempts
         attemptResult
       }
       results {
-        _id
+        id
         ranking
         advancing
-        attempts
+        attempts {
+          result
+        }
         best
         average
         person {
-          _id
           id
           name
         }
-        recordTags {
-          single
-          average
-        }
+        singleRecordTag
+        averageRecordTag
       }
-      next {
-        id
-        open
-      }
+      # TODO
+      # next {
+      #   id
+      #   open
+      # }
     }
   }
 `;
@@ -105,7 +106,7 @@ const AdminRound = ({ match }) => {
   }, []);
 
   const { data, loading, error } = useQuery(ROUND_QUERY, {
-    variables: { competitionId, roundId },
+    variables: { id: roundId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
@@ -131,7 +132,7 @@ const AdminRound = ({ match }) => {
               setEditedResult(result);
             }}
             format={round.format}
-            eventId={round.event.id}
+            eventId={round.competitionEvent.event.id}
             timeLimit={round.timeLimit}
             cutoff={round.cutoff}
             focusOnResultChange={true}
@@ -144,7 +145,7 @@ const AdminRound = ({ match }) => {
           <Grid container alignItems="center">
             <Grid item>
               <Typography variant="h5">
-                {round.event.name} - {round.name}
+                {round.competitionEvent.event.name} - {round.name}
               </Typography>
               <Typography variant="body2" color="textSecondary">
                 {roundDescription(round)}
@@ -177,7 +178,7 @@ const AdminRound = ({ match }) => {
             <AdminResultsTable
               results={round.results}
               format={round.format}
-              eventId={round.event.id}
+              eventId={round.competitionEvent.event.id}
               competitionId={competitionId}
               onResultClick={handleResultClick}
             />

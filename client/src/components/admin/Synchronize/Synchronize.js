@@ -1,5 +1,6 @@
 import React from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { useParams } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
@@ -12,6 +13,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import TimeAgo from 'react-timeago';
 import EditIcon from '@material-ui/icons/Edit';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import { parseISO } from 'date-fns';
 
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
@@ -25,16 +27,19 @@ const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
     competition(id: $id) {
       id
+      wcaId
       synchronizedAt
     }
   }
 `;
 
 const SYNCHRONIZE_MUTATION = gql`
-  mutation Synchronize($competitionId: ID!) {
-    synchronize(competitionId: $competitionId) {
-      id
-      synchronizedAt
+  mutation Synchronize($input: SynchronizeInput!) {
+    synchronizeCompetition(input: $input) {
+      competition {
+        id
+        synchronizedAt
+      }
     }
   }
 `;
@@ -45,23 +50,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Synchronize = ({ match }) => {
+const Synchronize = () => {
   const classes = useStyles();
-  const { competitionId } = match.params;
+  const { competitionId } = useParams();
   const [
     synchronize,
     { loading: synchronizeLoading, error: synchronizeError },
   ] = useMutation(SYNCHRONIZE_MUTATION, {
-    variables: { competitionId },
+    variables: { input: { id: competitionId } },
   });
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
     variables: { id: competitionId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
-  const {
-    competition: { synchronizedAt },
-  } = data;
+  const { competition } = data;
 
   return (
     <Grid container direction="column" alignItems="center" spacing={1}>
@@ -79,7 +82,8 @@ const Synchronize = ({ match }) => {
       </Grid>
       <Grid item>
         <Typography variant="caption" component="div" align="center">
-          Last synchronized <TimeAgo date={new Date(synchronizedAt)} />.
+          Last synchronized{' '}
+          <TimeAgo date={parseISO(competition.synchronizedAt)} />.
         </Typography>
       </Grid>
       <Grid item className={classes.description}>
@@ -97,7 +101,9 @@ const Synchronize = ({ match }) => {
           <ListItem
             button
             component="a"
-            href={wcaUrl(`/competitions/${competitionId}/registrations/add`)}
+            href={wcaUrl(
+              `/competitions/${competition.wcaId}/registrations/add`
+            )}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -109,7 +115,7 @@ const Synchronize = ({ match }) => {
           <ListItem
             button
             component="a"
-            href={wcaUrl(`/competitions/${competitionId}/events/edit`)}
+            href={wcaUrl(`/competitions/${competition.wcaId}/events/edit`)}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -124,7 +130,7 @@ const Synchronize = ({ match }) => {
         <Typography align="justify">
           {`To manage competitor groups and print scorecards you can use `}
           <Link
-            href={groupifierUrl(`/competitions/${competitionId}`)}
+            href={groupifierUrl(`/competitions/${competition.wcaId}`)}
             target="_blank"
           >
             Groupifier

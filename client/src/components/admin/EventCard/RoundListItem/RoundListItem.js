@@ -10,37 +10,47 @@ import { useConfirm } from 'material-ui-confirm';
 import ErrorSnackbar from '../../../ErrorSnackbar/ErrorSnackbar';
 
 const OPEN_ROUND_MUTATION = gql`
-  mutation OpenRound($competitionId: ID!, $roundId: String!) {
-    openRound(competitionId: $competitionId, roundId: $roundId) {
-      _id
-      open
+  mutation OpenRound($input: OpenRoundInput!) {
+    openRound(input: $input) {
+      round {
+        id
+        open
+      }
     }
   }
 `;
 
 const CLEAR_ROUND_MUTATION = gql`
-  mutation ClearRound($competitionId: ID!, $roundId: String!) {
-    clearRound(competitionId: $competitionId, roundId: $roundId) {
-      _id
-      open
+  mutation ClearRound($input: ClearRoundInput!) {
+    clearRound(input: $input) {
+      round {
+        id
+        open
+      }
     }
   }
 `;
 
-const roundOpenable = (round) => {
-  return !round.open && (!round.previous || round.previous.open);
+const roundOpenable = (round, competitionEvent) => {
+  const previous = competitionEvent.rounds.find(
+    (other) => other.number === round.number - 1
+  );
+  return !round.open && (!previous || previous.open);
 };
 
-const roundClearable = (round) => {
-  return round.open && (!round.next || !round.next.open);
+const roundClearable = (round, competitionEvent) => {
+  const next = competitionEvent.rounds.find(
+    (other) => other.number === round.number + 1
+  );
+  return round.open && (!next || !next.open);
 };
 
-const RoundListItem = ({ event, round, competitionId }) => {
+const RoundListItem = ({ round, competitionEvent, competitionId }) => {
   const confirm = useConfirm();
   const [openRound, { loading: openLoading, error: openError }] = useMutation(
     OPEN_ROUND_MUTATION,
     {
-      variables: { competitionId, roundId: round.id },
+      variables: { input: { id: round.id } },
     }
   );
 
@@ -48,8 +58,33 @@ const RoundListItem = ({ event, round, competitionId }) => {
     clearRound,
     { loading: clearLoading, error: clearError },
   ] = useMutation(CLEAR_ROUND_MUTATION, {
-    variables: { competitionId, roundId: round.id },
+    variables: { input: { id: round.id } },
   });
+
+  function handleOpenRoundClick() {
+    const previous = competitionEvent.rounds.find(
+      (other) => other.number === round.number - 1
+    );
+    if (previous && !previous.finished) {
+      confirm({
+        description: `
+          There are some missing results in the previous round.
+          Opening this round will permanently remove them.
+        `,
+      }).then(openRound);
+    } else {
+      openRound();
+    }
+  }
+
+  function handleClearRoundClick() {
+    confirm({
+      description: `
+        This will irreversibly remove all results
+        from ${competitionEvent.event.name} - ${round.name}.
+      `,
+    }).then(clearRound);
+  }
 
   return (
     <ListItem
@@ -61,38 +96,20 @@ const RoundListItem = ({ event, round, competitionId }) => {
     >
       <ListItemText primary={round.name} />
       <ListItemSecondaryAction>
-        {roundOpenable(round) && (
+        {roundOpenable(round, competitionEvent) && (
           <Button
             size="small"
-            onClick={() => {
-              if (round.previous && !round.previous.finished) {
-                confirm({
-                  description: `
-                    There are some missing results in the previous round.
-                    Opening this round will permanently remove them.
-                  `,
-                }).then(openRound);
-              } else {
-                openRound();
-              }
-            }}
+            onClick={handleOpenRoundClick}
             disabled={openLoading}
           >
             Open
           </Button>
         )}
         {openError && <ErrorSnackbar error={openError} />}
-        {roundClearable(round) && (
+        {roundClearable(round, competitionEvent) && (
           <Button
             size="small"
-            onClick={() => {
-              confirm({
-                description: `
-                  This will irreversibly remove all results
-                  from ${event.name} - ${round.name}.
-                `,
-              }).then(clearRound);
-            }}
+            onClick={handleClearRoundClick}
             disabled={clearLoading}
           >
             Clear

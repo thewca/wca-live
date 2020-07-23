@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { gql, useQuery } from '@apollo/client';
+import { useParams } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
 
 import CompetitorsTable from '../CompetitorsTable/CompetitorsTable';
@@ -11,7 +12,6 @@ const COMPETITORS_QUERY = gql`
     competition(id: $id) {
       id
       competitors {
-        _id
         id
         name
         wcaId
@@ -19,17 +19,21 @@ const COMPETITORS_QUERY = gql`
           name
         }
       }
-      events {
-        _id
+      competitionEvents {
         id
+        event {
+          id
+        }
         rounds {
-          _id
+          id
           results {
+            id
             person {
-              _id
               id
             }
-            attempts
+            attempts {
+              result
+            }
           }
         }
       }
@@ -37,9 +41,10 @@ const COMPETITORS_QUERY = gql`
   }
 `;
 
-const AdminCompetitors = ({ match }) => {
+const AdminCompetitors = () => {
+  const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITORS_QUERY, {
-    variables: { id: match.params.competitionId },
+    variables: { id: competitionId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
@@ -52,7 +57,7 @@ const AdminCompetitors = ({ match }) => {
       </Typography>
       <CompetitorsTable
         competitors={competition.competitors}
-        events={competition.events}
+        competitionEvents={competition.competitionEvents}
       />
     </Fragment>
   );
