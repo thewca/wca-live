@@ -10,12 +10,27 @@ export const parseActivityCode = (activityCode) => {
   };
 };
 
-export const eventRoundForActivityCode = (wcif, activityCode) => {
+// export const eventRoundForActivityCode = (wcif, activityCode) => {
+//   const { eventId, roundNumber } = parseActivityCode(activityCode);
+//   const event = wcif.events.find((event) => event.id === eventId);
+//   if (!event) return null;
+//   const roundId = `${eventId}-r${roundNumber}`;
+//   const round = event.rounds.find((round) => round.id === roundId);
+//   if (!round) return null;
+//   return { event, round };
+// };
+
+// TODO: tmp (at least move to competitions.js but dunno if that's the good approach)
+
+export const eventRoundForActivityCode = (competitionEvents, activityCode) => {
   const { eventId, roundNumber } = parseActivityCode(activityCode);
-  const event = wcif.events.find((event) => event.id === eventId);
-  if (!event) return null;
-  const roundId = `${eventId}-r${roundNumber}`;
-  const round = event.rounds.find((round) => round.id === roundId);
+  const competitionEvent = competitionEvents.find(
+    ({ event }) => event.id === eventId
+  );
+  if (!competitionEvent) return null;
+  const round = competitionEvent.rounds.find(
+    (round) => round.number === roundNumber
+  );
   if (!round) return null;
-  return { event, round };
+  return { event: competitionEvent.event, round };
 };

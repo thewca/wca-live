@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useParams } from 'react-router-dom';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -22,37 +22,35 @@ const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
     competition(id: $id) {
       id
+      wcaId
       name
-      countries {
-        name
-      }
-      events {
-        _id
-        id
-        name
+      # TODO necessary?
+      competitionEvents {
+        event {
+          id
+          name
+        }
         rounds {
           id
           name
           active
           open
+          number # TMP?
         }
       }
-      schedule {
-        venues {
+      venues {
+        id
+        name
+        rooms {
+          id
           name
-          rooms {
-            _id
+          color
+          activities {
             id
+            activityCode
             name
-            color
-            activities {
-              _id
-              id
-              activityCode
-              name
-              startTime
-              endTime
-            }
+            startTime
+            endTime
           }
         }
       }
@@ -71,16 +69,17 @@ const useStyles = makeStyles((theme) => ({
 
 const CompetitionHome = ({ match }) => {
   const classes = useStyles();
+  const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
-    variables: { id: match.params.competitionId },
+    variables: { id: competitionId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
 
-  const active = flatMap(competition.events, (event) =>
-    event.rounds.filter((round) => round.active).map((round) => [event, round])
-  );
+  // const active = flatMap(competition.events, (event) =>
+  //   event.rounds.filter((round) => round.active).map((round) => [event, round])
+  // );
 
   return (
     <Grid container direction="column" spacing={2}>
@@ -89,15 +88,15 @@ const CompetitionHome = ({ match }) => {
           Welcome to {competition.name}!
         </Typography>
         <Typography>
-          {`This competition takes place in
+          {/* {`This competition takes place in
             ${
               competition.countries.length === 1
                 ? competition.countries[0].name
                 : 'multiple countries'
             }.
-            Check out the `}
+            Check out the `} */}
           <Link
-            href={wcaUrl(`/competitions/${competition.id}`)}
+            href={wcaUrl(`/competitions/${competition.wcaId}`)}
             target="_blank"
           >
             WCA website
@@ -105,7 +104,7 @@ const CompetitionHome = ({ match }) => {
           {` for more details on the competition.`}
         </Typography>
       </Grid>
-      {active.length > 0 && (
+      {/* {active.length > 0 && (
         <Grid item className={classes.fullWidth}>
           <Typography variant="h5" gutterBottom>
             Active rounds
@@ -128,7 +127,7 @@ const CompetitionHome = ({ match }) => {
             ))}
           </Grid>
         </Grid>
-      )}
+      )} */}
       <Grid item className={classes.fullWidth}>
         <Grid container alignContent="center">
           <Grid item>
@@ -147,8 +146,8 @@ const CompetitionHome = ({ match }) => {
           </Grid>
         </Grid>
         <Schedule
-          schedule={competition.schedule}
-          events={competition.events}
+          venues={competition.venues}
+          competitionEvents={competition.competitionEvents}
           competitionId={competition.id}
         />
       </Grid>

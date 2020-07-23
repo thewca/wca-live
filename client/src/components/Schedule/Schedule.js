@@ -19,9 +19,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Schedule = ({ schedule, events, competitionId }) => {
+const Schedule = ({ venues, competitionEvents, competitionId }) => {
   const classes = useStyles();
-  const rooms = flatMap(schedule.venues, (venue) => venue.rooms);
+  const rooms = flatMap(venues, (venue) => venue.rooms);
   const allActivitiesWithRoom = flatMap(rooms, (room) =>
     room.activities.map((activity) => [activity, room])
   );
@@ -31,7 +31,7 @@ const Schedule = ({ schedule, events, competitionId }) => {
         !activity.activityCode.startsWith('other-') &&
         /* Ignore activities that don't have corresponding event/round data
          (e.g. if a round is removed, but still in the schedule) */
-        eventRoundForActivityCode({ events }, activity.activityCode)
+        eventRoundForActivityCode(competitionEvents, activity.activityCode)
     ),
     ([activity]) => activity.startTime
   );
@@ -71,7 +71,7 @@ const Schedule = ({ schedule, events, competitionId }) => {
               <ScheduleCard
                 activityCode={activityCode}
                 activitiesWithRoom={activitiesWithRoom}
-                events={events}
+                competitionEvents={competitionEvents}
                 competitionId={competitionId}
               />
             </Grid>

@@ -33,12 +33,15 @@ const useStyles = makeStyles((theme) => ({
 const ScheduleCard = ({
   activityCode,
   activitiesWithRoom,
-  events,
+  competitionEvents,
   competitionId,
 }) => {
   const classes = useStyles();
   const { attemptNumber } = parseActivityCode(activityCode);
-  const { event, round } = eventRoundForActivityCode({ events }, activityCode);
+  const { event, round } = eventRoundForActivityCode(
+    competitionEvents,
+    activityCode
+  );
   const name = attemptNumber
     ? `${event.name} - ${round.name} (Attempt ${attemptNumber})`
     : `${event.name} - ${round.name}`;

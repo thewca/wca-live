@@ -19,6 +19,8 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
   object :round do
     field :id, non_null(:id)
 
+    field :number, non_null(:integer)
+
     field :name, non_null(:string) do
       resolve &Resolvers.Scoretaking.round_name/3
     end
