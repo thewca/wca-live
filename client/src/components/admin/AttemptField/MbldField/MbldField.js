@@ -4,30 +4,31 @@ import Grid from '@material-ui/core/Grid';
 import { dnfKeys, dnsKeys } from '../keybindings';
 import TimeField from '../TimeField/TimeField';
 import CubesField from '../CubesField/CubesField';
+// TODO: rename to attempt result?
+import { validateMbldAttempt } from '../../../../lib/attempts';
 import {
-  decodeMbldAttempt,
-  encodeMbldAttempt,
-  validateMbldAttempt,
-} from '../../../../lib/attempts';
+  decodeMbldAttemptResult,
+  encodeMbldAttemptResult,
+} from '../../../../lib/attempt-result';
 
 const MbldField = ({ initialValue, onValue, disabled, label }) => {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
   const [decodedValue, setDecodedValue] = useState(
-    decodeMbldAttempt(initialValue)
+    decodeMbldAttemptResult(initialValue)
   );
 
   /* Sync local value when initial value changes. See AttemptField for detailed description. */
   if (prevInitialValue !== initialValue) {
-    setDecodedValue(decodeMbldAttempt(initialValue));
+    setDecodedValue(decodeMbldAttemptResult(initialValue));
     setPrevInitialValue(initialValue);
   }
 
   const handleDecodedValueChange = (decodedValue) => {
     const updatedDecodedValue = validateMbldAttempt(decodedValue);
-    if (encodeMbldAttempt(updatedDecodedValue) !== initialValue) {
-      onValue(encodeMbldAttempt(updatedDecodedValue));
+    if (encodeMbldAttemptResult(updatedDecodedValue) !== initialValue) {
+      onValue(encodeMbldAttemptResult(updatedDecodedValue));
       /* Once we emit the change, reflect the initial state. */
-      setDecodedValue(decodeMbldAttempt(initialValue));
+      setDecodedValue(decodeMbldAttemptResult(initialValue));
     } else {
       setDecodedValue(updatedDecodedValue);
     }
@@ -36,10 +37,10 @@ const MbldField = ({ initialValue, onValue, disabled, label }) => {
   const handleAnyInput = (event) => {
     const key = event.nativeEvent.data;
     if (dnfKeys.includes(key)) {
-      handleDecodedValueChange(decodeMbldAttempt(-1));
+      handleDecodedValueChange(decodeMbldAttemptResult(-1));
       event.preventDefault();
     } else if (dnsKeys.includes(key)) {
-      handleDecodedValueChange(decodeMbldAttempt(-2));
+      handleDecodedValueChange(decodeMbldAttemptResult(-2));
       event.preventDefault();
     }
   };

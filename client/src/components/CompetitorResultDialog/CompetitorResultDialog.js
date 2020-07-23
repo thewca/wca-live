@@ -10,13 +10,13 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { formatAttemptResult } from '../../lib/attempts';
+import { formatAttemptResult } from '../../lib/attempt-result';
 import { statsToDisplay } from '../../lib/results-table-utils';
 
 const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
   if (!result) return null;
   const { round } = result;
-  const stats = statsToDisplay(round.format, round.event.id);
+  const stats = statsToDisplay(round.format, round.competitionEvent.event.id);
 
   return (
     <Dialog open={true} fullWidth={true} onClose={onClose}>
@@ -25,7 +25,9 @@ const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
         <Grid container direction="column" spacing={2}>
           <Grid item>
             <Typography variant="subtitle2">Event</Typography>
-            <Typography variant="body2">{round.event.name}</Typography>
+            <Typography variant="body2">
+              {round.competitionEvent.event.name}
+            </Typography>
           </Grid>
           <Grid item>
             <Typography variant="subtitle2">Round</Typography>
@@ -41,29 +43,31 @@ const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
             <Fragment>
               <Grid item>
                 <Typography variant="subtitle2">
-                  {['333fm', '333mbf'].includes(round.event.id)
+                  {['333fm', '333mbf'].includes(round.competitionEvent.event.id)
                     ? 'Results'
                     : 'Times'}
                 </Typography>
                 <Typography variant="body2">
                   {result.attempts
                     .map((attempt) =>
-                      formatAttemptResult(attempt, round.event.id)
+                      formatAttemptResult(
+                        attempt.result,
+                        round.competitionEvent.event.id
+                      )
                     )
                     .join(', ')}
                 </Typography>
               </Grid>
-              {stats.map(({ name, type, recordType }) => (
+              {stats.map(({ name, type, recordTagField }) => (
                 <Grid item key={name}>
                   <Typography variant="subtitle2">{name}</Typography>
                   <Typography variant="body2">
                     <ResultWithRecordTag
                       result={formatAttemptResult(
                         result[type],
-                        round.event.id,
-                        type === 'average'
+                        round.competitionEvent.event.id
                       )}
-                      recordTag={result.recordTags[recordType]}
+                      recordTag={result[recordTagField]}
                       showPb={true}
                     />
                   </Typography>

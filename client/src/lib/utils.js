@@ -38,3 +38,5 @@ export const trimTrailingZeros = (array) => {
     ? trimTrailingZeros(array.slice(0, -1))
     : array;
 };
+
+export const partition = (xs, fn) => [xs.filter(fn), xs.filter((x) => !fn(x))];

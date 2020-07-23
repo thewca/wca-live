@@ -13,7 +13,7 @@ import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
-import { formatAttemptResult } from '../../lib/attempts';
+import { formatAttemptResult } from '../../lib/attempt-result';
 import { statsToDisplay } from '../../lib/results-table-utils';
 
 const useStyles = makeStyles((theme) => ({
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
       width: 40,
     },
   },
-  advancable: {
+  advancing: {
     color: theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// TODO: pass just round?
 const RoundResultsTable = React.memo(
   ({ results, format, eventId, competitionId, onResultClick }) => {
     const classes = useStyles();
@@ -72,7 +73,7 @@ const RoundResultsTable = React.memo(
               <TableCell className={classes.cell}>Country</TableCell>
             </Hidden>
             <Hidden xsDown>
-              {times(format.solveCount, (index) => (
+              {times(format.numberOfAttempts, (index) => (
                 <TableCell key={index} className={classes.cell} align="right">
                   {index + 1}
                 </TableCell>
@@ -88,7 +89,7 @@ const RoundResultsTable = React.memo(
         <TableBody>
           {results.map((result) => (
             <TableRow
-              key={result.person.id}
+              key={result.id}
               hover
               className={classes.row}
               onClick={(event) => onResultClick && onResultClick(result, event)}
@@ -96,7 +97,7 @@ const RoundResultsTable = React.memo(
               <TableCell
                 align="right"
                 className={classNames(classes.cell, classes.ranking, {
-                  [classes.advancable]: result.advancable,
+                  [classes.advancing]: result.advancing,
                 })}
               >
                 {result.ranking}
@@ -118,13 +119,18 @@ const RoundResultsTable = React.memo(
                 </TableCell>
               </Hidden>
               <Hidden xsDown>
-                {times(format.solveCount, (index) => (
+                {times(format.numberOfAttempts, (index) => (
                   <TableCell key={index} className={classes.cell} align="right">
-                    {formatAttemptResult(result.attempts[index] || 0, eventId)}
+                    {formatAttemptResult(
+                      result.attempts[index]
+                        ? result.attempts[index].result
+                        : 0,
+                      eventId
+                    )}
                   </TableCell>
                 ))}
               </Hidden>
-              {stats.map(({ name, type, recordType }, index) => (
+              {stats.map(({ name, type, recordTagField }, index) => (
                 <TableCell
                   key={name}
                   align="right"
@@ -133,12 +139,8 @@ const RoundResultsTable = React.memo(
                   })}
                 >
                   <ResultWithRecordTag
-                    result={formatAttemptResult(
-                      result[type],
-                      eventId,
-                      type === 'average'
-                    )}
-                    recordTag={result.recordTags[recordType]}
+                    result={formatAttemptResult(result[type], eventId)}
+                    recordTag={result[recordTagField]}
                     showPb={false}
                   />
                 </TableCell>

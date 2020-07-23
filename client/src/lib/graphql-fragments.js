@@ -5,7 +5,7 @@ export const RESULTS_UPDATE_FRAGMENT = gql`
     results {
       _id
       ranking
-      advancable
+      advancing
       attempts
       best
       average

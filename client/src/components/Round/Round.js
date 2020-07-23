@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Switch, Route, Redirect, Link } from 'react-router-dom';
+import { Switch, Route, Redirect, Link, useParams } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
@@ -16,31 +16,33 @@ import RoundResults from '../RoundResults/RoundResults';
 import { RESULTS_UPDATE_FRAGMENT } from '../../lib/graphql-fragments';
 
 const ROUND_QUERY = gql`
-  query Round($competitionId: ID!, $roundId: String!) {
-    round(competitionId: $competitionId, roundId: $roundId) {
-      _id
+  query Round($id: ID!) {
+    round(id: $id) {
       id
       name
       finished
       active
-      event {
-        _id
+      competitionEvent {
         id
-        name
+        event {
+          id
+          name
+        }
       }
       format {
-        solveCount
+        numberOfAttempts
         sortBy
       }
       results {
-        _id
+        id
         ranking
-        advancable
-        attempts
+        advancing
+        attempts {
+          result
+        }
         best
         average
         person {
-          _id
           id
           name
           country {
@@ -48,42 +50,40 @@ const ROUND_QUERY = gql`
             iso2
           }
         }
-        recordTags {
-          single
-          average
-        }
+        singleRecordTag
+        averageRecordTag
       }
     }
   }
 `;
 
-const ROUND_UPDATE_SUBSCRIPTION = gql`
-  subscription RoundUpdate($competitionId: ID!, $roundId: String!) {
-    roundUpdate(competitionId: $competitionId, roundId: $roundId) {
-      _id
-      ...resultsUpdate
-    }
-  }
-  ${RESULTS_UPDATE_FRAGMENT}
-`;
+// const ROUND_UPDATE_SUBSCRIPTION = gql`
+//   subscription RoundUpdate($competitionId: ID!, $roundId: String!) {
+//     roundUpdate(competitionId: $competitionId, roundId: $roundId) {
+//       _id
+//       ...resultsUpdate
+//     }
+//   }
+//   ${RESULTS_UPDATE_FRAGMENT}
+// `;
 
-const Round = ({ match }) => {
-  const { competitionId, roundId } = match.params;
+const Round = () => {
+  const { competitionId, roundId } = useParams();
   const { data, loading, error, subscribeToMore } = useQuery(ROUND_QUERY, {
-    variables: { competitionId, roundId },
+    variables: { id: roundId },
   });
 
   const { id, finished, active } = data ? data.round : {};
-  useEffect(() => {
-    if (!id) return;
-    if (!finished || active) {
-      const unsubscribe = subscribeToMore({
-        document: ROUND_UPDATE_SUBSCRIPTION,
-        variables: { competitionId, roundId: id },
-      });
-      return unsubscribe;
-    }
-  }, [subscribeToMore, competitionId, id, finished, active]);
+  // useEffect(() => {
+  //   if (!id) return;
+  //   if (!finished || active) {
+  //     const unsubscribe = subscribeToMore({
+  //       document: ROUND_UPDATE_SUBSCRIPTION,
+  //       variables: { competitionId, roundId: id },
+  //     });
+  //     return unsubscribe;
+  //   }
+  // }, [subscribeToMore, competitionId, id, finished, active]);
 
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
@@ -95,7 +95,7 @@ const Round = ({ match }) => {
       <Grid container alignItems="center">
         <Grid item>
           <Typography variant="h5">
-            {round.event.name} - {round.name}
+            {round.competitionEvent.event.name} - {round.name}
           </Typography>
         </Grid>
         <Grid item style={{ flexGrow: 1 }} />
@@ -105,7 +105,7 @@ const Round = ({ match }) => {
               <IconButton
                 component="a"
                 target="_blank"
-                href={`/pdfs/competitions/${competitionId}/rounds/${roundId}`}
+                href={`/pdfs/rounds/${roundId}`}
               >
                 <PrintIcon />
               </IconButton>
@@ -129,8 +129,8 @@ const Round = ({ match }) => {
             <ResultsProjector
               results={round.results}
               format={round.format}
-              eventId={round.event.id}
-              title={`${round.event.name} - ${round.name}`}
+              eventId={round.competitionEvent.event.id}
+              title={`${round.competitionEvent.event.name} - ${round.name}`}
               exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
               competitionId={competitionId}
             />
@@ -143,7 +143,7 @@ const Round = ({ match }) => {
             <RoundResults
               results={round.results}
               format={round.format}
-              eventId={round.event.id}
+              eventId={round.competitionEvent.event.id}
               competitionId={competitionId}
             />
           )}

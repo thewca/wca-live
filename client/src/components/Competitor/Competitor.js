@@ -13,11 +13,11 @@ import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsT
 import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
 import { groupBy, toInt } from '../../lib/utils';
 import { wcaUrl } from '../../lib/url-utils';
+import { useParams } from 'react-router-dom';
 
 const COMPETITOR_QUERY = gql`
-  query Competitor($competitionId: ID!, $competitorId: Int!) {
-    competitor(competitionId: $competitionId, competitorId: $competitorId) {
-      _id
+  query Competitor($id: ID!) {
+    person(id: $id) {
       id
       name
       wcaId
@@ -25,27 +25,28 @@ const COMPETITOR_QUERY = gql`
         iso2
       }
       results {
-        _id
+        id
         ranking
-        advancable
-        attempts
+        advancing
+        attempts {
+          result
+        }
         best
         average
-        recordTags {
-          single
-          average
-        }
+        singleRecordTag
+        averageRecordTag
         round {
-          _id
           id
           name
-          event {
-            _id
+          competitionEvent {
             id
-            name
+            event {
+              id
+              name
+            }
           }
           format {
-            solveCount
+            numberOfAttempts
             sortBy
           }
         }
@@ -63,19 +64,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Competitor = ({ match }) => {
+const Competitor = () => {
   const classes = useStyles();
-  const { competitionId, competitorId } = match.params;
+  const { competitionId, competitorId } = useParams();
   const [selectedResult, setSelectedResult] = useState(null);
   const { data, loading, error } = useQuery(COMPETITOR_QUERY, {
-    variables: { competitionId, competitorId: toInt(competitorId) },
+    variables: { id: competitorId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
-  const { competitor } = data;
+  const { person } = data;
+
   const resultsByEvent = groupBy(
-    competitor.results,
-    (result) => result.round.event.name
+    person.results.filter((result) => result.attempts.length > 0),
+    (result) => result.round.competitionEvent.event.name
   );
 
   return (
@@ -83,15 +85,14 @@ const Competitor = ({ match }) => {
       <Grid container alignContent="center" className={classes.competitor}>
         <Grid item>
           <Typography variant="h5">
-            {competitor.name}{' '}
-            <FlagIcon code={competitor.country.iso2.toLowerCase()} />
+            {person.name} <FlagIcon code={person.country.iso2.toLowerCase()} />
           </Typography>
         </Grid>
         <Grid item className={classes.grow} />
-        {competitor.wcaId && (
+        {person.wcaId && (
           <Grid item>
             <a
-              href={wcaUrl(`/persons/${competitor.wcaId}`)}
+              href={wcaUrl(`/persons/${person.wcaId}`)}
               target="_blank"
               rel="noopener noreferrer"
             >

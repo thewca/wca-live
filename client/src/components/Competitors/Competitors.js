@@ -1,5 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
+import { useParams } from 'react-router-dom';
 
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
@@ -10,7 +11,6 @@ const COMPETITORS_QUERY = gql`
     competition(id: $competitionId) {
       id
       competitors {
-        _id
         id
         name
         country {
@@ -21,9 +21,10 @@ const COMPETITORS_QUERY = gql`
   }
 `;
 
-const Competitors = ({ match }) => {
+const Competitors = () => {
+  const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITORS_QUERY, {
-    variables: { competitionId: match.params.competitionId },
+    variables: { competitionId: competitionId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;

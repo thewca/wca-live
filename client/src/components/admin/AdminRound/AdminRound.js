@@ -30,7 +30,7 @@ const ROUND_QUERY = gql`
         name
       }
       format {
-        solveCount
+        numberOfAttempts
         sortBy
       }
       timeLimit {
@@ -44,7 +44,7 @@ const ROUND_QUERY = gql`
       results {
         _id
         ranking
-        advancable
+        advancing
         attempts
         best
         average

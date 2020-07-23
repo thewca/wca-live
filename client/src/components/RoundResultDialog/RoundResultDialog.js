@@ -10,7 +10,7 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
-import { formatAttemptResult } from '../../lib/attempts';
+import { formatAttemptResult } from '../../lib/attempt-result';
 import { statsToDisplay } from '../../lib/results-table-utils';
 
 const RoundResultDialog = ({
@@ -57,21 +57,19 @@ const RoundResultDialog = ({
                     </Typography>
                     <Typography variant="body2">
                       {result.attempts
-                        .map((attempt) => formatAttemptResult(attempt, eventId))
+                        .map((attempt) =>
+                          formatAttemptResult(attempt.result, eventId)
+                        )
                         .join(', ')}
                     </Typography>
                   </Grid>
-                  {stats.map(({ name, type, recordType }) => (
+                  {stats.map(({ name, type, recordTagField }) => (
                     <Grid item key={name}>
                       <Typography variant="subtitle2">{name}</Typography>
                       <Typography variant="body2">
                         <ResultWithRecordTag
-                          result={formatAttemptResult(
-                            result[type],
-                            eventId,
-                            type === 'average'
-                          )}
-                          recordTag={result.recordTags[recordType]}
+                          result={formatAttemptResult(result[type], eventId)}
+                          recordTag={result[recordTagField]}
                           showPb={false}
                         />
                       </Typography>

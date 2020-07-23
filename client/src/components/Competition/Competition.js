@@ -211,7 +211,7 @@ const Competition = ({ match, location }) => {
         </Drawer>
       </Hidden>
       <div className={classNames(classes.content, classes.appBarShift)}>
-        {/* <Switch>
+        <Switch>
           <Route
             exact
             path="/competitions/:competitionId"
@@ -237,7 +237,7 @@ const Competition = ({ match, location }) => {
             component={Podiums}
           />
           <Redirect to={`/competitions/${competition.id}`} />
-        </Switch> */}
+        </Switch>
       </div>
     </Fragment>
   );

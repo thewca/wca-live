@@ -8,47 +8,46 @@ import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import RoundResults from '../RoundResults/RoundResults';
 import CubingIcon from '../CubingIcon/CubingIcon';
+import { partition } from '../../lib/utils';
 
 const PODIUMS_QUERY = gql`
   query Podiums($competitionId: ID!) {
     competition(id: $competitionId) {
       id
-      events {
-        _id
-        id
-        name
-      }
       podiums {
-        _id
-        id
-        event {
-          _id
+        round {
           id
-          name
-        }
-        format {
-          solveCount
-          sortBy
+          finished
+          competitionEvent {
+            id
+            event {
+              id
+              name
+            }
+          }
+          format {
+            numberOfAttempts
+            sortBy
+          }
         }
         results {
-          _id
+          id
           ranking
-          advancable
-          attempts
+          advancing
+          attempts {
+            result
+          }
           best
           average
           person {
-            _id
             id
             name
             country {
               name
             }
           }
-          recordTags {
-            single
-            average
-          }
+          singleRecordTag
+          averageRecordTag
         }
       }
     }
@@ -63,37 +62,39 @@ const Podiums = ({ match }) => {
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
 
+  const [finishedPodiums, nonfinishedPodiums] = partition(
+    competition.podiums,
+    (podium) => podium.round.finished
+  );
+
   return (
     <Fragment>
       <Typography variant="h5" gutterBottom>
         Podiums
       </Typography>
-      {competition.podiums.length > 0 ? (
+      {finishedPodiums.length > 0 ? (
         <Grid container direction="column" spacing={2}>
-          {competition.podiums.map((round) => (
+          {finishedPodiums.map(({ round, results }) => (
             <Grid item key={round.id}>
-              <Typography variant="subtitle1">{round.event.name}</Typography>
+              <Typography variant="subtitle1">
+                {round.competitionEvent.event.name}
+              </Typography>
               <RoundResults
-                results={round.results}
+                results={results}
                 format={round.format}
-                eventId={round.event.id}
+                eventId={round.competitionEvent.event.id}
                 competitionId={competition.id}
               />
             </Grid>
           ))}
-          {competition.events.length !== competition.podiums.length && (
+          {nonfinishedPodiums.length > 0 && (
             <Grid item>
               <Grid item>
                 <Typography>{`Podiums for the following events are yet to be determined:`}</Typography>
               </Grid>
               <Grid container direction="row" spacing={3}>
-                {competition.events
-                  .filter(
-                    (event) =>
-                      !competition.podiums.some(
-                        (podium) => podium.event.id === event.id
-                      )
-                  )
+                {nonfinishedPodiums
+                  .map(({ round }) => round.competitionEvent.event)
                   .map((event) => (
                     <Grid item key={event.id}>
                       <Tooltip title={event.name}>

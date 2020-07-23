@@ -24,7 +24,7 @@ const ROUND_QUERY = gql`
         name
       }
       format {
-        solveCount
+        numberOfAttempts
       }
       timeLimit {
         centiseconds

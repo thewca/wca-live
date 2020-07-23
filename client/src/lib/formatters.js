@@ -1,4 +1,7 @@
-import { mbldAttemptToPoints, centisecondsToClockFormat } from './attempts';
+import {
+  mbldAttemptToPoints,
+  centisecondsToClockFormat,
+} from './attempt-result';
 
 export const cutoffToString = (cutoff, eventId) => {
   if (!cutoff) return 'None';

@@ -11,7 +11,7 @@ import green from '@material-ui/core/colors/green';
 
 import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../../lib/utils';
-import { formatAttemptResult } from '../../../lib/attempts';
+import { formatAttemptResult } from '../../../lib/attempt-result';
 import { statsToDisplay } from '../../../lib/results-table-utils';
 
 const useStyles = makeStyles((theme) => ({
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 16,
     width: 50,
   },
-  advancable: {
+  advancing: {
     color: theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
@@ -95,7 +95,7 @@ const AdminResultsTable = React.memo(
                 Name
               </TableSortLabel>
             </TableCell>
-            {times(format.solveCount, (index) => (
+            {times(format.numberOfAttempts, (index) => (
               <TableCell key={index} align="right">
                 {index + 1}
               </TableCell>
@@ -118,14 +118,14 @@ const AdminResultsTable = React.memo(
               <TableCell
                 align="right"
                 className={classNames(classes.ranking, {
-                  [classes.advancable]: result.advancable,
+                  [classes.advancing]: result.advancing,
                 })}
               >
                 {result.ranking}
               </TableCell>
               <TableCell align="right">{result.person.id}</TableCell>
               <TableCell>{result.person.name}</TableCell>
-              {times(format.solveCount, (index) => (
+              {times(format.numberOfAttempts, (index) => (
                 <TableCell key={index} align="right">
                   {formatAttemptResult(result.attempts[index] || 0, eventId)}
                 </TableCell>
@@ -139,11 +139,7 @@ const AdminResultsTable = React.memo(
                   })}
                 >
                   <ResultWithRecordTag
-                    result={formatAttemptResult(
-                      result[type],
-                      eventId,
-                      type === 'average'
-                    )}
+                    result={formatAttemptResult(result[type], eventId)}
                     recordTag={result.recordTags[recordType]}
                     showPb={false}
                   />

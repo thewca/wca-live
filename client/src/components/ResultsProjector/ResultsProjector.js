@@ -21,7 +21,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
-import { formatAttemptResult } from '../../lib/attempts';
+import { formatAttemptResult } from '../../lib/attempt-result';
 import { statsToDisplay } from '../../lib/results-table-utils';
 
 const useStyles = makeStyles((theme) => ({
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     width: 75,
     paddingRight: 16,
   },
-  advancable: {
+  advancing: {
     color: theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
@@ -168,7 +168,7 @@ const ResultsProjector = ({
               <TableCell
                 className={classNames(classes.cell, classes.country)}
               ></TableCell>
-              {times(format.solveCount, (index) => (
+              {times(format.numberOfAttempts, (index) => (
                 <TableCell key={index} className={classes.cell} align="right">
                   {index + 1}
                 </TableCell>
@@ -198,7 +198,7 @@ const ResultsProjector = ({
                     <TableCell
                       align="right"
                       className={classNames(classes.cell, classes.ranking, {
-                        [classes.advancable]: result.advancable,
+                        [classes.advancing]: result.advancing,
                       })}
                     >
                       {result.ranking}
@@ -213,19 +213,21 @@ const ResultsProjector = ({
                         code={result.person.country.iso2.toLowerCase()}
                       />
                     </TableCell>
-                    {times(format.solveCount, (index) => (
+                    {times(format.numberOfAttempts, (index) => (
                       <TableCell
                         key={index}
                         className={classes.cell}
                         align="right"
                       >
                         {formatAttemptResult(
-                          result.attempts[index] || 0,
+                          result.attempts[index]
+                            ? result.attempts[index].result
+                            : 0,
                           eventId
                         )}
                       </TableCell>
                     ))}
-                    {stats.map(({ name, type, recordType }, index) => (
+                    {stats.map(({ name, type, recordTagField }, index) => (
                       <TableCell
                         key={name}
                         align="right"
@@ -234,12 +236,8 @@ const ResultsProjector = ({
                         })}
                       >
                         <ResultWithRecordTag
-                          result={formatAttemptResult(
-                            result[type],
-                            eventId,
-                            type === 'average'
-                          )}
-                          recordTag={result.recordTags[recordType]}
+                          result={formatAttemptResult(result[type], eventId)}
+                          recordTag={result[recordTagField]}
                           showPb={false}
                         />
                       </TableCell>

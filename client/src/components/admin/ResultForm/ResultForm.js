@@ -12,12 +12,11 @@ import AttemptField from '../AttemptField/AttemptField';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import { setAt, times, trimTrailingZeros } from '../../../lib/utils';
 import {
-  meetsCutoff,
-  formatAttemptResult,
   attemptsWarning,
   applyTimeLimit,
   applyCutoff,
 } from '../../../lib/attempts';
+import { meetsCutoff, formatAttemptResult } from '../../../lib/attempt-result';
 import { best, average } from '../../../lib/stats';
 import { cutoffToString, timeLimitToString } from '../../../lib/formatters';
 
@@ -35,15 +34,18 @@ const ResultForm = ({
   focusOnResultChange = false,
 }) => {
   const confirm = useConfirm();
-  const { solveCount } = format;
-  const [attempts, setAttempts] = useState(times(solveCount, () => 0));
+  const { numberOfAttempts } = format;
+  const [attempts, setAttempts] = useState(times(numberOfAttempts, () => 0));
   const rootRef = useRef(null);
 
   useEffect(() => {
     setAttempts(
-      times(solveCount, (index) => (result && result.attempts[index]) || 0)
+      times(
+        numberOfAttempts,
+        (index) => (result && result.attempts[index]) || 0
+      )
     );
-  }, [result, solveCount]);
+  }, [result, numberOfAttempts]);
 
   useEffect(() => {
     if (focusOnResultChange && result) {
@@ -60,12 +62,12 @@ const ResultForm = ({
   useKeyNavigation(rootRef.current);
 
   const computeAverage =
-    [3, 5].includes(format.solveCount) && eventId !== '333mbf';
+    [3, 5].includes(format.numberOfAttempts) && eventId !== '333mbf';
 
   const submissionWarning = attemptsWarning(attempts, eventId);
 
   const disabledFromIndex = meetsCutoff(attempts, cutoff)
-    ? solveCount
+    ? numberOfAttempts
     : cutoff.numberOfAttempts;
 
   const persons = useMemo(() => {
@@ -143,9 +145,8 @@ const ResultForm = ({
           <Typography variant="body2">
             Average:{' '}
             {formatAttemptResult(
-              average(attempts, eventId, solveCount),
-              eventId,
-              true
+              average(attempts, eventId, numberOfAttempts),
+              eventId
             )}
           </Typography>
         )}

@@ -11,7 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import RecordTag from '../RecordTag/RecordTag';
-import { formatAttemptResult } from '../../lib/attempts';
+import { formatAttemptResult } from '../../lib/attempt-result';
 
 const RECENT_RECORDS_QUERY = gql`
   query RecentRecords {
@@ -83,8 +83,7 @@ const RecordList = () => {
                     <span style={{ fontWeight: 600 }}>
                       {`${formatAttemptResult(
                         record.attemptResult,
-                        record.result.round.competitionEvent.event.id,
-                        record.type === 'average'
+                        record.result.round.competitionEvent.event.id
                       )}`}
                     </span>
                   </span>

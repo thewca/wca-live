@@ -33,8 +33,11 @@ const mo3 = (attempts) => {
 };
 
 /* Adds 0 for missing attempts, so they conform to the given length. */
-const normalizeAttempts = (attempts, solveCount) => {
-  return Array.from({ length: solveCount }, (_, index) => attempts[index] || 0);
+const normalizeAttempts = (attempts, numberOfAttempts) => {
+  return Array.from(
+    { length: numberOfAttempts },
+    (_, index) => attempts[index] || 0
+  );
 };
 
 export const average = (attempts, eventId, expectedSolveCount) => {
