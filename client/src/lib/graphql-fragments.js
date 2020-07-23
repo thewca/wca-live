@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 
+// TODO: remove?
 export const RESULTS_UPDATE_FRAGMENT = gql`
   fragment resultsUpdate on Round {
     results {

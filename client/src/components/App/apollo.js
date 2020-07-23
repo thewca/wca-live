@@ -7,7 +7,11 @@ import {
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { WebSocketLink } from '@apollo/client/link/ws';
+import { Socket as PhoenixSocket } from 'phoenix';
+import * as AbsintheSocket from '@absinthe/socket';
+import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
+
+// Http link
 
 const httpLink = new HttpLink(
   process.env.NODE_ENV === 'production'
@@ -29,19 +33,23 @@ const retryHttpLink =
     ? ApolloLink.from([retryLink, httpLink])
     : httpLink;
 
-const wsLink = new WebSocketLink({
-  uri:
-    process.env.NODE_ENV === 'production'
-      ? `wss://${window.location.host}/api`
-      : 'ws://localhost:4000/api',
-  options: {
-    reconnect: true,
-    /* Establish the connection lazily and disconnect when there are no active
-       subscriptions to reduce the number of websocket connections. */
-    lazy: true,
-    inactivityTimeout: 10000,
-  },
-});
+// WebSocket link
+
+// Create a standard Phoenix websocket connection.
+const phoenixSocket = new PhoenixSocket(
+  process.env.NODE_ENV === 'production'
+    ? // TODO: /socket -> /api (?)
+      `wss://${window.location.host}/socket`
+    : 'ws://localhost:4000/socket'
+);
+
+// Wrap the Phoenix socket in an AbsintheSocket.
+const absintheSocket = AbsintheSocket.create(phoenixSocket);
+
+// Create an Apollo link from the AbsintheSocket instance.
+const wsLink = createAbsintheSocketLink(absintheSocket);
+
+// Combined link
 
 const link = split(
   ({ query }) => {

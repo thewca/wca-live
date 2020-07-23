@@ -13,7 +13,28 @@ import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import ResultsProjector from '../ResultsProjector/ResultsProjector';
 import RoundResults from '../RoundResults/RoundResults';
-import { RESULTS_UPDATE_FRAGMENT } from '../../lib/graphql-fragments';
+
+const ROUND_RESULT_FRAGMENT = gql`
+  fragment roundResult on Result {
+    ranking
+    advancing
+    attempts {
+      result
+    }
+    best
+    average
+    person {
+      id
+      name
+      country {
+        name
+        iso2
+      }
+    }
+    singleRecordTag
+    averageRecordTag
+  }
+`;
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -35,37 +56,25 @@ const ROUND_QUERY = gql`
       }
       results {
         id
-        ranking
-        advancing
-        attempts {
-          result
-        }
-        best
-        average
-        person {
-          id
-          name
-          country {
-            name
-            iso2
-          }
-        }
-        singleRecordTag
-        averageRecordTag
+        ...roundResult
       }
     }
   }
+  ${ROUND_RESULT_FRAGMENT}
 `;
 
-// const ROUND_UPDATE_SUBSCRIPTION = gql`
-//   subscription RoundUpdate($competitionId: ID!, $roundId: String!) {
-//     roundUpdate(competitionId: $competitionId, roundId: $roundId) {
-//       _id
-//       ...resultsUpdate
-//     }
-//   }
-//   ${RESULTS_UPDATE_FRAGMENT}
-// `;
+const ROUND_UPDATED_SUBSCRIPTION = gql`
+  subscription RoundUpdated($id: ID!) {
+    roundUpdated(id: $id) {
+      id
+      results {
+        id
+        ...roundResult
+      }
+    }
+  }
+  ${ROUND_RESULT_FRAGMENT}
+`;
 
 const Round = () => {
   const { competitionId, roundId } = useParams();
@@ -73,17 +82,17 @@ const Round = () => {
     variables: { id: roundId },
   });
 
-  const { id, finished, active } = data ? data.round : {};
-  // useEffect(() => {
-  //   if (!id) return;
-  //   if (!finished || active) {
-  //     const unsubscribe = subscribeToMore({
-  //       document: ROUND_UPDATE_SUBSCRIPTION,
-  //       variables: { competitionId, roundId: id },
-  //     });
-  //     return unsubscribe;
-  //   }
-  // }, [subscribeToMore, competitionId, id, finished, active]);
+  const shouldSubscribe =
+    data && data.round && (!data.round.finished || data.round.active);
+  useEffect(() => {
+    if (shouldSubscribe) {
+      const unsubscribe = subscribeToMore({
+        document: ROUND_UPDATED_SUBSCRIPTION,
+        variables: { id: roundId },
+      });
+      return unsubscribe;
+    }
+  }, [subscribeToMore, roundId, shouldSubscribe]);
 
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
