@@ -60,7 +60,7 @@ defmodule WcaLive.Scoretaking.Round do
     |> case do
       nil ->
         cond do
-          finished?(round) -> "Finished"
+          finished?(round) -> "Done"
           active?(round) -> "Live"
           true -> nil
         end
