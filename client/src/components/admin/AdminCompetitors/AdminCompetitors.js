@@ -16,6 +16,7 @@ const COMPETITORS_QUERY = gql`
         name
         wcaId
         country {
+          iso2
           name
         }
       }

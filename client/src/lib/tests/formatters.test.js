@@ -35,14 +35,14 @@ describe('timeLimitToString', () => {
   });
 
   test('returns just the time for non-cumulative limit', () => {
-    const timeLimit = { centiseconds: 15 * 100, cumulativeRoundIds: [] };
+    const timeLimit = { centiseconds: 15 * 100, cumulativeRoundWcifIds: [] };
     expect(timeLimitToString(timeLimit, '333')).toEqual('15.00');
   });
 
   test('makes it clear that a limit is cumulative for all sovles', () => {
     const timeLimit = {
       centiseconds: 60 * 100,
-      cumulativeRoundIds: ['333bf-r1'],
+      cumulativeRoundWcifIds: ['333bf-r1'],
     };
     expect(timeLimitToString(timeLimit, '333bf')).toEqual('1:00.00 in total');
   });
@@ -50,7 +50,7 @@ describe('timeLimitToString', () => {
   test('includes list of round ids for multi-round cumulative limit', () => {
     const timeLimit = {
       centiseconds: 1.5 * 3600 * 100,
-      cumulativeRoundIds: ['444bf-r1', '555bf-r1'],
+      cumulativeRoundWcifIds: ['444bf-r1', '555bf-r1'],
     };
     expect(timeLimitToString(timeLimit, '444bf')).toEqual(
       '1:30:00.00 total for 444bf-r1, 555bf-r1'

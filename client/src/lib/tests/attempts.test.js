@@ -213,7 +213,7 @@ describe('applyTimeLimit', () => {
   it('4th attempt becomes DNF because of exceeding time limit', () => {
     const attempts = [1000, 1100, 1200, 1300, 0];
     const timeLimit = {
-      cumulativeRoundIds: [],
+      cumulativeRoundWcifIds: [],
       centiseconds: 1250,
     };
     expect(applyTimeLimit(attempts, timeLimit)).toEqual([
@@ -228,7 +228,7 @@ describe('applyTimeLimit', () => {
   it('3rd attempt becomes DNF because of exceeding cumulative time limit', () => {
     const attempts = [3000, 13000, 5000];
     const timeLimit = {
-      cumulativeRoundIds: ['333bf'],
+      cumulativeRoundWcifIds: ['333bf'],
       centiseconds: 20000,
     };
     expect(applyTimeLimit(attempts, timeLimit)).toEqual([3000, 13000, -1]);

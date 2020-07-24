@@ -26,9 +26,10 @@ const ResultMenu = ({
     { loading: clearLoading, error: clearError },
   ] = useMutation(updateResultMutation, {
     variables: {
-      competitionId,
-      roundId,
-      result: { personId: result && result.person.id, attempts: [] },
+      input: {
+        id: result && result.id,
+        attempts: [],
+      },
     },
     onCompleted: onClose,
   });

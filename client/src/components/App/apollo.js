@@ -64,7 +64,13 @@ const link = split(
 );
 
 export const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Country: {
+        keyFields: ['iso2'],
+      },
+    },
+  }),
   link,
   defaultOptions: {
     watchQuery: {

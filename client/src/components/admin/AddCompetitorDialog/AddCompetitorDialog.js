@@ -12,7 +12,6 @@ import Typography from '@material-ui/core/Typography';
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
-import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const ADVANCEMENT_CANDIDATES_QUERY = gql`
   query AdvancementCandidates($roundId: ID!) {

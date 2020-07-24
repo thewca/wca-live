@@ -43,6 +43,7 @@ const PODIUMS_QUERY = gql`
             id
             name
             country {
+              iso2
               name
             }
           }

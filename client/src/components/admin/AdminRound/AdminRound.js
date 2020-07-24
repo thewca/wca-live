@@ -182,7 +182,7 @@ const AdminRound = () => {
               <Tooltip title="Double-check" placement="top">
                 <IconButton
                   component={RouterLink}
-                  to={`/competitions/${competitionId}/rounds/${round.id}/doublecheck`}
+                  to={`/admin/competitions/${competitionId}/rounds/${round.id}/doublecheck`}
                 >
                   <CheckIcon />
                 </IconButton>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter, Link, useHistory } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -30,10 +30,10 @@ const useStyles = makeStyles((theme) => ({
 const AdminCompetitionList = ({
   manageableCompetitions,
   importableCompetitions,
-  history,
 }) => {
   const classes = useStyles();
   const confirm = useConfirm();
+  const history = useHistory();
   const [importCompetition, { loading, error }] = useMutation(
     IMPORT_COMPETITION_MUTATION,
     {
@@ -95,4 +95,4 @@ const AdminCompetitionList = ({
   );
 };
 
-export default withRouter(AdminCompetitionList);
+export default AdminCompetitionList;

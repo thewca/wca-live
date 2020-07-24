@@ -11,7 +11,7 @@ import wcaLogo from '../Home/logo.svg';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
 import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
-import { groupBy, toInt } from '../../lib/utils';
+import { groupBy, sortByArray } from '../../lib/utils';
 import { wcaUrl } from '../../lib/url-utils';
 import { useParams } from 'react-router-dom';
 
@@ -38,11 +38,13 @@ const COMPETITOR_QUERY = gql`
         round {
           id
           name
+          number
           competitionEvent {
             id
             event {
               id
               name
+              rank
             }
           }
           format {
@@ -75,8 +77,14 @@ const Competitor = () => {
   if (error) return <ErrorSnackbar />;
   const { person } = data;
 
-  const resultsByEvent = groupBy(
-    person.results.filter((result) => result.attempts.length > 0),
+  const nonemptyResults = person.results.filter(
+    (result) => result.attempts.length > 0
+  );
+  const resultsByEventName = groupBy(
+    sortByArray(nonemptyResults, (result) => [
+      result.round.competitionEvent.event.rank,
+      result.round.number,
+    ]),
     (result) => result.round.competitionEvent.event.name
   );
 
@@ -102,7 +110,7 @@ const Competitor = () => {
         )}
       </Grid>
       <Grid container direction="column" spacing={2}>
-        {Object.entries(resultsByEvent).map(([eventName, results]) => (
+        {Object.entries(resultsByEventName).map(([eventName, results]) => (
           <Grid item key={eventName}>
             <Typography variant="subtitle1">{eventName}</Typography>
             <CompetitorResultsTable

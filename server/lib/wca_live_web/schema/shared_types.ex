@@ -18,5 +18,6 @@ defmodule WcaLiveWeb.Schema.SharedTypes do
   object :event do
     field :id, non_null(:id)
     field :name, non_null(:string)
+    field :rank, non_null(:integer)
   end
 end

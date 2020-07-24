@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter, Link, useHistory } from 'react-router-dom';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
@@ -29,9 +29,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdminDashboard = ({ currentUser, history }) => {
+const AdminDashboard = ({ currentUser }) => {
   const classes = useStyles();
   const apolloClient = useApolloClient();
+  const history = useHistory();
   const [signOut, { loading, error }] = useMutation(SIGN_OUT_MUTATION, {
     onCompleted: (data) => {
       apolloClient.clearStore().then(() => history.push('/'));
@@ -90,4 +91,4 @@ const AdminDashboard = ({ currentUser, history }) => {
   );
 };
 
-export default withRouter(AdminDashboard);
+export default AdminDashboard;

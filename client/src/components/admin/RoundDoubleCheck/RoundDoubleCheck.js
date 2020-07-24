@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
@@ -13,61 +14,53 @@ import ResultForm from '../ResultForm/ResultForm';
 import { sortBy } from '../../../lib/utils';
 
 const ROUND_QUERY = gql`
-  query Round($competitionId: ID!, $roundId: String!) {
-    round(competitionId: $competitionId, roundId: $roundId) {
-      _id
+  query Round($id: ID!) {
+    round(id: $id) {
       id
       name
-      event {
-        _id
+      competitionEvent {
         id
-        name
+        event {
+          id
+          name
+        }
       }
       format {
         numberOfAttempts
       }
       timeLimit {
         centiseconds
-        cumulativeRoundIds
+        cumulativeRoundWcifIds
       }
       cutoff {
         numberOfAttempts
         attemptResult
       }
       results {
-        _id
-        attempts
+        id
+        attempts {
+          result
+        }
         person {
-          _id
           id
           name
+          registrantId
         }
-        updatedAt
+        enteredAt
       }
     }
   }
 `;
 
-const SET_RESULT_MUTATION = gql`
-  mutation UpdateResult(
-    $competitionId: ID!
-    $roundId: String!
-    $result: ResultInput!
-  ) {
-    updateResult(
-      competitionId: $competitionId
-      roundId: $roundId
-      result: $result
-    ) {
-      _id
-      id
-      results {
-        attempts
-        person {
-          _id
-          id
-          name
+const ENTER_RESULT_ATTEMPTS = gql`
+  mutation EnterResultAttempts($input: EnterResultAttemptsInput!) {
+    enterResultAttempts(input: $input) {
+      result {
+        id
+        attempts {
+          result
         }
+        # enteredAt # TODO: updating the timestamp updates the order and that's kinda weird
       }
     }
   }
@@ -79,9 +72,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RoundDoubleCheck = ({ match }) => {
+const RoundDoubleCheck = () => {
   const classes = useStyles();
-  const { competitionId, roundId } = match.params;
+  const { competitionId, roundId } = useParams();
   const [resultIndex, updateResultIndex] = useState(0);
   const leftButtonRef = useRef(null);
   const rightButtonRef = useRef(null);
@@ -100,14 +93,14 @@ const RoundDoubleCheck = ({ match }) => {
   }, []);
 
   const { data, loading, error } = useQuery(ROUND_QUERY, {
-    variables: { competitionId, roundId },
+    variables: { id: roundId },
   });
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { round } = data;
   const results = sortBy(
     round.results,
-    (result) => -new Date(result.updatedAt)
+    (result) => -new Date(result.enteredAt)
   );
 
   return (
@@ -126,12 +119,12 @@ const RoundDoubleCheck = ({ match }) => {
           result={results[resultIndex]}
           results={round.results}
           format={round.format}
-          eventId={round.event.id}
+          eventId={round.competitionEvent.event.id}
           timeLimit={round.timeLimit}
           cutoff={round.cutoff}
           competitionId={competitionId}
           roundId={roundId}
-          updateResultMutation={SET_RESULT_MUTATION}
+          updateResultMutation={ENTER_RESULT_ATTEMPTS}
           onResultChange={(result) => {
             /* Disable clearing as we don't want to lose track of the currently viewed result. */
             if (result !== null) {
@@ -152,7 +145,7 @@ const RoundDoubleCheck = ({ match }) => {
       </Grid>
       <Grid item md={5}>
         <Typography variant="h5" align="center">
-          {round.event.name} - {round.name}
+          {round.competitionEvent.event.name} - {round.name}
         </Typography>
         <Typography variant="subtitle1" align="center" gutterBottom>
           Double-check

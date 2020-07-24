@@ -27,8 +27,8 @@ const ROUND_RESULT_FRAGMENT = gql`
       id
       name
       country {
-        name
         iso2
+        name
       }
     }
     singleRecordTag

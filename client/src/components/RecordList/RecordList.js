@@ -26,6 +26,7 @@ const RECENT_RECORDS_QUERY = gql`
           id
           name
           country {
+            iso2
             name
           }
         }
