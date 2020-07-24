@@ -14,44 +14,51 @@ import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
-const MISSING_QUALIFYING_QUERY = gql`
-  query MissingQualifying($competitionId: ID!, $roundId: String!) {
-    round(competitionId: $competitionId, roundId: $roundId) {
-      _id
+const ADVANCEMENT_CANDIDATES_QUERY = gql`
+  query AdvancementCandidates($roundId: ID!) {
+    round(id: $roundId) {
       id
-      missingQualifying {
+      advancementCandidates {
         qualifying {
-          _id
           id
           name
+          registrantId
         }
-        excess {
-          _id
+        revocable {
           id
           name
+          registrantId
         }
       }
     }
   }
 `;
 
-const ADD_COMPETITOR_MUTATION = gql`
-  mutation AddCompetitor(
-    $competitionId: ID!
-    $roundId: String!
-    $competitorId: Int!
-  ) {
-    addCompetitor(
-      competitionId: $competitionId
-      roundId: $roundId
-      competitorId: $competitorId
-    ) {
-      _id
-      id
-      ...resultsUpdate
+const ADD_PERSON_TO_ROUND_MUTATION = gql`
+  mutation AddPersonToRound($input: AddPersonToRoundInput!) {
+    addPersonToRound(input: $input) {
+      round {
+        id
+        results {
+          id
+          ranking
+          advancing
+          attempts {
+            result
+          }
+          best
+          average
+          person {
+            id
+            registrantId
+            name
+          }
+          singleRecordTag
+          averageRecordTag
+        }
+      }
     }
   }
-  ${RESULTS_UPDATE_FRAGMENT}
 `;
 
 const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
@@ -61,18 +68,19 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
     onClose();
   };
 
-  const { data, loading, error } = useQuery(MISSING_QUALIFYING_QUERY, {
-    variables: { competitionId, roundId },
+  const { data, loading, error } = useQuery(ADVANCEMENT_CANDIDATES_QUERY, {
+    variables: { roundId },
   });
 
   const [
-    addCompetitor,
+    addCompetitorToRound,
     { loading: mutationLoading, error: mutationError },
-  ] = useMutation(ADD_COMPETITOR_MUTATION, {
+  ] = useMutation(ADD_PERSON_TO_ROUND_MUTATION, {
     variables: {
-      competitionId,
-      roundId,
-      competitorId: selectedCompetitor && selectedCompetitor.id,
+      input: {
+        roundId,
+        personId: selectedCompetitor && selectedCompetitor.id,
+      },
     },
     onCompleted: handleClose,
   });
@@ -85,22 +93,22 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
       <DialogTitle>Add qualifying competitor</DialogTitle>
       <DialogContent>
         {data &&
-          (data.round.missingQualifying.qualifying.length > 0 ? (
+          (data.round.advancementCandidates.qualifying.length > 0 ? (
             <Grid container direction="column" spacing={2}>
               <Grid item>
                 <PersonSelect
-                  persons={data.round.missingQualifying.qualifying}
+                  persons={data.round.advancementCandidates.qualifying}
                   value={selectedCompetitor}
                   onChange={setSelectedCompetitor}
                   TextFieldProps={{ autoFocus: true, fullWidth: true }}
                 />
               </Grid>
-              {data.round.missingQualifying.excess.length > 0 && (
+              {data.round.advancementCandidates.revocable.length > 0 && (
                 <Grid item>
                   <Typography color="error">
                     {`This will also remove the following competitors from this round: `}
                     <span style={{ fontWeight: 500 }}>
-                      {data.round.missingQualifying.excess
+                      {data.round.advancementCandidates.revocable
                         .map((person) => person.name)
                         .join(', ')}
                     </span>
@@ -115,7 +123,7 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          onClick={addCompetitor}
+          onClick={addCompetitorToRound}
           color="primary"
           disabled={!selectedCompetitor || mutationLoading}
         >

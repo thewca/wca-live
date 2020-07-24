@@ -15,12 +15,10 @@ import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import { RESULTS_UPDATE_FRAGMENT } from '../../../lib/graphql-fragments';
 
 const NEXT_QUALIFYING_QUERY = gql`
-  query NextQualifying($competitionId: ID!, $roundId: String!) {
-    round(competitionId: $competitionId, roundId: $roundId) {
-      _id
+  query NextQualifying($roundId: ID!) {
+    round(id: $roundId) {
       id
       nextQualifying {
-        _id
         id
         name
       }
@@ -28,24 +26,31 @@ const NEXT_QUALIFYING_QUERY = gql`
   }
 `;
 
-const QUIT_COMPETITOR_MUTATION = gql`
-  mutation QuitCompetitor(
-    $competitionId: ID!
-    $roundId: String!
-    $competitorId: Int!
-    $replace: Boolean!
-  ) {
-    quitCompetitor(
-      competitionId: $competitionId
-      roundId: $roundId
-      competitorId: $competitorId
-      replace: $replace
-    ) {
-      _id
-      ...resultsUpdate
+const REMOVE_PERSON_FROM_ROUND_MUTATION = gql`
+  mutation RemovePersonFromRound($input: RemovePersonFromRoundInput!) {
+    removePersonFromRound(input: $input) {
+      round {
+        id
+        results {
+          id
+          ranking
+          advancing
+          attempts {
+            result
+          }
+          best
+          average
+          person {
+            id
+            registrantId
+            name
+          }
+          singleRecordTag
+          averageRecordTag
+        }
+      }
     }
   }
-  ${RESULTS_UPDATE_FRAGMENT}
 `;
 
 const QuitCompetitorDialog = ({
@@ -57,20 +62,21 @@ const QuitCompetitorDialog = ({
 }) => {
   const [replace, setReplace] = useState('');
   const { data, loading, error } = useQuery(NEXT_QUALIFYING_QUERY, {
-    variables: { competitionId, roundId },
+    variables: { roundId },
   });
-  const [quit, { loading: quitLoading, error: quitError }] = useMutation(
-    QUIT_COMPETITOR_MUTATION,
-    {
-      variables: {
-        competitionId,
+  const [
+    removePersonFromRound,
+    { loading: quitLoading, error: quitError },
+  ] = useMutation(REMOVE_PERSON_FROM_ROUND_MUTATION, {
+    variables: {
+      input: {
         roundId,
-        competitorId: competitor.id,
+        personId: competitor.id,
         replace: replace === 'true',
       },
-      onCompleted: onClose,
-    }
-  );
+    },
+    onCompleted: onClose,
+  });
   if (error) return <ErrorSnackbar />;
 
   return (
@@ -117,7 +123,7 @@ const QuitCompetitorDialog = ({
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button
-          onClick={quit}
+          onClick={removePersonFromRound}
           color="primary"
           disabled={replace === '' || quitLoading}
         >
