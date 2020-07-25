@@ -10,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
-import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
 import CompetitionList from '../../CompetitionList/CompetitionList';
 import ImportableCompetitions from '../ImportableCompetitions/ImportableCompetitions';
 

@@ -8,6 +8,11 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
     field :current_user, :user do
       resolve &Resolvers.Accounts.current_user/3
     end
+
+    field :users, non_null(list_of(non_null(:user))) do
+      arg :filter, :string
+      resolve &Resolvers.Accounts.list_users/3
+    end
   end
 
   @desc "A user of the application, imported from the WCA website during the OAuth procedure."

@@ -20,6 +20,24 @@ defmodule WcaLive.Accounts do
   def fetch_user(id), do: Repo.fetch(User, id)
 
   @doc """
+  Returns the list of users.
+  """
+  def list_users(args \\ %{}) do
+    limit = args[:limit] || 10
+
+    User
+    |> filter_by_text(args[:filter])
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
+  defp filter_by_text(query, nil), do: query
+
+  defp filter_by_text(query, filter) do
+    from u in query, where: ilike(u.name, ^"#{filter}%")
+  end
+
+  @doc """
   Gets user's access token and refreshes it if it's expired.
   """
   @spec get_valid_access_token(%User{}) :: {:ok, %AccessToken{}} | {:error, String.t()}

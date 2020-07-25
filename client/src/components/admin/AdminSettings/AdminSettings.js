@@ -12,18 +12,14 @@ const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
     competition(id: $id) {
       id
-      competitors {
-        _id
+      staffMembers {
         id
-        name
-        avatar {
-          thumbUrl
+        user {
+          id
+          name
         }
+        roles
       }
-      scoretakers {
-        id
-      }
-      passwordAuthEnabled
     }
   }
 `;
@@ -35,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     left: 0,
     height: 'calc(100vh - 64px)',
+    width: '100%',
   },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`,
@@ -42,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 250,
   },
   tabContent: {
+    flexGrow: 1,
     padding: theme.spacing(2),
     overflowY: 'auto',
   },

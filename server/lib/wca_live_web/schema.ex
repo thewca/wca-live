@@ -5,6 +5,7 @@ defmodule WcaLiveWeb.Schema do
   import_types WcaLiveWeb.Schema.SharedTypes
   import_types WcaLiveWeb.Schema.AccountsTypes
   import_types WcaLiveWeb.Schema.CompetitionsTypes
+  import_types WcaLiveWeb.Schema.CompetitionsMutationTypes
   import_types WcaLiveWeb.Schema.SynchronizationTypes
   import_types WcaLiveWeb.Schema.SynchronizationMutationTypes
   import_types WcaLiveWeb.Schema.ScoretakingTypes
@@ -19,6 +20,7 @@ defmodule WcaLiveWeb.Schema do
   end
 
   mutation do
+    import_fields :competitions_mutations
     import_fields :synchronization_mutations
     import_fields :scoretaking_mutations
   end

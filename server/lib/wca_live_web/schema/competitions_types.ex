@@ -53,6 +53,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
       resolve dataloader(:db, :people, args: %{competitor: true})
     end
 
+    field :staff_members, non_null(list_of(non_null(:staff_member))) do
+      resolve dataloader(:db)
+    end
+
     field :podiums, non_null(list_of(non_null(:podium))) do
       resolve &Resolvers.Competitions.competition_podiums/3
     end

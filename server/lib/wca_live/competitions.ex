@@ -30,4 +30,12 @@ defmodule WcaLive.Competitions do
   Gets a single person.
   """
   def fetch_person(id), do: Repo.fetch(Person, id)
+
+  def update_competition(competition, attrs) do
+    competition
+    |> Repo.preload(:staff_members)
+    |> Competition.changeset(attrs)
+    |> Ecto.Changeset.cast_assoc(:staff_members)
+    |> Repo.update()
+  end
 end

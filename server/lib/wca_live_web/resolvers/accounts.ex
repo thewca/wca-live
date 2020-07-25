@@ -1,4 +1,6 @@
 defmodule WcaLiveWeb.Resolvers.Accounts do
+  alias WcaLive.Accounts
+
   def user_avatar(%{avatar_url: url, avatar_thumb_url: thumb_url}, _args, _resolution) do
     avatar = url && thumb_url && %{url: url, thumb_url: thumb_url}
     {:ok, avatar}
@@ -9,4 +11,8 @@ defmodule WcaLiveWeb.Resolvers.Accounts do
   end
 
   def current_user(_parent, _args, _resolution), do: {:ok, nil}
+
+  def list_users(_parent, args, _resolution) do
+    {:ok, Accounts.list_users(args)}
+  end
 end
