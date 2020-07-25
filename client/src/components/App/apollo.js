@@ -69,6 +69,9 @@ export const client = new ApolloClient({
       Country: {
         keyFields: ['iso2'],
       },
+      CompetitionBrief: {
+        keyFields: ['wcaId'],
+      },
     },
   }),
   link,

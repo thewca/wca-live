@@ -12,6 +12,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AdminCompetitionList from '../AdminCompetitionList/AdminCompetitionList';
 import CompetitionList from '../../CompetitionList/CompetitionList';
+import ImportableCompetitions from '../ImportableCompetitions/ImportableCompetitions';
 
 const SIGN_OUT_MUTATION = gql`
   mutation SignOut {
@@ -55,16 +56,15 @@ const AdminDashboard = ({ currentUser }) => {
         </Grid>
         <Grid item className={classes.fullWidth}>
           <Paper>
-            {/* TODO: show staff member roles, sort, show importable (dialog or expansion panel) */}
-            {/* <AdminCompetitionList
-              manageableCompetitions={manageableCompetitions}
-              importableCompetitions={importableCompetitions}
-            /> */}
             <CompetitionList
               title="Staffed competitions"
               competitions={staffedCompetitions}
+              pathPrefix="/admin"
             />
           </Paper>
+        </Grid>
+        <Grid item className={classes.fullWidth}>
+          <ImportableCompetitions />
         </Grid>
         <Grid item>
           <Grid container spacing={2}>

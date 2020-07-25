@@ -12,7 +12,7 @@ import VirtualList from '../VirtualList/VirtualList';
 import { formatDateRange } from '../../lib/date';
 import { competitionCountryIso2s } from '../../lib/competitions';
 
-const CompetitionList = ({ title, competitions }) => {
+const CompetitionList = ({ title, competitions, pathPrefix = '' }) => {
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
@@ -29,7 +29,7 @@ const CompetitionList = ({ title, competitions }) => {
               style={style}
               button
               component={Link}
-              to={`/competitions/${competition.id}`}
+              to={`${pathPrefix}/competitions/${competition.id}`}
             >
               <ListItemIcon>
                 {countryIso2s.length === 1 ? (
