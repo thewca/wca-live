@@ -1,5 +1,5 @@
 import React from 'react';
-import { gql, useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,7 +9,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
 import SyncIcon from '@material-ui/icons/Sync';
 import ViewListIcon from '@material-ui/icons/ViewList';
@@ -30,9 +29,10 @@ const COMPETITION_QUERY = gql`
     competition(id: $id) {
       id
       name
-      # TODO
-      # currentUserManagerAccess
-      # currentUserScoretakerAccess
+      access {
+        canManage
+        canScoretake
+      }
     }
   }
 `;
@@ -78,12 +78,8 @@ const AdminCompetition = ({ match, location, history }) => {
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
-  // TODO
-  const {
-    currentUserManagerAccess = true,
-    currentUserScoretakerAccess = true,
-  } = {};
-  if (!currentUserScoretakerAccess) {
+
+  if (!competition.access.canScoretake) {
     return <Redirect to={`/competitions/${competition.id}`} />;
   }
 
@@ -134,7 +130,7 @@ const AdminCompetition = ({ match, location, history }) => {
               <PeopleIcon />
             </IconButton>
           </Tooltip>
-          {currentUserManagerAccess && (
+          {competition.access.canManage && (
             <Tooltip title="Settings">
               <IconButton
                 color="inherit"
@@ -173,7 +169,7 @@ const AdminCompetition = ({ match, location, history }) => {
             path="/admin/competitions/:competitionId/sync"
             component={Synchronize}
           />
-          {currentUserManagerAccess && (
+          {competition.access.canManage && (
             <Route
               exact
               path="/admin/competitions/:competitionId/settings"

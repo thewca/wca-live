@@ -35,7 +35,7 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :competition_events, non_null(list_of(non_null(:competition_event))) do
       resolve dataloader(:db,
-                callback: fn competition_events, _prent, _args ->
+                callback: fn competition_events, _parent, _args ->
                   {:ok,
                    Enum.sort_by(
                      competition_events,
@@ -55,6 +55,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :staff_members, non_null(list_of(non_null(:staff_member))) do
       resolve dataloader(:db)
+    end
+
+    field :access, non_null(:competition_access) do
+      resolve &Resolvers.Competitions.competition_access/3
     end
 
     field :podiums, non_null(list_of(non_null(:podium))) do
@@ -197,6 +201,12 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :competition, non_null(:competition) do
       resolve dataloader(:db)
     end
+  end
+
+  @desc "A virtual object representing current user access properties."
+  object :competition_access do
+    field :can_manage, non_null(:boolean)
+    field :can_scoretake, non_null(:boolean)
   end
 
   @desc "An object representing a podium."

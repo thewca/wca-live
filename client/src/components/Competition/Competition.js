@@ -46,7 +46,9 @@ const COMPETITION_QUERY = gql`
           open
         }
       }
-      # currentUserScoretakerAccess TODO
+      access {
+        canScoretake
+      }
     }
   }
 `;
@@ -179,7 +181,7 @@ const Competition = ({ match, location }) => {
             </Link>
           </Typography>
           <div style={{ flexGrow: 1 }} />
-          {competition.currentUserScoretakerAccess && (
+          {competition.access.canScoretake && (
             <Tooltip title="Admin view">
               <IconButton
                 color="inherit"

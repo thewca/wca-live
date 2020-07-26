@@ -7,7 +7,7 @@ defmodule WcaLive.Accounts.User do
 
   @admin_teams ["wrt", "wst"]
 
-  @required_fields [:wca_user_id, :name]
+  @required_fields [:wca_user_id, :name, :wca_teams]
   @optional_fields [:wca_id, :avatar_url, :avatar_thumb_url, :country_iso2]
 
   schema "users" do
