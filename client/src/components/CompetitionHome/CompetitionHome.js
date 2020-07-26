@@ -1,23 +1,25 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Link as RouterLink, useParams } from 'react-router-dom';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardHeader from '@material-ui/core/CardHeader';
-import Grid from '@material-ui/core/Grid';
-import Link from '@material-ui/core/Link';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import {
+  Card,
+  CardActionArea,
+  CardHeader,
+  Grid,
+  Link,
+  Tooltip,
+  Typography,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
-
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import { wcaUrl } from '../../lib/urls';
-import { flatMap } from '../../lib/utils';
 import Schedule from '../Schedule/Schedule';
 import CubingIcon from '../CubingIcon/CubingIcon';
+import { wcaUrl } from '../../lib/urls';
+import { flatMap } from '../../lib/utils';
 import { competitionCountries } from '../../lib/competitions';
+import { getTimezone } from '../../lib/date';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -25,8 +27,8 @@ const COMPETITION_QUERY = gql`
       id
       wcaId
       name
-      # TODO necessary?
       competitionEvents {
+        id
         event {
           id
           name
@@ -36,7 +38,7 @@ const COMPETITION_QUERY = gql`
           name
           active
           open
-          number # TMP?
+          number
         }
       }
       venues {
@@ -72,12 +74,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CompetitionHome({ match }) {
+function CompetitionHome() {
   const classes = useStyles();
   const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
     variables: { id: competitionId },
   });
+
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
@@ -145,9 +148,8 @@ function CompetitionHome({ match }) {
           <Grid item>
             <Tooltip
               title={`
-              All the dates and times below are displayed in your local timezone:
-              ${Intl.DateTimeFormat().resolvedOptions().timeZone}
-            `}
+              All the dates and times below are displayed in your local timezone: ${getTimezone()}
+              `}
             >
               <NotificationImportantIcon color="action" />
             </Tooltip>

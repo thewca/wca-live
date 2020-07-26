@@ -1,32 +1,15 @@
-import React, { Fragment, useState } from 'react';
-import { Switch, Route, Link, Redirect } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import AppBar from '@material-ui/core/AppBar';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import Toolbar from '@material-ui/core/Toolbar';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import { AppBar, Drawer, Hidden, SwipeableDrawer } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 import classNames from 'classnames';
-import HomeIcon from '@material-ui/icons/Home';
-import LockIcon from '@material-ui/icons/Lock';
-import MenuIcon from '@material-ui/icons/Menu';
-import PeopleIcon from '@material-ui/icons/People';
-import FormatListNumberedRoundedIcon from '@material-ui/icons/FormatListNumberedRounded';
-
-import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import CompetitionEventList from '../CompetitionEventList/CompetitionEventList';
-import CompetitionHome from '../CompetitionHome/CompetitionHome';
-import Round from '../Round/Round';
-import Competitors from '../Competitors/Competitors';
-import Competitor from '../Competitor/Competitor';
-import Podiums from '../Podiums/Podiums';
+import CompetitionNavigation from './CompetitionNavigation';
+import CompetitionDrawerContent from './CompetitionDrawerContent';
+import Loading from '../Loading/Loading';
+import CompetitionToolbar from './CompetitionToolbar';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -53,7 +36,7 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
-const drawerWidth = 250;
+const DRAWER_WIDTH = 250;
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -62,137 +45,57 @@ const useStyles = makeStyles((theme) => ({
   },
   appBarShift: {
     [theme.breakpoints.up('lg')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
+      width: `calc(100% - ${DRAWER_WIDTH}px)`,
+      marginLeft: DRAWER_WIDTH,
     },
   },
   drawer: {
     [theme.breakpoints.up('lg')]: {
-      width: drawerWidth,
+      width: DRAWER_WIDTH,
     },
   },
   content: {
-    position: 'relative' /* For LinearProgress */,
+    position: 'relative', // For LinearProgress
     overflowY: 'auto',
     padding: theme.spacing(2, 1),
     [theme.breakpoints.up('md')]: {
       padding: theme.spacing(3),
     },
   },
-  contentShift: {
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: drawerWidth,
-    },
-  },
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
-    [theme.breakpoints.up('lg')]: {
-      display: 'none',
-    },
-  },
-  toolbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  title: {
-    flexGrow: 1,
-  },
-  titleLink: {
-    color: 'inherit',
-    textDecoration: 'none',
-  },
 }));
 
-function Competition({ match, location }) {
+function Competition() {
   const classes = useStyles();
+  const { id } = useParams();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { data, loading, error } = useQuery(COMPETITION_QUERY, {
-    variables: { id: match.params.id },
-    fetchPolicy: 'network-only',
+  const { data, error, loading } = useQuery(COMPETITION_QUERY, {
+    variables: { id: id },
+    // Eventually update rounds data (open, label).
     pollInterval: 60 * 1000,
   });
-  if (loading && !data) return <Loading />;
+
   if (error) return <ErrorSnackbar />;
-  const { competition } = data;
 
-  const drawerContent = (
-    <Fragment>
-      <div className={classes.toolbar}>
-        <IconButton component={Link} to="/" aria-label="Home page">
-          <HomeIcon />
-        </IconButton>
-        <IconButton
-          component={Link}
-          to={`/competitions/${competition.id}/competitors`}
-          aria-label="Competitor"
-        >
-          <PeopleIcon />
-        </IconButton>
-        <IconButton
-          component={Link}
-          to={`/competitions/${competition.id}/podiums`}
-          aria-label="Podiums"
-        >
-          <FormatListNumberedRoundedIcon />
-        </IconButton>
-      </div>
-      <Divider />
-      <CompetitionEventList
-        competitionEvents={competition.competitionEvents}
-        competitionId={competition.id}
-      />
-    </Fragment>
-  );
+  // Render the layout even if the competition is not loaded.
+  // This improves UX and also starts loading data for the actual page (like CompetitionHome).
+  const competition = data ? data.competition : null;
 
-  /* See: https://material-ui.com/components/drawers/#swipeable-temporary-drawer */
+  // See https://material-ui.com/components/drawers/#swipeable
   const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   return (
-    <Fragment>
+    <>
       <AppBar
         position="sticky"
         className={classNames(classes.appBar, classes.appBarShift)}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            className={classes.menuButton}
-            onClick={() => setMobileOpen(true)}
-            aria-label="Menu"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            color="inherit"
-            className={classes.title}
-            noWrap={true}
-          >
-            <Link
-              to={`/competitions/${competition.id}`}
-              className={classes.titleLink}
-            >
-              {competition.name}
-            </Link>
-          </Typography>
-          <div style={{ flexGrow: 1 }} />
-          {competition.access.canScoretake && (
-            <Tooltip title="Admin view">
-              <IconButton
-                color="inherit"
-                component={Link}
-                to={`/admin${location.pathname}`}
-              >
-                <LockIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Toolbar>
+        {competition && (
+          <CompetitionToolbar
+            competition={competition}
+            onMenuClick={() => setMobileOpen(true)}
+          />
+        )}
       </AppBar>
       <Hidden lgUp>
         <SwipeableDrawer
@@ -204,44 +107,23 @@ function Competition({ match, location }) {
           disableBackdropTransition={!iOS}
           disableDiscovery={iOS}
         >
-          {drawerContent}
+          {competition && (
+            <CompetitionDrawerContent competition={competition} />
+          )}
         </SwipeableDrawer>
       </Hidden>
       <Hidden mdDown>
         <Drawer variant="permanent" classes={{ paper: classes.drawer }}>
-          {drawerContent}
+          {competition && (
+            <CompetitionDrawerContent competition={competition} />
+          )}
         </Drawer>
       </Hidden>
       <div className={classNames(classes.content, classes.appBarShift)}>
-        <Switch>
-          <Route
-            exact
-            path="/competitions/:competitionId"
-            component={CompetitionHome}
-          />
-          <Route
-            path="/competitions/:competitionId/rounds/:roundId"
-            component={Round}
-          />
-          <Route
-            exact
-            path="/competitions/:competitionId/competitors"
-            component={Competitors}
-          />
-          <Route
-            exact
-            path="/competitions/:competitionId/competitors/:competitorId"
-            component={Competitor}
-          />
-          <Route
-            exact
-            path="/competitions/:competitionId/podiums"
-            component={Podiums}
-          />
-          <Redirect to={`/competitions/${competition.id}`} />
-        </Switch>
+        {loading && <Loading />}
+        <CompetitionNavigation competitionId={id} />
       </div>
-    </Fragment>
+    </>
   );
 }
 

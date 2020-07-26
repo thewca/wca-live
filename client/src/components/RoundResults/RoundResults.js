@@ -1,18 +1,18 @@
-import React, { Fragment, useState, useCallback } from 'react';
-import Hidden from '@material-ui/core/Hidden';
+import React, { useState, useCallback } from 'react';
+import { Hidden } from '@material-ui/core';
 
-import RoundResultsTable from '../RoundResultsTable/RoundResultsTable';
-import RoundResultDialog from '../RoundResultDialog/RoundResultDialog';
+import RoundResultsTable from './RoundResultsTable';
+import RoundResultDialog from './RoundResultDialog';
 
 function RoundResults({ results, format, eventId, competitionId }) {
   const [selectedResult, setSelectedResult] = useState(null);
 
-  const handleResultClick = useCallback((result, event) => {
+  const handleResultClick = useCallback((result) => {
     setSelectedResult(result);
   }, []);
 
   return (
-    <Fragment>
+    <>
       <RoundResultsTable
         results={results}
         format={format}
@@ -29,7 +29,7 @@ function RoundResults({ results, format, eventId, competitionId }) {
           onClose={() => setSelectedResult(null)}
         />
       </Hidden>
-    </Fragment>
+    </>
   );
 }
 

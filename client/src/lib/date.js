@@ -22,6 +22,10 @@ export function formatDateRange(startString, endString) {
   return `${startMonth} ${startDay}, ${startYear} - ${endMonth} ${endDay}, ${endYear}`;
 }
 
+export function formatTimeRange(startString, endString) {
+  return `${shortLocalTime(startString)} - ${shortLocalTime(endString)}`;
+}
+
 export function shortLocalTime(isoString) {
   return format(parseISO(isoString), 'HH:mm');
 }
@@ -32,6 +36,10 @@ export function shortDate(dateString) {
 
 export function toLocalDateString(isoString) {
   return format(parseISO(isoString), 'yyyy-MM-dd');
+}
+
+export function getTimezone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
 /**

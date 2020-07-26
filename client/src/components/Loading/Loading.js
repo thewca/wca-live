@@ -1,14 +1,23 @@
 import React from 'react';
-import Fade from '@material-ui/core/Fade';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import { Fade, LinearProgress } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  progress: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+  },
+}));
 
 /* Waits 800ms before showing LinearProgress. */
 function Loading() {
+  const classes = useStyles();
+
   return (
     <Fade in={true} style={{ transitionDelay: '800ms' }}>
-      <LinearProgress
-        style={{ position: 'absolute', left: 0, right: 0, top: 0 }}
-      />
+      <LinearProgress className={classes.progress} />
     </Fade>
   );
 }

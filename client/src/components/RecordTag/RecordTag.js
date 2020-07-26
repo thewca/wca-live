@@ -1,10 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/core/styles';
-import red from '@material-ui/core/colors/red';
-import yellow from '@material-ui/core/colors/yellow';
-import green from '@material-ui/core/colors/green';
-import blue from '@material-ui/core/colors/blue';
+import { red, yellow, green, blue } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
   recordTag: {

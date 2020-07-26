@@ -13,7 +13,7 @@ import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
 
 // Http link
 
-const httpLink = new HttpLink(
+const baseHttpLink = new HttpLink(
   process.env.NODE_ENV === 'production'
     ? { uri: '/api', credentials: 'same-origin' }
     : { uri: 'http://localhost:4000/api', credentials: 'include' }
@@ -28,10 +28,10 @@ const retryLink = new RetryLink({
   },
 });
 
-const retryHttpLink =
+const httpLink =
   process.env.NODE_ENV === 'production'
-    ? ApolloLink.from([retryLink, httpLink])
-    : httpLink;
+    ? ApolloLink.from([retryLink, baseHttpLink])
+    : baseHttpLink;
 
 // WebSocket link
 
@@ -60,20 +60,31 @@ const link = split(
     );
   },
   wsLink,
-  retryHttpLink
+  httpLink
 );
 
-export const client = new ApolloClient({
-  cache: new InMemoryCache({
-    typePolicies: {
-      Country: {
-        keyFields: ['iso2'],
-      },
-      CompetitionBrief: {
-        keyFields: ['wcaId'],
+const cache = new InMemoryCache({
+  typePolicies: {
+    Country: {
+      keyFields: ['iso2'],
+    },
+    CompetitionBrief: {
+      keyFields: ['wcaId'],
+    },
+    Competition: {
+      fields: {
+        access: {
+          merge(existing, incoming) {
+            return { ...existing, ...incoming };
+          },
+        },
       },
     },
-  }),
+  },
+});
+
+export const client = new ApolloClient({
+  cache,
   link,
   defaultOptions: {
     watchQuery: {

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
+import {
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+} from '@material-ui/core';
 import PublicIcon from '@material-ui/icons/Public';
-
 import FlagIcon from '../FlagIcon/FlagIcon';
 import VirtualList from '../VirtualList/VirtualList';
 import { formatDateRange } from '../../lib/date';

@@ -22,7 +22,7 @@ export function nearestCompetition(competitions) {
       (position) => {
         const { latitude, longitude } = position.coords;
         const [nearest] = sortBy(competitions, (competition) => {
-          const distances = competition.schedule.venues.map((venue) =>
+          const distances = competition.venues.map((venue) =>
             distanceKm(latitude, longitude, venue.latitude, venue.longitude)
           );
           return Math.min(...distances);

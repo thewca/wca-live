@@ -54,3 +54,23 @@ export function sortByArray(arr, fn) {
 }
 
 export const partition = (xs, fn) => [xs.filter(fn), xs.filter((x) => !fn(x))];
+
+export function min(array) {
+  return array.reduce((x, y) => (x < y ? x : y));
+}
+
+export function max(array) {
+  return array.reduce((x, y) => (x > y ? x : y));
+}
+
+export function clamp(x, left, right) {
+  return Math.min(Math.max(x, left), right);
+}
+
+export function formatSentence(message) {
+  return capitalize(message).replace(/\.?$/, '.');
+}
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

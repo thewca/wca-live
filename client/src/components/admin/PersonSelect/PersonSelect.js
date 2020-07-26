@@ -1,11 +1,7 @@
 import React, { useRef } from 'react';
 import Downshift from 'downshift';
+import { MenuItem, Paper, Popper, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import TextField from '@material-ui/core/TextField';
-
 import { uniq, toInt } from '../../../lib/utils';
 
 const useStyles = makeStyles((theme) => ({
@@ -35,13 +31,13 @@ function searchPersons(persons, search) {
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
 }
 
-const PersonSelect = ({
+function PersonSelect({
   persons,
   value,
   onChange,
   clearOnChange = false,
   TextFieldProps = {},
-}) => {
+}) {
   const classes = useStyles();
   const textFieldRef = useRef();
 
@@ -128,6 +124,6 @@ const PersonSelect = ({
       )}
     </Downshift>
   );
-};
+}
 
 export default PersonSelect;

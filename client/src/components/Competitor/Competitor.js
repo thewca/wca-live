@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import Grid from '@material-ui/core/Grid';
-import Hidden from '@material-ui/core/Hidden';
-import Typography from '@material-ui/core/Typography';
+import { Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
+import wcaLogo from '../Home/logo.svg';
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import wcaLogo from '../Home/logo.svg';
 import FlagIcon from '../FlagIcon/FlagIcon';
-import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
-import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
-import { groupBy, sortByArray } from '../../lib/utils';
+import CompetitorResults from '../CompetitorResults/CompetitorResults';
 import { wcaUrl } from '../../lib/urls';
-import { useParams } from 'react-router-dom';
 
 const COMPETITOR_QUERY = gql`
   query Competitor($id: ID!) {
@@ -69,27 +64,17 @@ const useStyles = makeStyles((theme) => ({
 function Competitor() {
   const classes = useStyles();
   const { competitionId, competitorId } = useParams();
-  const [selectedResult, setSelectedResult] = useState(null);
+
   const { data, loading, error } = useQuery(COMPETITOR_QUERY, {
     variables: { id: competitorId },
   });
+
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { person } = data;
 
-  const nonemptyResults = person.results.filter(
-    (result) => result.attempts.length > 0
-  );
-  const resultsByEventName = groupBy(
-    sortByArray(nonemptyResults, (result) => [
-      result.round.competitionEvent.event.rank,
-      result.round.number,
-    ]),
-    (result) => result.round.competitionEvent.event.name
-  );
-
   return (
-    <div>
+    <>
       <Grid container alignContent="center" className={classes.competitor}>
         <Grid item>
           <Typography variant="h5">
@@ -109,26 +94,11 @@ function Competitor() {
           </Grid>
         )}
       </Grid>
-      <Grid container direction="column" spacing={2}>
-        {Object.entries(resultsByEventName).map(([eventName, results]) => (
-          <Grid item key={eventName}>
-            <Typography variant="subtitle1">{eventName}</Typography>
-            <CompetitorResultsTable
-              results={results}
-              competitionId={competitionId}
-              onResultClick={(result) => setSelectedResult(result)}
-            />
-          </Grid>
-        ))}
-      </Grid>
-      <Hidden smUp>
-        <CompetitorResultDialog
-          result={selectedResult}
-          competitionId={competitionId}
-          onClose={() => setSelectedResult(null)}
-        />
-      </Hidden>
-    </div>
+      <CompetitorResults
+        results={person.results}
+        competitionId={competitionId}
+      />
+    </>
   );
 }
 

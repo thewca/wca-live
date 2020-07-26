@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { gql, useQuery } from '@apollo/client';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { Grid, IconButton, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
-import ResultForm from '../ResultForm/ResultForm';
+import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import { sortBy } from '../../../lib/utils';
 import { parseISO } from 'date-fns';
 
@@ -75,13 +72,13 @@ const useStyles = makeStyles((theme) => ({
 
 function RoundDoubleCheck() {
   const classes = useStyles();
-  const { competitionId, roundId } = useParams();
+  const { roundId } = useParams();
   const [resultIndex, updateResultIndex] = useState(0);
   const leftButtonRef = useRef(null);
   const rightButtonRef = useRef(null);
 
   useEffect(() => {
-    function handleKeyPress(event) {
+    function handleKeyDown(event) {
       if (event.target.tagName.toUpperCase() === 'INPUT') return;
       if (event.key === 'ArrowLeft') {
         leftButtonRef.current.click();
@@ -89,23 +86,48 @@ function RoundDoubleCheck() {
         rightButtonRef.current.click();
       }
     }
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const { data, loading, error } = useQuery(ROUND_QUERY, {
     variables: { id: roundId },
   });
+
+  const [enterResultAttempts, { enterLoading, enterError }] = useMutation(
+    ENTER_RESULT_ATTEMPTS,
+    {
+      onCompleted: () => {
+        rightButtonRef.current.focus();
+      },
+    }
+  );
+
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { round } = data;
+
   const results = sortBy(
     round.results,
     (result) => -parseISO(result.enteredAt)
   );
 
+  function handleResultChange(result) {
+    // Disable clearing as we don't want to lose track of the currently viewed result.
+    if (result !== null) {
+      updateResultIndex(results.indexOf(result));
+    }
+  }
+
+  function handleResultAttemptsSubmit(attempts) {
+    enterResultAttempts({
+      variables: { input: { id: results[resultIndex].id, attempts } },
+    });
+  }
+
   return (
     <Grid container direction="row" alignItems="center" spacing={2}>
+      {enterError && <ErrorSnackbar error={enterError} />}
       <Grid item md className={classes.centerContent}>
         <IconButton
           ref={leftButtonRef}
@@ -116,22 +138,16 @@ function RoundDoubleCheck() {
         </IconButton>
       </Grid>
       <Grid item md={3}>
-        <ResultForm
+        <ResultAttemptsForm
           result={results[resultIndex]}
           results={round.results}
-          format={round.format}
+          onResultChange={handleResultChange}
           eventId={round.competitionEvent.event.id}
+          format={round.format}
           timeLimit={round.timeLimit}
           cutoff={round.cutoff}
-          competitionId={competitionId}
-          roundId={roundId}
-          updateResultMutation={ENTER_RESULT_ATTEMPTS}
-          onResultChange={(result) => {
-            /* Disable clearing as we don't want to lose track of the currently viewed result. */
-            if (result !== null) {
-              updateResultIndex(results.indexOf(result));
-            }
-          }}
+          disabled={enterLoading}
+          onSubmit={handleResultAttemptsSubmit}
         />
       </Grid>
       <Grid item md className={classes.centerContent}>

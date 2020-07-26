@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import AppBar from '@material-ui/core/AppBar';
-import Dialog from '@material-ui/core/Dialog';
-import Fade from '@material-ui/core/Fade';
-import IconButton from '@material-ui/core/IconButton';
-import Slide from '@material-ui/core/Slide';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import green from '@material-ui/core/colors/green';
-import grey from '@material-ui/core/colors/grey';
+import {
+  AppBar,
+  Dialog,
+  Fade,
+  IconButton,
+  Slide,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Toolbar,
+  Typography,
+} from '@material-ui/core';
+import { green, grey } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-
 import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { orderedResultStats } from '../../lib/view-utils';
+import { orderedResultStats } from '../../lib/results';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,21 +83,16 @@ const DURATION = {
 };
 
 /* (window height - app bar - table header) / row height */
-const getNumberOfRows = () => Math.floor((window.innerHeight - 64 - 50) / 63);
+function getNumberOfRows() {
+  return Math.floor((window.innerHeight - 64 - 50) / 63);
+}
 
-const ResultsProjector = ({
-  results,
-  format,
-  eventId,
-  title,
-  competitionId,
-  exitUrl,
-}) => {
+function ResultsProjector({ results, format, eventId, title, exitUrl }) {
   const classes = useStyles();
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
-  const stats = orderedResultStats(format, eventId);
+  const stats = orderedResultStats(eventId, format);
 
   const nonemptyResults = results.filter(
     (result) => result.attempts.length > 0
@@ -130,7 +125,7 @@ const ResultsProjector = ({
       }, DURATION.HIDING);
       return () => clearTimeout(timeout);
     }
-    throw new Error(`Unrecoginsed status: ${status}`);
+    throw new Error(`Unrecognized status: ${status}`);
   }, [status, nonemptyResults.length]);
 
   return (
@@ -250,6 +245,6 @@ const ResultsProjector = ({
       </div>
     </Dialog>
   );
-};
+}
 
 export default ResultsProjector;

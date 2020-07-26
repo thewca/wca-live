@@ -1,16 +1,13 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import { Grid, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
-import Footer from '../Footer/Footer';
 import logo from './logo.svg';
-import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import Competitions from '../Competitions/Competitions';
-import HomeToolbar from '../HomeToolbar/HomeToolbar';
+import HomeFooter from './HomeFooter';
+import HomeCompetitions from './HomeCompetitions';
+import HomeToolbar from './HomeToolbar';
+import Loading from '../Loading/Loading';
 import RecordList from '../RecordList/RecordList';
 import { isUpcoming, isInProgress, isPast } from '../../lib/competitions';
 
@@ -27,6 +24,36 @@ const COMPETITIONS_QUERY = gql`
         id
         country {
           iso2
+        }
+      }
+    }
+    recentRecords {
+      id
+      tag
+      type
+      attemptResult
+      result {
+        id
+        person {
+          id
+          name
+          country {
+            iso2
+            name
+          }
+        }
+        round {
+          id
+          competitionEvent {
+            id
+            event {
+              id
+              name
+            }
+            competition {
+              id
+            }
+          }
         }
       }
     }
@@ -57,9 +84,10 @@ const useStyles = makeStyles((theme) => ({
 function Home() {
   const classes = useStyles();
   const { data, loading, error } = useQuery(COMPETITIONS_QUERY);
+
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
-  const { competitions } = data;
+  const { competitions, recentRecords } = data;
 
   const upcoming = competitions.filter(isUpcoming);
   const inProgress = competitions.filter(isInProgress);
@@ -69,7 +97,7 @@ function Home() {
     <div className={classes.root}>
       <Grid container spacing={2} direction="column" className={classes.grow}>
         <Grid item className={classes.center}>
-          <img src={logo} alt="" height="128" width="128" />
+          <img src={logo} alt="wca logo" height="128" width="128" />
           <Typography variant="h4">WCA Live</Typography>
           <Typography variant="subtitle1">
             Live results from competitions all around the world!
@@ -84,7 +112,7 @@ function Home() {
         </Grid>
         <Grid item>
           <Paper>
-            <Competitions
+            <HomeCompetitions
               upcoming={upcoming}
               inProgress={inProgress}
               past={past}
@@ -93,12 +121,12 @@ function Home() {
         </Grid>
         <Grid item>
           <Paper>
-            <RecordList />
+            <RecordList title="Recent records" records={recentRecords} />
           </Paper>
         </Grid>
         <Grid item className={classes.grow} />
         <Grid item className={classes.fullWidth}>
-          <Footer />
+          <HomeFooter />
         </Grid>
       </Grid>
     </div>

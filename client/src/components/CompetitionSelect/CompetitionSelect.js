@@ -13,12 +13,12 @@ function searchCompetitions(competitions, search) {
   return matchingName.slice(0, 5);
 }
 
-const CompetitionSelect = ({
+function CompetitionSelect({
   competitions,
   value = null,
   onChange,
   TextFieldProps = {},
-}) => {
+}) {
   return (
     <Autocomplete
       freeSolo
@@ -35,6 +35,6 @@ const CompetitionSelect = ({
       style={{ width: 250 }}
     />
   );
-};
+}
 
 export default CompetitionSelect;

@@ -79,9 +79,10 @@ export function average(attemptResults, eventId) {
 }
 
 /* See: https://www.worldcubeassociation.org/regulations/#9f2 */
-export function roundOver10Mins(average) {
-  if (average <= 10 * 6000) return average;
-  return Math.round(average / 100) * 100;
+function roundOver10Mins(value) {
+  if (!isComplete(value)) return value;
+  if (value <= 10 * 6000) return value;
+  return Math.round(value / 100) * 100;
 }
 
 function averageOf5(attemptResults) {
@@ -172,16 +173,27 @@ export function autocompleteMbldDecodedValue({
   if (!attempted || solved > attempted) {
     return { solved, attempted: solved, centiseconds };
   }
-  // See: https://www.worldcubeassociation.org/regulations/#9f12c
+  // See https://www.worldcubeassociation.org/regulations/#9f12c
   if (solved < attempted / 2 || solved <= 1) {
     return { solved: 0, attempted: 0, centiseconds: DNF_VALUE };
   }
-  // See: https://www.worldcubeassociation.org/regulations/#H1b
-  /* But allow additional (arbitrary) 30 seconds over the limit for possible +2s. */
+  // See https://www.worldcubeassociation.org/regulations/#H1b
+  // But allow additional (arbitrary) 30 seconds over the limit for possible +2s.
   if (centiseconds > 10 * 60 * 100 * Math.min(6, attempted) + 30 * 100) {
     return { solved: 0, attempted: 0, centiseconds: DNF_VALUE };
   }
   return { solved, attempted, centiseconds };
+}
+
+export function autocompleteFmAttemptResult(moves) {
+  // See https://www.worldcubeassociation.org/regulations/#E2d1
+  if (moves > 80) return DNF_VALUE;
+  return moves;
+}
+
+export function autocompleteTimeAttemptResult(time) {
+  // See https://www.worldcubeassociation.org/regulations/#9f2
+  return roundOver10Mins(time);
 }
 
 export function attemptResultsWarning(attemptResults, eventId) {

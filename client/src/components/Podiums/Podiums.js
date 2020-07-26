@@ -1,9 +1,7 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Tooltip from '@material-ui/core/Tooltip';
-
+import { Grid, Typography, Tooltip } from '@material-ui/core';
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import RoundResults from '../RoundResults/RoundResults';
@@ -55,10 +53,13 @@ const PODIUMS_QUERY = gql`
   }
 `;
 
-function Podiums({ match }) {
+function Podiums() {
+  const { competitionId } = useParams();
+
   const { data, loading, error } = useQuery(PODIUMS_QUERY, {
-    variables: { competitionId: match.params.competitionId },
+    variables: { competitionId },
   });
+
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
@@ -69,7 +70,7 @@ function Podiums({ match }) {
   );
 
   return (
-    <Fragment>
+    <>
       <Typography variant="h5" gutterBottom>
         Podiums
       </Typography>
@@ -77,7 +78,7 @@ function Podiums({ match }) {
         <Grid container direction="column" spacing={2}>
           {finishedPodiums.map(({ round, results }) => (
             <Grid item key={round.id}>
-              <Typography variant="subtitle1">
+              <Typography variant="subtitle1" gutterBottom>
                 {round.competitionEvent.event.name}
               </Typography>
               <RoundResults
@@ -90,9 +91,9 @@ function Podiums({ match }) {
           ))}
           {nonfinishedPodiums.length > 0 && (
             <Grid item>
-              <Grid item>
-                <Typography>{`Podiums for the following events are yet to be determined:`}</Typography>
-              </Grid>
+              <Typography gutterBottom>
+                {`Podiums for the following events are yet to be determined:`}
+              </Typography>
               <Grid container direction="row" spacing={3}>
                 {nonfinishedPodiums
                   .map(({ round }) => round.competitionEvent.event)
@@ -112,7 +113,7 @@ function Podiums({ match }) {
       ) : (
         <Typography>{`There are no podiums yet!`}</Typography>
       )}
-    </Fragment>
+    </>
   );
 }
 

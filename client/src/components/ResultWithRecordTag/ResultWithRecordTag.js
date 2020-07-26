@@ -1,11 +1,8 @@
 import React from 'react';
-import Badge from '@material-ui/core/Badge';
+import { Badge } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import red from '@material-ui/core/colors/red';
-import yellow from '@material-ui/core/colors/yellow';
-import green from '@material-ui/core/colors/green';
-import blue from '@material-ui/core/colors/blue';
+import { red, yellow, green, blue } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
   badge: {

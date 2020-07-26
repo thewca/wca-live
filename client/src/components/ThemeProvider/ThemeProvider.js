@@ -4,12 +4,13 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useMemo,
 } from 'react';
 import {
   createMuiTheme,
   ThemeProvider as MuiThemeProvider,
 } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useMediaQuery } from '@material-ui/core';
 import { blue, grey, pink } from '@material-ui/core/colors';
 
 const themes = {
@@ -36,28 +37,39 @@ const themes = {
   }),
 };
 
+const themeColor = {
+  light: blue['700'],
+  dark: grey['900'],
+};
+
 const ToggleThemeContext = createContext();
 
-const storedThemeType = window.localStorage.getItem('themeType');
+function getStoredThemeType() {
+  return localStorage.getItem('themeType');
+}
+
+function setStoredThemeType(themeType) {
+  localStorage.setItem('themeType', themeType);
+}
 
 export function ThemeProvider({ children }) {
-  const prefersDarkMode = useMediaQuery('@media (prefers-color-scheme: dark)');
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const preferredThemeType = prefersDarkMode ? 'dark' : 'light';
+  const storedThemeType = useMemo(getStoredThemeType, []);
   const [themeType, setThemeType] = useState(
     storedThemeType || preferredThemeType
   );
+
   const toggleTheme = useCallback(() => {
     setThemeType((themeType) => (themeType === 'light' ? 'dark' : 'light'));
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem('themeType', themeType);
+    setStoredThemeType(themeType);
+
     const themeMetaTag = document.querySelector('meta[name="theme-color"]');
     if (themeMetaTag) {
-      themeMetaTag.setAttribute(
-        'content',
-        themeType === 'dark' ? grey['900'] : blue['700']
-      );
+      themeMetaTag.setAttribute('content', themeColor[themeType]);
     }
   }, [themeType]);
 
