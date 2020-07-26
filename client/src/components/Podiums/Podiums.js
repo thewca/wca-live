@@ -55,7 +55,7 @@ const PODIUMS_QUERY = gql`
   }
 `;
 
-const Podiums = ({ match }) => {
+function Podiums({ match }) {
   const { data, loading, error } = useQuery(PODIUMS_QUERY, {
     variables: { competitionId: match.params.competitionId },
   });
@@ -114,6 +114,6 @@ const Podiums = ({ match }) => {
       )}
     </Fragment>
   );
-};
+}
 
 export default Podiums;

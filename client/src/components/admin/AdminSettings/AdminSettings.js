@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdminSettings = ({ match }) => {
+function AdminSettings({ match }) {
   const classes = useStyles();
   const [tabValue, setTabValue] = useState('access');
 
@@ -71,6 +71,6 @@ const AdminSettings = ({ match }) => {
       </div>
     </div>
   );
-};
+}
 
 export default AdminSettings;

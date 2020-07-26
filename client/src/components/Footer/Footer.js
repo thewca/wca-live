@@ -9,7 +9,7 @@ import EmojiObjectsOutlinedIcon from '@material-ui/icons/EmojiObjectsOutlined';
 
 import { useToggleTheme } from '../ThemeProvider/ThemeProvider';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   link: {
     '&:hover': {
       textDecoration: 'none',
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const Footer = () => {
+function Footer() {
   const classes = useStyles();
   const theme = useTheme();
   const toggleTheme = useToggleTheme();
@@ -65,6 +65,6 @@ const Footer = () => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default Footer;

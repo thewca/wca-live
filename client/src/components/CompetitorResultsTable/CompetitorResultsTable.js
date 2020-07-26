@@ -14,7 +14,7 @@ import green from '@material-ui/core/colors/green';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { statsToDisplay } from '../../lib/results-table-utils';
+import { orderedResultStats } from '../../lib/view-utils';
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
+function CompetitorResultsTable({ results, competitionId, onResultClick }) {
   const classes = useStyles();
 
   /* Assume every round has the same format. */
@@ -55,7 +55,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
     format,
     competitionEvent: { event },
   } = results[0].round;
-  const stats = statsToDisplay(format, event.id);
+  const stats = orderedResultStats(format, event.id);
 
   const numberOfAttempts = Math.max(
     ...results.map((result) => result.round.format.numberOfAttempts)
@@ -125,7 +125,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
                 </TableCell>
               ))}
             </Hidden>
-            {stats.map(({ name, type, recordTagField }, index) => (
+            {stats.map(({ name, field, recordTagField }, index) => (
               <TableCell
                 key={name}
                 align="right"
@@ -134,7 +134,7 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
                 })}
               >
                 <ResultWithRecordTag
-                  result={formatAttemptResult(result[type], event.id)}
+                  result={formatAttemptResult(result[field], event.id)}
                   recordTag={result[recordTagField]}
                   showPb={true}
                 />
@@ -145,6 +145,6 @@ const CompetitorResultsTable = ({ results, competitionId, onResultClick }) => {
       </TableBody>
     </Table>
   );
-};
+}
 
 export default CompetitorResultsTable;

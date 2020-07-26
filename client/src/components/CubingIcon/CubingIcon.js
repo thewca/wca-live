@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   icon: {
     color: theme.palette.type === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.54)',
     fontSize: 24,
@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const CubingIcon = ({ eventId, small = false, ...props }) => {
+function CubingIcon({ eventId, small = false, ...props }) {
   const classes = useStyles();
   return (
     <span
@@ -22,6 +22,6 @@ const CubingIcon = ({ eventId, small = false, ...props }) => {
       {...props}
     />
   );
-};
+}
 
 export default CubingIcon;

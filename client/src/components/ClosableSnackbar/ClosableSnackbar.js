@@ -6,7 +6,7 @@ import CloseIcon from '@material-ui/icons/Close';
 /**
  * Wrapper for Material UI Snackbar adding a dismiss button.
  */
-const ClosableSnackbar = props => {
+function ClosableSnackbar(props) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -20,6 +20,6 @@ const ClosableSnackbar = props => {
       }
     />
   );
-};
+}
 
 export default ClosableSnackbar;

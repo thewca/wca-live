@@ -21,7 +21,7 @@ const COMPETITORS_QUERY = gql`
   }
 `;
 
-const Competitors = () => {
+function Competitors() {
   const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITORS_QUERY, {
     variables: { competitionId: competitionId },
@@ -36,6 +36,6 @@ const Competitors = () => {
       competitionId={competition.id}
     />
   );
-};
+}
 
 export default Competitors;

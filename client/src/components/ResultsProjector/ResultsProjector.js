@@ -22,7 +22,7 @@ import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { statsToDisplay } from '../../lib/results-table-utils';
+import { orderedResultStats } from '../../lib/view-utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -97,7 +97,7 @@ const ResultsProjector = ({
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
-  const stats = statsToDisplay(format, eventId);
+  const stats = orderedResultStats(format, eventId);
 
   const nonemptyResults = results.filter(
     (result) => result.attempts.length > 0
@@ -227,7 +227,7 @@ const ResultsProjector = ({
                         )}
                       </TableCell>
                     ))}
-                    {stats.map(({ name, type, recordTagField }, index) => (
+                    {stats.map(({ name, field, recordTagField }, index) => (
                       <TableCell
                         key={name}
                         align="right"
@@ -236,7 +236,7 @@ const ResultsProjector = ({
                         })}
                       >
                         <ResultWithRecordTag
-                          result={formatAttemptResult(result[type], eventId)}
+                          result={formatAttemptResult(result[field], eventId)}
                           recordTag={result[recordTagField]}
                           showPb={false}
                         />

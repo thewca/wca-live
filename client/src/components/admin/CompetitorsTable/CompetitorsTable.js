@@ -15,7 +15,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 import CubingIcon from '../../CubingIcon/CubingIcon';
-import { wcaUrl } from '../../../lib/url-utils';
+import { wcaUrl } from '../../../lib/urls';
 
 const useStyles = makeStyles((theme) => ({
   row: {
@@ -35,19 +35,19 @@ const CompetitorsTable = React.memo(({ competitors, competitionEvents }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState('');
 
-  const handleSearchChange = (event) => {
+  function handleSearchChange(event) {
     setSearch(event.target.value);
     setPage(0);
-  };
+  }
 
-  const handlePageChange = (event, newPage) => {
+  function handlePageChange(event, newPage) {
     setPage(newPage);
-  };
+  }
 
-  const handleRowsPerPageChange = (event) => {
+  function handleRowsPerPageChange(event) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }
 
   const sortedCompetitors = useMemo(() => {
     return competitors

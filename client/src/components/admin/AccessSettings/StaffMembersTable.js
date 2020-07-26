@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles((theme) => ({}));
 
 const rolesData = [
   { role: 'organizer', name: 'Organizer', editable: false },
@@ -15,18 +12,16 @@ const rolesData = [
   { role: 'staff-dataentry', name: 'Scoretaker', editable: true },
 ];
 
-const toggleElement = (array, element) => {
+function toggleElement(array, element) {
   if (array.includes(element)) {
     return array.filter((other) => other !== element);
   } else {
     return [...array, element];
   }
-};
+}
 
-const StaffMembersTable = ({ staffMembers, onChange }) => {
-  const classes = useStyles();
-
-  const handleRoleToggle = (staffMember, role) => {
+function StaffMembersTable({ staffMembers, onChange }) {
+  function handleRoleToggle(staffMember, role) {
     onChange(
       staffMembers.map((other) =>
         other === staffMember
@@ -34,7 +29,7 @@ const StaffMembersTable = ({ staffMembers, onChange }) => {
           : other
       )
     );
-  };
+  }
 
   return (
     <Table>
@@ -64,6 +59,6 @@ const StaffMembersTable = ({ staffMembers, onChange }) => {
       </TableBody>
     </Table>
   );
-};
+}
 
 export default StaffMembersTable;

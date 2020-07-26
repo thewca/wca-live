@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdminCompetition = ({ match, location, history }) => {
+function AdminCompetition({ match, location, history }) {
   const classes = useStyles();
 
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
@@ -196,6 +196,6 @@ const AdminCompetition = ({ match, location, history }) => {
       </div>
     </div>
   );
-};
+}
 
 export default AdminCompetition;

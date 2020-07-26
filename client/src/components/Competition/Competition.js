@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Competition = ({ match, location }) => {
+function Competition({ match, location }) {
   const classes = useStyles();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -243,6 +243,6 @@ const Competition = ({ match, location }) => {
       </div>
     </Fragment>
   );
-};
+}
 
 export default Competition;

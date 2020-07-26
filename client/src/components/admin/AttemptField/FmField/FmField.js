@@ -4,19 +4,19 @@ import TextField from '@material-ui/core/TextField';
 import { dnfKeys, dnsKeys } from '../keybindings';
 import { toInt } from '../../../../lib/utils';
 
-const numberToInput = (number) => {
+function numberToInput(number) {
   if (number === 0) return '';
   if (number === -1) return 'DNF';
   if (number === -2) return 'DNS';
   return number.toString();
-};
+}
 
-const validateFmResult = (number) => {
+function validateFmResult(number) {
   if (number > 80) return -1;
   return number;
-};
+}
 
-const FmField = ({ initialValue, onValue, ...props }) => {
+function FmField({ initialValue, onValue, ...props }) {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
   const [value, setValue] = useState(initialValue);
 
@@ -51,6 +51,6 @@ const FmField = ({ initialValue, onValue, ...props }) => {
       }}
     />
   );
-};
+}
 
 export default FmField;

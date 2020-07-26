@@ -13,7 +13,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import FlagIcon from '../FlagIcon/FlagIcon';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   searchBox: {
     padding: '2px 2px 2px 16px',
     display: 'inline-block',
@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const CompetitorList = ({ competitors, competitionId }) => {
+function CompetitorList({ competitors, competitionId }) {
   const classes = useStyles();
   const [filter, setFilter] = useState('');
 
@@ -31,7 +31,7 @@ const CompetitorList = ({ competitors, competitionId }) => {
     .filter(({ name }) =>
       filter
         .split(/\s+/)
-        .every(part => name.toLowerCase().includes(part.toLowerCase()))
+        .every((part) => name.toLowerCase().includes(part.toLowerCase()))
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -43,7 +43,7 @@ const CompetitorList = ({ competitors, competitionId }) => {
             autoFocus
             value={filter}
             placeholder="Search competitor"
-            onChange={event => setFilter(event.target.value)}
+            onChange={(event) => setFilter(event.target.value)}
           />
           <IconButton disabled>
             <SearchIcon />
@@ -52,7 +52,7 @@ const CompetitorList = ({ competitors, competitionId }) => {
       </Grid>
       <Grid item className={classes.fullWidth}>
         <List>
-          {filteredCompetitors.map(competitor => (
+          {filteredCompetitors.map((competitor) => (
             <ListItem
               key={competitor.id}
               button
@@ -72,6 +72,6 @@ const CompetitorList = ({ competitors, competitionId }) => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default CompetitorList;

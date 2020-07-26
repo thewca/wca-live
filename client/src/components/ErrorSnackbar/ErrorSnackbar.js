@@ -3,7 +3,7 @@ import Portal from '@material-ui/core/Portal';
 
 import ClosableSnackbar from '../ClosableSnackbar/ClosableSnackbar';
 
-const ErrorSnackbar = ({ error = null }) => {
+function ErrorSnackbar({ error = null }) {
   const message =
     error && error.graphQLErrors.length > 0
       ? error.graphQLErrors[0].message
@@ -21,6 +21,6 @@ const ErrorSnackbar = ({ error = null }) => {
       />
     </Portal>
   );
-};
+}
 
 export default ErrorSnackbar;

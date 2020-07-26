@@ -2,16 +2,16 @@ import React from 'react';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 
-const searchCompetitions = (competitions, search) => {
+function searchCompetitions(competitions, search) {
   const normalizedSearch = search.trim().toLowerCase();
   if (normalizedSearch.length === 0) return [];
-  const matchingName = competitions.filter(competition =>
+  const matchingName = competitions.filter((competition) =>
     normalizedSearch
       .split(/\s+/)
-      .every(part => competition.name.toLowerCase().includes(part))
+      .every((part) => competition.name.toLowerCase().includes(part))
   );
   return matchingName.slice(0, 5);
-};
+}
 
 const CompetitionSelect = ({
   competitions,
@@ -23,8 +23,8 @@ const CompetitionSelect = ({
     <Autocomplete
       freeSolo
       options={competitions}
-      getOptionLabel={competition => competition.name}
-      renderInput={props => <TextField {...props} {...TextFieldProps} />}
+      getOptionLabel={(competition) => competition.name}
+      renderInput={(props) => <TextField {...props} {...TextFieldProps} />}
       autoHighlight
       filterOptions={(options, state) =>
         searchCompetitions(options, state.inputValue)

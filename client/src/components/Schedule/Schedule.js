@@ -11,7 +11,7 @@ import {
   toLocalDateString,
   closestDateString,
 } from '../../lib/date';
-import { eventRoundForActivityCode } from '../../lib/wcif';
+import { eventRoundForActivityCode } from '../../lib/competitions';
 
 const useStyles = makeStyles((theme) => ({
   tabs: {
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Schedule = ({ venues, competitionEvents, competitionId }) => {
+function Schedule({ venues, competitionEvents, competitionId }) {
   const classes = useStyles();
   const rooms = flatMap(venues, (venue) => venue.rooms);
   const allActivitiesWithRoom = flatMap(rooms, (room) =>
@@ -80,6 +80,6 @@ const Schedule = ({ venues, competitionEvents, competitionId }) => {
       </Grid>
     </div>
   );
-};
+}
 
 export default Schedule;

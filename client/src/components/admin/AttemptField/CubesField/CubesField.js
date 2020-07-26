@@ -3,7 +3,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { toInt } from '../../../../lib/utils';
 
-const CubesField = ({ initialValue, onValue, ...props }) => {
+function CubesField({ initialValue, onValue, ...props }) {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
   const [value, setValue] = useState(initialValue);
 
@@ -31,6 +31,6 @@ const CubesField = ({ initialValue, onValue, ...props }) => {
       }}
     />
   );
-};
+}
 
 export default CubesField;

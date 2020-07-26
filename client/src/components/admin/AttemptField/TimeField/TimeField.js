@@ -3,17 +3,17 @@ import TextField from '@material-ui/core/TextField';
 
 import { dnfKeys, dnsKeys } from '../keybindings';
 import { toInt } from '../../../../lib/utils';
-import { roundOver10Mins } from '../../../../lib/stats';
+import { roundOver10Mins } from '../../../../lib/attempt-result';
 
-const reformatInput = (input) => {
+function reformatInput(input) {
   const number = toInt(input.replace(/\D/g, '')) || 0;
   if (number === 0) return '';
   const str = '00000000' + number.toString().slice(0, 8);
   const [, hh, mm, ss, cc] = str.match(/(\d\d)(\d\d)(\d\d)(\d\d)$/);
   return `${hh}:${mm}:${ss}.${cc}`.replace(/^[0:]*(?!\.)/g, '');
-};
+}
 
-const inputToCentiseconds = (input) => {
+function inputToCentiseconds(input) {
   if (input === '') return 0;
   if (input === 'DNF') return -1;
   if (input === 'DNS') return -2;
@@ -24,9 +24,9 @@ const inputToCentiseconds = (input) => {
     Math.floor((num % 10000) / 100) * 100 +
     (num % 100)
   );
-};
+}
 
-const centisecondsToInput = (centiseconds) => {
+function centisecondsToInput(centiseconds) {
   if (centiseconds === 0) return '';
   if (centiseconds === -1) return 'DNF';
   if (centiseconds === -2) return 'DNS';
@@ -34,15 +34,15 @@ const centisecondsToInput = (centiseconds) => {
     .toISOString()
     .substr(11, 11)
     .replace(/^[0:]*(?!\.)/g, '');
-};
+}
 
-const validateTimeResult = (centiseconds) => {
+function validateTimeResult(centiseconds) {
   return roundOver10Mins(centiseconds);
-};
+}
 
 const normalize = (input) => centisecondsToInput(inputToCentiseconds(input));
 
-const TimeField = ({ initialValue, onValue, ...props }) => {
+function TimeField({ initialValue, onValue, ...props }) {
   const [prevInitialValue, setPrevInitialValue] = useState(null);
   const [input, setInput] = useState(centisecondsToInput(initialValue));
 
@@ -80,6 +80,6 @@ const TimeField = ({ initialValue, onValue, ...props }) => {
       }}
     />
   );
-};
+}
 
 export default TimeField;

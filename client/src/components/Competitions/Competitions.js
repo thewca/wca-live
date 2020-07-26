@@ -4,7 +4,7 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import CompetitionList from '../CompetitionList/CompetitionList';
 
-const Competitions = ({ past, inProgress, upcoming }) => {
+function Competitions({ past, inProgress, upcoming }) {
   const [tabValue, setTabValue] = useState(
     inProgress.length > 0 ? 'inProgress' : 'upcoming'
   );
@@ -24,6 +24,6 @@ const Competitions = ({ past, inProgress, upcoming }) => {
       <CompetitionList competitions={competitions} />
     </Fragment>
   );
-};
+}
 
 export default Competitions;

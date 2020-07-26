@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { statsToDisplay } from '../../lib/results-table-utils';
+import { orderedResultStats } from '../../lib/view-utils';
 
 const RoundResultDialog = ({
   result,
@@ -20,7 +20,7 @@ const RoundResultDialog = ({
   competitionId,
   onClose,
 }) => {
-  const stats = statsToDisplay(format, eventId);
+  const stats = orderedResultStats(format, eventId);
 
   return (
     <Dialog open={!!result} fullWidth={true} onClose={onClose}>
@@ -63,12 +63,12 @@ const RoundResultDialog = ({
                         .join(', ')}
                     </Typography>
                   </Grid>
-                  {stats.map(({ name, type, recordTagField }) => (
+                  {stats.map(({ name, field, recordTagField }) => (
                     <Grid item key={name}>
                       <Typography variant="subtitle2">{name}</Typography>
                       <Typography variant="body2">
                         <ResultWithRecordTag
-                          result={formatAttemptResult(result[type], eventId)}
+                          result={formatAttemptResult(result[field], eventId)}
                           recordTag={result[recordTagField]}
                           showPb={false}
                         />

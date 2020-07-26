@@ -13,7 +13,7 @@ import {
   nearestCompetition,
 } from '../../lib/geolocation';
 
-const HomeToolbar = ({ upcoming, inProgress, past }) => {
+function HomeToolbar({ upcoming, inProgress, past }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const history = useHistory();
   const searchInputRef = useRef(null);
@@ -69,6 +69,6 @@ const HomeToolbar = ({ upcoming, inProgress, past }) => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default HomeToolbar;

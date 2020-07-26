@@ -31,21 +31,21 @@ const CLEAR_ROUND_MUTATION = gql`
   }
 `;
 
-const roundOpenable = (round, competitionEvent) => {
+function roundOpenable(round, competitionEvent) {
   const previous = competitionEvent.rounds.find(
     (other) => other.number === round.number - 1
   );
   return !round.open && (!previous || previous.open);
-};
+}
 
-const roundClearable = (round, competitionEvent) => {
+function roundClearable(round, competitionEvent) {
   const next = competitionEvent.rounds.find(
     (other) => other.number === round.number + 1
   );
   return round.open && (!next || !next.open);
-};
+}
 
-const RoundListItem = ({ round, competitionEvent, competitionId }) => {
+function RoundListItem({ round, competitionEvent, competitionId }) {
   const confirm = useConfirm();
   const [openRound, { loading: openLoading, error: openError }] = useMutation(
     OPEN_ROUND_MUTATION,
@@ -119,6 +119,6 @@ const RoundListItem = ({ round, competitionEvent, competitionId }) => {
       </ListItemSecondaryAction>
     </ListItem>
   );
-};
+}
 
 export default RoundListItem;

@@ -40,14 +40,14 @@ const ToggleThemeContext = createContext();
 
 const storedThemeType = window.localStorage.getItem('themeType');
 
-export const ThemeProvider = ({ children }) => {
+export function ThemeProvider({ children }) {
   const prefersDarkMode = useMediaQuery('@media (prefers-color-scheme: dark)');
   const preferredThemeType = prefersDarkMode ? 'dark' : 'light';
   const [themeType, setThemeType] = useState(
     storedThemeType || preferredThemeType
   );
   const toggleTheme = useCallback(() => {
-    setThemeType(themeType => (themeType === 'light' ? 'dark' : 'light'));
+    setThemeType((themeType) => (themeType === 'light' ? 'dark' : 'light'));
   }, []);
 
   useEffect(() => {
@@ -68,8 +68,8 @@ export const ThemeProvider = ({ children }) => {
       </ToggleThemeContext.Provider>
     </MuiThemeProvider>
   );
-};
+}
 
-export const useToggleTheme = () => {
+export function useToggleTheme() {
   return useContext(ToggleThemeContext);
-};
+}

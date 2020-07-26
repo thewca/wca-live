@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ImportableCompetitionList = () => {
+function ImportableCompetitionList() {
   const classes = useStyles();
 
   const { data, loading, error } = useQuery(IMPORTABLE_COMPETITIONS_QUERY);
@@ -45,6 +45,6 @@ const ImportableCompetitionList = () => {
       ))}
     </List>
   );
-};
+}
 
 export default ImportableCompetitionList;

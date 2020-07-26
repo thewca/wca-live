@@ -28,7 +28,7 @@ const EVENTS_QUERY = gql`
   }
 `;
 
-const AdminEvents = ({ match }) => {
+function AdminEvents({ match }) {
   const { competitionId } = match.params;
   const { data, loading, error } = useQuery(EVENTS_QUERY, {
     variables: { id: competitionId },
@@ -51,6 +51,6 @@ const AdminEvents = ({ match }) => {
       ))}
     </Grid>
   );
-};
+}
 
 export default AdminEvents;

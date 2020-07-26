@@ -4,7 +4,7 @@ import Hidden from '@material-ui/core/Hidden';
 import RoundResultsTable from '../RoundResultsTable/RoundResultsTable';
 import RoundResultDialog from '../RoundResultDialog/RoundResultDialog';
 
-const RoundResults = ({ results, format, eventId, competitionId }) => {
+function RoundResults({ results, format, eventId, competitionId }) {
   const [selectedResult, setSelectedResult] = useState(null);
 
   const handleResultClick = useCallback((result, event) => {
@@ -31,6 +31,6 @@ const RoundResults = ({ results, format, eventId, competitionId }) => {
       </Hidden>
     </Fragment>
   );
-};
+}
 
 export default RoundResults;

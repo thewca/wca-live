@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Home = () => {
+function Home() {
   const classes = useStyles();
   const { data, loading, error } = useQuery(COMPETITIONS_QUERY);
   if (loading && !data) return <Loading />;
@@ -103,6 +103,6 @@ const Home = () => {
       </Grid>
     </div>
   );
-};
+}
 
 export default Home;

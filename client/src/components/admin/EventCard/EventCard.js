@@ -7,7 +7,7 @@ import List from '@material-ui/core/List';
 import RoundListItem from './RoundListItem/RoundListItem';
 import CubingIcon from '../../CubingIcon/CubingIcon';
 
-const EventCard = ({ competitionEvent, competitionId }) => {
+function EventCard({ competitionEvent, competitionId }) {
   return (
     <Card style={{ height: '100%' }}>
       <CardHeader
@@ -28,6 +28,6 @@ const EventCard = ({ competitionEvent, competitionId }) => {
       </CardContent>
     </Card>
   );
-};
+}
 
 export default EventCard;

@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CompetitionEventList = ({ competitionEvents, competitionId }) => {
+function CompetitionEventList({ competitionEvents, competitionId }) {
   const classes = useStyles();
   const [selectedId, setSelectedId] = useState(null);
 
@@ -79,6 +79,6 @@ const CompetitionEventList = ({ competitionEvents, competitionId }) => {
       ))}
     </List>
   );
-};
+}
 
 export default CompetitionEventList;

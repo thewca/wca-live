@@ -16,6 +16,7 @@ import AdminResultsTable from '../AdminResultsTable/AdminResultsTable';
 import ResultMenu from '../ResultMenu/ResultMenu';
 import AddCompetitorDialog from '../AddCompetitorDialog/AddCompetitorDialog';
 import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
+import { appUrl } from '../../../lib/urls';
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -97,14 +98,14 @@ const ENTER_RESULT_ATTEMPTS = gql`
   }
 `;
 
-const roundDescription = (round) => {
+function roundDescription(round) {
   const enteredResults = round.results.filter(
     (result) => result.attempts.length > 0
   );
   return `${enteredResults.length} of ${round.results.length} entered`;
-};
+}
 
-const AdminRound = () => {
+function AdminRound() {
   const { competitionId, roundId } = useParams();
   const [editedResult, setEditedResult] = useState(null);
   const [resultMenuProps, updateResultMenuProps] = useState({});
@@ -169,7 +170,7 @@ const AdminRound = () => {
                 <IconButton
                   component="a"
                   target="_blank"
-                  href={`/pdfs/competitions/${competitionId}/rounds/${round.id}`}
+                  href={appUrl(`/pdfs/rounds/${round.id}`)}
                 >
                   <PrintIcon />
                 </IconButton>
@@ -218,6 +219,6 @@ const AdminRound = () => {
       )}
     </div>
   );
-};
+}
 
 export default AdminRound;

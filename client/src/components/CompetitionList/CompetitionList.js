@@ -10,9 +10,9 @@ import PublicIcon from '@material-ui/icons/Public';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import VirtualList from '../VirtualList/VirtualList';
 import { formatDateRange } from '../../lib/date';
-import { competitionCountryIso2s } from '../../lib/competitions';
+import { competitionCountries } from '../../lib/competitions';
 
-const CompetitionList = ({ title, competitions, pathPrefix = '' }) => {
+function CompetitionList({ title, competitions, pathPrefix = '' }) {
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
@@ -21,7 +21,7 @@ const CompetitionList = ({ title, competitions, pathPrefix = '' }) => {
         itemHeigh={60}
         items={competitions}
         renderItem={(competition, { style }) => {
-          const countryIso2s = competitionCountryIso2s(competition);
+          const countries = competitionCountries(competition);
 
           return (
             <ListItem
@@ -32,8 +32,8 @@ const CompetitionList = ({ title, competitions, pathPrefix = '' }) => {
               to={`${pathPrefix}/competitions/${competition.id}`}
             >
               <ListItemIcon>
-                {countryIso2s.length === 1 ? (
-                  <FlagIcon code={countryIso2s[0].toLowerCase()} size="lg" />
+                {countries.length === 1 ? (
+                  <FlagIcon code={countries[0].iso2.toLowerCase()} size="lg" />
                 ) : (
                   <PublicIcon />
                 )}
@@ -51,6 +51,6 @@ const CompetitionList = ({ title, competitions, pathPrefix = '' }) => {
       />
     </List>
   );
-};
+}
 
 export default CompetitionList;

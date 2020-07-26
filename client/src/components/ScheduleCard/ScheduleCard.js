@@ -11,8 +11,10 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 import RoomLabel from '../RoomLabel/RoomLabel';
-import { parseActivityCode, eventRoundForActivityCode } from '../../lib/wcif';
+import { parseActivityCode } from '../../lib/activity-code';
+import { eventRoundForActivityCode } from '../../lib/competitions';
 import { shortLocalTime } from '../../lib/date';
+import { parseISO } from 'date-fns';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,13 +48,13 @@ const ScheduleCard = ({
     ? `${event.name} - ${round.name} (Attempt ${attemptNumber})`
     : `${event.name} - ${round.name}`;
   const startTime = Math.min(
-    ...activitiesWithRoom.map(([activity]) => new Date(activity.startTime))
+    ...activitiesWithRoom.map(([activity]) => parseISO(activity.startTime))
   );
   const endTime = Math.max(
-    ...activitiesWithRoom.map(([activity]) => new Date(activity.endTime))
+    ...activitiesWithRoom.map(([activity]) => parseISO(activity.endTime))
   );
-  const duration = new Date(endTime) - new Date(startTime);
-  const distanceFromStart = new Date() - new Date(startTime);
+  const duration = parseISO(endTime) - parseISO(startTime);
+  const distanceFromStart = new Date() - parseISO(startTime);
   const progressPercentage = Math.round(
     (Math.min(Math.max(distanceFromStart, 0), duration) / duration) * 100
   );

@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RecordList = () => {
+function RecordList() {
   const classes = useStyles();
   const { data, loading, error } = useQuery(RECENT_RECORDS_QUERY);
   if (error) return <ErrorSnackbar />;
@@ -97,6 +97,6 @@ const RecordList = () => {
       )}
     </List>
   );
-};
+}
 
 export default RecordList;

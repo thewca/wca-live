@@ -1,9 +1,9 @@
 import {
   formatAttemptResult,
   encodeMbldAttempt,
-  validateMbldAttempt,
+  autocompleteMbldDecodedValue,
   meetsCutoff,
-  attemptsWarning,
+  attemptResultsWarning,
   applyTimeLimit,
   applyCutoff,
 } from '../attempts';
@@ -73,10 +73,10 @@ describe('encodeMbldAttempt', () => {
   });
 });
 
-describe('validateMbldAttempt', () => {
+describe('autocompleteMbldDecodedValue', () => {
   test('sets attempted to solved when attempted is 0', () => {
     const attempt = { solved: 2, attempted: 0, centiseconds: 6000 };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 2,
       attempted: 2,
       centiseconds: 6000,
@@ -85,7 +85,7 @@ describe('validateMbldAttempt', () => {
 
   test('sets attempted to solved when more cubes are solved than attempted', () => {
     const attempt = { solved: 3, attempted: 2, centiseconds: 6000 };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 3,
       attempted: 3,
       centiseconds: 6000,
@@ -94,7 +94,7 @@ describe('validateMbldAttempt', () => {
 
   test('returns dnf attempt if the number of points is less than 0', () => {
     const attempt = { solved: 2, attempted: 5, centiseconds: 6000 };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 0,
       attempted: 0,
       centiseconds: -1,
@@ -103,7 +103,7 @@ describe('validateMbldAttempt', () => {
 
   test('returns dnf attempt for 1/2', () => {
     const attempt = { solved: 1, attempted: 2, centiseconds: 6000 };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 0,
       attempted: 0,
       centiseconds: -1,
@@ -112,7 +112,7 @@ describe('validateMbldAttempt', () => {
 
   test('returns dnf attempt if the time limit is exceeded', () => {
     const attempt = { solved: 2, attempted: 3, centiseconds: 40 * 60 * 100 };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 0,
       attempted: 0,
       centiseconds: -1,
@@ -125,7 +125,7 @@ describe('validateMbldAttempt', () => {
       attempted: 3,
       centiseconds: 30 * 60 * 100 + 30 * 100,
     };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 2,
       attempted: 3,
       centiseconds: 30 * 60 * 100 + 30 * 100,
@@ -134,7 +134,7 @@ describe('validateMbldAttempt', () => {
 
   test('returns the same attempt if everything is ok', () => {
     const attempt = { solved: 11, attempted: 12, centiseconds: 60 * 60 * 100 };
-    expect(validateMbldAttempt(attempt)).toEqual({
+    expect(autocompleteMbldDecodedValue(attempt)).toEqual({
       solved: 11,
       attempted: 12,
       centiseconds: 60 * 60 * 100,
@@ -167,13 +167,13 @@ describe('meetsCutoff', () => {
   });
 });
 
-describe('attemptsWarning', () => {
+describe('attemptResultsWarning', () => {
   const normalize = (string) => string.replace(/\s+/g, ' ');
 
   describe('when 3x3x3 Multi-Blind attempts are given', () => {
     it('returns a warning if an attempt has impossibly low time', () => {
       const attempts = [970360001, 970006001];
-      expect(normalize(attemptsWarning(attempts, '333mbf'))).toMatch(
+      expect(normalize(attemptResultsWarning(attempts, '333mbf'))).toMatch(
         'attempt 2 is done in less than 30 seconds per cube tried'
       );
     });
@@ -181,31 +181,31 @@ describe('attemptsWarning', () => {
 
   it('returns a warning if best and worst attempt are far apart', () => {
     const attempts = [500, 1000, 2500];
-    expect(normalize(attemptsWarning(attempts, '333'))).toMatch(
+    expect(normalize(attemptResultsWarning(attempts, '333'))).toMatch(
       "There's a big difference between the best single (5.00) and the worst single (25.00)"
     );
   });
 
   it('returns null if attempts do not look suspicious', () => {
     const attempts = [900, 1000, 800];
-    expect(attemptsWarning(attempts, '333')).toEqual(null);
+    expect(attemptResultsWarning(attempts, '333')).toEqual(null);
   });
 
   it('does not treat DNF as being far apart from other attempts', () => {
     const attempts = [-1, 1000, 2500];
-    expect(attemptsWarning(attempts, '333')).toEqual(null);
+    expect(attemptResultsWarning(attempts, '333')).toEqual(null);
   });
 
   it('returns a warning if an attempt is omitted', () => {
     const attempts = [1000, 0, 900];
-    expect(attemptsWarning(attempts, '333')).toMatch(
+    expect(attemptResultsWarning(attempts, '333')).toMatch(
       "You've omitted attempt 2"
     );
   });
 
   it('doas not treat trailing skipped attempts as omitted', () => {
     const attempts = [1000, 0, 0];
-    expect(attemptsWarning(attempts, '333')).toEqual(null);
+    expect(attemptResultsWarning(attempts, '333')).toEqual(null);
   });
 });
 

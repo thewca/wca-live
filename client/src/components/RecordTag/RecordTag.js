@@ -6,7 +6,7 @@ import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
 import blue from '@material-ui/core/colors/blue';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   recordTag: {
     display: 'block',
     padding: theme.spacing(0.5, 1),
@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const RecordTag = ({ recordTag }) => {
+function RecordTag({ recordTag }) {
   const classes = useStyles();
   return (
     <span
@@ -44,6 +44,6 @@ const RecordTag = ({ recordTag }) => {
       {recordTag}
     </span>
   );
-};
+}
 
 export default RecordTag;

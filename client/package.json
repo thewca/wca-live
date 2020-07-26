@@ -5,8 +5,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build && rm -rf build-prod && mv build build-prod",
-    "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "test": "react-app-rewired test"
   },
   "dependencies": {
     "@absinthe/socket": "^0.2.1",
@@ -32,6 +31,13 @@
     "react-window": "^1.8.5",
     "scroll-into-view-if-needed": "^2.2.25"
   },
+  "devDependencies": {
+    "customize-cra": "^1.0.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
+    "prettier": "^2.0.5",
+    "react-app-rewired": "^2.1.6"
+  },
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -47,20 +53,13 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "customize-cra": "^1.0.0",
-    "husky": "^4.2.5",
-    "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5",
-    "react-app-rewired": "^2.1.6"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css,md}": [
+    "src/**/*.{js,json,css,md}": [
       "prettier --single-quote --trailing-comma es5 --write"
     ]
   }

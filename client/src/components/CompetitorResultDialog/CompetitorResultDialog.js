@@ -11,12 +11,15 @@ import Typography from '@material-ui/core/Typography';
 
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { statsToDisplay } from '../../lib/results-table-utils';
+import { orderedResultStats } from '../../lib/view-utils';
 
-const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
+function CompetitorResultDialog({ result, competitionId, onClose }) {
   if (!result) return null;
   const { round } = result;
-  const stats = statsToDisplay(round.format, round.competitionEvent.event.id);
+  const stats = orderedResultStats(
+    round.format,
+    round.competitionEvent.event.id
+  );
 
   return (
     <Dialog open={true} fullWidth={true} onClose={onClose}>
@@ -58,13 +61,13 @@ const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
                     .join(', ')}
                 </Typography>
               </Grid>
-              {stats.map(({ name, type, recordTagField }) => (
+              {stats.map(({ name, field, recordTagField }) => (
                 <Grid item key={name}>
                   <Typography variant="subtitle2">{name}</Typography>
                   <Typography variant="body2">
                     <ResultWithRecordTag
                       result={formatAttemptResult(
-                        result[type],
+                        result[field],
                         round.competitionEvent.event.id
                       )}
                       recordTag={result[recordTagField]}
@@ -84,6 +87,6 @@ const CompetitorResultDialog = ({ result, competitionId, onClose }) => {
       </DialogActions>
     </Dialog>
   );
-};
+}
 
 export default CompetitorResultDialog;

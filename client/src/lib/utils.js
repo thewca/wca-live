@@ -1,3 +1,5 @@
+// TODO: replace with some fast library
+
 export const flatMap = (arr, fn) => arr.reduce((xs, x) => xs.concat(fn(x)), []);
 
 export const setAt = (array, index, value) => [
@@ -38,7 +40,7 @@ const zip = (...arrs) =>
 const firstResult = (arr, fn) =>
   arr.reduce((result, x) => result || fn(x), null);
 
-export const sortByArray = (arr, fn) => {
+export function sortByArray(arr, fn) {
   const values = new Map(
     arr.map((x) => [x, fn(x)])
   ); /* Compute every value once. */
@@ -49,13 +51,6 @@ export const sortByArray = (arr, fn) => {
         sortCompare(a, b)
       )
     );
-};
-
-export const trimTrailingZeros = (array) => {
-  if (array.length === 0) return [];
-  return array[array.length - 1] === 0
-    ? trimTrailingZeros(array.slice(0, -1))
-    : array;
-};
+}
 
 export const partition = (xs, fn) => [xs.filter(fn), xs.filter((x) => !fn(x))];

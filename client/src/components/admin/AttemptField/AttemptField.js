@@ -30,7 +30,7 @@ import TimeField from './TimeField/TimeField';
    Hooks equivalent is described here https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops.
 */
 
-const AttemptField = ({ eventId, ...props }) => {
+function AttemptField({ eventId, ...props }) {
   if (eventId === '333fm') {
     return <FmField {...props} />;
   }
@@ -38,6 +38,6 @@ const AttemptField = ({ eventId, ...props }) => {
     return <MbldField {...props} />;
   }
   return <TimeField {...props} />;
-};
+}
 
 export default AttemptField;

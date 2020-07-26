@@ -1,20 +1,20 @@
 import {
-  mbldAttemptToPoints,
+  mbldAttemptResultToPoints,
   centisecondsToClockFormat,
 } from './attempt-result';
 
-export const cutoffToString = (cutoff, eventId) => {
+export function cutoffToString(cutoff, eventId) {
   if (!cutoff) return 'None';
   if (eventId === '333mbf') {
-    return `${mbldAttemptToPoints(cutoff.attemptResult)} points`;
+    return `${mbldAttemptResultToPoints(cutoff.attemptResult)} points`;
   } else if (eventId === '333fm') {
     return `${cutoff.attemptResult} moves`;
   } else {
     return centisecondsToClockFormat(cutoff.attemptResult);
   }
-};
+}
 
-export const timeLimitToString = (timeLimit, eventId) => {
+export function timeLimitToString(timeLimit, eventId) {
   if (['333mbf', '333fm'].includes(eventId)) return 'Regulated';
   const { centiseconds, cumulativeRoundWcifIds } = timeLimit;
   const clockFormat = centisecondsToClockFormat(centiseconds);
@@ -26,4 +26,4 @@ export const timeLimitToString = (timeLimit, eventId) => {
   } else {
     return `${clockFormat} total for ${cumulativeRoundWcifIds.join(', ')}`;
   }
-};
+}

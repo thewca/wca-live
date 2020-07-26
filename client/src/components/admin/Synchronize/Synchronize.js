@@ -17,11 +17,7 @@ import { parseISO } from 'date-fns';
 
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
-import {
-  wcaUrl,
-  groupifierUrl,
-  scramblesMatcherUrl,
-} from '../../../lib/url-utils';
+import { wcaUrl, groupifierUrl, scramblesMatcherUrl } from '../../../lib/urls';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -50,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Synchronize = () => {
+function Synchronize() {
   const classes = useStyles();
   const { competitionId } = useParams();
   const [
@@ -145,6 +141,6 @@ const Synchronize = () => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default Synchronize;

@@ -15,11 +15,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const personToString = (person) => {
+function personToString(person) {
   return `${person.name} (${person.registrantId})`;
-};
+}
 
-const searchPersons = (persons, search) => {
+function searchPersons(persons, search) {
   const normalizedSearch = search.trim().toLowerCase();
   if (normalizedSearch.length === 0) return [];
   const matchingId = persons.find(
@@ -33,7 +33,7 @@ const searchPersons = (persons, search) => {
     person.name.toLowerCase().includes(normalizedSearch)
   );
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
-};
+}
 
 const PersonSelect = ({
   persons,
@@ -45,7 +45,7 @@ const PersonSelect = ({
   const classes = useStyles();
   const textFieldRef = useRef();
 
-  const handleKeyDown = (event) => {
+  function handleKeyDown(event) {
     /* Mimic enter behavior on tab press. */
     if (event.key === 'Tab') {
       event.preventDefault();
@@ -56,7 +56,7 @@ const PersonSelect = ({
       });
       event.target.dispatchEvent(newEvent);
     }
-  };
+  }
 
   return (
     <Downshift

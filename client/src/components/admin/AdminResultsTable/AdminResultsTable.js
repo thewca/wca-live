@@ -12,7 +12,7 @@ import green from '@material-ui/core/colors/green';
 import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../../lib/utils';
 import { formatAttemptResult } from '../../../lib/attempt-result';
-import { statsToDisplay } from '../../../lib/results-table-utils';
+import { orderedResultStats } from '../../../lib/view-utils';
 
 const useStyles = makeStyles((theme) => ({
   row: {
@@ -55,7 +55,7 @@ const AdminResultsTable = React.memo(
             throw new Error(`Unrecognized order rule: ${orderBy}`);
           });
 
-    const handleSortClick = (property) => {
+    function handleSortClick(property) {
       if (orderBy !== property) {
         setOrderBy(property);
         setOrder('asc');
@@ -66,9 +66,9 @@ const AdminResultsTable = React.memo(
         setOrderBy(null);
         setOrder('asc');
       }
-    };
+    }
 
-    const stats = statsToDisplay(format, eventId);
+    const stats = orderedResultStats(format, eventId);
 
     return (
       <Table size="small">
@@ -133,7 +133,7 @@ const AdminResultsTable = React.memo(
                   )}
                 </TableCell>
               ))}
-              {stats.map(({ name, type, recordTagField }, index) => (
+              {stats.map(({ name, field, recordTagField }, index) => (
                 <TableCell
                   key={name}
                   align="right"
@@ -142,7 +142,7 @@ const AdminResultsTable = React.memo(
                   })}
                 >
                   <ResultWithRecordTag
-                    result={formatAttemptResult(result[type], eventId)}
+                    result={formatAttemptResult(result[field], eventId)}
                     recordTag={result[recordTagField]}
                     showPb={false}
                   />

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 
 import ImportableCompetitionList from './ImportableCompetitionList';
 
-const ImportableCompetitions = () => {
+function ImportableCompetitions() {
   return (
     <Accordion TransitionProps={{ mountOnEnter: true }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -20,6 +20,6 @@ const ImportableCompetitions = () => {
       </AccordionDetails>
     </Accordion>
   );
-};
+}
 
 export default ImportableCompetitions;

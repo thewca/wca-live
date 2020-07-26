@@ -7,7 +7,7 @@ import yellow from '@material-ui/core/colors/yellow';
 import green from '@material-ui/core/colors/green';
 import blue from '@material-ui/core/colors/blue';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   badge: {
     right: '-1.2em',
     top: 4,
@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ResultWithRecordTag = ({ result, recordTag, showPb }) => {
+function ResultWithRecordTag({ result, recordTag, showPb }) {
   const classes = useStyles();
 
   if (!recordTag || (!showPb && recordTag === 'PB')) {
@@ -53,6 +53,6 @@ const ResultWithRecordTag = ({ result, recordTag, showPb }) => {
       {result}
     </Badge>
   );
-};
+}
 
 export default ResultWithRecordTag;

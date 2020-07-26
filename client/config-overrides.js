@@ -1,5 +1,5 @@
 /* Note: this brings in two dependencies: react-app-rewired and customize-cra.
-   We use it to override Workbox defult configuration,
+   We use it to override Workbox default configuration,
    specifically we don't want service worker to return cached index.html
    for /oauth and /pdfs routes as those are not part of our SPA.
    Once CRA supports custom Workbox config (https://github.com/facebook/create-react-app/pull/5369)

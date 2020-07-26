@@ -12,7 +12,7 @@ import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResultsTable from '../CompetitorResultsTable/CompetitorResultsTable';
 import CompetitorResultDialog from '../CompetitorResultDialog/CompetitorResultDialog';
 import { groupBy, sortByArray } from '../../lib/utils';
-import { wcaUrl } from '../../lib/url-utils';
+import { wcaUrl } from '../../lib/urls';
 import { useParams } from 'react-router-dom';
 
 const COMPETITOR_QUERY = gql`
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Competitor = () => {
+function Competitor() {
   const classes = useStyles();
   const { competitionId, competitorId } = useParams();
   const [selectedResult, setSelectedResult] = useState(null);
@@ -130,6 +130,6 @@ const Competitor = () => {
       </Hidden>
     </div>
   );
-};
+}
 
 export default Competitor;

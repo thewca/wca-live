@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
 import CompetitionSignInForm from '../../CompetitionSignInForm/CompetitionSignInForm';
-import { signInUrl } from '../../../lib/auth';
+import { appUrl } from '../../../lib/urls';
 
 const useStyles = makeStyles((theme) => ({
   screenHeight: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdminSignIn = () => {
+function AdminSignIn() {
   const classes = useStyles();
   return (
     <Grid container alignItems="center" className={classes.screenHeight}>
@@ -33,7 +33,7 @@ const AdminSignIn = () => {
           size="large"
           variant="outlined"
           color="primary"
-          href={signInUrl}
+          href={appUrl('/oauth/authorize')}
         >
           Sign in
         </Button>
@@ -49,6 +49,6 @@ const AdminSignIn = () => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default AdminSignIn;

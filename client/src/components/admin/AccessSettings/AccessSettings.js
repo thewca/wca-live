@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -41,18 +41,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const staffMemberToInput = (staffMember) => {
+function staffMemberToInput(staffMember) {
   const { id, user, roles } = staffMember;
   return { id, userId: user.id, roles };
-};
+}
 
-const staffMembersToInputs = (staffMembers) => {
+function staffMembersToInputs(staffMembers) {
   return staffMembers
     .filter((staffMember) => staffMember.roles.length > 0)
     .map(staffMemberToInput);
-};
+}
 
-const AccessSettings = ({ competition }) => {
+function AccessSettings({ competition }) {
   const classes = useStyles();
   const [staffMembers, setStaffMembers] = useState(competition.staffMembers);
 
@@ -68,7 +68,7 @@ const AccessSettings = ({ competition }) => {
     }
   );
 
-  const handleUserSearch = (user) => {
+  function handleUserSearch(user) {
     if (user === null) return;
     if (staffMembers.some((staffMember) => staffMember.user.id === user.id))
       return;
@@ -78,7 +78,7 @@ const AccessSettings = ({ competition }) => {
       roles: [],
     };
     setStaffMembers([...staffMembers, staffMember]);
-  };
+  }
 
   return (
     <Grid container direction="column" spacing={1}>
@@ -121,6 +121,6 @@ const AccessSettings = ({ competition }) => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default AccessSettings;

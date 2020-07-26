@@ -8,13 +8,13 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-const PersonList = ({ people, onDelete }) => {
+function PersonList({ people, onDelete }) {
   const sortedPeople = people.sort((person1, person2) =>
     person1.name.localeCompare(person2.name)
   );
   return (
     <List>
-      {sortedPeople.map(person => (
+      {sortedPeople.map((person) => (
         <ListItem key={person.id}>
           <ListItemAvatar>
             <Avatar src={person.avatar.thumbUrl} />
@@ -29,6 +29,6 @@ const PersonList = ({ people, onDelete }) => {
       ))}
     </List>
   );
-};
+}
 
 export default PersonList;

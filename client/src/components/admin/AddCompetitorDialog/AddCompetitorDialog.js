@@ -60,12 +60,12 @@ const ADD_PERSON_TO_ROUND_MUTATION = gql`
   }
 `;
 
-const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
+function AddCompetitorDialog({ open, onClose, competitionId, roundId }) {
   const [selectedCompetitor, setSelectedCompetitor] = useState(null);
-  const handleClose = () => {
+  function handleClose() {
     setSelectedCompetitor(null);
     onClose();
-  };
+  }
 
   const { data, loading, error } = useQuery(ADVANCEMENT_CANDIDATES_QUERY, {
     variables: { roundId },
@@ -132,6 +132,6 @@ const AddCompetitorDialog = ({ open, onClose, competitionId, roundId }) => {
       </DialogActions>
     </Dialog>
   );
-};
+}
 
 export default AddCompetitorDialog;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -14,7 +14,7 @@ const SIGN_IN_MUTATION = gql`
   }
 `;
 
-const CompetitionSignInForm = () => {
+function CompetitionSignInForm() {
   const history = useHistory();
   const [competitionId, setCompetitionId] = useState('');
   const [password, setPassword] = useState('');
@@ -61,6 +61,6 @@ const CompetitionSignInForm = () => {
       </Grid>
     </Box>
   );
-};
+}
 
 export default CompetitionSignInForm;

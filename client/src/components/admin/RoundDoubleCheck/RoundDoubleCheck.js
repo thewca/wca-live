@@ -12,6 +12,7 @@ import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import ResultForm from '../ResultForm/ResultForm';
 import { sortBy } from '../../../lib/utils';
+import { parseISO } from 'date-fns';
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -72,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RoundDoubleCheck = () => {
+function RoundDoubleCheck() {
   const classes = useStyles();
   const { competitionId, roundId } = useParams();
   const [resultIndex, updateResultIndex] = useState(0);
@@ -80,14 +81,14 @@ const RoundDoubleCheck = () => {
   const rightButtonRef = useRef(null);
 
   useEffect(() => {
-    const handleKeyPress = (event) => {
+    function handleKeyPress(event) {
       if (event.target.tagName.toUpperCase() === 'INPUT') return;
       if (event.key === 'ArrowLeft') {
         leftButtonRef.current.click();
       } else if (event.key === 'ArrowRight') {
         rightButtonRef.current.click();
       }
-    };
+    }
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
@@ -100,7 +101,7 @@ const RoundDoubleCheck = () => {
   const { round } = data;
   const results = sortBy(
     round.results,
-    (result) => -new Date(result.enteredAt)
+    (result) => -parseISO(result.enteredAt)
   );
 
   return (
@@ -160,6 +161,6 @@ const RoundDoubleCheck = () => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default RoundDoubleCheck;

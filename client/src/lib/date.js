@@ -1,6 +1,6 @@
 import { closestIndexTo, parseISO, startOfToday, format } from 'date-fns';
 
-export const formatDateRange = (startString, endString) => {
+export function formatDateRange(startString, endString) {
   const [startDay, startMonth, startYear] = format(
     parseISO(startString),
     'd MMM yyyy'
@@ -20,27 +20,27 @@ export const formatDateRange = (startString, endString) => {
     return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${startYear}`;
   }
   return `${startMonth} ${startDay}, ${startYear} - ${endMonth} ${endDay}, ${endYear}`;
-};
+}
 
-export const shortLocalTime = (isoString) => {
+export function shortLocalTime(isoString) {
   return format(parseISO(isoString), 'HH:mm');
-};
+}
 
-export const shortDate = (dateString) => {
+export function shortDate(dateString) {
   return format(parseISO(dateString), 'EEEE, MMM d');
-};
+}
 
-export const toLocalDateString = (isoString) => {
+export function toLocalDateString(isoString) {
   return format(parseISO(isoString), 'yyyy-MM-dd');
-};
+}
 
 /**
  * Returns date string closest the current day.
  */
-export const closestDateString = (dateStrings) => {
+export function closestDateString(dateStrings) {
   const closestIndex = closestIndexTo(
     startOfToday(),
     dateStrings.map(parseISO)
   );
   return dateStrings[closestIndex];
-};
+}

@@ -13,6 +13,7 @@ import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
 import ResultsProjector from '../ResultsProjector/ResultsProjector';
 import RoundResults from '../RoundResults/RoundResults';
+import { appUrl } from '../../lib/urls';
 
 const ROUND_RESULT_FRAGMENT = gql`
   fragment roundResult on Result {
@@ -76,7 +77,7 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
   ${ROUND_RESULT_FRAGMENT}
 `;
 
-const Round = () => {
+function Round() {
   const { competitionId, roundId } = useParams();
   const { data, loading, error, subscribeToMore } = useQuery(ROUND_QUERY, {
     variables: { id: roundId },
@@ -114,7 +115,7 @@ const Round = () => {
               <IconButton
                 component="a"
                 target="_blank"
-                href={`/pdfs/rounds/${roundId}`}
+                href={appUrl(`/pdfs/rounds/${roundId}`)}
               >
                 <PrintIcon />
               </IconButton>
@@ -161,6 +162,6 @@ const Round = () => {
       </Switch>
     </Fragment>
   );
-};
+}
 
 export default Round;

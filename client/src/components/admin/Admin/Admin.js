@@ -33,7 +33,7 @@ const ADMIN_QUERY = gql`
   }
 `;
 
-const Admin = () => {
+function Admin() {
   const { data, loading, error } = useQuery(ADMIN_QUERY);
   if (loading && !data) return <Loading />;
   if (error) return <ErrorSnackbar />;
@@ -43,6 +43,6 @@ const Admin = () => {
   ) : (
     <AdminSignIn />
   );
-};
+}
 
 export default Admin;

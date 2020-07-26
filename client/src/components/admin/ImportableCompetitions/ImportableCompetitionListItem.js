@@ -18,7 +18,7 @@ const IMPORT_COMPETITION_MUTATION = gql`
   }
 `;
 
-const ImportableCompetitionListItem = ({ competition }) => {
+function ImportableCompetitionListItem({ competition }) {
   const confirm = useConfirm();
   const history = useHistory();
 
@@ -32,11 +32,11 @@ const ImportableCompetitionListItem = ({ competition }) => {
     }
   );
 
-  const handleClick = () => {
+  function handleClick() {
     confirm({
       description: `This will import ${competition.name} from the WCA website.`,
     }).then(() => importCompetition());
-  };
+  }
 
   return (
     <ListItem
@@ -52,6 +52,6 @@ const ImportableCompetitionListItem = ({ competition }) => {
       {error && <ErrorSnackbar error={error} />}
     </ListItem>
   );
-};
+}
 
 export default ImportableCompetitionListItem;

@@ -1,16 +1,18 @@
 import { sortBy } from './utils';
 
 /* Source https://www.movable-type.co.uk/scripts/latlong.html#equirectangular */
-const distanceKm = (lat1, lon1, lat2, lon2) => {
+function distanceKm(lat1, lon1, lat2, lon2) {
   const R = 6371; /* km */
   const x = toRadians(lon2 - lon1) * Math.cos(toRadians(lat1 + lat2) / 2);
   const y = toRadians(lat2 - lat1);
   return Math.sqrt(x * x + y * y) * R;
-};
+}
 
-const toRadians = (degrees) => (degrees * Math.PI) / 180;
+function toRadians(degrees) {
+  return (degrees * Math.PI) / 180;
+}
 
-export const nearestCompetition = (competitions) => {
+export function nearestCompetition(competitions) {
   return new Promise((resolve, reject) => {
     const options = {
       /* Prevent the browser from asking the user to turn on GPS, we just need an estimate. */
@@ -31,6 +33,6 @@ export const nearestCompetition = (competitions) => {
       options
     );
   });
-};
+}
 
 export const geolocationAvailable = 'geolocation' in navigator;

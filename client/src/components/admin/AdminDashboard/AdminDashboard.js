@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter, Link, useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdminDashboard = ({ currentUser }) => {
+function AdminDashboard({ currentUser }) {
   const classes = useStyles();
   const apolloClient = useApolloClient();
   const history = useHistory();
@@ -88,6 +88,6 @@ const AdminDashboard = ({ currentUser }) => {
       </Grid>
     </Box>
   );
-};
+}
 
 export default AdminDashboard;

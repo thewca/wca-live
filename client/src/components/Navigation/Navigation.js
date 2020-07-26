@@ -6,7 +6,7 @@ import Competition from '../Competition/Competition';
 import Admin from '../admin/Admin/Admin';
 import AdminCompetition from '../admin/AdminCompetition/AdminCompetition';
 
-const Navigation = () => {
+function Navigation() {
   return (
     <Switch>
       <Route exact path="/" component={Home} />
@@ -16,6 +16,6 @@ const Navigation = () => {
       <Redirect to="/" />
     </Switch>
   );
-};
+}
 
 export default Navigation;

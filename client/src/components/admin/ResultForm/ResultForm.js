@@ -10,14 +10,16 @@ import { useConfirm } from 'material-ui-confirm';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AttemptField from '../AttemptField/AttemptField';
 import PersonSelect from '../PersonSelect/PersonSelect';
-import { setAt, times, trimTrailingZeros } from '../../../lib/utils';
+import { setAt, times } from '../../../lib/utils';
 import {
-  attemptsWarning,
+  trimTrailingSkipped,
+  meetsCutoff,
+  formatAttemptResult,
+  attemptResultsWarning,
   applyTimeLimit,
   applyCutoff,
-} from '../../../lib/attempts';
-import { meetsCutoff, formatAttemptResult } from '../../../lib/attempt-result';
-import { best, average } from '../../../lib/stats';
+} from '../../../lib/attempt-result';
+import { best, average } from '../../../lib/attempt-result';
 import { cutoffToString, timeLimitToString } from '../../../lib/formatters';
 
 const ResultForm = ({
@@ -65,7 +67,7 @@ const ResultForm = ({
   const computeAverage =
     [3, 5].includes(format.numberOfAttempts) && eventId !== '333mbf';
 
-  const submissionWarning = attemptsWarning(attemptResults, eventId);
+  const submissionWarning = attemptResultsWarning(attemptResults, eventId);
 
   const disabledFromIndex = meetsCutoff(attemptResults, cutoff)
     ? numberOfAttempts
@@ -79,7 +81,7 @@ const ResultForm = ({
     variables: {
       input: {
         id: result && result.id,
-        attempts: trimTrailingZeros(attemptResults).map((result) => ({
+        attempts: trimTrailingSkipped(attemptResults).map((result) => ({
           result,
         })),
       },
@@ -152,10 +154,7 @@ const ResultForm = ({
         {computeAverage && (
           <Typography variant="body2">
             Average:{' '}
-            {formatAttemptResult(
-              average(attemptResults, eventId, numberOfAttempts),
-              eventId
-            )}
+            {formatAttemptResult(average(attemptResults, eventId), eventId)}
           </Typography>
         )}
       </Grid>
@@ -206,16 +205,16 @@ const ResultForm = ({
   );
 };
 
-const getInputs = (container) => {
+function getInputs(container) {
   return Array.from(container.querySelectorAll('input, button')).filter(
     (input) => !input.disabled
   );
-};
+}
 
-const useKeyNavigation = (container) => {
+function useKeyNavigation(container) {
   useEffect(() => {
     if (!container) return;
-    const handleKeyPress = (event) => {
+    function handleKeyPress(event) {
       if (event.key === 'Escape') {
         event.target.blur && event.target.blur();
         return;
@@ -257,14 +256,14 @@ const useKeyNavigation = (container) => {
           nextElement.select && nextElement.select();
         }
       }, 0);
-    };
+    }
     container.addEventListener('keydown', handleKeyPress);
     return () => container.removeEventListener('keydown', handleKeyPress);
   }, [container]);
 
   useEffect(() => {
     if (!container) return;
-    const handleKeyPress = (event) => {
+    function handleKeyPress(event) {
       if (
         ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key) &&
         event.target === document.body
@@ -275,10 +274,10 @@ const useKeyNavigation = (container) => {
           firstInput.select();
         }
       }
-    };
+    }
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [container]);
-};
+}
 
 export default ResultForm;

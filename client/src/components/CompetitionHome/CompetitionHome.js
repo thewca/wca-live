@@ -13,10 +13,11 @@ import NotificationImportantIcon from '@material-ui/icons/NotificationImportant'
 
 import Loading from '../Loading/Loading';
 import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
-import { wcaUrl } from '../../lib/url-utils';
+import { wcaUrl } from '../../lib/urls';
 import { flatMap } from '../../lib/utils';
 import Schedule from '../Schedule/Schedule';
 import CubingIcon from '../CubingIcon/CubingIcon';
+import { competitionCountries } from '../../lib/competitions';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -41,6 +42,10 @@ const COMPETITION_QUERY = gql`
       venues {
         id
         name
+        country {
+          iso2
+          name
+        }
         rooms {
           id
           name
@@ -67,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CompetitionHome = ({ match }) => {
+function CompetitionHome({ match }) {
   const classes = useStyles();
   const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
@@ -77,9 +82,13 @@ const CompetitionHome = ({ match }) => {
   if (error) return <ErrorSnackbar />;
   const { competition } = data;
 
-  // const active = flatMap(competition.events, (event) =>
-  //   event.rounds.filter((round) => round.active).map((round) => [event, round])
-  // );
+  const countries = competitionCountries(competition);
+
+  const active = flatMap(competition.competitionEvents, (competitionEvent) =>
+    competitionEvent.rounds
+      .filter((round) => round.active)
+      .map((round) => [competitionEvent, round])
+  );
 
   return (
     <Grid container direction="column" spacing={2}>
@@ -88,13 +97,10 @@ const CompetitionHome = ({ match }) => {
           Welcome to {competition.name}!
         </Typography>
         <Typography>
-          {/* {`This competition takes place in
+          {`This competition takes place in
             ${
-              competition.countries.length === 1
-                ? competition.countries[0].name
-                : 'multiple countries'
-            }.
-            Check out the `} */}
+              countries.length === 1 ? countries[0].name : 'multiple countries'
+            }. Check out the `}
           <Link
             href={wcaUrl(`/competitions/${competition.wcaId}`)}
             target="_blank"
@@ -104,13 +110,13 @@ const CompetitionHome = ({ match }) => {
           {` for more details on the competition.`}
         </Typography>
       </Grid>
-      {/* {active.length > 0 && (
+      {active.length > 0 && (
         <Grid item className={classes.fullWidth}>
           <Typography variant="h5" gutterBottom>
             Active rounds
           </Typography>
           <Grid container spacing={1}>
-            {active.map(([event, round]) => (
+            {active.map(([competitionEvent, round]) => (
               <Grid item key={round.id} xs={12} sm={6} lg={4}>
                 <Card>
                   <CardActionArea
@@ -118,8 +124,10 @@ const CompetitionHome = ({ match }) => {
                     to={`/competitions/${competition.id}/rounds/${round.id}`}
                   >
                     <CardHeader
-                      avatar={<CubingIcon eventId={event.id} />}
-                      title={`${event.name} - ${round.name}`}
+                      avatar={
+                        <CubingIcon eventId={competitionEvent.event.id} />
+                      }
+                      title={`${competitionEvent.event.name} - ${round.name}`}
                     />
                   </CardActionArea>
                 </Card>
@@ -127,7 +135,7 @@ const CompetitionHome = ({ match }) => {
             ))}
           </Grid>
         </Grid>
-      )} */}
+      )}
       <Grid item className={classes.fullWidth}>
         <Grid container alignContent="center">
           <Grid item>
@@ -153,6 +161,6 @@ const CompetitionHome = ({ match }) => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default CompetitionHome;
