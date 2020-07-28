@@ -54,13 +54,11 @@ function AdminRoundToolbar({ round, competitionId }) {
           </Tooltip>
         </Grid>
       </Grid>
-      {addDialogOpen && (
-        <AddCompetitorDialog
-          open={addDialogOpen}
-          onClose={() => setAddDialogOpen(false)}
-          roundId={round.id}
-        />
-      )}
+      <AddCompetitorDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        roundId={round.id}
+      />
     </>
   );
 }

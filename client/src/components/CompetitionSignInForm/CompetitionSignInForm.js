@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
+import { Box, Button, Grid, TextField } from '@material-ui/core';
 import useApolloErrorHandler from '../../hooks/useApolloErrorHandler';
 
 const SIGN_IN_MUTATION = gql`

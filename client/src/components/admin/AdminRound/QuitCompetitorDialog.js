@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import React, { useState, useEffect } from 'react';
+import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,
   Dialog,
@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
-import { ROUND_RESULT_FRAGMENT } from './fragments';
+import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const NEXT_QUALIFYING_QUERY = gql`
@@ -40,7 +40,7 @@ const REMOVE_PERSON_FROM_ROUND_MUTATION = gql`
       }
     }
   }
-  ${ROUND_RESULT_FRAGMENT}
+  ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
 const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
@@ -48,9 +48,17 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
 
   const [replaceAnswer, setReplaceAnswer] = useState('');
 
-  const { data, loading, error } = useQuery(NEXT_QUALIFYING_QUERY, {
-    variables: { roundId },
-  });
+  const [
+    getNextQualifying,
+    { data, loading, error },
+  ] = useLazyQuery(NEXT_QUALIFYING_QUERY, { variables: { roundId } });
+
+  useEffect(() => {
+    if (open) {
+      getNextQualifying();
+      setReplaceAnswer('');
+    }
+  }, [open, getNextQualifying]);
 
   const [removePersonFromRound, { loading: quitLoading }] = useMutation(
     REMOVE_PERSON_FROM_ROUND_MUTATION,
@@ -58,7 +66,7 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
       variables: {
         input: {
           roundId,
-          personId: competitor.id,
+          personId: competitor && competitor.id,
           replace: replaceAnswer === 'yes',
         },
       },
@@ -70,14 +78,16 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       {loading && <Loading />}
-      <DialogTitle>Quit {competitor.name}</DialogTitle>
+      <DialogTitle>
+        Quit {competitor && competitor && competitor.name}
+      </DialogTitle>
       <DialogContent>
         {error && <Error error={error} />}
         {data && (
           <>
             <DialogContentText>
-              Going to permanently remove {competitor.name} from this round. Are
-              you sure you want to proceed?
+              Going to permanently remove {competitor && competitor.name} from
+              this round. Are you sure you want to proceed?
             </DialogContentText>
             <RadioGroup
               value={replaceAnswer}
@@ -88,7 +98,7 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
                   control={<Radio />}
                   value="yes"
                   label={`
-                    Yes, remove ${competitor.name}
+                    Yes, remove ${competitor && competitor.name}
                     and replace they with other qualifying competitors:
                     ${data.round.nextQualifying
                       .map(({ name }) => name)
@@ -101,8 +111,10 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
                 value="no"
                 label={
                   data.round.nextQualifying.length > 0
-                    ? `Yes, just remove ${competitor.name} and don't replace them.`
-                    : `Yes, remove ${competitor.name}.`
+                    ? `Yes, just remove ${
+                        competitor && competitor.name
+                      } and don't replace them.`
+                    : `Yes, remove ${competitor && competitor.name}.`
                 }
               />
             </RadioGroup>

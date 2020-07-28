@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
+import { Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
-import AccessSettings from '../AccessSettings/AccessSettings';
+import AdminAccess from '../AdminAccess/AdminAccess';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -25,51 +24,33 @@ const COMPETITION_QUERY = gql`
 `;
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    height: 'calc(100vh - 64px)',
-    width: '100%',
-  },
-  tabs: {
-    borderRight: `1px solid ${theme.palette.divider}`,
-    backgroundColor: theme.palette.background.paper,
-    minWidth: 250,
-  },
   tabContent: {
-    flexGrow: 1,
-    padding: theme.spacing(2),
-    overflowY: 'auto',
+    marginTop: theme.spacing(2),
   },
 }));
 
-function AdminSettings({ match }) {
+function AdminSettings() {
   const classes = useStyles();
+  const { competitionId } = useParams();
   const [tabValue, setTabValue] = useState('access');
 
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
-    variables: { id: match.params.competitionId },
+    variables: { id: competitionId },
   });
+
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
   const { competition } = data;
 
   return (
-    <div className={classes.root}>
-      <Tabs
-        orientation="vertical"
-        value={tabValue}
-        onChange={(event, value) => setTabValue(value)}
-        className={classes.tabs}
-      >
+    <>
+      <Tabs value={tabValue} onChange={(event, value) => setTabValue(value)}>
         <Tab label="Access" value="access" />
       </Tabs>
       <div className={classes.tabContent}>
-        {tabValue === 'access' && <AccessSettings competition={competition} />}
+        {tabValue === 'access' && <AdminAccess competition={competition} />}
       </div>
-    </div>
+    </>
   );
 }
 

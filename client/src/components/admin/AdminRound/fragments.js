@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 // Result data used on the admin round view.
 // Re-used for mutation responses to update the cache.
-export const ROUND_RESULT_FRAGMENT = gql`
+export const ADMIN_ROUND_RESULT_FRAGMENT = gql`
   fragment roundResult on Result {
     ranking
     advancing

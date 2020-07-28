@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import AdminRoundContent from './AdminRoundContent';
-import { ROUND_RESULT_FRAGMENT } from './fragments';
+import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -42,7 +42,7 @@ const ROUND_QUERY = gql`
       }
     }
   }
-  ${ROUND_RESULT_FRAGMENT}
+  ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
 function AdminRound() {

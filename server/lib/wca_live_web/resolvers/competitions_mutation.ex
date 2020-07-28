@@ -1,7 +1,7 @@
 defmodule WcaLiveWeb.Resolvers.CompetitionsMutation do
   alias WcaLive.Competitions
 
-  def update_competition_access_settings(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
+  def update_competition_access(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
     with {:ok, competition} <- Competitions.fetch_competition(input.id),
          true <-
            Competitions.Access.can_manage_competition?(current_user, competition) || {:error, "access denied"},
@@ -10,5 +10,5 @@ defmodule WcaLiveWeb.Resolvers.CompetitionsMutation do
     end
   end
 
-  def update_competition_access_settings(_parent, _args, _resolution), do: {:error, "not authenticated"}
+  def update_competition_access(_parent, _args, _resolution), do: {:error, "not authenticated"}
 end

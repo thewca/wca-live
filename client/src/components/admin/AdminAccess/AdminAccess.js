@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { Button, Grid, Typography, Paper } from '@material-ui/core';
+import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import StaffMembersTable from './StaffMembersTable';
 import UserSearch from '../../UserSearch/UserSearch';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
-const UPDATE_COMPETITION_ACCESS_SETTINGS_MUTATION = gql`
-  mutation UpdateCompetitionAccessSettings(
-    $input: UpdateCompetitionAccessSettingsInput!
-  ) {
-    updateCompetitionAccessSettings(input: $input) {
+const UPDATE_COMPETITION_ACCESS_MUTATION = gql`
+  mutation UpdateCompetitionAccess($input: UpdateCompetitionAccessInput!) {
+    updateCompetitionAccess(input: $input) {
       competition {
         id
         staffMembers {
@@ -48,13 +46,13 @@ function staffMembersToInputs(staffMembers) {
     .map(staffMemberToInput);
 }
 
-function AccessSettings({ competition }) {
+function AdminAccess({ competition }) {
   const classes = useStyles();
   const apolloErrorHandler = useApolloErrorHandler();
   const [staffMembers, setStaffMembers] = useState(competition.staffMembers);
 
-  const [updateAccessSettings, { loading }] = useMutation(
-    UPDATE_COMPETITION_ACCESS_SETTINGS_MUTATION,
+  const [updateAccess, { loading }] = useMutation(
+    UPDATE_COMPETITION_ACCESS_MUTATION,
     {
       variables: {
         input: {
@@ -81,21 +79,16 @@ function AccessSettings({ competition }) {
   return (
     <Grid container direction="column" spacing={1}>
       <Grid item>
-        <Typography variant="h5" gutterBottom>
-          Competition access
-        </Typography>
         <Typography>
           {`Delegates and organizers have full access to the competition.
             Additionally, you can grant scoretaking access to any WCA Live user.`}
         </Typography>
       </Grid>
       <Grid item className={classes.fullWidth}>
-        <Paper>
-          <StaffMembersTable
-            staffMembers={staffMembers}
-            onChange={setStaffMembers}
-          />
-        </Paper>
+        <StaffMembersTable
+          staffMembers={staffMembers}
+          onChange={setStaffMembers}
+        />
       </Grid>
       <Grid item>
         <UserSearch
@@ -110,7 +103,7 @@ function AccessSettings({ competition }) {
         <Button
           variant="contained"
           color="primary"
-          onClick={updateAccessSettings}
+          onClick={updateAccess}
           disabled={loading}
         >
           Save
@@ -120,4 +113,4 @@ function AccessSettings({ competition }) {
   );
 }
 
-export default AccessSettings;
+export default AdminAccess;

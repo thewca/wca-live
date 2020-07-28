@@ -1,6 +1,6 @@
 import React from 'react';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import TextField from '@material-ui/core/TextField';
+import { TextField } from '@material-ui/core';
 
 function searchCompetitions(competitions, search) {
   const normalizedSearch = search.trim().toLowerCase();

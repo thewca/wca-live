@@ -4,15 +4,15 @@ defmodule WcaLiveWeb.Schema.CompetitionsMutationTypes do
   alias WcaLiveWeb.Resolvers
 
   object :competitions_mutations do
-    field :update_competition_access_settings, non_null(:update_competition_access_settings_payload) do
-      arg :input, non_null(:update_competition_access_settings_input)
-      resolve &Resolvers.CompetitionsMutation.update_competition_access_settings/3
+    field :update_competition_access, non_null(:update_competition_access_payload) do
+      arg :input, non_null(:update_competition_access_input)
+      resolve &Resolvers.CompetitionsMutation.update_competition_access/3
     end
   end
 
   # Inputs
 
-  input_object :update_competition_access_settings_input do
+  input_object :update_competition_access_input do
     field :id, non_null(:id)
     field :staff_members, non_null(list_of(non_null(:staff_member_input)))
   end
@@ -25,7 +25,7 @@ defmodule WcaLiveWeb.Schema.CompetitionsMutationTypes do
 
   # Payloads
 
-  object :update_competition_access_settings_payload do
+  object :update_competition_access_payload do
     field :competition, :competition
   end
 end

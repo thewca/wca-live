@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import React, { useState, useEffect } from 'react';
+import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,
   Dialog,
@@ -13,7 +13,7 @@ import {
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import PersonSelect from '../PersonSelect/PersonSelect';
-import { ROUND_RESULT_FRAGMENT } from './fragments';
+import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const ADVANCEMENT_CANDIDATES_QUERY = gql`
@@ -48,7 +48,7 @@ const ADD_PERSON_TO_ROUND_MUTATION = gql`
       }
     }
   }
-  ${ROUND_RESULT_FRAGMENT}
+  ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
 function AddCompetitorDialog({ open, onClose, roundId }) {
@@ -56,9 +56,17 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
 
   const [selectedCompetitor, setSelectedCompetitor] = useState(null);
 
-  const { data, loading, error } = useQuery(ADVANCEMENT_CANDIDATES_QUERY, {
-    variables: { roundId },
-  });
+  const [
+    getAdvancementCandidates,
+    { data, loading, error },
+  ] = useLazyQuery(ADVANCEMENT_CANDIDATES_QUERY, { variables: { roundId } });
+
+  useEffect(() => {
+    if (open) {
+      getAdvancementCandidates();
+      setSelectedCompetitor(null);
+    }
+  }, [open, getAdvancementCandidates]);
 
   const [addCompetitorToRound, { loading: mutationLoading }] = useMutation(
     ADD_PERSON_TO_ROUND_MUTATION,
@@ -79,17 +87,23 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
     onClose();
   }
 
-  // TODO: add description of what this does
-
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={handleClose}>
       {loading && <Loading />}
-      <DialogTitle>Add qualifying competitor</DialogTitle>
+      <DialogTitle>Add competitor</DialogTitle>
       <DialogContent>
         {error && <Error error={error} />}
         {data &&
           (data.round.advancementCandidates.qualifying.length > 0 ? (
             <Grid container direction="column" spacing={2}>
+              <Grid item>
+                <DialogContentText>
+                  You can add any competitor who qualifies for this round. This
+                  is a way to quickly register someone for the first round
+                  without going to the WCA website or to bring back a competitor
+                  you have quit before.
+                </DialogContentText>
+              </Grid>
               <Grid item>
                 <PersonSelect
                   persons={data.round.advancementCandidates.qualifying}

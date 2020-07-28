@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import Avatar from '@material-ui/core/Avatar';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  Paper,
+  Typography,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
 import CompetitionList from '../../CompetitionList/CompetitionList';
 import ImportableCompetitions from '../ImportableCompetitions/ImportableCompetitions';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';

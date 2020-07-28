@@ -2,13 +2,15 @@ import React, { useState, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Grid, Paper, TableContainer } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useConfirm } from 'material-ui-confirm';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import AdminResultsTable from './AdminResultsTable';
 import ResultMenu from './ResultMenu';
 import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
 import AdminRoundToolbar from './AdminRoundToolbar';
-import { ROUND_RESULT_FRAGMENT } from './fragments';
+import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
+import QuitCompetitorDialog from './QuitCompetitorDialog';
 
 const ENTER_RESULT_ATTEMPTS = gql`
   mutation EnterResultAttempts($input: EnterResultAttemptsInput!) {
@@ -25,7 +27,7 @@ const ENTER_RESULT_ATTEMPTS = gql`
       }
     }
   }
-  ${ROUND_RESULT_FRAGMENT}
+  ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
 const useStyles = makeStyles((theme) => ({
@@ -39,10 +41,12 @@ const useStyles = makeStyles((theme) => ({
 
 function AdminRoundContent({ round, competitionId }) {
   const classes = useStyles();
+  const confirm = useConfirm();
   const apolloErrorHandler = useApolloErrorHandler();
 
   const [editedResult, setEditedResult] = useState(null);
   const [resultMenuProps, updateResultMenuProps] = useState({});
+  const [competitorToQuit, setCompetitorToQuit] = useState(null);
 
   const [enterResultAttempts, { loading }] = useMutation(
     ENTER_RESULT_ATTEMPTS,
@@ -57,6 +61,16 @@ function AdminRoundContent({ round, competitionId }) {
   function handleResultAttemptsSubmit(attempts) {
     enterResultAttempts({
       variables: { input: { id: editedResult.id, attempts } },
+    });
+  }
+
+  function handleClearResult(result) {
+    confirm({
+      description: `This will clear all attempts of ${result.person.name}.`,
+    }).then(() => {
+      enterResultAttempts({
+        variables: { input: { id: result.id, attempts: [] } },
+      });
     });
   }
 
@@ -119,8 +133,15 @@ function AdminRoundContent({ round, competitionId }) {
       <ResultMenu
         {...resultMenuProps}
         onClose={() => updateResultMenuProps({})}
-        onEditClick={() => setEditedResult(resultMenuProps.result)}
+        onEditClick={(result) => setEditedResult(result)}
+        onQuitClick={(result) => setCompetitorToQuit(result.person)}
+        onClearClick={handleClearResult}
         competitionId={competitionId}
+      />
+      <QuitCompetitorDialog
+        open={Boolean(competitorToQuit)}
+        onClose={() => setCompetitorToQuit(null)}
+        competitor={competitorToQuit}
         roundId={round.id}
       />
     </>

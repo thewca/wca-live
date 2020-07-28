@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql, useMutation } from '@apollo/client';
-import Button from '@material-ui/core/Button';
+import { Button } from '@material-ui/core';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const SYNCHRONIZE_MUTATION = gql`
