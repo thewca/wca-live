@@ -2,7 +2,7 @@ import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Button } from '@material-ui/core';
 import { useConfirm } from 'material-ui-confirm';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const CLEAR_ROUND_MUTATION = gql`
   mutation ClearRound($input: ClearRoundInput!) {
@@ -17,9 +17,11 @@ const CLEAR_ROUND_MUTATION = gql`
 
 function ClearRoundButton({ round, competitionEvent }) {
   const confirm = useConfirm();
+  const apolloErrorHandler = useApolloErrorHandler();
 
-  const [clearRound, { loading, error }] = useMutation(CLEAR_ROUND_MUTATION, {
+  const [clearRound, { loading }] = useMutation(CLEAR_ROUND_MUTATION, {
     variables: { input: { id: round.id } },
+    onError: apolloErrorHandler,
   });
 
   function handleClearRoundClick() {
@@ -32,12 +34,9 @@ function ClearRoundButton({ round, competitionEvent }) {
   }
 
   return (
-    <>
-      {error && <ErrorSnackbar error={error} />}
-      <Button size="small" onClick={handleClearRoundClick} disabled={loading}>
-        Clear
-      </Button>
-    </>
+    <Button size="small" onClick={handleClearRoundClick} disabled={loading}>
+      Clear
+    </Button>
   );
 }
 

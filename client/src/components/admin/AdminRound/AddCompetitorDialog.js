@@ -12,9 +12,9 @@ import {
 } from '@material-ui/core';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const ADVANCEMENT_CANDIDATES_QUERY = gql`
   query AdvancementCandidates($roundId: ID!) {
@@ -52,24 +52,27 @@ const ADD_PERSON_TO_ROUND_MUTATION = gql`
 `;
 
 function AddCompetitorDialog({ open, onClose, roundId }) {
+  const apolloErrorHandler = useApolloErrorHandler();
+
   const [selectedCompetitor, setSelectedCompetitor] = useState(null);
 
   const { data, loading, error } = useQuery(ADVANCEMENT_CANDIDATES_QUERY, {
     variables: { roundId },
   });
 
-  const [
-    addCompetitorToRound,
-    { loading: mutationLoading, error: mutationError },
-  ] = useMutation(ADD_PERSON_TO_ROUND_MUTATION, {
-    variables: {
-      input: {
-        roundId,
-        personId: selectedCompetitor && selectedCompetitor.id,
+  const [addCompetitorToRound, { loading: mutationLoading }] = useMutation(
+    ADD_PERSON_TO_ROUND_MUTATION,
+    {
+      variables: {
+        input: {
+          roundId,
+          personId: selectedCompetitor && selectedCompetitor.id,
+        },
       },
-    },
-    onCompleted: handleClose,
-  });
+      onCompleted: handleClose,
+      onError: apolloErrorHandler,
+    }
+  );
 
   function handleClose() {
     setSelectedCompetitor(null);
@@ -121,7 +124,6 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
         >
           Confirm
         </Button>
-        {mutationError && <ErrorSnackbar error={mutationError} />}
       </DialogActions>
     </Dialog>
   );

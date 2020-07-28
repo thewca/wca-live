@@ -1,11 +1,9 @@
 import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { useHistory } from 'react-router-dom';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import { ListItem, ListItemText } from '@material-ui/core';
 import { useConfirm } from 'material-ui-confirm';
-
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 import { formatDateRange } from '../../../lib/date';
 
 const IMPORT_COMPETITION_MUTATION = gql`
@@ -21,14 +19,16 @@ const IMPORT_COMPETITION_MUTATION = gql`
 function ImportableCompetitionListItem({ competition }) {
   const confirm = useConfirm();
   const history = useHistory();
+  const apolloErrorHandler = useApolloErrorHandler();
 
-  const [importCompetition, { loading, error }] = useMutation(
+  const [importCompetition, { loading }] = useMutation(
     IMPORT_COMPETITION_MUTATION,
     {
       variables: { input: { wcaId: competition.wcaId } },
       onCompleted: ({ importCompetition: { competition } }) => {
         history.push(`/admin/competitions/${competition.id}`);
       },
+      onError: apolloErrorHandler,
     }
   );
 
@@ -49,7 +49,6 @@ function ImportableCompetitionListItem({ competition }) {
         primary={competition.name}
         secondary={formatDateRange(competition.startDate, competition.endDate)}
       />
-      {error && <ErrorSnackbar error={error} />}
     </ListItem>
   );
 }

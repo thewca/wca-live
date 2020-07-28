@@ -2,7 +2,7 @@ import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Button } from '@material-ui/core';
 import { useConfirm } from 'material-ui-confirm';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const OPEN_ROUND_MUTATION = gql`
   mutation OpenRound($input: OpenRoundInput!) {
@@ -17,9 +17,11 @@ const OPEN_ROUND_MUTATION = gql`
 
 function OpenRoundButton({ round, competitionEvent }) {
   const confirm = useConfirm();
+  const apolloErrorHandler = useApolloErrorHandler();
 
-  const [openRound, { loading, error }] = useMutation(OPEN_ROUND_MUTATION, {
+  const [openRound, { loading }] = useMutation(OPEN_ROUND_MUTATION, {
     variables: { input: { id: round.id } },
+    onError: apolloErrorHandler,
   });
 
   function handleOpenRoundClick() {
@@ -39,12 +41,9 @@ function OpenRoundButton({ round, competitionEvent }) {
   }
 
   return (
-    <>
-      {error && <ErrorSnackbar error={error} />}
-      <Button size="small" onClick={handleOpenRoundClick} disabled={loading}>
-        Open
-      </Button>
-    </>
+    <Button size="small" onClick={handleOpenRoundClick} disabled={loading}>
+      Open
+    </Button>
   );
 }
 

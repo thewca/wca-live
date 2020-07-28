@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { ApolloProvider } from '@apollo/client';
+import { SnackbarProvider } from 'notistack';
 import { client } from './apollo';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 import Navigation from '../Navigation/Navigation';
@@ -12,10 +13,14 @@ function App() {
     <Router>
       <ApolloProvider client={client}>
         <ThemeProvider>
-          <ConfirmProvider>
-            <CssBaseline />
-            <Navigation />
-          </ConfirmProvider>
+          <SnackbarProvider
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          >
+            <ConfirmProvider>
+              <CssBaseline />
+              <Navigation />
+            </ConfirmProvider>
+          </SnackbarProvider>
         </ThemeProvider>
       </ApolloProvider>
     </Router>

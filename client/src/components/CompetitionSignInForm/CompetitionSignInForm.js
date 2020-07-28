@@ -5,7 +5,7 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import useApolloErrorHandler from '../../hooks/useApolloErrorHandler';
 
 const SIGN_IN_MUTATION = gql`
   mutation SignIn($competitionId: ID!, $password: String!) {
@@ -15,16 +15,19 @@ const SIGN_IN_MUTATION = gql`
 
 function CompetitionSignInForm() {
   const history = useHistory();
+  const apolloErrorHandler = useApolloErrorHandler();
+
   const [competitionId, setCompetitionId] = useState('');
   const [password, setPassword] = useState('');
 
-  const [signIn, { loading, error }] = useMutation(SIGN_IN_MUTATION, {
+  const [signIn, { loading }] = useMutation(SIGN_IN_MUTATION, {
     variables: { competitionId, password },
     onCompleted: (data) => {
       if (data.signIn) {
         history.push(`/admin/competitions/${competitionId}`);
       }
     },
+    onError: apolloErrorHandler,
   });
 
   return (
@@ -55,7 +58,6 @@ function CompetitionSignInForm() {
           >
             Sign in
           </Button>
-          {error && <ErrorSnackbar error={error} />}
         </Grid>
       </Grid>
     </Box>

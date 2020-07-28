@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { formatSentence } from '../../lib/utils';
-import errorImage from './error.svg';
 import { Typography, Grid } from '@material-ui/core';
+import errorImage from './error.svg';
+import { apolloErrorToMessage } from '../../lib/errors';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,17 +12,6 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '100%',
   },
 }));
-
-function apolloErrorToMessage(error) {
-  if (error && error.graphQLErrors && error.graphQLErrors.length > 0) {
-    return error.graphQLErrors
-      .map((error) => error.message)
-      .map(formatSentence)
-      .join(' ');
-  } else {
-    return 'Something went wrong.';
-  }
-}
 
 function Error({ error = null }) {
   const classes = useStyles();

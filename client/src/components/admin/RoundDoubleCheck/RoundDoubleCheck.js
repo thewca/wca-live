@@ -7,10 +7,10 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import { sortBy } from '../../../lib/utils';
 import { parseISO } from 'date-fns';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -73,6 +73,7 @@ const useStyles = makeStyles((theme) => ({
 
 function RoundDoubleCheck() {
   const classes = useStyles();
+  const apolloErrorHandler = useApolloErrorHandler();
   const { roundId } = useParams();
   const [resultIndex, updateResultIndex] = useState(0);
   const leftButtonRef = useRef(null);
@@ -95,12 +96,13 @@ function RoundDoubleCheck() {
     variables: { id: roundId },
   });
 
-  const [enterResultAttempts, { enterLoading, enterError }] = useMutation(
+  const [enterResultAttempts, { error: enterLoading }] = useMutation(
     ENTER_RESULT_ATTEMPTS,
     {
       onCompleted: () => {
         rightButtonRef.current.focus();
       },
+      onError: apolloErrorHandler,
     }
   );
 
@@ -128,7 +130,6 @@ function RoundDoubleCheck() {
 
   return (
     <Grid container direction="row" alignItems="center" spacing={2}>
-      {enterError && <ErrorSnackbar error={enterError} />}
       <Grid item md className={classes.centerContent}>
         <IconButton
           ref={leftButtonRef}

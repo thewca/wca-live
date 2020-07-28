@@ -3,9 +3,9 @@ import { gql, useMutation } from '@apollo/client';
 import { Link as RouterLink } from 'react-router-dom';
 import { ListSubheader, Menu, MenuItem } from '@material-ui/core';
 import { useConfirm } from 'material-ui-confirm';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import QuitCompetitorDialog from './QuitCompetitorDialog';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const CLEAR_RESULT_ATTEMPTS = gql`
   mutation ClearResultAttempts($id: ID!) {
@@ -34,15 +34,17 @@ function ResultMenu({
   roundId,
 }) {
   const confirm = useConfirm();
+  const apolloErrorHandler = useApolloErrorHandler();
   const [quitDialogOpen, setQuitDialogOpen] = useState(false);
 
-  const [
-    clearResult,
-    { loading: clearLoading, error: clearError },
-  ] = useMutation(CLEAR_RESULT_ATTEMPTS, {
-    variables: { id: result && result.id },
-    onCompleted: onClose,
-  });
+  const [clearResult, { loading: clearLoading }] = useMutation(
+    CLEAR_RESULT_ATTEMPTS,
+    {
+      variables: { id: result && result.id },
+      onCompleted: onClose,
+      onError: apolloErrorHandler,
+    }
+  );
 
   function handleEditClick() {
     onEditClick();
@@ -90,7 +92,6 @@ function ResultMenu({
           <MenuItem onClick={handleQuitClick}>Quit</MenuItem>
         )}
       </Menu>
-      {clearError && <ErrorSnackbar error={clearError} />}
       {quitDialogOpen && (
         <QuitCompetitorDialog
           open={quitDialogOpen}

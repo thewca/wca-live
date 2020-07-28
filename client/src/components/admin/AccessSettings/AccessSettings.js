@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
+import { Button, Grid, Typography, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import StaffMembersTable from './StaffMembersTable';
 import UserSearch from '../../UserSearch/UserSearch';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const UPDATE_COMPETITION_ACCESS_SETTINGS_MUTATION = gql`
   mutation UpdateCompetitionAccessSettings(
@@ -54,9 +50,10 @@ function staffMembersToInputs(staffMembers) {
 
 function AccessSettings({ competition }) {
   const classes = useStyles();
+  const apolloErrorHandler = useApolloErrorHandler();
   const [staffMembers, setStaffMembers] = useState(competition.staffMembers);
 
-  const [updateAccessSettings, { error, loading }] = useMutation(
+  const [updateAccessSettings, { loading }] = useMutation(
     UPDATE_COMPETITION_ACCESS_SETTINGS_MUTATION,
     {
       variables: {
@@ -65,6 +62,7 @@ function AccessSettings({ competition }) {
           staffMembers: staffMembersToInputs(staffMembers),
         },
       },
+      onError: apolloErrorHandler,
     }
   );
 
@@ -117,7 +115,6 @@ function AccessSettings({ competition }) {
         >
           Save
         </Button>
-        {error && <ErrorSnackbar error={error} />}
       </Grid>
     </Grid>
   );

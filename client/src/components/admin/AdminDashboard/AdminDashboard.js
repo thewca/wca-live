@@ -9,9 +9,9 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import CompetitionList from '../../CompetitionList/CompetitionList';
 import ImportableCompetitions from '../ImportableCompetitions/ImportableCompetitions';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const SIGN_OUT_MUTATION = gql`
   mutation SignOut {
@@ -31,12 +31,15 @@ const useStyles = makeStyles((theme) => ({
 
 function AdminDashboard({ currentUser }) {
   const classes = useStyles();
+  const apolloErrorHandler = useApolloErrorHandler();
   const apolloClient = useApolloClient();
   const history = useHistory();
-  const [signOut, { loading, error }] = useMutation(SIGN_OUT_MUTATION, {
+
+  const [signOut, { loading }] = useMutation(SIGN_OUT_MUTATION, {
     onCompleted: (data) => {
       apolloClient.clearStore().then(() => history.push('/'));
     },
+    onError: apolloErrorHandler,
   });
   const { name, avatar, staffMembers } = currentUser;
 
@@ -71,7 +74,6 @@ function AdminDashboard({ currentUser }) {
               <Button variant="outlined" onClick={signOut} disabled={loading}>
                 Sign out
               </Button>
-              {error && <ErrorSnackbar error={error} />}
             </Grid>
             <Grid item>
               <Button

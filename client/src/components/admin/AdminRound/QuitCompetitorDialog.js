@@ -12,9 +12,9 @@ import {
   RadioGroup,
 } from '@material-ui/core';
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import Error from '../../Error/Error';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const NEXT_QUALIFYING_QUERY = gql`
   query NextQualifying($roundId: ID!) {
@@ -44,25 +44,28 @@ const REMOVE_PERSON_FROM_ROUND_MUTATION = gql`
 `;
 
 const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
+  const apolloErrorHandler = useApolloErrorHandler();
+
   const [replaceAnswer, setReplaceAnswer] = useState('');
 
   const { data, loading, error } = useQuery(NEXT_QUALIFYING_QUERY, {
     variables: { roundId },
   });
 
-  const [
-    removePersonFromRound,
-    { loading: quitLoading, error: quitError },
-  ] = useMutation(REMOVE_PERSON_FROM_ROUND_MUTATION, {
-    variables: {
-      input: {
-        roundId,
-        personId: competitor.id,
-        replace: replaceAnswer === 'yes',
+  const [removePersonFromRound, { loading: quitLoading }] = useMutation(
+    REMOVE_PERSON_FROM_ROUND_MUTATION,
+    {
+      variables: {
+        input: {
+          roundId,
+          personId: competitor.id,
+          replace: replaceAnswer === 'yes',
+        },
       },
-    },
-    onCompleted: onClose,
-  });
+      onCompleted: onClose,
+      onError: apolloErrorHandler,
+    }
+  );
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -115,7 +118,6 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
         >
           Confirm
         </Button>
-        {quitError && <ErrorSnackbar error={quitError} />}
       </DialogActions>
     </Dialog>
   );

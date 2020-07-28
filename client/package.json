@@ -19,6 +19,7 @@
     "downshift": "^6.0.2",
     "graphql": "^15.3.0",
     "material-ui-confirm": "^2.1.1",
+    "notistack": "^0.9.17",
     "phoenix": "^1.5.4",
     "react": "^16.13.1",
     "react-app-polyfill": "^1.0.6",

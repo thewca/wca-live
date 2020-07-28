@@ -6,9 +6,9 @@ import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import AdminResultsTable from './AdminResultsTable';
 import ResultMenu from './ResultMenu';
 import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import AdminRoundToolbar from './AdminRoundToolbar';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
+import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const ENTER_RESULT_ATTEMPTS = gql`
   mutation EnterResultAttempts($input: EnterResultAttemptsInput!) {
@@ -39,16 +39,18 @@ const useStyles = makeStyles((theme) => ({
 
 function AdminRoundContent({ round, competitionId }) {
   const classes = useStyles();
+  const apolloErrorHandler = useApolloErrorHandler();
 
   const [editedResult, setEditedResult] = useState(null);
   const [resultMenuProps, updateResultMenuProps] = useState({});
 
-  const [enterResultAttempts, { loading, error }] = useMutation(
+  const [enterResultAttempts, { loading }] = useMutation(
     ENTER_RESULT_ATTEMPTS,
     {
       onCompleted: () => {
         setEditedResult(null);
       },
+      onError: apolloErrorHandler,
     }
   );
 
@@ -71,7 +73,6 @@ function AdminRoundContent({ round, competitionId }) {
 
   return (
     <>
-      {error && <ErrorSnackbar error={error} />}
       {next && next.open && (
         <ClosableSnackbar
           message="The next round has already been open, any changes won't affect it!"
