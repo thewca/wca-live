@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Button, Grid, Tooltip, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import KeyboardIcon from '@material-ui/icons/Keyboard';
@@ -18,7 +18,10 @@ import {
   average,
 } from '../../../lib/attempt-result';
 import { cutoffToString, timeLimitToString } from '../../../lib/formatters';
-import { shouldComputeAverage } from '../../../lib/results';
+import {
+  shouldComputeAverage,
+  paddedAttemptResults,
+} from '../../../lib/results';
 
 const useStyles = makeStyles((theme) => ({
   resultSelect: {
@@ -48,9 +51,12 @@ function ResultAttemptsForm({
   const confirm = useConfirm();
 
   const { numberOfAttempts } = format;
-  const [attemptResults, setAttemptResults] = useState(
-    times(numberOfAttempts, () => 0)
-  );
+
+  const defaultAttemptResults = useMemo(() => {
+    return times(numberOfAttempts, () => 0);
+  }, [numberOfAttempts]);
+
+  const [attemptResults, setAttemptResults] = useState(defaultAttemptResults);
 
   const rootRef = useRef(null);
 
@@ -58,11 +64,11 @@ function ResultAttemptsForm({
 
   useEffect(() => {
     setAttemptResults(
-      times(numberOfAttempts, (index) =>
-        result && result.attempts[index] ? result.attempts[index].result : 0
-      )
+      result
+        ? paddedAttemptResults(result, numberOfAttempts)
+        : defaultAttemptResults
     );
-  }, [result, numberOfAttempts]);
+  }, [result, numberOfAttempts, defaultAttemptResults]);
 
   useEffect(() => {
     if (!focusOnResultChange) return;

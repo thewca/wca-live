@@ -16,7 +16,7 @@ import { green } from '@material-ui/core/colors';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { orderedResultStats } from '../../lib/results';
+import { orderedResultStats, paddedAttemptResults } from '../../lib/results';
 
 const useStyles = makeStyles((theme) => ({
   row: {
@@ -121,20 +121,17 @@ const RoundResultsTable = React.memo(
                   </TableCell>
                 </Hidden>
                 <Hidden xsDown>
-                  {times(format.numberOfAttempts, (index) => (
-                    <TableCell
-                      key={index}
-                      className={classes.cell}
-                      align="right"
-                    >
-                      {formatAttemptResult(
-                        result.attempts[index]
-                          ? result.attempts[index].result
-                          : 0,
-                        eventId
-                      )}
-                    </TableCell>
-                  ))}
+                  {paddedAttemptResults(result, format.numberOfAttempts).map(
+                    (attemptResult, index) => (
+                      <TableCell
+                        key={index}
+                        align="right"
+                        className={classes.cell}
+                      >
+                        {formatAttemptResult(attemptResult, eventId)}
+                      </TableCell>
+                    )
+                  )}
                 </Hidden>
                 {stats.map(({ name, field, recordTagField }, index) => (
                   <TableCell

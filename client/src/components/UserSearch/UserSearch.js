@@ -39,7 +39,6 @@ function UserSearch({ onChange, TextFieldProps = {} }) {
 
   return (
     <Autocomplete
-      freeSolo
       clearOnBlur
       blurOnSelect
       options={users}

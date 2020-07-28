@@ -16,7 +16,7 @@ import { green } from '@material-ui/core/colors';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { orderedResultStats } from '../../lib/results';
+import { orderedResultStats, paddedAttemptResults } from '../../lib/results';
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -121,16 +121,13 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
                 <Hidden smUp>{result.round.name}</Hidden>
               </TableCell>
               <Hidden xsDown>
-                {times(numberOfAttempts, (index) => (
-                  <TableCell key={index} align="right">
-                    {formatAttemptResult(
-                      result.attempts[index]
-                        ? result.attempts[index].result
-                        : 0,
-                      event.id
-                    )}
-                  </TableCell>
-                ))}
+                {paddedAttemptResults(result, format.numberOfAttempts).map(
+                  (attemptResult, index) => (
+                    <TableCell key={index} align="right">
+                      {formatAttemptResult(attemptResult, event.id)}
+                    </TableCell>
+                  )
+                )}
               </Hidden>
               {stats.map(({ name, field, recordTagField }, index) => (
                 <TableCell

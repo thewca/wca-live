@@ -22,7 +22,7 @@ import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { orderedResultStats } from '../../lib/results';
+import { orderedResultStats, paddedAttemptResults } from '../../lib/results';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -208,20 +208,17 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                         code={result.person.country.iso2.toLowerCase()}
                       />
                     </TableCell>
-                    {times(format.numberOfAttempts, (index) => (
-                      <TableCell
-                        key={index}
-                        className={classes.cell}
-                        align="right"
-                      >
-                        {formatAttemptResult(
-                          result.attempts[index]
-                            ? result.attempts[index].result
-                            : 0,
-                          eventId
-                        )}
-                      </TableCell>
-                    ))}
+                    {paddedAttemptResults(result, format.numberOfAttempts).map(
+                      (attemptResult, index) => (
+                        <TableCell
+                          key={index}
+                          align="right"
+                          className={classes.cell}
+                        >
+                          {formatAttemptResult(attemptResult, eventId)}
+                        </TableCell>
+                      )
+                    )}
                     {stats.map(({ name, field, recordTagField }, index) => (
                       <TableCell
                         key={name}

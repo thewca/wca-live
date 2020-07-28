@@ -77,7 +77,7 @@ function AdminAccess({ competition }) {
   }
 
   return (
-    <Grid container direction="column" spacing={1}>
+    <Grid container direction="column" spacing={2}>
       <Grid item>
         <Typography>
           {`Delegates and organizers have full access to the competition.
@@ -96,6 +96,8 @@ function AdminAccess({ competition }) {
           TextFieldProps={{
             label: 'Add user',
             className: classes.searchTextField,
+            variant: 'outlined',
+            size: 'small',
           }}
         />
       </Grid>

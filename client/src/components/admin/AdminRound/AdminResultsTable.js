@@ -13,7 +13,7 @@ import { green } from '@material-ui/core/colors';
 import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../../lib/utils';
 import { formatAttemptResult } from '../../../lib/attempt-result';
-import { orderedResultStats } from '../../../lib/results';
+import { orderedResultStats, paddedAttemptResults } from '../../../lib/results';
 
 const useStyles = makeStyles((theme) => ({
   row: {
@@ -124,14 +124,13 @@ const AdminResultsTable = React.memo(
               </TableCell>
               <TableCell align="right">{result.person.id}</TableCell>
               <TableCell>{result.person.name}</TableCell>
-              {times(format.numberOfAttempts, (index) => (
-                <TableCell key={index} align="right">
-                  {formatAttemptResult(
-                    result.attempts[index] ? result.attempts[index].result : 0,
-                    eventId
-                  )}
-                </TableCell>
-              ))}
+              {paddedAttemptResults(result, format.numberOfAttempts).map(
+                (attemptResult, index) => (
+                  <TableCell key={index} align="right">
+                    {formatAttemptResult(attemptResult, eventId)}
+                  </TableCell>
+                )
+              )}
               {stats.map(({ name, field, recordTagField }, index) => (
                 <TableCell
                   key={name}

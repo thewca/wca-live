@@ -1,12 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Grid, Paper, TableContainer } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useConfirm } from 'material-ui-confirm';
+import { useSnackbar } from 'notistack';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import AdminResultsTable from './AdminResultsTable';
 import ResultMenu from './ResultMenu';
-import ClosableSnackbar from '../../ClosableSnackbar/ClosableSnackbar';
 import AdminRoundToolbar from './AdminRoundToolbar';
 import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
@@ -42,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
 function AdminRoundContent({ round, competitionId }) {
   const classes = useStyles();
   const confirm = useConfirm();
+  const { enqueueSnackbar } = useSnackbar();
   const apolloErrorHandler = useApolloErrorHandler();
 
   const [editedResult, setEditedResult] = useState(null);
@@ -84,18 +85,19 @@ function AdminRoundContent({ round, competitionId }) {
   const next = round.competitionEvent.rounds.find(
     (other) => other.number === round.number + 1
   );
+  const nextOpen = next && next.open;
+
+  useEffect(() => {
+    if (nextOpen) {
+      enqueueSnackbar(
+        "The next round has already been open, any changes won't affect it!",
+        { variant: 'info' }
+      );
+    }
+  }, [nextOpen, enqueueSnackbar]);
 
   return (
     <>
-      {next && next.open && (
-        <ClosableSnackbar
-          message="The next round has already been open, any changes won't affect it!"
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-        />
-      )}
       <Grid container direction="row" spacing={2}>
         <Grid item xs={12} md={3}>
           <ResultAttemptsForm
