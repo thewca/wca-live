@@ -2,7 +2,7 @@ import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 import AdminRoundContent from './AdminRoundContent';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
 
@@ -53,7 +53,7 @@ function AdminRound() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { round } = data;
 
   return <AdminRoundContent round={round} competitionId={competitionId} />;

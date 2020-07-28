@@ -13,7 +13,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 import Loading from '../Loading/Loading';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import Schedule from '../Schedule/Schedule';
 import CubingIcon from '../CubingIcon/CubingIcon';
 import { wcaUrl } from '../../lib/urls';
@@ -82,7 +82,7 @@ function CompetitionHome() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competition } = data;
 
   const countries = competitionCountries(competition);

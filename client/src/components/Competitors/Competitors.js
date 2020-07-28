@@ -2,7 +2,7 @@ import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import Loading from '../Loading/Loading';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import CompetitorList from './CompetitorList';
 
 const COMPETITORS_QUERY = gql`
@@ -27,7 +27,7 @@ function Competitors() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competition } = data;
 
   return (

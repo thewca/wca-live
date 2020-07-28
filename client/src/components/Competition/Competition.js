@@ -5,7 +5,7 @@ import { AppBar, Drawer, Hidden, SwipeableDrawer } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
 import classNames from 'classnames';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import CompetitionNavigation from './CompetitionNavigation';
 import CompetitionDrawerContent from './CompetitionDrawerContent';
 import Loading from '../Loading/Loading';
@@ -75,7 +75,7 @@ function Competition() {
     pollInterval: 60 * 1000,
   });
 
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
 
   // Render the layout even if the competition is not loaded.
   // This improves UX and also starts loading data for the actual page (like CompetitionHome).

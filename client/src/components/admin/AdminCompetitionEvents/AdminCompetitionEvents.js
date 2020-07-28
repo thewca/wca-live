@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import { Grid } from '@material-ui/core';
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 import AdminCompetitionEventCard from './AdminCompetitionEventCard';
 
 const COMPETITION_EVENTS_QUERY = gql`
@@ -36,7 +36,7 @@ function AdminCompetitionEvents() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const {
     competition: { competitionEvents },
   } = data;

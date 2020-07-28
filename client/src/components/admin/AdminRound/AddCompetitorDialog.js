@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import Loading from '../../Loading/Loading';
+import Error from '../../Error/Error';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import PersonSelect from '../PersonSelect/PersonSelect';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
@@ -70,8 +71,6 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
     onCompleted: handleClose,
   });
 
-  if (error) return <ErrorSnackbar />;
-
   function handleClose() {
     setSelectedCompetitor(null);
     onClose();
@@ -84,6 +83,7 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
       {loading && <Loading />}
       <DialogTitle>Add qualifying competitor</DialogTitle>
       <DialogContent>
+        {error && <Error error={error} />}
         {data &&
           (data.round.advancementCandidates.qualifying.length > 0 ? (
             <Grid container direction="column" spacing={2}>

@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import Loading from '../../Loading/Loading';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 import { ROUND_RESULT_FRAGMENT } from './fragments';
 
 const NEXT_QUALIFYING_QUERY = gql`
@@ -63,13 +64,12 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
     onCompleted: onClose,
   });
 
-  if (error) return <ErrorSnackbar />;
-
   return (
     <Dialog open={open} onClose={onClose}>
       {loading && <Loading />}
       <DialogTitle>Quit {competitor.name}</DialogTitle>
       <DialogContent>
+        {error && <Error error={error} />}
         {data && (
           <>
             <DialogContentText>

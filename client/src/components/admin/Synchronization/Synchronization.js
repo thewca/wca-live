@@ -16,7 +16,7 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import TimeAgo from 'react-timeago';
 import { parseISO } from 'date-fns';
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 import { wcaUrl, groupifierUrl, scramblesMatcherUrl } from '../../../lib/urls';
 import SynchronizeButton from './SynchronizeButton';
 
@@ -45,7 +45,7 @@ function Synchronization() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competition } = data;
 
   return (

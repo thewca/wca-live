@@ -5,7 +5,7 @@ import Tabs from '@material-ui/core/Tabs';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 import AccessSettings from '../AccessSettings/AccessSettings';
 
 const COMPETITION_QUERY = gql`
@@ -53,7 +53,7 @@ function AdminSettings({ match }) {
     variables: { id: match.params.competitionId },
   });
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competition } = data;
 
   return (

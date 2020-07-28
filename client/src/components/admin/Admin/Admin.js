@@ -2,7 +2,7 @@ import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 import AdminSignIn from '../AdminSignIn/AdminSignIn';
 import AdminDashboard from '../AdminDashboard/AdminDashboard';
 
@@ -35,9 +35,11 @@ const ADMIN_QUERY = gql`
 
 function Admin() {
   const { data, loading, error } = useQuery(ADMIN_QUERY);
+
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { currentUser } = data;
+
   return currentUser ? (
     <AdminDashboard currentUser={currentUser} />
   ) : (

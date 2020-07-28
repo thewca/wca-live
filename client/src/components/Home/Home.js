@@ -3,7 +3,7 @@ import { gql, useQuery } from '@apollo/client';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import logo from './logo.svg';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import HomeFooter from './HomeFooter';
 import HomeCompetitions from './HomeCompetitions';
 import HomeToolbar from './HomeToolbar';
@@ -86,7 +86,7 @@ function Home() {
   const { data, loading, error } = useQuery(COMPETITIONS_QUERY);
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competitions, recentRecords } = data;
 
   const upcoming = competitions.filter(isUpcoming);

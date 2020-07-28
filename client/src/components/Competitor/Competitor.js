@@ -5,7 +5,7 @@ import { Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import wcaLogo from '../Home/logo.svg';
 import Loading from '../Loading/Loading';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import CompetitorResults from '../CompetitorResults/CompetitorResults';
 import { wcaUrl } from '../../lib/urls';
@@ -70,7 +70,7 @@ function Competitor() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { person } = data;
 
   return (

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import { Grid, Typography, Tooltip } from '@material-ui/core';
 import Loading from '../Loading/Loading';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import RoundResults from '../RoundResults/RoundResults';
 import CubingIcon from '../CubingIcon/CubingIcon';
 import { partition } from '../../lib/utils';
@@ -61,7 +61,7 @@ function Podiums() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competition } = data;
 
   const [finishedPodiums, nonfinishedPodiums] = partition(

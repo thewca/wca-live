@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Loading from '../../Loading/Loading';
+import Error from '../../Error/Error';
 import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import { sortBy } from '../../../lib/utils';
@@ -104,7 +105,7 @@ function RoundDoubleCheck() {
   );
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { round } = data;
 
   const results = sortBy(

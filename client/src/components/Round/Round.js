@@ -11,7 +11,7 @@ import {
 import TvIcon from '@material-ui/icons/Tv';
 import PrintIcon from '@material-ui/icons/Print';
 import Loading from '../Loading/Loading';
-import ErrorSnackbar from '../ErrorSnackbar/ErrorSnackbar';
+import Error from '../Error/Error';
 import ResultsProjector from '../ResultsProjector/ResultsProjector';
 import RoundResults from '../RoundResults/RoundResults';
 import { appUrl } from '../../lib/urls';
@@ -97,7 +97,7 @@ function Round() {
   }, [subscribeToMore, roundId, shouldSubscribe]);
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { round } = data;
 
   return (

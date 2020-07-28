@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Typography } from '@material-ui/core';
 import AdminCompetitorsTable from './AdminCompetitorsTable';
 import Loading from '../../Loading/Loading';
-import ErrorSnackbar from '../../ErrorSnackbar/ErrorSnackbar';
+import Error from '../../Error/Error';
 
 const COMPETITORS_QUERY = gql`
   query Competitors($id: ID!) {
@@ -48,7 +48,7 @@ function AdminCompetitors() {
   });
 
   if (loading && !data) return <Loading />;
-  if (error) return <ErrorSnackbar />;
+  if (error) return <Error error={error} />;
   const { competition } = data;
 
   return (
