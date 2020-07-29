@@ -33,6 +33,14 @@ const COMPETITION_QUERY = gql`
         canScoretake
       }
     }
+
+    currentUser {
+      id
+      name
+      avatar {
+        thumbUrl
+      }
+    }
   }
 `;
 
@@ -93,6 +101,7 @@ function Competition() {
         {competition && (
           <CompetitionToolbar
             competition={competition}
+            currentUser={data && data.currentUser}
             onMenuClick={() => setMobileOpen(true)}
           />
         )}

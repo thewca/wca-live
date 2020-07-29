@@ -44,9 +44,9 @@ function HomeFooter() {
           className={classes.link}
           variant="subtitle1"
           component={RouterLink}
-          to="/admin"
+          to="/about"
         >
-          Admin
+          About
         </Link>
       </Grid>
       <Grid item>

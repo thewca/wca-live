@@ -1,8 +1,7 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Grid, Paper, Typography } from '@material-ui/core';
+import { Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import logo from './logo.svg';
 import Error from '../Error/Error';
 import HomeFooter from './HomeFooter';
 import HomeCompetitions from './HomeCompetitions';
@@ -68,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
       paddingBottom: theme.spacing(2),
     },
     display: 'flex',
-    minHeight: '100vh',
+    minHeight: '100%',
   },
   grow: {
     flexGrow: 1,
@@ -94,42 +93,42 @@ function Home() {
   const past = competitions.filter(isPast);
 
   return (
-    <div className={classes.root}>
-      <Grid container spacing={2} direction="column" className={classes.grow}>
-        <Grid item className={classes.center}>
-          <img src={logo} alt="wca logo" height="128" width="128" />
-          <Typography variant="h4">WCA Live</Typography>
-          <Typography variant="subtitle1">
-            Live results from competitions all around the world!
+    <>
+      <div className={classes.root}>
+        <Grid container spacing={2} direction="column" className={classes.grow}>
+          {/* <Grid item>
+          <Typography variant="h5" align="center">
+            Live results from competitions all around the world.
           </Typography>
-        </Grid>
-        <Grid item>
-          <HomeToolbar
-            upcoming={upcoming}
-            inProgress={inProgress}
-            past={past}
-          />
-        </Grid>
-        <Grid item>
-          <Paper>
-            <HomeCompetitions
+        </Grid> */}
+          <Grid item>
+            <HomeToolbar
               upcoming={upcoming}
               inProgress={inProgress}
               past={past}
             />
-          </Paper>
+          </Grid>
+          <Grid item>
+            <Paper>
+              <HomeCompetitions
+                upcoming={upcoming}
+                inProgress={inProgress}
+                past={past}
+              />
+            </Paper>
+          </Grid>
+          <Grid item>
+            <Paper>
+              <RecordList title="Recent records" records={recentRecords} />
+            </Paper>
+          </Grid>
+          <Grid item className={classes.grow} />
+          <Grid item className={classes.fullWidth}>
+            <HomeFooter />
+          </Grid>
         </Grid>
-        <Grid item>
-          <Paper>
-            <RecordList title="Recent records" records={recentRecords} />
-          </Paper>
-        </Grid>
-        <Grid item className={classes.grow} />
-        <Grid item className={classes.fullWidth}>
-          <HomeFooter />
-        </Grid>
-      </Grid>
-    </div>
+      </div>
+    </>
   );
 }
 

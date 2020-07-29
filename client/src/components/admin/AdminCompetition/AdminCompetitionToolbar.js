@@ -102,7 +102,7 @@ function AdminCompetitionToolbar({ competition }) {
           <RemoveRedEyeIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="My competitions">
+      <Tooltip title="Admin">
         <IconButton color="inherit" component={RouterLink} to="/admin">
           <AccountCircleIcon />
         </IconButton>
