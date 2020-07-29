@@ -35,7 +35,7 @@ const REMOVE_PERSON_FROM_ROUND_MUTATION = gql`
         id
         results {
           id
-          ...roundResult
+          ...adminRoundResult
         }
       }
     }

@@ -38,7 +38,7 @@ const ROUND_QUERY = gql`
       }
       results {
         id
-        ...roundResult
+        ...adminRoundResult
       }
     }
   }

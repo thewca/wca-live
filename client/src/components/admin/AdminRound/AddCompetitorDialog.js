@@ -43,7 +43,7 @@ const ADD_PERSON_TO_ROUND_MUTATION = gql`
         id
         results {
           id
-          ...roundResult
+          ...adminRoundResult
         }
       }
     }

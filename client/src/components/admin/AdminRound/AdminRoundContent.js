@@ -21,7 +21,7 @@ const ENTER_RESULT_ATTEMPTS = gql`
           id
           results {
             id
-            ...roundResult
+            ...adminRoundResult
           }
         }
       }
