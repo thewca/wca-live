@@ -1,23 +1,15 @@
-import React, { useRef } from 'react';
-import Downshift from 'downshift';
-import { MenuItem, Paper, Popper, TextField } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import React from 'react';
+import { TextField } from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
 import { uniq, toInt } from '../../../lib/utils';
 
-const useStyles = makeStyles((theme) => ({
-  popper: {
-    marginTop: theme.spacing(1),
-    zIndex: theme.zIndex.modal + 1,
-  },
-}));
-
-function personToString(person) {
+function personToLabel(person) {
   return `${person.name} (${person.registrantId})`;
 }
 
 function searchPersons(persons, search) {
   const normalizedSearch = search.trim().toLowerCase();
-  if (normalizedSearch.length === 0) return [];
+  if (!normalizedSearch) return persons;
   const matchingId = persons.find(
     (person) => person.registrantId === toInt(normalizedSearch)
   );
@@ -31,98 +23,39 @@ function searchPersons(persons, search) {
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
 }
 
-function PersonSelect({
-  persons,
-  value,
-  onChange,
-  clearOnChange = false,
-  TextFieldProps = {},
-}) {
-  const classes = useStyles();
-  const textFieldRef = useRef();
-
-  function handleKeyDown(event) {
-    /* Mimic enter behavior on tab press. */
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      const newEvent = new KeyboardEvent('keydown', {
-        bubbles: true,
-        cancelable: true,
-        key: 'Enter',
-      });
-      event.target.dispatchEvent(newEvent);
+function PersonSelect({ persons, value, onChange, TextFieldProps = {} }) {
+  function handleChange(event, value, reason) {
+    if (reason === 'select-option') {
+      onChange(value);
     }
   }
 
   return (
-    <Downshift
-      selectedItem={value}
-      onChange={(person, { clearSelection }) => {
-        if (clearOnChange) {
-          clearSelection();
-        }
-        onChange(person);
-      }}
-      itemToString={(item) => (item ? personToString(item) : '')}
-      defaultHighlightedIndex={0}
-    >
-      {({
-        getInputProps,
-        getItemProps,
-        getLabelProps,
-        getMenuProps,
-        highlightedIndex,
-        inputValue,
-        isOpen,
-        selectedItem,
-      }) => (
-        <div>
-          <TextField
-            spellCheck={false}
-            variant="outlined"
-            label="Competitor"
-            placeholder="Type ID or name"
-            {...TextFieldProps}
-            InputLabelProps={getLabelProps()}
-            InputProps={getInputProps({ onKeyDown: handleKeyDown })}
-            ref={textFieldRef}
-          />
-          <Popper
-            keepMounted
-            open={isOpen}
-            anchorEl={textFieldRef.current}
-            className={classes.popper}
-          >
-            <div {...getMenuProps({}, { suppressRefError: true })}>
-              <Paper
-                square
-                style={{
-                  width: textFieldRef.current
-                    ? textFieldRef.current.clientWidth
-                    : undefined,
-                }}
-              >
-                {searchPersons(persons, inputValue).map((person, index) => (
-                  <MenuItem
-                    {...getItemProps({
-                      item: person,
-                      key: person.id,
-                      component: 'div',
-                      selected: highlightedIndex === index,
-                      style: {
-                        fontWeight: selectedItem === person ? 500 : 400,
-                      },
-                    })}
-                  >
-                    {personToString(person)}
-                  </MenuItem>
-                ))}
-              </Paper>
-            </div>
-          </Popper>
-        </div>
+    <Autocomplete
+      options={persons}
+      getOptionLabel={personToLabel}
+      value={value}
+      onChange={handleChange}
+      forcePopupIcon={false}
+      disableClearable={true}
+      autoHighlight={true}
+      filterOptions={(persons, { inputValue }) =>
+        searchPersons(persons, inputValue)
+      }
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Competitor"
+          spellCheck={false}
+          placeholder="Type ID or name"
+          {...TextFieldProps}
+          inputProps={{
+            ...params.inputProps,
+            ...(TextFieldProps.inputProps || {}),
+          }}
+        />
       )}
-    </Downshift>
+    />
   );
 }
 

@@ -109,7 +109,11 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
                   persons={data.round.advancementCandidates.qualifying}
                   value={selectedCompetitor}
                   onChange={setSelectedCompetitor}
-                  TextFieldProps={{ autoFocus: true, fullWidth: true }}
+                  TextFieldProps={{
+                    autoFocus: true,
+                    fullWidth: true,
+                    variant: 'outlined',
+                  }}
                 />
               </Grid>
               {data.round.advancementCandidates.revocable.length > 0 && (

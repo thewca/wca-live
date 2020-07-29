@@ -60,7 +60,7 @@ function ResultAttemptsForm({
 
   const rootRef = useRef(null);
 
-  useKeyNavigation(rootRef.current);
+  useKeyNavigation(rootRef);
 
   useEffect(() => {
     setAttemptResults(
@@ -72,10 +72,12 @@ function ResultAttemptsForm({
 
   useEffect(() => {
     if (!focusOnResultChange) return;
+
     const [
       resultInput,
       firstAttemptInput,
     ] = rootRef.current.getElementsByTagName('input');
+
     if (result) {
       // Wait for the above useEffect to set attempt result values
       // and then select the given field.
@@ -138,7 +140,12 @@ function ResultAttemptsForm({
           results={results}
           value={result}
           onChange={onResultChange}
-          TextFieldProps={{ autoFocus: true, fullWidth: true }}
+          TextFieldProps={{
+            autoFocus: true,
+            fullWidth: true,
+            variant: 'outlined',
+            inputProps: { 'data-type': 'result-select' },
+          }}
         />
       </Grid>
       {attemptResults.map((attemptResult, index) => (
@@ -149,7 +156,11 @@ function ResultAttemptsForm({
             disabled={!result || disabled || index >= disabledFromIndex}
             value={attemptResult}
             onChange={(value) => handleAttemptResultChange(index, value)}
-            TextFieldProps={{ fullWidth: true, variant: 'outlined' }}
+            TextFieldProps={{
+              fullWidth: true,
+              variant: 'outlined',
+              inputProps: { 'data-type': 'attempt-result' },
+            }}
           />
         </Grid>
       ))}

@@ -1,32 +1,71 @@
 import { useEffect } from 'react';
 
-export default function useKeyNavigation(container) {
+export default function useKeyNavigation(containerRef) {
   useEffect(() => {
-    if (!container) return;
+    const container = containerRef.current;
+
     function handleKeyDown(event) {
+      if (
+        !['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(event.key)
+      ) {
+        return;
+      }
+
       if (event.key === 'Escape') {
         event.target.blur && event.target.blur();
         return;
       }
+
+      const autocompleteOpen = Boolean(
+        container.querySelector('.MuiAutocomplete-root[aria-expanded="true"]')
+      );
       if (
-        ['ArrowUp', 'ArrowDown'].includes(event.key) &&
-        container.querySelector('[aria-expanded="true"]')
+        ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key) &&
+        autocompleteOpen
       ) {
         // Don't interrupt navigation within competitor select list.
         return;
       }
-      if (!['ArrowUp', 'ArrowDown', 'Enter', 'Tab'].includes(event.key)) return;
+
       if (['ArrowUp', 'ArrowDown'].includes(event.key)) {
         // Prevent page scrolling.
         event.preventDefault();
+        // Prevent from opening autocomplete popup.
+        event.stopPropagation();
       }
-      if (event.target.tagName === 'INPUT') {
-        // Blur the current input first, as it may affect which fields are disabled.
+
+      if (
+        event.target.tagName === 'INPUT' &&
+        event.target.dataset.type === 'attempt-result'
+      ) {
+        // Blur the current input first, as it may affect which inputs are disabled.
         event.target.blur();
       }
-      // Let Tab be handled as usually.
-      if (event.key === 'Tab') return;
-      // Other handlers may change which fields are disabled, so let them run first.
+
+      if (
+        event.key === 'Tab' &&
+        event.target.dataset.type === 'result-select'
+      ) {
+        // Mimic enter behavior when tab is pressed in the result select.
+        event.preventDefault();
+        event.stopPropagation();
+        event.target.dispatchEvent(
+          new KeyboardEvent('keydown', {
+            bubbles: true,
+            cancelable: true,
+            key: 'Enter',
+          })
+        );
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        // Let Tab be handled as usually.
+        return;
+      }
+
+      // Other event handlers may change which fields are disabled,
+      // so let them run first by wrapping the logic in setTimeout(..., 0).
       setTimeout(() => {
         const inputs = getInputs(container);
         const index = inputs.findIndex((input) => event.target === input);
@@ -46,17 +85,21 @@ export default function useKeyNavigation(container) {
         }
       }, 0);
     }
+
     container.addEventListener('keydown', handleKeyDown);
     return () => container.removeEventListener('keydown', handleKeyDown);
-  }, [container]);
+  }, [containerRef]);
 
   useEffect(() => {
-    if (!container) return;
+    const container = containerRef.current;
+
     function handleKeyDown(event) {
       if (
         ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key) &&
         event.target === document.body
       ) {
+        // Focus the form if no input is focused and one of the above keys gets pressed.
+        event.preventDefault();
         const [firstInput] = getInputs(container);
         if (firstInput) {
           firstInput.focus();
@@ -64,9 +107,10 @@ export default function useKeyNavigation(container) {
         }
       }
     }
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [container]);
+  }, [containerRef]);
 }
 
 function getInputs(container) {

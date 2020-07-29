@@ -16,7 +16,6 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "classnames": "^2.2.6",
     "date-fns": "^2.15.0",
-    "downshift": "^6.0.2",
     "graphql": "^15.3.0",
     "material-ui-confirm": "^2.1.1",
     "notistack": "^0.9.17",
