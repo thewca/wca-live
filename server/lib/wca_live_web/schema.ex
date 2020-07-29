@@ -58,7 +58,7 @@ defmodule WcaLiveWeb.Schema do
   end
 
   def query(WcaLive.Scoretaking.Round, _args) do
-    WcaLive.Scoretaking.Round |> Ecto.Query.preload(:results)
+    WcaLive.Scoretaking.Round |> Ecto.Query.order_by(:number) |> Ecto.Query.preload(:results)
   end
 
   def query(WcaLive.Scoretaking.Result, _args) do
