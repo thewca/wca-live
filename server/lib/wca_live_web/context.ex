@@ -8,7 +8,7 @@ defmodule WcaLiveWeb.Context do
 
   @doc """
   Adds GraphQL context to the connection.
-  The context includes current user extracted from the session if present.
+  The context includes current user extracted from an authorization token if present.
   """
   def call(conn, _) do
     context = build_context(conn)
@@ -16,13 +16,20 @@ defmodule WcaLiveWeb.Context do
   end
 
   defp build_context(conn) do
-    case get_session(conn, :user_id) do
-      nil ->
-        %{}
+    with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
+         {:ok, current_user} <- authorize(token) do
+      %{current_user: current_user}
+    else
+      _ -> %{}
+    end
+  end
 
-      user_id ->
-        current_user = Accounts.get_user!(user_id)
-        %{current_user: current_user}
+  defp authorize(token) do
+    with {:ok, user_id} <- WcaLiveWeb.Auth.verify_token(token) do
+      case Accounts.get_user(user_id) do
+        nil -> {:error, "invalid access token"}
+        user -> {:ok, user}
+      end
     end
   end
 end

@@ -5,6 +5,10 @@ import ReactDOM from 'react-dom';
 import App from './components/App/App';
 import * as serviceWorker from './serviceWorker';
 
+import { maybeGrabTokenFromUrl } from './lib/auth';
+
+maybeGrabTokenFromUrl();
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

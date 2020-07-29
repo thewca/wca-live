@@ -15,6 +15,8 @@ defmodule WcaLive.Accounts do
     |> Repo.insert_or_update()
   end
 
+  def get_user(id), do: Repo.get(User, id)
+
   def get_user!(id), do: Repo.get!(User, id)
 
   def fetch_user(id), do: Repo.fetch(User, id)

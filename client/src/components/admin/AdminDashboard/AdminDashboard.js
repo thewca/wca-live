@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { gql, useMutation, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import {
   Avatar,
   Box,
@@ -12,13 +12,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import CompetitionList from '../../CompetitionList/CompetitionList';
 import ImportableCompetitions from '../ImportableCompetitions/ImportableCompetitions';
-import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
-
-const SIGN_OUT_MUTATION = gql`
-  mutation SignOut {
-    signOut
-  }
-`;
+import { clearToken } from '../../../lib/auth';
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -32,21 +26,21 @@ const useStyles = makeStyles((theme) => ({
 
 function AdminDashboard({ currentUser }) {
   const classes = useStyles();
-  const apolloErrorHandler = useApolloErrorHandler();
   const apolloClient = useApolloClient();
   const history = useHistory();
 
-  const [signOut, { loading }] = useMutation(SIGN_OUT_MUTATION, {
-    onCompleted: (data) => {
-      apolloClient.clearStore().then(() => history.push('/'));
-    },
-    onError: apolloErrorHandler,
-  });
   const { name, avatar, staffMembers } = currentUser;
 
   const staffedCompetitions = staffMembers.map(
     (staffMember) => staffMember.competition
   );
+
+  function handleSignOut() {
+    clearToken();
+    apolloClient.clearStore().then(() => {
+      history.push('/');
+    });
+  }
 
   return (
     <Box p={3}>
@@ -72,7 +66,7 @@ function AdminDashboard({ currentUser }) {
         <Grid item>
           <Grid container spacing={2}>
             <Grid item>
-              <Button variant="outlined" onClick={signOut} disabled={loading}>
+              <Button variant="outlined" onClick={handleSignOut}>
                 Sign out
               </Button>
             </Grid>
