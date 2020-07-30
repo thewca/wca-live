@@ -3,22 +3,25 @@ import { gql, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import {
   Grid,
-  Link,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Typography,
+  Paper,
+  ListSubheader,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Alert } from '@material-ui/lab';
 import EditIcon from '@material-ui/icons/Edit';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import GroupIcon from '@material-ui/icons/Group';
+import BuildIcon from '@material-ui/icons/Build';
 import TimeAgo from 'react-timeago';
 import { parseISO } from 'date-fns';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
-import { wcaUrl, groupifierUrl, scramblesMatcherUrl } from '../../../lib/urls';
 import SynchronizeButton from './SynchronizeButton';
+import { wcaUrl, groupifierUrl, scramblesMatcherUrl } from '../../../lib/urls';
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -30,14 +33,7 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  description: {
-    maxWidth: '60%',
-  },
-}));
-
 function Synchronization() {
-  const classes = useStyles();
   const { competitionId } = useParams();
 
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
@@ -49,72 +45,110 @@ function Synchronization() {
   const { competition } = data;
 
   return (
-    <Grid container direction="column" alignItems="center" spacing={1}>
-      <Grid item>
-        <SynchronizeButton competitionId={competition.id} />
+    <Grid container direction="column" spacing={2}>
+      <Grid item container direction="column" spacing={2} alignItems="center">
+        <Grid item>
+          <SynchronizeButton competitionId={competition.id} />
+        </Grid>
+        <Grid item>
+          <Typography variant="caption" component="div" align="center">
+            Last synchronized{' '}
+            <TimeAgo date={parseISO(competition.synchronizedAt)} />.
+          </Typography>
+        </Grid>
       </Grid>
       <Grid item>
-        <Typography variant="caption" component="div" align="center">
-          Last synchronized{' '}
-          <TimeAgo date={parseISO(competition.synchronizedAt)} />.
+        <Typography variant="h5" gutterBottom>
+          Synchronization
         </Typography>
-      </Grid>
-      <Grid item className={classes.description}>
-        <Typography align="justify">
+        <Typography>
           {`
-            We use competition information from the WCA website.
-            If you want to add competitors or change round information,
-            you need to make those changes on the WCA website,
-            and then click the "Synchronize" button above.
+          WCA Live is specifically designed to deal with competition results
+          and it relies on the WCA website to provide a lot of competition information
+          (like events, schedule and registered competitors). It is also meant to cooperate
+          with other tools that are dedicated to do specific tasks. Synchronization
+          is the process of getting the latest data from the WCA website, combining it
+          with the local changes (mostly results) and saving that data back to the WCA website,
+          so that other tools can use it.
           `}
         </Typography>
       </Grid>
       <Grid item>
-        <List>
-          <ListItem
-            button
-            component="a"
-            href={wcaUrl(
-              `/competitions/${competition.wcaId}/registrations/add`
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <ListItemIcon>
-              <PersonAddIcon />
-            </ListItemIcon>
-            <ListItemText>Add competitor</ListItemText>
-          </ListItem>
-          <ListItem
-            button
-            component="a"
-            href={wcaUrl(`/competitions/${competition.wcaId}/events/edit`)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <ListItemIcon>
-              <EditIcon />
-            </ListItemIcon>
-            <ListItemText>Change round data</ListItemText>
-          </ListItem>
-        </List>
+        <Alert severity="info">
+          {`Always make sure to Synchronize before using any other tool if you want it to see
+          the newly entered results. If the tool modifies relevant competition data,
+          synchronize afterwards to see the changes reflected here.`}
+        </Alert>
       </Grid>
-      <Grid item className={classes.description}>
-        <Typography align="justify">
-          {`To manage competitor groups and print scorecards you can use `}
-          <Link
-            href={groupifierUrl(`/competitions/${competition.wcaId}`)}
-            target="_blank"
-          >
-            Groupifier
-          </Link>
-          {`. After the competition, please use `}
-          <Link href={scramblesMatcherUrl()} target="_blank">
-            Scrambles Matcher
-          </Link>
-          {` to attach scrambles to rounds and proceed with results posting.`}
-          {` Always make sure to "Synchronize" first, so the tools see the entered results.`}
-        </Typography>
+      <Grid item>
+        <Paper>
+          <List dense={true}>
+            <ListSubheader>WCA website</ListSubheader>
+            <ListItem
+              button
+              component="a"
+              href={wcaUrl(`/competitions/${competition.wcaId}/events/edit`)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ListItemIcon>
+                <EditIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Change round details"
+                secondary="Manage events and rounds on the WCA website."
+              />
+            </ListItem>
+            <ListItem
+              button
+              component="a"
+              href={wcaUrl(
+                `/competitions/${competition.wcaId}/registrations/add`
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ListItemIcon>
+                <PersonAddIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Add competitor"
+                secondary="Use a form on the WCA website to register someone during the competition (if applicable)."
+              />
+            </ListItem>
+            <ListSubheader>Additional tools</ListSubheader>
+            <ListItem
+              button
+              component="a"
+              href={groupifierUrl(`/competitions/${competition.wcaId}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ListItemIcon>
+                <GroupIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Groupifier"
+                secondary="Manage competitor groups and print scorecards."
+              />
+            </ListItem>
+            <ListItem
+              button
+              component="a"
+              href={scramblesMatcherUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ListItemIcon>
+                <BuildIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Scrambles Matcher"
+                secondary="Use it after the competition to attach scrambles to rounds and proceed with results submission."
+              />
+            </ListItem>
+          </List>
+        </Paper>
       </Grid>
     </Grid>
   );

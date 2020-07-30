@@ -24,7 +24,8 @@ function SynchronizeButton({ competitionId }) {
 
   return (
     <Button
-      variant="outlined"
+      variant="contained"
+      disableElevation
       color="primary"
       size="large"
       onClick={synchronize}
