@@ -6,6 +6,7 @@ import Competition from '../Competition/Competition';
 import Home from '../Home/Home';
 import Layout from '../Layout/Layout';
 import SignIn from '../SignIn/SignIn';
+import About from '../About/About';
 
 function Navigation() {
   return (
@@ -18,6 +19,11 @@ function Navigation() {
       <Route exact path="/sign-in">
         <Layout>
           <SignIn />
+        </Layout>
+      </Route>
+      <Route exact path="/about">
+        <Layout>
+          <About />
         </Layout>
       </Route>
       <Route exact path="/admin">

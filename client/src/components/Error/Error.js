@@ -6,6 +6,7 @@ import { apolloErrorToMessage } from '../../lib/errors';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    width: '100%',
     padding: theme.spacing(3),
   },
   image: {

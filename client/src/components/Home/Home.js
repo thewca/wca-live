@@ -96,11 +96,6 @@ function Home() {
     <>
       <div className={classes.root}>
         <Grid container spacing={2} direction="column" className={classes.grow}>
-          {/* <Grid item>
-          <Typography variant="h5" align="center">
-            Live results from competitions all around the world.
-          </Typography>
-        </Grid> */}
           <Grid item>
             <HomeToolbar
               upcoming={upcoming}
