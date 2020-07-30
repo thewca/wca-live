@@ -18,7 +18,6 @@ export function timeLimitToString(timeLimit, eventId) {
   if (['333mbf', '333fm'].includes(eventId)) return 'Regulated';
   const { centiseconds, cumulativeRoundWcifIds } = timeLimit;
   const clockFormat = centisecondsToClockFormat(centiseconds);
-  // TODO: perhaps return an enum/boolean from API
   if (cumulativeRoundWcifIds.length === 0) {
     return clockFormat;
   } else if (cumulativeRoundWcifIds.length === 1) {

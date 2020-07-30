@@ -8,7 +8,7 @@ import HomeCompetitions from './HomeCompetitions';
 import HomeToolbar from './HomeToolbar';
 import Loading from '../Loading/Loading';
 import RecordList from '../RecordList/RecordList';
-import { isUpcoming, isInProgress, isPast } from '../../lib/competitions';
+import { isUpcoming, isInProgress, isPast } from '../../lib/competition';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {

@@ -60,7 +60,7 @@ export function average(attemptResults, eventId) {
       case 5:
         return averageOf5(scaled);
       default:
-        Error(
+        throw new Error(
           `Invalid number of attempt results, expected 3 or 5, given ${attemptResults.length}.`
         );
     }
@@ -72,7 +72,7 @@ export function average(attemptResults, eventId) {
     case 5:
       return roundOver10Mins(averageOf5(attemptResults));
     default:
-      Error(
+      throw new Error(
         `Invalid number of attempt results, expected 3 or 5, given ${attemptResults.length}.`
       );
   }

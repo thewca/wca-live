@@ -6,7 +6,7 @@ describe('cutoffToString', () => {
     expect(cutoffToString(cutoff, '333mbf')).toEqual('None');
   });
 
-  test('returns poinst for MBLD', () => {
+  test('returns points for MBLD', () => {
     const cutoff = { numberOfAttempts: 1, attemptResult: 910000000 };
     expect(cutoffToString(cutoff, '333mbf')).toEqual('8 points');
   });

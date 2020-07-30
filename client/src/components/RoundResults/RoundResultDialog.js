@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { orderedResultStats } from '../../lib/results';
+import { orderedResultStats } from '../../lib/result';
 
 function RoundResultDialog({
   result,

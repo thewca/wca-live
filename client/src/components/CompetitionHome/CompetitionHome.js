@@ -18,7 +18,7 @@ import Schedule from '../Schedule/Schedule';
 import CubingIcon from '../CubingIcon/CubingIcon';
 import { wcaUrl } from '../../lib/urls';
 import { flatMap } from '../../lib/utils';
-import { competitionCountries } from '../../lib/competitions';
+import { competitionCountries } from '../../lib/competition';
 import { getTimezone } from '../../lib/date';
 
 const COMPETITION_QUERY = gql`

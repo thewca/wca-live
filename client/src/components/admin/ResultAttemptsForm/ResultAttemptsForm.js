@@ -21,7 +21,7 @@ import { cutoffToString, timeLimitToString } from '../../../lib/formatters';
 import {
   shouldComputeAverage,
   paddedAttemptResults,
-} from '../../../lib/results';
+} from '../../../lib/result';
 
 const useStyles = makeStyles((theme) => ({
   resultSelect: {

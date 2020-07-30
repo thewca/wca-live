@@ -13,7 +13,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import CubingIcon from '../CubingIcon/CubingIcon';
 import RoomLabel from '../RoomLabel/RoomLabel';
 import { parseActivityCode } from '../../lib/activity-code';
-import { eventRoundForActivityCode } from '../../lib/competitions';
+import { eventRoundForActivityCode } from '../../lib/competition';
 import { formatTimeRange } from '../../lib/date';
 import { parseISO } from 'date-fns';
 import { min, max, clamp } from '../../lib/utils';

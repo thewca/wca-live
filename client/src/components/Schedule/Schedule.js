@@ -4,11 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import ScheduleCard from './ScheduleCard';
 import { groupBy, uniq, sortBy } from '../../lib/utils';
 import {
-  shortDate,
+  formatDateShort,
   toLocalDateString,
   closestDateString,
 } from '../../lib/date';
-import { eventRoundForActivityCode } from '../../lib/competitions';
+import { eventRoundForActivityCode } from '../../lib/competition';
 import { parseActivityCode } from '../../lib/activity-code';
 
 const useStyles = makeStyles((theme) => ({
@@ -59,7 +59,7 @@ function Schedule({ venues, competitionEvents, competitionId }) {
         className={classes.tabs}
       >
         {dates.map((date) => (
-          <Tab key={date} label={shortDate(date)} value={date} />
+          <Tab key={date} label={formatDateShort(date)} value={date} />
         ))}
       </Tabs>
       <Grid container spacing={1}>

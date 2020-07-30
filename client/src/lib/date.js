@@ -30,7 +30,7 @@ export function shortLocalTime(isoString) {
   return format(parseISO(isoString), 'HH:mm');
 }
 
-export function shortDate(dateString) {
+export function formatDateShort(dateString) {
   return format(parseISO(dateString), 'EEEE, MMM d');
 }
 

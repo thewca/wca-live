@@ -16,7 +16,7 @@ export function parseActivityCode(activityCode) {
       type: 'official',
       eventId: e,
       roundNumber: r ? parseInt(r, 10) : null,
-      groupNumber: g ? parseInt(g, 10) : null,
+      groupName: g ? g : null,
       attemptNumber: a ? parseInt(a, 10) : null,
     };
   }

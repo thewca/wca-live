@@ -11,7 +11,7 @@ import PublicIcon from '@material-ui/icons/Public';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import VirtualList from '../VirtualList/VirtualList';
 import { formatDateRange } from '../../lib/date';
-import { competitionCountries } from '../../lib/competitions';
+import { competitionCountries } from '../../lib/competition';
 
 function CompetitionList({ title, competitions, pathPrefix = '' }) {
   return (

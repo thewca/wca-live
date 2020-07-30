@@ -22,7 +22,7 @@ import FlagIcon from '../FlagIcon/FlagIcon';
 import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
-import { orderedResultStats, paddedAttemptResults } from '../../lib/results';
+import { orderedResultStats, paddedAttemptResults } from '../../lib/result';
 
 const useStyles = makeStyles((theme) => ({
   root: {
