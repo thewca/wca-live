@@ -29,13 +29,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function RecordTag({ recordTag }) {
+function RecordTag({ recordTag, className }) {
   const classes = useStyles();
   return (
     <span
       className={classNames(
         classes.recordTag,
-        classes[recordTag.toLowerCase()]
+        classes[recordTag.toLowerCase()],
+        className
       )}
     >
       {recordTag}

@@ -10,9 +10,9 @@ import {
   Link,
   Typography,
 } from '@material-ui/core';
-import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { formatAttemptResult } from '../../lib/attempt-result';
 import { orderedResultStats } from '../../lib/result';
+import RecordTagBadge from '../RecordTagBadge/RecordTagBadge';
 
 function RoundResultDialog({
   result,
@@ -64,11 +64,12 @@ function RoundResultDialog({
                     <Grid item key={name}>
                       <Typography variant="subtitle2">{name}</Typography>
                       <Typography variant="body2">
-                        <ResultWithRecordTag
-                          result={formatAttemptResult(result[field], eventId)}
+                        <RecordTagBadge
                           recordTag={result[recordTagField]}
-                          showPb={false}
-                        />
+                          hidePb
+                        >
+                          {formatAttemptResult(result[field], eventId)}
+                        </RecordTagBadge>
                       </Typography>
                     </Grid>
                   ))}

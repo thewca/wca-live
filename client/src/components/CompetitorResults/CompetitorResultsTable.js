@@ -13,10 +13,10 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { green } from '@material-ui/core/colors';
-import ResultWithRecordTag from '../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
 import { orderedResultStats, paddedAttemptResults } from '../../lib/result';
+import RecordTagBadge from '../RecordTagBadge/RecordTagBadge';
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -137,11 +137,9 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
                     [classes.mainStat]: index === 0,
                   })}
                 >
-                  <ResultWithRecordTag
-                    result={formatAttemptResult(result[field], event.id)}
-                    recordTag={result[recordTagField]}
-                    showPb={true}
-                  />
+                  <RecordTagBadge recordTag={result[recordTagField]}>
+                    {formatAttemptResult(result[field], event.id)}
+                  </RecordTagBadge>
                 </TableCell>
               ))}
             </TableRow>

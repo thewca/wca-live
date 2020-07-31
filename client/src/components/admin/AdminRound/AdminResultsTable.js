@@ -10,10 +10,10 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { green } from '@material-ui/core/colors';
-import ResultWithRecordTag from '../../ResultWithRecordTag/ResultWithRecordTag';
 import { times } from '../../../lib/utils';
 import { formatAttemptResult } from '../../../lib/attempt-result';
 import { orderedResultStats, paddedAttemptResults } from '../../../lib/result';
+import RecordTagBadge from '../../RecordTagBadge/RecordTagBadge';
 
 const useStyles = makeStyles((theme) => ({
   row: {
@@ -139,11 +139,9 @@ const AdminResultsTable = React.memo(
                     [classes.mainStat]: index === 0,
                   })}
                 >
-                  <ResultWithRecordTag
-                    result={formatAttemptResult(result[field], eventId)}
-                    recordTag={result[recordTagField]}
-                    showPb={false}
-                  />
+                  <RecordTagBadge recordTag={result[recordTagField]} hidePb>
+                    {formatAttemptResult(result[field], eventId)}
+                  </RecordTagBadge>
                 </TableCell>
               ))}
             </TableRow>
