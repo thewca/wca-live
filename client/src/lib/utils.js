@@ -31,6 +31,9 @@ export function orderBy(arr, fns, orders = []) {
   if (typeof fns === 'function') {
     fns = [fns];
   }
+  if (typeof orders === 'string') {
+    orders = [orders];
+  }
 
   return arr.slice(0).sort((a, b) =>
     fns.reduce((acc, fn, i) => {
@@ -55,12 +58,16 @@ export function partition(arr, fn) {
   );
 }
 
-export function min(array) {
-  return array.reduce((x, y) => (x < y ? x : y));
+export function min(arr) {
+  return arr.reduce((x, y) => (x < y ? x : y));
 }
 
-export function max(array) {
-  return array.reduce((x, y) => (x > y ? x : y));
+export function max(arr) {
+  return arr.reduce((x, y) => (x > y ? x : y));
+}
+
+export function minBy(arr, fn) {
+  return arr.reduce((x, y) => (fn(x) < fn(y) ? x : y));
 }
 
 export function clamp(x, left, right) {

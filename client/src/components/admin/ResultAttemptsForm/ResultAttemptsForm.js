@@ -17,7 +17,7 @@ import {
   best,
   average,
 } from '../../../lib/attempt-result';
-import { cutoffToString, timeLimitToString } from '../../../lib/formatters';
+import { formatCutoff, formatTimeLimit } from '../../../lib/formatters';
 import {
   shouldComputeAverage,
   paddedAttemptResults,
@@ -127,12 +127,12 @@ function ResultAttemptsForm({
     <Grid container direction="column" spacing={1} ref={rootRef}>
       <Grid item>
         <Typography variant="body2">
-          Time limit: {timeLimitToString(timeLimit, eventId)}
+          Time limit: {formatTimeLimit(timeLimit, eventId)}
         </Typography>
       </Grid>
       <Grid item>
         <Typography variant="body2">
-          Cutoff: {cutoffToString(cutoff, eventId)}
+          Cutoff: {formatCutoff(cutoff, eventId)}
         </Typography>
       </Grid>
       <Grid item className={classes.resultSelect}>

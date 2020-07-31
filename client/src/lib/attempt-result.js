@@ -1,3 +1,5 @@
+import { times } from './utils';
+
 export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
@@ -17,21 +19,32 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
   return attemptResult1 - attemptResult2;
 }
 
-/* Adds 0 for missing attempts, so they conform to the given length. */
+/**
+ * Returns the specified number of attempt results filling missing ones with 0.
+ */
 export function padSkipped(attemptResults, numberOfAttempts) {
-  return Array.from(
-    { length: numberOfAttempts },
-    (_, index) => attemptResults[index] || 0
+  return times(numberOfAttempts, (index) =>
+    index < attemptResults.length ? attemptResults[index] : SKIPPED_VALUE
   );
 }
 
+/**
+ * Removes trailing skipped attempt results from the given list.
+ */
 export function trimTrailingSkipped(attemptResults) {
   if (attemptResults.length === 0) return [];
-  return attemptResults[attemptResults.length - 1] === SKIPPED_VALUE
-    ? trimTrailingSkipped(attemptResults.slice(0, -1))
-    : attemptResults;
+  if (attemptResults[attemptResults.length - 1] === SKIPPED_VALUE) {
+    return trimTrailingSkipped(attemptResults.slice(0, -1));
+  }
+  return attemptResults;
 }
 
+/**
+ * Returns the best attempt result from the given list.
+ *
+ * @example
+ * best([900, -1, 700]); // => 700
+ */
 export function best(attemptResults) {
   const nonSkipped = attemptResults.filter((attempt) => !isSkipped(attempt));
   const completeAttempts = attemptResults.filter(isComplete);
@@ -41,6 +54,16 @@ export function best(attemptResults) {
   return Math.min(...completeAttempts);
 }
 
+/**
+ * Returns the average of the given attempt results.
+ *
+ * Calculates either Mean of 3 or Average of 5 depending on
+ * the number of the given attempt results.
+ *
+ * @example
+ * average([900, -1, 700, 800, 900], '333'); // => 800
+ * average([900, -1, 700, 800, -1], '333'); // => -1
+ */
 export function average(attemptResults, eventId) {
   if (!eventId) {
     /* If eventId is omitted, the average is still calculated correctly except for FMC
@@ -99,6 +122,12 @@ function mean(x, y, z) {
   return Math.round((x + y + z) / 3);
 }
 
+/**
+ * Returns an object representation of the given MBLD attempt result.
+ *
+ * @example
+ * decodeMbldAttemptResult(900348002); // => { solved: 11, attempted: 13, centiseconds: 348000 }
+ */
 export function decodeMbldAttemptResult(value) {
   if (value <= 0) return { solved: 0, attempted: 0, centiseconds: value };
   const missed = value % 100;
@@ -110,6 +139,12 @@ export function decodeMbldAttemptResult(value) {
   return { solved, attempted, centiseconds };
 }
 
+/**
+ * Returns a MBLD attempt result based on the given object representation.
+ *
+ * @example
+ * encodeMbldAttemptResult({ solved: 11, attempted: 13, centiseconds: 348000 }); // => 900348002
+ */
 export function encodeMbldAttemptResult({ solved, attempted, centiseconds }) {
   if (centiseconds <= 0) return centiseconds;
   const missed = attempted - solved;
@@ -120,12 +155,18 @@ export function encodeMbldAttemptResult({ solved, attempted, centiseconds }) {
   return (99 - points) * 1e7 + seconds * 1e2 + missed;
 }
 
-export function mbldAttemptResultToPoints(attempt) {
-  const { solved, attempted } = decodeMbldAttemptResult(attempt);
+/**
+ * Returns the number of points for the given MBLD attempt result.
+ */
+export function mbldAttemptResultToPoints(attemptResult) {
+  const { solved, attempted } = decodeMbldAttemptResult(attemptResult);
   const missed = attempted - solved;
   return solved - missed;
 }
 
+/**
+ * Converts centiseconds to a human-friendly string.
+ */
 export function centisecondsToClockFormat(centiseconds) {
   if (!Number.isFinite(centiseconds)) {
     throw new Error(
@@ -138,6 +179,14 @@ export function centisecondsToClockFormat(centiseconds) {
     .replace(/^[0:]*(?!\.)/g, '');
 }
 
+/**
+ * Converts the given attempt result to a human-friendly string.
+ *
+ * @example
+ * formatAttemptResult(-1, '333'); // => 'DNF'
+ * formatAttemptResult(6111, '333'); // => '1:01.11'
+ * formatAttemptResult(900348002, '333mbf'); // => '11/13 58:00'
+ */
 export function formatAttemptResult(attemptResult, eventId) {
   if (attemptResult === SKIPPED_VALUE) return '';
   if (attemptResult === DNF_VALUE) return 'DNF';
@@ -165,6 +214,9 @@ function formatFmAttemptResult(attemptResult) {
     : attemptResult.toString();
 }
 
+/**
+ * Alters the given MBLD decoded value, so that it conforms to the WCA regulations.
+ */
 export function autocompleteMbldDecodedValue({
   attempted,
   solved,
@@ -185,17 +237,27 @@ export function autocompleteMbldDecodedValue({
   return { solved, attempted, centiseconds };
 }
 
+/**
+ * Alters the given FM attempt result, so that it conforms to the WCA regulations.
+ */
 export function autocompleteFmAttemptResult(moves) {
   // See https://www.worldcubeassociation.org/regulations/#E2d1
   if (moves > 80) return DNF_VALUE;
   return moves;
 }
 
+/**
+ * Alters the given time attempt result, so that it conforms to the WCA regulations.
+ */
 export function autocompleteTimeAttemptResult(time) {
   // See https://www.worldcubeassociation.org/regulations/#9f2
   return roundOver10Mins(time);
 }
 
+/**
+ * Checks the given attempt results for discrepancies and returns
+ * a warning message if some are found.
+ */
 export function attemptResultsWarning(attemptResults, eventId) {
   const skippedGapIndex = trimTrailingSkipped(attemptResults).indexOf(
     SKIPPED_VALUE
@@ -239,6 +301,9 @@ export function attemptResultsWarning(attemptResults, eventId) {
   return null;
 }
 
+/**
+ * Alters the given attempt results, so that they conform to the given time limit.
+ */
 export function applyTimeLimit(attemptResults, timeLimit) {
   if (timeLimit === null) return attemptResults;
   if (timeLimit.cumulativeRoundWcifIds.length === 0) {
@@ -246,8 +311,8 @@ export function applyTimeLimit(attemptResults, timeLimit) {
       attemptResult >= timeLimit.centiseconds ? DNF_VALUE : attemptResult
     );
   } else {
-    /* Note: for now cross-round cumulative time limits are handled
-       as single-round cumulative time limits for each of the rounds. */
+    // Note: for now cross-round cumulative time limits are handled
+    // as single-round cumulative time limits for each of the rounds.
     const [updatedAttemptResults] = attemptResults.reduce(
       ([updatedAttemptResults, sum], attemptResult) => {
         const updatedSum = attemptResult > 0 ? sum + attemptResult : sum;
@@ -263,14 +328,22 @@ export function applyTimeLimit(attemptResults, timeLimit) {
   }
 }
 
+/**
+ * Alters the given attempt results, so that they conform to the given cutoff.
+ */
 export function applyCutoff(attemptResults, cutoff) {
-  return meetsCutoff(attemptResults, cutoff)
-    ? attemptResults
-    : attemptResults.map((attemptResult, index) =>
-        index < cutoff.numberOfAttempts ? attemptResult : SKIPPED_VALUE
-      );
+  if (meetsCutoff(attemptResults, cutoff)) {
+    return attemptResults;
+  }
+
+  return attemptResults.map((attemptResult, index) =>
+    index < cutoff.numberOfAttempts ? attemptResult : SKIPPED_VALUE
+  );
 }
 
+/**
+ * Checks if the given attempt results meet the given cutoff.
+ */
 export function meetsCutoff(attemptResults, cutoff) {
   if (!cutoff) return true;
   const { numberOfAttempts, attemptResult } = cutoff;

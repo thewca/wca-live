@@ -1,3 +1,9 @@
+/**
+ * Parses the given WCIF activity code and returns its object representation.
+ *
+ * @example
+ * parseActivityCode('333-r1'); // => { type: 'official', eventId: '333', roundNumber: 1, groupName: null, attemptNumber: null }
+ */
 export function parseActivityCode(activityCode) {
   if (activityCode.startsWith('other-')) {
     return {

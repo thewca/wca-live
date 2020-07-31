@@ -5,10 +5,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import NearMeIcon from '@material-ui/icons/NearMe';
 
 import CompetitionSelect from '../CompetitionSelect/CompetitionSelect';
-import {
-  geolocationAvailable,
-  nearestCompetition,
-} from '../../lib/geolocation';
+import { geolocationAvailable } from '../../lib/geolocation';
+import { nearestCompetition } from '../../lib/competition';
 
 function HomeToolbar({ upcoming, inProgress, past }) {
   const history = useHistory();

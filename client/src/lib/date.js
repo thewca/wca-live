@@ -23,10 +23,10 @@ export function formatDateRange(startString, endString) {
 }
 
 export function formatTimeRange(startString, endString) {
-  return `${shortLocalTime(startString)} - ${shortLocalTime(endString)}`;
+  return `${formatTimeShort(startString)} - ${formatTimeShort(endString)}`;
 }
 
-export function shortLocalTime(isoString) {
+export function formatTimeShort(isoString) {
   return format(parseISO(isoString), 'HH:mm');
 }
 
@@ -34,10 +34,16 @@ export function formatDateShort(dateString) {
   return format(parseISO(dateString), 'EEEE, MMM d');
 }
 
+/**
+ * Returns a date string representing the local date corresponding to the given ISO date.
+ */
 export function toLocalDateString(isoString) {
   return format(parseISO(isoString), 'yyyy-MM-dd');
 }
 
+/**
+ * Returns system timezone.
+ */
 export function getTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
