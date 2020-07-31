@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Hidden, Grid, Typography } from '@material-ui/core';
 import CompetitorResultsTable from './CompetitorResultsTable';
 import CompetitorResultDialog from './CompetitorResultDialog';
-import { groupBy, sortByArray } from '../../lib/utils';
+import { groupBy, orderBy } from '../../lib/utils';
 
 function CompetitorResults({ results, competitionId }) {
   const [selectedResult, setSelectedResult] = useState(null);
@@ -11,9 +11,9 @@ function CompetitorResults({ results, competitionId }) {
     (result) => result.attempts.length > 0
   );
   const resultsByEventName = groupBy(
-    sortByArray(nonemptyResults, (result) => [
-      result.round.competitionEvent.event.rank,
-      result.round.number,
+    orderBy(nonemptyResults, [
+      (result) => result.round.competitionEvent.event.rank,
+      (result) => result.round.number,
     ]),
     (result) => result.round.competitionEvent.event.name
   );

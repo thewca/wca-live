@@ -1,4 +1,4 @@
-import { sortBy } from './utils';
+import { orderBy } from './utils';
 
 /* Source https://www.movable-type.co.uk/scripts/latlong.html#equirectangular */
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -21,7 +21,7 @@ export function nearestCompetition(competitions) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const [nearest] = sortBy(competitions, (competition) => {
+        const [nearest] = orderBy(competitions, (competition) => {
           const distances = competition.venues.map((venue) =>
             distanceKm(latitude, longitude, venue.latitude, venue.longitude)
           );

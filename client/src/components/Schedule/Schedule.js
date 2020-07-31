@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Grid, Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ScheduleCard from './ScheduleCard';
-import { groupBy, uniq, sortBy } from '../../lib/utils';
+import { groupBy, uniq, orderBy } from '../../lib/utils';
 import {
   formatDateShort,
   toLocalDateString,
@@ -33,7 +33,10 @@ function Schedule({ venues, competitionEvents, competitionId }) {
         eventRoundForActivityCode(competitionEvents, activity.activityCode)
     );
 
-  const sortedActivities = sortBy(activities, (activity) => activity.startTime);
+  const sortedActivities = orderBy(
+    activities,
+    (activity) => activity.startTime
+  );
 
   const dates = uniq(
     sortedActivities.map((activity) => toLocalDateString(activity.startTime))

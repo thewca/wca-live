@@ -8,7 +8,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
-import { sortBy } from '../../../lib/utils';
+import { orderBy } from '../../../lib/utils';
 import { parseISO } from 'date-fns';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
@@ -110,7 +110,7 @@ function RoundDoubleCheck() {
   if (error) return <Error error={error} />;
   const { round } = data;
 
-  const results = sortBy(
+  const results = orderBy(
     round.results,
     (result) => -parseISO(result.enteredAt)
   );
