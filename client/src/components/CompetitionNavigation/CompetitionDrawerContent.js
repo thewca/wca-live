@@ -2,7 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Divider, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import HomeIcon from '@material-ui/icons/Home';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import PeopleIcon from '@material-ui/icons/People';
 import FormatListNumberedRoundedIcon from '@material-ui/icons/FormatListNumberedRounded';
 import CompetitionEventList from './CompetitionEventList';
@@ -23,8 +23,8 @@ function CompetitionDrawerContent({ competition }) {
   return (
     <>
       <div className={classes.toolbar}>
-        <IconButton component={RouterLink} to="/" aria-label="Home page">
-          <HomeIcon />
+        <IconButton component={RouterLink} to="/" aria-label="Homepage">
+          <ArrowBackIcon />
         </IconButton>
         <IconButton
           component={RouterLink}

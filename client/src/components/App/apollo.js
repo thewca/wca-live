@@ -51,8 +51,7 @@ const httpLink =
 // Create a standard Phoenix websocket connection.
 const phoenixSocket = new PhoenixSocket(
   process.env.NODE_ENV === 'production'
-    ? // TODO: /socket -> /api (?)
-      `wss://${window.location.host}/socket`
+    ? `wss://${window.location.host}/socket`
     : 'ws://localhost:4000/socket'
 );
 

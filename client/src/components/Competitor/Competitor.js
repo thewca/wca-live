@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import { Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import wcaLogo from '../Layout/logo.svg';
+import wcaLogo from './wca-logo.svg';
 import Loading from '../Loading/Loading';
 import Error from '../Error/Error';
 import FlagIcon from '../FlagIcon/FlagIcon';

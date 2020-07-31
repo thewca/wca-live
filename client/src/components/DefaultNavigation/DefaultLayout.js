@@ -1,22 +1,9 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { gql, useQuery } from '@apollo/client';
 import { Button, Grid, Toolbar, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import logo from './logo.svg';
-import LayoutUserAvatar from './LayoutUserAvatar';
-
-const CURRENT_USER_QUERY = gql`
-  query CurrentUser {
-    currentUser {
-      id
-      name
-      avatar {
-        thumbUrl
-      }
-    }
-  }
-`;
+import UserMenuAvatar from '../UserMenuAvatar/UserMenuAvatar';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,11 +28,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Layout({ children }) {
+function DefaultLayout({ currentUser, loaded, children }) {
   const classes = useStyles();
-  const { data } = useQuery(CURRENT_USER_QUERY);
-
-  const currentUser = data ? data.currentUser : null;
 
   return (
     <div className={classes.root}>
@@ -60,10 +44,10 @@ function Layout({ children }) {
             </RouterLink>
           </Grid>
           <Grid item className={classes.grow} />
-          {data &&
+          {loaded &&
             (currentUser ? (
               <Grid item>
-                <LayoutUserAvatar user={currentUser} />
+                <UserMenuAvatar user={currentUser} />
               </Grid>
             ) : (
               <Grid item>
@@ -85,4 +69,4 @@ function Layout({ children }) {
   );
 }
 
-export default Layout;
+export default DefaultLayout;

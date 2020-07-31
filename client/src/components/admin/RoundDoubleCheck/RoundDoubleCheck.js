@@ -59,7 +59,6 @@ const ENTER_RESULT_ATTEMPTS = gql`
         attempts {
           result
         }
-        # enteredAt # TODO: updating the timestamp updates the order and that's kinda weird
       }
     }
   }

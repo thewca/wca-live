@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function LayoutUserAvatar({ user }) {
+function UserMenuAvatar({ user }) {
   const classes = useStyles();
   const [menuOpen, setMenuOpen] = useState(false);
   const anchorEl = useRef();
@@ -68,4 +68,4 @@ function LayoutUserAvatar({ user }) {
   );
 }
 
-export default LayoutUserAvatar;
+export default UserMenuAvatar;
