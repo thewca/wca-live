@@ -1,4 +1,10 @@
 defmodule WcaLive.Synchronization.CompetitionBrief do
+  @moduledoc """
+  A structure containing a small subset of competition information.
+
+  Used to represent competitions fetched from the WCA API.
+  """
+
   defstruct [:wca_id, :name, :short_name, :start_date, :end_date]
 
   @type t :: %__MODULE__{
@@ -9,6 +15,7 @@ defmodule WcaLive.Synchronization.CompetitionBrief do
           end_date: Date.t()
         }
 
+  @spec from_wca_json(map()) :: t()
   def from_wca_json(json) do
     %__MODULE__{
       wca_id: json["id"],

@@ -1,13 +1,21 @@
 defmodule WcaLive.Synchronization.Export do
+  @moduledoc false
+
   alias WcaLive.Repo
   alias WcaLive.Wcif
+  alias WcaLive.Competitions.Competition
 
+  @doc """
+  Returns WCIF representation of the given competition.
+  """
+  @spec export_competition(%Competition{}) :: map()
   def export_competition(competition) do
     competition
     |> preload_all()
     |> competition_to_wcif()
   end
 
+  # Preloads all the associations necessary for building the whole WCIF.
   defp preload_all(competition) do
     competition
     |> Repo.preload(

@@ -1,4 +1,6 @@
 defmodule WcaLive.Synchronization.Import do
+  @moduledoc false
+
   import Ecto.Query, warn: false
   import Ecto.Changeset
 
@@ -22,6 +24,12 @@ defmodule WcaLive.Synchronization.Import do
   alias WcaLive.Scoretaking.{Round, Result}
   alias WcaLive.Accounts.User
 
+  @doc """
+  Either inserts or updates the given competition and all its relevant
+  associations based on the given WCIF.
+  """
+  @spec import_competition(%Competition{} | Changeset.t(), map()) ::
+          {:ok, %Competition{}} | {:error, any()}
   def import_competition(competition, wcif) do
     Multi.new()
     |> Multi.insert_or_update(:competition, competition_changeset(competition, wcif))
