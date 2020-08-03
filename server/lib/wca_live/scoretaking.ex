@@ -434,9 +434,9 @@ defmodule WcaLive.Scoretaking do
   defp record_type_rank("average"), do: 2
 
   @type podium :: %{
-    round: %Round{},
-    results: list(%Result{})
-  }
+          round: %Round{},
+          results: list(%Result{})
+        }
 
   @spec list_podiums(%Competition{}) :: list(podium())
   def list_podiums(competition) do
@@ -448,6 +448,7 @@ defmodule WcaLive.Scoretaking do
 
     Enum.map(competition_events, fn competition_event ->
       final_round = Enum.max_by(competition_event.rounds, & &1.number)
+
       podium_results =
         final_round.results
         |> Enum.filter(fn result ->

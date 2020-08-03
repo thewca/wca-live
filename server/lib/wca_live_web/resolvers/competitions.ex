@@ -19,25 +19,31 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
 
   # TODO: think of a better cleaner solution
 
-  def competition_access(competition, _args, %{context: %{current_user: current_user, loader: loader}}) do
+  def competition_access(competition, _args, %{
+        context: %{current_user: current_user, loader: loader}
+      }) do
     loader
     |> Dataloader.load(:db, :staff_members, competition)
     |> Absinthe.Resolution.Helpers.on_load(fn loader ->
       staff_members = Dataloader.get(loader, :db, :staff_members, competition)
       competition = %{competition | staff_members: staff_members}
 
-      {:ok, %{
-        can_manage: WcaLive.Competitions.Access.can_manage_competition?(current_user, competition),
-        can_scoretake: WcaLive.Scoretaking.Access.can_scoretake_competition?(current_user, competition)
-      }}
+      {:ok,
+       %{
+         can_manage:
+           WcaLive.Competitions.Access.can_manage_competition?(current_user, competition),
+         can_scoretake:
+           WcaLive.Scoretaking.Access.can_scoretake_competition?(current_user, competition)
+       }}
     end)
   end
 
   def competition_access(_parent, _args, _resolution) do
-    {:ok, %{
-      can_manage: false,
-      can_scoretake: false
-    }}
+    {:ok,
+     %{
+       can_manage: false,
+       can_scoretake: false
+     }}
   end
 
   # Competition events

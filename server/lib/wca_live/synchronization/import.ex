@@ -25,6 +25,9 @@ defmodule WcaLive.Synchronization.Import do
   def import_competition(competition, wcif) do
     Multi.new()
     |> Multi.insert_or_update(:competition, competition_changeset(competition, wcif))
+    |> Multi.merge(fn _changes ->
+      new_users_multi(competition, wcif)
+    end)
     |> Multi.update(:update_staff_members, fn %{competition: competition} ->
       competition_staff_members_changeset(competition, wcif)
     end)
@@ -42,6 +45,37 @@ defmodule WcaLive.Synchronization.Import do
       {:ok, %{update_people: competition}} -> {:ok, competition}
       {:error, _, reason, _} -> {:error, reason}
     end
+  end
+
+  defp new_users_multi(_competition, wcif) do
+    wcif_wuids = Enum.map(wcif["persons"], & &1["wcaUserId"])
+
+    existing_wuids =
+      Repo.all(from u in User, where: u.wca_user_id in ^wcif_wuids, select: u.wca_user_id)
+
+    new_wuids = wcif_wuids -- existing_wuids
+
+    wcif["persons"]
+    |> Enum.filter(fn person -> person["wcaUserId"] in new_wuids end)
+    |> Enum.map(&wcif_person_to_user_changeset/1)
+    |> Enum.with_index()
+    |> Enum.reduce(Multi.new(), fn {user_changeset, index}, multi ->
+      Multi.insert(multi, {:user, index}, user_changeset)
+    end)
+  end
+
+  # Creates a new user changeset based on WCIF Person.
+  # The user has all the necessary information except for access token,
+  # which is created when the physical user signs in using OAuth.
+  defp wcif_person_to_user_changeset(wcif_person) do
+    User.changeset(%User{}, %{
+      wca_user_id: wcif_person["wcaUserId"],
+      name: wcif_person["name"],
+      wca_id: wcif_person["wcaId"],
+      country_iso2: wcif_person["countryIso2"],
+      avatar_url: wcif_person["avatar"]["url"],
+      avatar_thumb_url: wcif_person["avatar"]["thumbUrl"]
+    })
   end
 
   # Builds a changeset with updated competition staff members.
@@ -120,8 +154,7 @@ defmodule WcaLive.Synchronization.Import do
             &(&1.user.wca_user_id == staff_wca_user_id)
           )
 
-        new_user = wcif_person && wcif_person_to_user_changeset(wcif_person)
-        user = Enum.find(users, new_user, &(&1.wca_user_id == staff_wca_user_id))
+        user = Enum.find(users, &(&1.wca_user_id == staff_wca_user_id))
 
         new_wcif_roles =
           if(wcif_person, do: wcif_person["roles"], else: []) |> staff_roles() |> MapSet.new()
@@ -160,20 +193,6 @@ defmodule WcaLive.Synchronization.Import do
 
   defp staff_roles(new_wcif_roles) do
     Enum.filter(new_wcif_roles, &StaffMember.valid_staff_role?/1)
-  end
-
-  # Creates a new user changeset based on WCIF Person.
-  # The user has all the necessary information except for access token,
-  # which is created when the physical user signins in using OAuth.
-  defp wcif_person_to_user_changeset(wcif_person) do
-    User.changeset(%User{}, %{
-      wca_user_id: wcif_person["wcaUserId"],
-      name: wcif_person["name"],
-      wca_id: wcif_person["wcaId"],
-      country_iso2: wcif_person["countryIso2"],
-      avatar_url: wcif_person["avatar"]["url"],
-      avatar_thumb_url: wcif_person["avatar"]["thumbUrl"]
-    })
   end
 
   # Note: the top-level functions preload associations for efficiency reasons,

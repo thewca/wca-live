@@ -93,7 +93,8 @@ defmodule WcaLive.Synchronization.Export do
       "qualification" =>
         competition_event.qualification &&
           competition_event.qualification |> qualification_to_wcif(),
-      "rounds" => competition_event.rounds |> Enum.sort_by(& &1.number) |> Enum.map(&round_to_wcif/1)
+      "rounds" =>
+        competition_event.rounds |> Enum.sort_by(& &1.number) |> Enum.map(&round_to_wcif/1)
     }
   end
 

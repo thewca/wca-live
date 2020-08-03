@@ -26,6 +26,7 @@ defmodule WcaLiveWeb.AuthController do
   if Mix.env() == :prod do
     defp redirect_to_app(conn, to: path), do: redirect(conn, to: path)
   else
-    defp redirect_to_app(conn, to: path), do: redirect(conn, external: "http://localhost:3000" <> path)
+    defp redirect_to_app(conn, to: path),
+      do: redirect(conn, external: "http://localhost:3000" <> path)
   end
 end

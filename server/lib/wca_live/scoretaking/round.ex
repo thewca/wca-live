@@ -139,6 +139,6 @@ defmodule WcaLive.Scoretaking.Round do
     from r in query,
       where:
         r.competition_event_id == ^round.competition_event_id and
-        r.number == ^(round.number + offset)
+          r.number == ^(round.number + offset)
   end
 end
