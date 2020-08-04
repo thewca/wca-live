@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => ({
 function sortResults(results, orderBy, order) {
   if (orderBy === null) return results;
   return results.slice().sort((result1, result2) => {
-    if (orderBy === 'id') {
-      const value = result1.person.id - result2.person.id;
+    if (orderBy === 'registrantId') {
+      const value = result1.person.registrantId - result2.person.registrantId;
       return order === 'asc' ? value : -value;
     }
     if (orderBy === 'name') {
@@ -78,9 +78,9 @@ const AdminResultsTable = React.memo(
             </TableCell>
             <TableCell align="right">
               <TableSortLabel
-                active={orderBy === 'id'}
+                active={orderBy === 'registrantId'}
                 direction={order}
-                onClick={() => handleSortClick('id')}
+                onClick={() => handleSortClick('registrantId')}
               >
                 ID
               </TableSortLabel>
@@ -122,7 +122,7 @@ const AdminResultsTable = React.memo(
               >
                 {result.ranking}
               </TableCell>
-              <TableCell align="right">{result.person.id}</TableCell>
+              <TableCell align="right">{result.person.registrantId}</TableCell>
               <TableCell>{result.person.name}</TableCell>
               {paddedAttemptResults(result, format.numberOfAttempts).map(
                 (attemptResult, index) => (

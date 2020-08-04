@@ -79,7 +79,7 @@ defmodule WcaLive.Competitions.Competition do
     if Wcif.ActivityCode.round?(activity_code) do
       %{event_id: event_id, round_number: round_number} = activity_code
       competition_event = competition.competition_events |> Enum.find(&(&1.event_id == event_id))
-      competition_event.rounds |> Enum.find(&(&1.number == round_number))
+      competition_event && Enum.find(competition_event.rounds, &(&1.number == round_number))
     else
       nil
     end

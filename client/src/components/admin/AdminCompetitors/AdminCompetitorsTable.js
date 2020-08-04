@@ -39,7 +39,7 @@ function searchCompetitors(competitors, search) {
       competitor.name,
       competitor.wcaId,
       competitor.country.name,
-      competitor.id.toString(),
+      competitor.registrantId.toString(),
     ];
     const parts = search.toLowerCase().split(/\s+/);
     return parts.every((part) =>
@@ -110,7 +110,7 @@ const AdminCompetitorsTable = React.memo(
             <TableBody>
               {displayedCompetitors.map((person) => (
                 <TableRow key={person.id} hover className={classes.row}>
-                  <TableCell align="right">{person.id}</TableCell>
+                  <TableCell align="right">{person.registrantId}</TableCell>
                   <TableCell>
                     <Link
                       component={RouterLink}

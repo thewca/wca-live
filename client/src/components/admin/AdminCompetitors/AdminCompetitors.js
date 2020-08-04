@@ -12,6 +12,7 @@ const COMPETITORS_QUERY = gql`
       id
       competitors {
         id
+        registrantId
         name
         wcaId
         country {
