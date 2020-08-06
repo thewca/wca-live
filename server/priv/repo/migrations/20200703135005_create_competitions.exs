@@ -12,7 +12,6 @@ defmodule WcaLive.Repo.Migrations.CreateCompetitions do
       add :end_time, :utc_datetime, null: false
       add :competitor_limit, :integer
       add :synchronized_at, :utc_datetime, null: false
-      add :encrypted_password, :string
       add :imported_by_id, references(:users, on_delete: :nothing), null: false
 
       timestamps()

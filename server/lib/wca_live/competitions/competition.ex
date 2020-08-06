@@ -15,7 +15,7 @@ defmodule WcaLive.Competitions.Competition do
     :end_time,
     :start_time
   ]
-  @optional_fields [:competitor_limit, :encrypted_password]
+  @optional_fields [:competitor_limit]
 
   schema "competitions" do
     field :wca_id, :string
@@ -27,7 +27,6 @@ defmodule WcaLive.Competitions.Competition do
     field :end_time, :utc_datetime
     field :competitor_limit, :integer
     field :synchronized_at, :utc_datetime
-    field :encrypted_password, :string
 
     belongs_to :imported_by, User
     has_many :competition_events, CompetitionEvent, on_replace: :delete
