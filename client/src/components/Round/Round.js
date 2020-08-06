@@ -73,9 +73,21 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
 function Round() {
   const { competitionId, roundId } = useParams();
 
-  const { data, loading, error, subscribeToMore } = useQuery(ROUND_QUERY, {
-    variables: { id: roundId },
-  });
+  const { data: newData, loading, error, subscribeToMore } = useQuery(
+    ROUND_QUERY,
+    {
+      variables: { id: roundId },
+    }
+  );
+
+  const [previousData, setPreviousData] = React.useState(undefined);
+
+  useEffect(() => {
+    if (newData) setPreviousData(newData);
+  }, [newData]);
+
+  // When the round changes, show the old data until the new is loaded.
+  const data = newData || previousData;
 
   const shouldSubscribe =
     data && data.round && (!data.round.finished || data.round.active);
@@ -90,7 +102,7 @@ function Round() {
     }
   }, [subscribeToMore, roundId, shouldSubscribe]);
 
-  if (loading && !data) return <Loading />;
+  if (!data) return <Loading />;
   if (error) return <Error error={error} />;
   const { round } = data;
 

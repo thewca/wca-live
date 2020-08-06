@@ -1,25 +1,57 @@
-import React, { useState, useCallback } from 'react';
-import { Hidden } from '@material-ui/core';
-
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Hidden, Button, Grid } from '@material-ui/core';
 import RoundResultsTable from './RoundResultsTable';
 import RoundResultDialog from './RoundResultDialog';
 
+const DEFAULT_VISIBLE_RESULTS = 100;
+
 function RoundResults({ results, format, eventId, competitionId }) {
   const [selectedResult, setSelectedResult] = useState(null);
+  const [showAll, setShowAll] = useState(
+    results.length <= DEFAULT_VISIBLE_RESULTS
+  );
+
+  useEffect(() => {
+    setShowAll(results.length <= DEFAULT_VISIBLE_RESULTS);
+  }, [results]);
 
   const handleResultClick = useCallback((result) => {
     setSelectedResult(result);
   }, []);
 
+  const visibleResults = useMemo(() => {
+    if (showAll) {
+      return results;
+    } else {
+      return results.slice(0, DEFAULT_VISIBLE_RESULTS);
+    }
+  }, [results, showAll]);
+
   return (
     <>
-      <RoundResultsTable
-        results={results}
-        format={format}
-        eventId={eventId}
-        competitionId={competitionId}
-        onResultClick={handleResultClick}
-      />
+      <Grid container direction="column" alignItems="center" spacing={2}>
+        <Grid item style={{ width: '100%' }}>
+          <RoundResultsTable
+            results={visibleResults}
+            format={format}
+            eventId={eventId}
+            competitionId={competitionId}
+            onResultClick={handleResultClick}
+          />
+        </Grid>
+        {!showAll && (
+          <Grid item>
+            <Button
+              variant="contained"
+              disableElevation
+              size="small"
+              onClick={() => setShowAll(true)}
+            >
+              {results.length - DEFAULT_VISIBLE_RESULTS} more
+            </Button>
+          </Grid>
+        )}
+      </Grid>
       <Hidden smUp>
         <RoundResultDialog
           result={selectedResult}
