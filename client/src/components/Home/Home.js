@@ -9,6 +9,7 @@ import HomeToolbar from './HomeToolbar';
 import Loading from '../Loading/Loading';
 import RecordList from '../RecordList/RecordList';
 import { isUpcoming, isInProgress, isPast } from '../../lib/competition';
+import { orderBy } from '../../lib/utils';
 
 const COMPETITIONS_QUERY = gql`
   query Competitions {
@@ -86,11 +87,16 @@ function Home() {
 
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
-  const { competitions, recentRecords } = data;
+  const { recentRecords } = data;
+
+  const competitions = orderBy(data.competitions, [
+    (competition) => competition.startTime,
+    (competition) => competition.endTime,
+  ]);
 
   const upcoming = competitions.filter(isUpcoming);
   const inProgress = competitions.filter(isInProgress);
-  const past = competitions.filter(isPast);
+  const past = competitions.filter(isPast).reverse();
 
   return (
     <>
