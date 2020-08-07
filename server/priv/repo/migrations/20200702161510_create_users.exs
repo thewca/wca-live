@@ -3,6 +3,7 @@ defmodule WcaLive.Repo.Migrations.CreateUsers do
 
   def change do
     create table(:users) do
+      add :email, :string, null: false
       add :wca_user_id, :integer, null: false
       add :name, :string, null: false
       add :wca_id, :string

@@ -7,10 +7,11 @@ defmodule WcaLive.Accounts.User do
 
   @admin_teams ["wrt", "wst"]
 
-  @required_fields [:wca_user_id, :name, :wca_teams]
+  @required_fields [:email, :wca_user_id, :name, :wca_teams]
   @optional_fields [:wca_id, :avatar_url, :avatar_thumb_url, :country_iso2]
 
   schema "users" do
+    field :email, :string
     field :wca_user_id, :integer
     field :name, :string
     field :wca_id, :string
@@ -35,6 +36,7 @@ defmodule WcaLive.Accounts.User do
 
   def wca_json_to_attrs(json) do
     %{
+      email: json["email"],
       wca_user_id: json["id"],
       name: json["name"],
       wca_id: json["wca_id"],

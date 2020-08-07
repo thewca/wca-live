@@ -5,7 +5,7 @@ defmodule WcaLiveWeb.AuthController do
   alias WcaLive.Accounts
 
   def authorize(conn, _params) do
-    url = Wca.OAuth.authorize_url("public manage_competitions")
+    url = Wca.OAuth.authorize_url("public manage_competitions email")
     redirect(conn, external: url)
   end
 

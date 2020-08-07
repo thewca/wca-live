@@ -77,6 +77,7 @@ defmodule WcaLive.Synchronization.Import do
   # which is created when the physical user signs in using OAuth.
   defp wcif_person_to_user_changeset(wcif_person) do
     User.changeset(%User{}, %{
+      email: wcif_person["email"],
       wca_user_id: wcif_person["wcaUserId"],
       name: wcif_person["name"],
       wca_id: wcif_person["wcaId"],
