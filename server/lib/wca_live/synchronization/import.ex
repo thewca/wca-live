@@ -234,7 +234,9 @@ defmodule WcaLive.Synchronization.Import do
     |> change()
     |> build_assoc(:competition_events, wcif["events"],
       with: &competition_event_changeset(&1, &2, competition),
-      equality: fn competition_event, wcif_event -> competition_event.event_id == wcif_event["id"] end
+      equality: fn competition_event, wcif_event ->
+        competition_event.event_id == wcif_event["id"]
+      end
     )
   end
 
@@ -505,7 +507,9 @@ defmodule WcaLive.Synchronization.Import do
       |> Enum.map(fn competition_event ->
         Enum.find(competition_event.rounds, &(&1.number == 1))
       end)
-      |> Enum.filter(fn round -> round != nil and Round.open?(round) and not Round.finished?(round) end)
+      |> Enum.filter(fn round ->
+        round != nil and Round.open?(round) and not Round.finished?(round)
+      end)
       |> Enum.filter(fn round ->
         not Enum.any?(person.results, fn result -> result.round_id == round.id end)
       end)

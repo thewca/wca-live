@@ -51,6 +51,10 @@ defmodule WcaLive.Competitions.Person do
   def competitor?(%Person{registration: %{status: _other}}), do: false
   def competitor?(%Person{registration: nil}), do: false
 
+  def latin_name(person) do
+    String.replace(person.name, ~r/\s*[(（].*/, "")
+  end
+
   def where_competitor(query) do
     from p in query,
       join: r in assoc(p, :registration),

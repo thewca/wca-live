@@ -90,6 +90,27 @@ defmodule WcaLive.Scoretaking.Result do
 
   def empty?(result), do: length(result.attempts) == 0
 
+  def ordered_result_stats(event_id, format) do
+    best_stat = %{name: "Best", field: :best, record_tag_field: :single_record_tag}
+    average_name = if format.number_of_attempts == 3, do: "Mean", else: "Average"
+    average_stat = %{name: average_name, field: :average, record_tag_field: :average_record_tag}
+
+    if should_compute_average?(event_id, format) do
+      case format.sort_by do
+        :best -> [best_stat, average_stat]
+        :average -> [average_stat, best_stat]
+      end
+    else
+      [best_stat]
+    end
+  end
+
+  defp should_compute_average?("333mbf", _format), do: false
+
+  defp should_compute_average?(_event_id, %{number_of_attempts: number_of_attempts}) do
+    number_of_attempts in [3, 5]
+  end
+
   def order_by_ranking(query) do
     from r in query,
       join: p in assoc(r, :person),

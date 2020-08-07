@@ -1,7 +1,7 @@
 defmodule WcaLive.Scoretaking.AttemptResult do
   @skipped_value 0
   @dnf_value -1
-  # @dns_value -2
+  @dns_value -2
 
   def better?(attempt_result1, attempt_result2) do
     to_monotonic(attempt_result1) <= to_monotonic(attempt_result2)
@@ -86,4 +86,65 @@ defmodule WcaLive.Scoretaking.AttemptResult do
   end
 
   defp mean([x, y, z]), do: round((x + y + z) / 3)
+
+  def format(@skipped_value, _event_id), do: ""
+  def format(@dnf_value, _event_id), do: "DNF"
+  def format(@dns_value, _event_id), do: "DNS"
+
+  def format(attempt_result, "333mbf") do
+    %{solved: solved, attempted: attempted, centiseconds: centiseconds} =
+      decode_mbld_attempt_result(attempt_result)
+
+    clock_format = centiseconds_to_clock_format(centiseconds)
+    short_clock_format = String.trim_trailing(clock_format, ".00")
+    "#{solved}/#{attempted} #{short_clock_format}"
+  end
+
+  def format(attempt_result, "333fm") do
+    # Note: FM singles are stored as the number of moves (e.g. 25),
+    # while averages are stored with 2 decimal places (e.g. 2533 for an average of 25.33 moves).
+    is_average? = attempt_result >= 1000
+
+    if is_average? do
+      to_string(attempt_result / 100)
+    else
+      to_string(attempt_result)
+    end
+  end
+
+  def format(attempt_result, _event_id) do
+    centiseconds_to_clock_format(attempt_result)
+  end
+
+  defp centiseconds_to_clock_format(centiseconds) do
+    hours = centiseconds |> div(360_000)
+    minutes = centiseconds |> rem(360_000) |> div(6_000)
+    seconds = centiseconds |> rem(6_000) |> div(100)
+    centis = centiseconds |> rem(100)
+
+    full_formatted =
+      "#{pad_zeros(hours)}:#{pad_zeros(minutes)}:#{pad_zeros(seconds)}.#{pad_zeros(centis)}"
+
+    String.replace(full_formatted, ~r/^[0:]*(?!\.)/, "", global: true)
+  end
+
+  defp pad_zeros(n) do
+    n |> to_string() |> String.pad_leading(2, "0")
+  end
+
+  # Returns an object representation of the given MBLD attempt result.
+  defp decode_mbld_attempt_result(value) when value <= 0 do
+    %{solved: 0, attempted: 0, centiseconds: value}
+  end
+
+  defp decode_mbld_attempt_result(value) do
+    missed = rem(value, 100)
+    seconds = value |> div(100) |> rem(100_000)
+    points = 99 - (value |> div(10_000_000) |> rem(100))
+    solved = points + missed
+    attempted = solved + missed
+    centiseconds = if seconds == 99_999, do: nil, else: seconds * 100
+
+    %{solved: solved, attempted: attempted, centiseconds: centiseconds}
+  end
 end

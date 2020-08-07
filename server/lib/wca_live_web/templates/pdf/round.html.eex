@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title><%= @event.name %> - <%= Round.name(@round) %></title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+
+      .title {
+        color: rgba(0, 0, 0, 0.87);
+        font-size: 32px;
+        margin-bottom: 4px;
+      }
+
+      .subtitle {
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 26px;
+        margin-bottom: 16px;
+      }
+
+      .results-table {
+        width: 100%;
+        border-spacing: 0;
+      }
+
+      // See https://github.com/wkhtmltopdf/wkhtmltopdf/issues/3356
+      // Still not perfect though.
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+
+      .results-table th,
+      .results-table td {
+        padding: 6px 8px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+      }
+
+      .results-table th {
+        font-size: 16px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.54);
+      }
+
+      .results-table td {
+        font-size: 20px;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      .results-table .right {
+        text-align: right;
+      }
+
+      .results-table .advancing {
+        background-color: #00e676;
+      }
+
+      .results-table .main-stat {
+        font-weight: 600;
+      }
+
+      .record-tag {
+        font-weight: 600;
+        display: inline-block;
+        padding: 0 4px;
+        text-align: center;
+      }
+
+      .record-tag.WR {
+        background-color: #f44336;
+      }
+
+      .record-tag.CR {
+        background-color: #ffeb3b;
+      }
+
+      .record-tag.NR {
+        background-color: #00e676;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title">
+      <%= @round.competition_event.competition.name %>
+    </div>
+    <div class="subtitle">
+      <%= @event.name %> - <%= Round.name(@round) %>
+    </div>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th class="right">
+            #
+          </th>
+          <th>
+            Name
+          </th>
+          <th>
+            Country
+          </th>
+          <%= for n <- 1..@format.number_of_attempts do %>
+            <th class="right">
+              <%= n %>
+            </th>
+          <% end %>
+          <%= for stat <- @stats do %>
+            <th class="right">
+              <%= stat.name %>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for result <- @round.results do %>
+          <% country = Wca.Country.get_by_iso2!(result.person.country_iso2) %>
+          <% attempt_results = result.attempts
+            |> Enum.map(& &1.result)
+            |> AttemptResult.pad_skipped(@format.number_of_attempts) %>
+
+          <tr>
+            <td class="right <%= if result.advancing, do: "advancing" %>">
+              <%= result.ranking %>
+            </td>
+            <td>
+              <%= Person.latin_name(result.person) %>
+            </td>
+            <td>
+              <%= country.name %>
+            </td>
+            <%= for attempt_result <- attempt_results do %>
+              <td class="right">
+                <%= AttemptResult.format(attempt_result, @event.id) %>
+              </td>
+            <% end %>
+            <%= for stat <- @stats do %>
+              <% record_tag = Map.fetch!(result, stat.record_tag_field) %>
+              <td class="right <%= if stat == hd(@stats), do: "main-stat" %>">
+                <%= if record_tag in ["WR", "CR", "NR"] do %>
+                  <span class="record-tag <%= record_tag %>">
+                    <%= record_tag %>
+                  </span>
+                <% end %>
+                <%= AttemptResult.format(Map.fetch!(result, stat.field), @event.id) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </body>
+</html>

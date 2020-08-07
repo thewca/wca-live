@@ -14,6 +14,10 @@ defmodule WcaLiveWeb.Router do
     get "/callback", AuthController, :callback
   end
 
+  scope "/pdfs", WcaLiveWeb do
+    get "/round/:id", PdfController, :round
+  end
+
   scope "/api" do
     pipe_through :api
     pipe_through :graphql
