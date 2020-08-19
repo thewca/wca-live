@@ -12,6 +12,7 @@ defmodule WcaLive.Wca.RecordsStore do
         }
 
   @state_path "tmp/record-store.data"
+  @update_interval_sec 1 * 60 * 60
 
   # Client API
 
@@ -27,9 +28,14 @@ defmodule WcaLive.Wca.RecordsStore do
 
   @impl true
   def init(_) do
-    schedule_update()
+    state = get_initial_state!()
 
-    {:ok, get_initial_state!()}
+    updated_ago = DateTime.diff(DateTime.utc_now(), state.updated_at, :second)
+    update_in = max(@update_interval_sec - updated_ago, 0)
+
+    schedule_update(update_in)
+
+    {:ok, state}
   end
 
   @impl true
@@ -42,19 +48,19 @@ defmodule WcaLive.Wca.RecordsStore do
     case update_state() do
       {:ok, new_state} ->
         log("Updated records.")
-        schedule_update()
+        schedule_update(@update_interval_sec)
         {:noreply, new_state}
 
       {:error, error} ->
         log("Update failed: #{error}.")
-        schedule_update()
+        schedule_update(@update_interval_sec)
         {:noreply, state}
     end
   end
 
-  defp schedule_update do
+  defp schedule_update(seconds) do
     # In 1 hour
-    Process.send_after(self(), :update, 1 * 60 * 60 * 1000)
+    Process.send_after(self(), :update, seconds * 1000)
   end
 
   # Internal state management
