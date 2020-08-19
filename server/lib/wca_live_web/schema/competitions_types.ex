@@ -91,7 +91,7 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :wca_id, :string
 
     @desc "A small number, unique within the given competition, useful for scoretaking. " <>
-            "Note: may be null for people who doesn't actually compete."
+            "Note: may be null for people who don't actually compete."
     field :registrant_id, :integer
     field :name, :string
 

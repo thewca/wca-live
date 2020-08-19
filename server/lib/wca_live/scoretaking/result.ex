@@ -35,7 +35,9 @@ defmodule WcaLive.Scoretaking.Result do
     |> cast_embed(:attempts)
     |> compute_best_and_average(event_id, number_of_attempts)
     |> validate_required(@required_fields)
+    |> validate_length(:attempts, max: number_of_attempts)
     |> validate_no_trailing_skipped()
+    |> validate_not_all_dns(number_of_attempts)
   end
 
   defp compute_best_and_average(changeset, event_id, number_of_attempts) do
@@ -52,15 +54,27 @@ defmodule WcaLive.Scoretaking.Result do
   end
 
   defp validate_no_trailing_skipped(changeset) do
-    attempt_changesets = get_change(changeset, :attempts)
+    %{attempts: attempts} = apply_changes(changeset)
+    last_attempt = List.last(attempts)
 
-    last_attempt_result =
-      if attempt_changesets && length(attempt_changesets) > 0 do
-        attempt_changesets |> List.last() |> get_change(:result)
-      end
-
-    if last_attempt_result && AttemptResult.skipped?(last_attempt_result) do
+    if last_attempt && AttemptResult.skipped?(last_attempt.result) do
       add_error(changeset, :attempts, "can't have trailing skipped attempt result")
+    else
+      changeset
+    end
+  end
+
+  defp validate_not_all_dns(changeset, number_of_attempts) do
+    %{attempts: attempts} = apply_changes(changeset)
+    attempt_results = Enum.map(attempts, & &1.result)
+
+    if length(attempt_results) == number_of_attempts and
+         Enum.all?(attempt_results, &AttemptResult.dns?/1) do
+      add_error(
+        changeset,
+        :attempts,
+        "can't all be DNS, remove the competitor from this round instead"
+      )
     else
       changeset
     end

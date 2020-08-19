@@ -20,6 +20,10 @@ defmodule WcaLive.Scoretaking.AttemptResult do
 
   def skipped?(attempt_result), do: attempt_result == @skipped_value
 
+  def dnf?(attempt_result), do: attempt_result == @dnf_value
+
+  def dns?(attempt_result), do: attempt_result == @dns_value
+
   def pad_skipped(attempt_results, number_of_attempts)
       when length(attempt_results) > number_of_attempts do
     Enum.take(attempt_results, number_of_attempts)
