@@ -83,4 +83,8 @@ defmodule WcaLive.Competitions.Competition do
       nil
     end
   end
+
+  def over?(competition) do
+    DateTime.compare(DateTime.utc_now(), competition.end_time) == :gt
+  end
 end

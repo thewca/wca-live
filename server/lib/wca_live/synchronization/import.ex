@@ -403,38 +403,47 @@ defmodule WcaLive.Synchronization.Import do
   defp person_changeset(person, wcif_person, competition) do
     person = Repo.preload(person, [:results, :registration, :personal_bests, :assignments])
 
-    person
-    |> Person.changeset(%{
-      registrant_id: wcif_person["registrantId"],
-      name: wcif_person["name"],
-      wca_user_id: wcif_person["wcaUserId"],
-      wca_id: wcif_person["wcaId"],
-      country_iso2: wcif_person["countryIso2"],
-      gender: wcif_person["gender"],
-      birthdate: wcif_person["birthdate"],
-      email: wcif_person["email"],
-      avatar_url: wcif_person["avatar"]["url"],
-      avatar_thumb_url: wcif_person["avatar"]["thumbUrl"],
-      roles: person_roles(person, wcif_person, competition)
-    })
-    |> build_assoc(:registration, wcif_person["registration"],
-      with: &registration_changeset(&1, &2, competition)
-    )
-    |> build_assoc(:personal_bests, wcif_person["personalBests"],
-      with: &personal_best_changeset(&1, &2, competition),
-      equality: fn personal_best, wcif_personal_best ->
-        personal_best.event_id == wcif_personal_best["eventId"] and
-          personal_best.type == wcif_personal_best["type"]
-      end
-    )
-    |> build_assoc(:assignments, wcif_person["assignments"],
-      with: &assignment_changeset(&1, &2, competition),
-      equality: fn assignment, wcif_assignment ->
-        assignment.activity.wcif_id == wcif_assignment["activityId"] and
-          assignment.assignment_code == wcif_assignment["assignmentCode"]
-      end
-    )
-    |> put_assoc(:results, person_results(person, wcif_person, competition))
+    changeset =
+      person
+      |> Person.changeset(%{
+        registrant_id: wcif_person["registrantId"],
+        name: wcif_person["name"],
+        wca_user_id: wcif_person["wcaUserId"],
+        wca_id: wcif_person["wcaId"],
+        country_iso2: wcif_person["countryIso2"],
+        gender: wcif_person["gender"],
+        birthdate: wcif_person["birthdate"],
+        email: wcif_person["email"],
+        avatar_url: wcif_person["avatar"]["url"],
+        avatar_thumb_url: wcif_person["avatar"]["thumbUrl"],
+        roles: person_roles(person, wcif_person, competition)
+      })
+      |> build_assoc(:registration, wcif_person["registration"],
+        with: &registration_changeset(&1, &2, competition)
+      )
+      |> build_assoc(:assignments, wcif_person["assignments"],
+        with: &assignment_changeset(&1, &2, competition),
+        equality: fn assignment, wcif_assignment ->
+          assignment.activity.wcif_id == wcif_assignment["activityId"] and
+            assignment.assignment_code == wcif_assignment["assignmentCode"]
+        end
+      )
+      |> put_assoc(:results, person_results(person, wcif_person, competition))
+
+    if Competition.over?(competition) do
+      # Don't update personal bests once the competition is over,
+      # so they stay relevant to the competition date.
+      changeset
+    else
+      changeset
+      |> build_assoc(:personal_bests, wcif_person["personalBests"],
+        with: &personal_best_changeset(&1, &2, competition),
+        equality: fn personal_best, wcif_personal_best ->
+          personal_best.event_id == wcif_personal_best["eventId"] and
+            personal_best.type == wcif_personal_best["type"]
+        end
+      )
+    end
   end
 
   defp person_roles(_person, wcif_person, competition) do
