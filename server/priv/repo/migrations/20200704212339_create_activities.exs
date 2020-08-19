@@ -10,7 +10,7 @@ defmodule WcaLive.Repo.Migrations.CreateActivities do
       add :end_time, :utc_datetime, null: false
       add :room_id, references(:rooms, on_delete: :delete_all)
       add :activity_id, references(:activities, on_delete: :delete_all)
-      add :round_id, references(:rounds, on_delete: :nothing)
+      add :round_id, references(:rounds, on_delete: :nilify_all)
     end
 
     create index(:activities, [:room_id])

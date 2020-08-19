@@ -10,7 +10,7 @@ defmodule WcaLive.Repo.Migrations.CreateResults do
       add :single_record_tag, :string
       add :average_record_tag, :string
       add :advancing, :boolean, null: false, default: false
-      add :person_id, references(:people, on_delete: :restrict), null: false
+      add :person_id, references(:people, on_delete: :nothing), null: false
       add :round_id, references(:rounds, on_delete: :delete_all), null: false
       add :entered_by_id, references(:users, on_delete: :nothing)
       add :entered_at, :utc_datetime
