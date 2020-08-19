@@ -66,8 +66,8 @@ defmodule WcaLive.Competitions.Competition do
 
   def find_activity_by_wcif_id(%Activity{wcif_id: wcif_id} = activity, wcif_id), do: activity
 
-  def find_activity_by_wcif_id(%Activity{activities: activities}, wcif_id) do
-    activities |> Enum.find_value(&find_activity_by_wcif_id(&1, wcif_id))
+  def find_activity_by_wcif_id(%Activity{child_activities: child_activities}, wcif_id) do
+    child_activities |> Enum.find_value(&find_activity_by_wcif_id(&1, wcif_id))
   end
 
   def find_round_by_activity_code(competition, activity_code) when is_binary(activity_code) do

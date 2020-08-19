@@ -244,7 +244,9 @@ defmodule WcaLive.Synchronization.Import do
     competition =
       Repo.preload(competition,
         competition_events: [:rounds],
-        venues: [rooms: [activities: [:round, activities: [:round, activities: [:round]]]]]
+        venues: [
+          rooms: [activities: [:round, child_activities: [:round, child_activities: [:round]]]]
+        ]
       )
 
     competition
@@ -259,7 +261,7 @@ defmodule WcaLive.Synchronization.Import do
     competition =
       Repo.preload(competition,
         competition_events: [rounds: [:results]],
-        venues: [rooms: [activities: [:activities]]],
+        venues: [rooms: [activities: [:child_activities]]],
         people: [
           :results,
           :personal_bests,
@@ -381,7 +383,7 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp activity_changeset(activity, wcif_activity, competition) do
-    activity = Repo.preload(activity, :activities)
+    activity = Repo.preload(activity, :child_activities)
 
     round = Competition.find_round_by_activity_code(competition, wcif_activity["activityCode"])
 
@@ -393,7 +395,7 @@ defmodule WcaLive.Synchronization.Import do
       start_time: wcif_activity["startTime"],
       end_time: wcif_activity["endTime"]
     })
-    |> build_assoc(:activities, wcif_activity["childActivities"],
+    |> build_assoc(:child_activities, wcif_activity["childActivities"],
       with: &activity_changeset(&1, &2, competition),
       equality: fn activity, wcif_activity -> activity.wcif_id == wcif_activity["id"] end
     )

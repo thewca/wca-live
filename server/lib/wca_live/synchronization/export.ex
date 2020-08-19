@@ -20,7 +20,9 @@ defmodule WcaLive.Synchronization.Export do
     competition
     |> Repo.preload(
       competition_events: [rounds: [:competition_event, results: [:person]]],
-      venues: [rooms: [activities: [:round, [activities: [:round, [activities: [:round]]]]]]],
+      venues: [
+        rooms: [activities: [:round, [child_activities: [:round, [child_activities: [:round]]]]]]
+      ],
       people: [:personal_bests, registration: :competition_events, assignments: [:activity]]
     )
   end
@@ -203,7 +205,7 @@ defmodule WcaLive.Synchronization.Export do
       "activityCode" => activity.activity_code,
       "startTime" => activity.start_time |> DateTime.to_iso8601(),
       "endTime" => activity.end_time |> DateTime.to_iso8601(),
-      "childActivities" => activity.activities |> Enum.map(&activity_to_wcif/1)
+      "childActivities" => activity.child_activities |> Enum.map(&activity_to_wcif/1)
       # "scrambleSetId" => nil # ignored for now
     }
   end

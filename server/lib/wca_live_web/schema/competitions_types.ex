@@ -175,7 +175,7 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :start_time, non_null(:datetime)
     field :end_time, non_null(:datetime)
 
-    field :activities, non_null(list_of(non_null(:activity))) do
+    field :child_activities, non_null(list_of(non_null(:activity))) do
       resolve dataloader(:db)
     end
 

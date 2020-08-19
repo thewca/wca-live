@@ -14,9 +14,10 @@ defmodule WcaLive.Competitions.Activity do
     field :start_time, :utc_datetime
     field :end_time, :utc_datetime
 
+    # Note: an activity belongs either to room or to parent activity, not both.
     belongs_to :room, Room
-    belongs_to :activity, Activity
-    has_many :activities, Activity, on_replace: :delete
+    belongs_to :parent_activity, Activity
+    has_many :child_activities, Activity, foreign_key: :parent_activity_id, on_replace: :delete
     has_many :assignments, Assignment
 
     belongs_to :round, Round
