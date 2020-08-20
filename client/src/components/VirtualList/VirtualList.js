@@ -2,8 +2,8 @@ import React from 'react';
 import { FixedSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-function VirtualList({ maxHeight, itemHeigh, items, renderItem }) {
-  const height = Math.min(maxHeight, items.length * itemHeigh);
+function VirtualList({ maxHeight, itemHeight, items, renderItem }) {
+  const height = Math.min(maxHeight, items.length * itemHeight);
 
   return (
     <div style={{ height }}>
@@ -12,7 +12,7 @@ function VirtualList({ maxHeight, itemHeigh, items, renderItem }) {
           <FixedSizeList
             height={height}
             width={width}
-            itemSize={itemHeigh}
+            itemSize={itemHeight}
             itemCount={items.length}
           >
             {({ index, style }) => renderItem(items[index], { style })}

@@ -19,5 +19,6 @@ defmodule WcaLive.Repo.Migrations.CreateCompetitions do
 
     create index(:competitions, [:imported_by_id])
     create unique_index(:competitions, [:wca_id])
+    create index(:competitions, [:start_date])
   end
 end

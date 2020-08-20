@@ -10,10 +10,11 @@ import Loading from '../Loading/Loading';
 import RecordList from '../RecordList/RecordList';
 import { isUpcoming, isInProgress, isPast } from '../../lib/competition';
 import { orderBy } from '../../lib/utils';
+import { monthAgoDateString } from '../../lib/date';
 
 const COMPETITIONS_QUERY = gql`
-  query Competitions {
-    competitions {
+  query Competitions($from: Date!) {
+    competitions(from: $from) {
       id
       name
       startDate
@@ -83,7 +84,9 @@ const useStyles = makeStyles((theme) => ({
 
 function Home() {
   const classes = useStyles();
-  const { data, loading, error } = useQuery(COMPETITIONS_QUERY);
+  const { data, loading, error } = useQuery(COMPETITIONS_QUERY, {
+    variables: { from: monthAgoDateString() },
+  });
 
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;

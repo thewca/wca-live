@@ -6,6 +6,9 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
   object :competitions_queries do
     field :competitions, non_null(list_of(non_null(:competition))) do
+      arg :limit, :integer
+      arg :filter, :string
+      arg :from, :date
       resolve &Resolvers.Competitions.list_competitions/3
     end
 

@@ -4,7 +4,7 @@ import { Fade, Grid, IconButton, Tooltip } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import NearMeIcon from '@material-ui/icons/NearMe';
 
-import CompetitionSelect from '../CompetitionSelect/CompetitionSelect';
+import CompetitionSearch from '../CompetitionSearch/CompetitionSearch';
 import { geolocationAvailable } from '../../lib/geolocation';
 import { nearestCompetition } from '../../lib/competition';
 
@@ -45,8 +45,7 @@ function HomeToolbar({ upcoming, inProgress, past }) {
           unmountOnExit
         >
           <div>
-            <CompetitionSelect
-              competitions={[...inProgress, ...upcoming, ...past]}
+            <CompetitionSearch
               onChange={(competition) =>
                 history.push(`/competitions/${competition.id}`)
               }
@@ -57,6 +56,7 @@ function HomeToolbar({ upcoming, inProgress, past }) {
                 size: 'small',
                 inputRef: searchInputRef,
                 onBlur: () => setSearchOpen(false),
+                style: { width: 250 },
               }}
             />
           </div>

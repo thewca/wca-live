@@ -1,4 +1,11 @@
-import { closestIndexTo, parseISO, startOfToday, format } from 'date-fns';
+import {
+  closestIndexTo,
+  parseISO,
+  startOfToday,
+  format,
+  sub,
+  formatISO,
+} from 'date-fns';
 
 export function formatDateRange(startString, endString) {
   const [startDay, startMonth, startYear] = format(
@@ -57,4 +64,12 @@ export function closestDateString(dateStrings) {
     dateStrings.map(parseISO)
   );
   return dateStrings[closestIndex];
+}
+
+/**
+ * Returns date string representing the day month ago.
+ */
+export function monthAgoDateString() {
+  const monthAgo = sub(startOfToday(), { months: 1 });
+  return formatISO(monthAgo, { representation: 'date' });
 }

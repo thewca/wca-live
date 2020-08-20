@@ -19,7 +19,7 @@ function CompetitionList({ title, competitions, pathPrefix = '' }) {
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
       <VirtualList
         maxHeight={300}
-        itemHeigh={60}
+        itemHeight={60}
         items={competitions}
         renderItem={(competition, { style }) => {
           const countries = competitionCountries(competition);

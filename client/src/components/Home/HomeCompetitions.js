@@ -17,7 +17,7 @@ function HomeCompetitions({ past, inProgress, upcoming }) {
       <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
         <Tab label="Upcoming" value="upcoming" />
         {inProgress.length > 0 && <Tab label="Right now" value="inProgress" />}
-        {past.length > 0 && <Tab label="Past" value="past" />}
+        {past.length > 0 && <Tab label="Past month" value="past" />}
       </Tabs>
       <CompetitionList competitions={competitions} />
     </>

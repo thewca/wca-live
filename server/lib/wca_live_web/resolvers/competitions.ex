@@ -5,8 +5,8 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
 
   # Competitions
 
-  def list_competitions(_parent, _args, _resolution) do
-    {:ok, Competitions.list_competitions()}
+  def list_competitions(_parent, args, _resolution) do
+    {:ok, Competitions.list_competitions(args)}
   end
 
   def get_competition(_parent, %{id: id}, _resolution) do
