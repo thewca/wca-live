@@ -385,7 +385,13 @@ defmodule WcaLive.Synchronization.Import do
   defp activity_changeset(activity, wcif_activity, competition) do
     activity = Repo.preload(activity, :child_activities)
 
-    round = Competition.find_round_by_activity_code(competition, wcif_activity["activityCode"])
+    round =
+      if activity.room_id do
+        # Link top-level activities (<=> having a room) with the corresponding round.
+        # This way every round has an easy access to all the relevant top-level activities,
+        # like plain round activities or MBLD/FM attempt activities.
+        Competition.find_round_by_activity_code(competition, wcif_activity["activityCode"])
+      end
 
     activity
     |> Activity.changeset(%{

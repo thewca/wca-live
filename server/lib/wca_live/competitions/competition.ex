@@ -74,15 +74,14 @@ defmodule WcaLive.Competitions.Competition do
     find_round_by_activity_code(competition, Wcif.ActivityCode.parse!(activity_code))
   end
 
-  def find_round_by_activity_code(competition, activity_code) do
-    if Wcif.ActivityCode.round?(activity_code) do
-      %{event_id: event_id, round_number: round_number} = activity_code
-      competition_event = competition.competition_events |> Enum.find(&(&1.event_id == event_id))
-      competition_event && Enum.find(competition_event.rounds, &(&1.number == round_number))
-    else
-      nil
+  def find_round_by_activity_code(competition, %{event_id: event_id, round_number: round_number}) do
+    competition_event = Enum.find(competition.competition_events, &(&1.event_id == event_id))
+    if competition_event do
+      Enum.find(competition_event.rounds, &(&1.number == round_number))
     end
   end
+
+  def find_round_by_activity_code(_competition, _activity_code), do: nil
 
   def over?(competition) do
     DateTime.compare(DateTime.utc_now(), competition.end_time) == :gt
