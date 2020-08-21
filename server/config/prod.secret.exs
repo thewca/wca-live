@@ -30,6 +30,24 @@ config :wca_live, WcaLiveWeb.Endpoint,
   ],
   secret_key_base: secret_key_base
 
+# WCA OAuth configuration
+
+wca_oauth_client_id =
+  System.get_env("WCA_OAUTH_CLIENT_ID") ||
+    raise """
+    environment variable WCA_OAUTH_CLIENT_ID is missing.
+    """
+
+wca_oauth_client_secret =
+  System.get_env("WCA_OAUTH_CLIENT_SECRET") ||
+    raise """
+    environment variable WCA_OAUTH_CLIENT_SECRET is missing.
+    """
+
+config :wca_live, WcaLive.Wca.OAuth,
+  client_id: wca_oauth_client_id,
+  client_secret: wca_oauth_client_secret
+
 # ## Using releases (Elixir v1.9+)
 #
 # If you are doing OTP releases, you need to instruct Phoenix

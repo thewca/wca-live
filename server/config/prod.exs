@@ -10,7 +10,7 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :wca_live, WcaLiveWeb.Endpoint,
-  url: [host: "example.com", port: 80],
+  url: [host: "https://live.worldcubeassociation.org", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
@@ -49,6 +49,13 @@ config :logger, level: :info
 #       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
+
+config :wca_live, WcaLive.Wca.OAuth,
+  redirect_uri: "https://live.worldcubeassociation.org/oauth/callback",
+  authorize_url: "https://www.worldcubeassociation.org/oauth/authorize",
+  token_url: "https://www.worldcubeassociation.org/oauth/token"
+
+config :wca_live, WcaLive.Wca.Api, api_url: "https://www.worldcubeassociation.org/api/v0"
 
 # Finally import the config/prod.secret.exs which loads secrets
 # and configuration from environment variables.

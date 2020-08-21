@@ -5,7 +5,7 @@ defmodule WcaLiveWeb.PdfController do
   alias WcaLive.Wca
 
   def round(conn, %{"id" => id}) do
-    round = Scoretaking.get_round!(id, [results: :person, competition_event: :competition])
+    round = Scoretaking.get_round!(id, results: :person, competition_event: :competition)
 
     event = Wca.Event.get_by_id!(round.competition_event.event_id)
     format = Wca.Format.get_by_id!(round.format_id)
