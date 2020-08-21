@@ -76,6 +76,7 @@ defmodule WcaLive.Competitions.Competition do
 
   def find_round_by_activity_code(competition, %{event_id: event_id, round_number: round_number}) do
     competition_event = Enum.find(competition.competition_events, &(&1.event_id == event_id))
+
     if competition_event do
       Enum.find(competition_event.rounds, &(&1.number == round_number))
     end

@@ -15,7 +15,9 @@ defmodule WcaLive.Scoretaking do
   @doc """
   Gets a single round.
   """
-  def get_round!(id), do: Repo.get!(Round, id)
+  def get_round!(id, preloads \\ []) do
+    Repo.get!(Round, id) |> Repo.preload(preloads)
+  end
 
   @doc """
   Gets a single round.
@@ -71,21 +73,21 @@ defmodule WcaLive.Scoretaking do
 
   def open_round(round) do
     round = round |> Repo.preload(:results)
-    previous = get_previous_round(round) |> Repo.preload(:results)
 
     if Round.open?(round) do
       {:error, "cannot open this round as it is already open"}
     else
       Multi.new()
       |> Multi.run(:finish_previous, fn _repo, _changes ->
-        if previous do
+        if round.number > 1 do
+          previous = get_previous_round(round) |> Repo.preload(:results)
           finish_round(previous)
         else
           {:ok, nil}
         end
       end)
-      |> Multi.run(:create_results, fn _repo, %{finish_previous: previous} ->
-        create_empty_results(round, previous)
+      |> Multi.run(:create_results, fn _repo, _changes ->
+        create_empty_results(round)
       end)
       |> Repo.transaction()
       |> case do
@@ -119,14 +121,16 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
-  defp create_empty_results(round, previous) do
+  defp create_empty_results(round) do
     empty_results =
-      person_ids_for_round(round, previous)
+      person_ids_for_round(round)
       |> Enum.map(&Result.empty_result(person_id: &1))
 
     if Enum.empty?(empty_results) do
       {:error,
-       "cannot open this round as no one #{if previous, do: "qualified", else: "registered"}"}
+       "cannot open this round as no one #{
+         if round.number == 1, do: "registered", else: "qualified"
+       }"}
     else
       empty_results
       |> Round.put_results_in_round(round)
@@ -134,12 +138,8 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
-  defp person_ids_for_round(round, previous) do
-    if previous do
-      previous.results
-      |> Enum.filter(& &1.advancing)
-      |> Enum.map(& &1.person_id)
-    else
+  defp person_ids_for_round(round) do
+    if round.number == 1 do
       registrations =
         round
         |> Ecto.assoc([:competition_event, :registrations])
@@ -147,6 +147,12 @@ defmodule WcaLive.Scoretaking do
 
       registrations
       |> Enum.filter(&Registration.accepted?/1)
+      |> Enum.map(& &1.person_id)
+    else
+      previous = round |> get_previous_round() |> Repo.preload(:results)
+
+      previous.results
+      |> Enum.filter(& &1.advancing)
       |> Enum.map(& &1.person_id)
     end
   end

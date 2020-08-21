@@ -36,11 +36,7 @@ defmodule WcaLiveWeb.Schema do
   def middleware(middleware, _field, _object), do: middleware
 
   def context(context) do
-    source = Dataloader.Ecto.new(WcaLive.Repo, query: &WcaLiveWeb.Schema.query/2)
-
-    loader =
-      Dataloader.new()
-      |> Dataloader.add_source(:db, source)
+    loader = WcaLiveWeb.Loader.new_dataloader()
 
     Map.put(context, :loader, loader)
   end
@@ -48,22 +44,4 @@ defmodule WcaLiveWeb.Schema do
   def plugins() do
     [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
   end
-
-  # TODO: where to place all of that?
-
-  require Ecto.Query
-
-  def query(WcaLive.Competitions.Person, %{competitor: true}) do
-    WcaLive.Competitions.Person |> WcaLive.Competitions.Person.where_competitor()
-  end
-
-  def query(WcaLive.Scoretaking.Round, _args) do
-    WcaLive.Scoretaking.Round |> Ecto.Query.order_by(:number) |> Ecto.Query.preload(:results)
-  end
-
-  def query(WcaLive.Scoretaking.Result, _args) do
-    WcaLive.Scoretaking.Result |> WcaLive.Scoretaking.Result.order_by_ranking()
-  end
-
-  def query(querable, _args), do: querable
 end

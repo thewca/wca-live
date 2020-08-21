@@ -141,4 +141,8 @@ defmodule WcaLive.Scoretaking.Round do
         r.competition_event_id == ^round.competition_event_id and
           r.number == ^(round.number + offset)
   end
+
+  def order_by_number(query) do
+    order_by(query, :number)
+  end
 end

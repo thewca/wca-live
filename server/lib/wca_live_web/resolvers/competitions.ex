@@ -17,11 +17,12 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
     {:ok, Scoretaking.list_podiums(competition)}
   end
 
-  # TODO: think of a better cleaner solution
-
   def competition_access(competition, _args, %{
         context: %{current_user: current_user, loader: loader}
       }) do
+    # This is a bit fancy, firstly we preload competition staff members
+    # using dataloader, then we determine access rights for the current user.
+    # This way querying for access on a list of competitions still results in a single database query.
     loader
     |> Dataloader.load(:db, :staff_members, competition)
     |> Absinthe.Resolution.Helpers.on_load(fn loader ->
@@ -30,10 +31,8 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
 
       {:ok,
        %{
-         can_manage:
-           WcaLive.Competitions.Access.can_manage_competition?(current_user, competition),
-         can_scoretake:
-           WcaLive.Scoretaking.Access.can_scoretake_competition?(current_user, competition)
+         can_manage: Competitions.Access.can_manage_competition?(current_user, competition),
+         can_scoretake: Scoretaking.Access.can_scoretake_competition?(current_user, competition)
        }}
     end)
   end
