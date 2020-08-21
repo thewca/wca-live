@@ -15,7 +15,7 @@ const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
     competition(id: $id) {
       id
-      name
+      shortName
       access {
         canManage
         canScoretake

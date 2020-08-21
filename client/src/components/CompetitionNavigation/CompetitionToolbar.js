@@ -45,7 +45,7 @@ function CompetitionToolbar({ competition, onMenuClick }) {
         component={RouterLink}
         to={`/competitions/${competition.id}`}
       >
-        {competition.name}
+        {competition.shortName}
       </Typography>
       <div className={classes.grow} />
       {competition.access.canScoretake && (

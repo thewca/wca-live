@@ -44,7 +44,7 @@ function AdminCompetitionToolbar({ competition }) {
         className={classes.titleLink}
       >
         <Typography variant="h6" color="inherit" component="span">
-          {competition.name}
+          {competition.shortName}
         </Typography>
         <Typography
           variant="overline"

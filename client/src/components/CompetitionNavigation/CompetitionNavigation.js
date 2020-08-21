@@ -14,7 +14,7 @@ const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
     competition(id: $id) {
       id
-      name
+      shortName
       competitionEvents {
         id
         event {
