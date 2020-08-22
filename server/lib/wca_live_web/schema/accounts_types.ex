@@ -30,4 +30,12 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
       resolve dataloader(:db)
     end
   end
+
+  @desc "A temporary code generated for quick sign in."
+  object :one_time_code do
+    field :id, non_null(:id)
+    field :code, non_null(:string)
+    field :expires_at, non_null(:datetime)
+    field :inserted_at, non_null(:datetime)
+  end
 end

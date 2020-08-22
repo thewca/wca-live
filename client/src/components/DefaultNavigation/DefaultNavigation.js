@@ -8,6 +8,7 @@ import SignIn from '../SignIn/SignIn';
 import About from '../About/About';
 import Error from '../Error/Error';
 import Loading from '../Loading/Loading';
+import Account from '../Account/Account';
 
 const CURRENT_USER_QUERY = gql`
   query CurrentUser {
@@ -45,6 +46,11 @@ function DefaultNavigation() {
         {currentUser && (
           <Route exact path="/admin">
             <Admin />
+          </Route>
+        )}
+        {currentUser && (
+          <Route exact path="/account">
+            <Account />
           </Route>
         )}
         {/* Wait for data before redirecting as the user routes are rendered conditionally. */}

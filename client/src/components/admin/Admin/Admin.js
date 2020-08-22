@@ -63,7 +63,7 @@ function Admin() {
     <Box p={3}>
       <Grid container direction="column" alignItems="center" spacing={3}>
         <Grid item>
-          <Avatar src={avatar.thumbUrl} className={classes.avatar} />
+          <Avatar src={avatar.thumbUrl} alt={name} className={classes.avatar} />
         </Grid>
         <Grid item>
           <Typography variant="h5">Hello, {name}!</Typography>

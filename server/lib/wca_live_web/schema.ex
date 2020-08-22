@@ -4,6 +4,7 @@ defmodule WcaLiveWeb.Schema do
   import_types Absinthe.Type.Custom
   import_types WcaLiveWeb.Schema.SharedTypes
   import_types WcaLiveWeb.Schema.AccountsTypes
+  import_types WcaLiveWeb.Schema.AccountsMutationTypes
   import_types WcaLiveWeb.Schema.CompetitionsTypes
   import_types WcaLiveWeb.Schema.CompetitionsMutationTypes
   import_types WcaLiveWeb.Schema.SynchronizationTypes
@@ -20,6 +21,7 @@ defmodule WcaLiveWeb.Schema do
   end
 
   mutation do
+    import_fields :accounts_mutations
     import_fields :competitions_mutations
     import_fields :synchronization_mutations
     import_fields :scoretaking_mutations

@@ -1,7 +1,7 @@
 defmodule WcaLive.Accounts do
   import Ecto.Query, warn: false
   alias WcaLive.Repo
-  alias WcaLive.Accounts.{User, AccessToken}
+  alias WcaLive.Accounts.{User, AccessToken, OneTimeCode}
   alias WcaLive.Wca
 
   def import_user(user_attrs, access_token_attrs) do
@@ -64,5 +64,39 @@ defmodule WcaLive.Accounts do
     access_token
     |> AccessToken.changeset(attrs)
     |> Repo.update()
+  end
+
+  def generate_one_time_code(user) do
+    otc = OneTimeCode.new_for_user(user)
+
+    user
+    |> Repo.preload(:one_time_code)
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.put_assoc(:one_time_code, otc)
+    |> Repo.update()
+    |> case do
+      {:ok, user} -> {:ok, user.one_time_code}
+      {:error, _} = error -> error
+    end
+  end
+
+  def authenticate_by_code(code) do
+    OneTimeCode
+    |> Repo.get_by(code: code)
+    |> case do
+      nil ->
+        {:error, "invalid code"}
+
+      otc ->
+        if OneTimeCode.expired?(otc) do
+          {:error, "code expired"}
+        else
+          # Delete the one time code as it's been used.
+          with {:ok, _} <- Repo.delete(otc) do
+            user = Ecto.assoc(otc, :user) |> Repo.one!()
+            {:ok, user}
+          end
+        end
+    end
   end
 end
