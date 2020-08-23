@@ -1,4 +1,8 @@
 defmodule WcaLive.Competitions.Venue do
+  @moduledoc """
+  A physical place where the competition takes place.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -26,7 +30,6 @@ defmodule WcaLive.Competitions.Venue do
     has_many :rooms, Room, on_replace: :delete
   end
 
-  @doc false
   def changeset(venue, attrs) do
     venue
     |> cast(attrs, @required_fields ++ @optional_fields)

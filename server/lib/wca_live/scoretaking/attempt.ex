@@ -1,4 +1,8 @@
 defmodule WcaLive.Scoretaking.Attempt do
+  @moduledoc """
+  A single attempt done by a competitor during round.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -11,7 +15,6 @@ defmodule WcaLive.Scoretaking.Attempt do
     field :reconstruction, :string
   end
 
-  @doc false
   def changeset(attempt, attrs) do
     attempt
     |> cast(attrs, @required_fields ++ @optional_fields)

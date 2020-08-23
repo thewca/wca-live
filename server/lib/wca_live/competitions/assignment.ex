@@ -1,6 +1,11 @@
 defmodule WcaLive.Competitions.Assignment do
+  @moduledoc """
+  Specific task assigned to a person during an activity.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
+
   alias WcaLive.Competitions.{Activity, Person}
 
   @required_fields [:assignment_code]
@@ -14,7 +19,6 @@ defmodule WcaLive.Competitions.Assignment do
     belongs_to :activity, Activity
   end
 
-  @doc false
   def changeset(assignment, attrs) do
     assignment
     |> cast(attrs, @required_fields ++ @optional_fields)

@@ -1,4 +1,13 @@
 defmodule WcaLive.Wcif.ActivityCode do
+  @moduledoc """
+  WCIF activity code struct and functions.
+
+  See [the specification](https://github.com/thewca/wcif/blob/master/specification.md#activitycode)
+  for more details.
+  """
+
+  @type t :: Official.t() | Other.t()
+
   defmodule Official do
     defstruct [:event_id, :round_number, :group_name, :attempt_number]
 
@@ -38,8 +47,11 @@ defmodule WcaLive.Wcif.ActivityCode do
     end
   end
 
-  @type t :: Official.t() | Other.t()
+  @doc """
+  Parses activity code string.
 
+  Raises `ArgumentError` if the code is invalid.
+  """
   @spec parse!(String.t()) :: t()
   def parse!("other-" <> id), do: %Other{id: id}
 
@@ -48,7 +60,7 @@ defmodule WcaLive.Wcif.ActivityCode do
     |> Regex.run(activity_code)
     |> case do
       nil ->
-        raise ArgumentError, message: "Invalid activity code \"#{activity_code}\"."
+        raise ArgumentError, message: "invalid activity code '#{activity_code}'"
 
       [_, event_id, r, g, a] ->
         round_number =
@@ -78,6 +90,10 @@ defmodule WcaLive.Wcif.ActivityCode do
     end
   end
 
+  @doc """
+  Returns `true` if the given activity code represents a round.
+  """
+  @spec round?(t()) :: boolean()
   def round?(%Official{} = ac) do
     ac.event_id != nil and ac.round_number != nil and
       ac.group_name == nil and ac.attempt_number == nil

@@ -1,8 +1,17 @@
 defmodule WcaLive.Accounts.AccessToken do
+  @moduledoc """
+  An OAuth2 access token information.
+
+  This data is obtained from the WCA website
+  when the user goes through the OAuth2 flow.
+  The actual token allows for making requests
+  to the WCA API on behalf of the corresponding user.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Accounts.User
+  alias WcaLive.Accounts.{User, AccessToken}
 
   @required_fields [:access_token, :refresh_token, :expires_at]
   @optional_fields []
@@ -15,10 +24,17 @@ defmodule WcaLive.Accounts.AccessToken do
     belongs_to :user, User
   end
 
-  @doc false
   def changeset(access_token, attrs) do
     access_token
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+  end
+
+  @doc """
+  Returns `true` if the `access_token` expires in 2 minutes.
+  """
+  @spec expires_soon?(%AccessToken{}) :: boolean()
+  def expires_soon?(access_token) do
+    DateTime.diff(access_token.expires_at, DateTime.utc_now(), :second) <= 2 * 60
   end
 end

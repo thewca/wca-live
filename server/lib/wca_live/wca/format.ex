@@ -1,4 +1,11 @@
 defmodule WcaLive.Wca.Format do
+  @moduledoc """
+  A WCA format applied in the given round.
+
+  Describes how many attempts competitors do
+  and whether best or average determines ranking.
+  """
+
   defstruct [:id, :name, :short_name, :number_of_attempts, :sort_by]
 
   @type t :: %__MODULE__{
@@ -47,12 +54,18 @@ defmodule WcaLive.Wca.Format do
     }
   ]
 
+  @doc """
+  Finds format with matching id.
+
+  Raises an error if no format is found.
+  """
+  @spec get_by_id!(String.t()) :: t()
   def get_by_id!(id) do
     @format_attrs
     |> Enum.find(fn format -> format.id == id end)
     |> case do
       nil ->
-        raise ArgumentError, message: "Invalid format id \"#{id}\"."
+        raise ArgumentError, message: "invalid format id '#{id}'"
 
       attrs ->
         struct(__MODULE__, attrs)

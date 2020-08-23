@@ -1,4 +1,10 @@
 defmodule WcaLive.Wca.Country do
+  @moduledoc """
+  A country officially recognised by the WCA.
+
+  See https://github.com/thewca/wca-regulations/blob/draft/wca-states.md
+  """
+
   defstruct [:iso2, :name, :wca_id, :continent_name]
 
   @type t :: %__MODULE__{
@@ -1206,24 +1212,36 @@ defmodule WcaLive.Wca.Country do
     }
   ]
 
+  @doc """
+  Finds a country with matching ISO2 code.
+
+  Raises an error if no country is found.
+  """
+  @spec get_by_iso2!(String.t()) :: t()
   def get_by_iso2!(iso2) do
     @country_attrs
     |> Enum.find(fn country -> country.iso2 == iso2 end)
     |> case do
       nil ->
-        raise ArgumentError, message: "Invalid country iso2 code \"#{iso2}\"."
+        raise ArgumentError, message: "invalid country iso2 code '#{iso2}'"
 
       attrs ->
         struct(__MODULE__, attrs)
     end
   end
 
+  @doc """
+  Finds a country with matching WCA id.
+
+  Raises an error if no country is found.
+  """
+  @spec get_by_wca_id!(String.t()) :: t()
   def get_by_wca_id!(wca_id) do
     @country_attrs
     |> Enum.find(fn country -> country.wca_id == wca_id end)
     |> case do
       nil ->
-        raise ArgumentError, message: "Invalid country WCA id \"#{wca_id}\"."
+        raise ArgumentError, message: "invalid country WCA id '#{wca_id}'"
 
       attrs ->
         struct(__MODULE__, attrs)

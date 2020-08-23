@@ -1,4 +1,13 @@
 defmodule WcaLive.Competitions.Person do
+  @moduledoc """
+  A person relevant in context of the competition.
+
+  In most cases corresponds to a competitor.
+  Keep in mind that a physical person may have multiple `Person`
+  records in the database, one for every competition they participated in.
+  You can think of it like a personal badge for the given competition.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
   import Ecto.Query, warn: false
@@ -39,7 +48,6 @@ defmodule WcaLive.Competitions.Person do
     has_many :results, Result, on_replace: :delete
   end
 
-  @doc false
   def changeset(person, attrs) do
     person
     |> cast(attrs, @required_fields ++ @optional_fields)
@@ -47,14 +55,26 @@ defmodule WcaLive.Competitions.Person do
     |> validate_inclusion(:gender, ["m", "f", "o"])
   end
 
+  @doc """
+  Returns `true` if the given person registered for the competition
+  and their registration has been accepted, so they are eligible to compete.
+  """
+  @spec competitor?(%Person{}) :: boolean()
   def competitor?(%Person{registration: %{status: "accepted"}}), do: true
   def competitor?(%Person{registration: %{status: _other}}), do: false
   def competitor?(%Person{registration: nil}), do: false
 
+  @doc """
+  Returns `person`'s latin name, removing the optional local name in parentheses.
+  """
+  @spec latin_name(%Person{}) :: String.t()
   def latin_name(person) do
     String.replace(person.name, ~r/\s*[(（].*/, "")
   end
 
+  @doc """
+  Limits the given query to people with an accepted registration.
+  """
   def where_competitor(query) do
     from p in query,
       join: r in assoc(p, :registration),

@@ -1,9 +1,27 @@
 defmodule WcaLive.Wca.Records do
+  @moduledoc """
+  An abstraction layer on top of the WCA records API.
+  """
+
   alias WcaLive.Wca
 
+  @typedoc """
+  A string uniquely identifying record type.
+  """
   @type record_key :: String.t()
+
+  @typedoc """
+  A mapping from record identifier to the attempt result.
+  """
   @type records :: %{record_key() => integer()}
 
+  @doc """
+  Fetches official regional records from the WCA API
+  and converts them to the mapping form.
+
+  Generally prefer `WcaLive.Wca.RecordsStore.get_regional_records/0`
+  as it provides a cached version.
+  """
   @spec get_regional_records() :: {:ok, records()} | {:error, any()}
   def get_regional_records() do
     with {:ok, data} <- Wca.Api.get_records() do
@@ -45,7 +63,13 @@ defmodule WcaLive.Wca.Records do
     end)
   end
 
+  @doc """
+  Generates a record identifier for the given event and type.
+
+  The `scope` should uniquely identify a continent, country, person, etc.
+  """
+  @spec record_key(String.t(), :single | :average, String.t()) :: record_key()
   def record_key(event_id, type, scope) do
-    event_id <> "#" <> type <> "#" <> scope
+    event_id <> "#" <> to_string(type) <> "#" <> scope
   end
 end

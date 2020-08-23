@@ -1,4 +1,9 @@
 defmodule WcaLive.Wca.Event do
+  @moduledoc """
+  A WCA event that may be held at a competition.
+  """
+
+  # `rank` determines the preferred events order.
   defstruct [:id, :name, :rank]
 
   @type t :: %__MODULE__{
@@ -100,18 +105,30 @@ defmodule WcaLive.Wca.Event do
     }
   ]
 
+  @doc """
+  Finds an event with matching WCA id.
+
+  Raises an error if no event is found.
+  """
+  @spec get_by_id!(String.t()) :: t()
   def get_by_id!(id) do
     @event_attrs
     |> Enum.find(fn event -> event.id == id end)
     |> case do
       nil ->
-        raise ArgumentError, message: "Invalid event id \"#{id}\"."
+        raise ArgumentError, message: "invalid event id '#{id}'"
 
       attrs ->
         struct(__MODULE__, attrs)
     end
   end
 
+  @doc """
+  Finds an event by id and returns its rank.
+
+  Raises an error if no event is found.
+  """
+  @spec get_rank_by_id!(String.t()) :: integer()
   def get_rank_by_id!(id) do
     event = get_by_id!(id)
     event.rank

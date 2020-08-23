@@ -45,7 +45,8 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
     with {:ok, round} <- Scoretaking.fetch_round(input.round_id),
          {:ok, person} <- Competitions.fetch_person(input.person_id),
          true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
-         {:ok, round} <- Scoretaking.remove_person_from_round(person, round, input.replace) do
+         {:ok, round} <-
+           Scoretaking.remove_person_from_round(person, round, replace: input.replace) do
       round = Scoretaking.preload_results(round)
       {:ok, %{round: round}}
     end

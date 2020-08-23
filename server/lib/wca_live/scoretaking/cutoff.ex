@@ -1,4 +1,12 @@
 defmodule WcaLive.Scoretaking.Cutoff do
+  @moduledoc """
+  Represents an attempt result the competitor needs to beat
+  in one of the first phase attempts in order to be eligible
+  for the remaining attempts.
+
+  See [regulation 9g](https://www.worldcubeassociation.org/regulations/#9p1) for more details.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -11,7 +19,6 @@ defmodule WcaLive.Scoretaking.Cutoff do
     field :number_of_attempts, :integer
   end
 
-  @doc false
   def changeset(cutoff, attrs) do
     cutoff
     |> cast(attrs, @required_fields ++ @optional_fields)

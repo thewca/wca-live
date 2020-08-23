@@ -48,7 +48,8 @@ defmodule WcaLive.MixProject do
       {:absinthe_phoenix, "~> 2.0"},
       {:dataloader, "~> 1.0"},
       {:cors_plug, "~> 2.0"},
-      {:pdf_generator, "~> 0.6"}
+      {:pdf_generator, "~> 0.6"},
+      {:ex_machina, "~> 2.4", only: :test}
     ]
   end
 

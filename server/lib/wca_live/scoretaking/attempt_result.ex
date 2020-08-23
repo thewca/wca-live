@@ -1,12 +1,65 @@
 defmodule WcaLive.Scoretaking.AttemptResult do
+  @moduledoc """
+  The actual time/score achieved by competitor during his attempt.
+
+  An attempt result is an integer that represents:
+
+    * for 3x3x3 Fewest Moves - The number of moves it took to solve the cube.
+    * for 3x3x3 Multi-Blind - Encoded information about:
+        - the number of attempted cubes
+        - the number of solved cubes
+        - the number of centiseconds the attempt took
+
+      The integer is designed so that lower value represents a better result.
+    * for any other event - the number of centiseconds it took to solve the cube
+  """
+
+  @type attempt_result :: integer()
+
+  # Represents an attempt that is supposed to happen in the future
+  # or is not gonna happen (e.g. due to cutoff).
   @skipped_value 0
   @dnf_value -1
   @dns_value -2
 
+  @spec skipped() :: attempt_result()
+  def skipped(), do: @skipped_value
+
+  @spec dnf() :: attempt_result()
+  def dnf(), do: @dnf_value
+
+  @spec dns() :: attempt_result()
+  def dns(), do: @dns_value
+
+  @spec complete?(attempt_result()) :: boolean()
+  def complete?(attempt_result), do: attempt_result > 0
+
+  @spec skipped?(attempt_result()) :: boolean()
+  def skipped?(attempt_result), do: attempt_result == @skipped_value
+
+  @spec dnf?(attempt_result()) :: boolean()
+  def dnf?(attempt_result), do: attempt_result == @dnf_value
+
+  @spec dns?(attempt_result()) :: boolean()
+  def dns?(attempt_result), do: attempt_result == @dns_value
+
+  @doc """
+  Checks if the first attempt result is strictly better than the other.
+  """
+  @spec better?(attempt_result(), attempt_result()) :: boolean()
   def better?(attempt_result1, attempt_result2) do
-    to_monotonic(attempt_result1) <= to_monotonic(attempt_result2)
+    to_monotonic(attempt_result1) < to_monotonic(attempt_result2)
   end
 
+  @doc """
+  Converts `attempt_result` to a value that can be
+  compared with standard comparison operators.
+
+  Values like DNF and DNS are negative and it doesn't
+  make sense to compare them with successful attempt results.
+  This method is useful for easier comparison and sorting.
+  """
+  @spec to_monotonic(attempt_result()) :: term()
   def to_monotonic(attempt_result) do
     if complete?(attempt_result) do
       attempt_result
@@ -16,14 +69,11 @@ defmodule WcaLive.Scoretaking.AttemptResult do
     end
   end
 
-  def complete?(attempt_result), do: attempt_result > 0
-
-  def skipped?(attempt_result), do: attempt_result == @skipped_value
-
-  def dnf?(attempt_result), do: attempt_result == @dnf_value
-
-  def dns?(attempt_result), do: attempt_result == @dns_value
-
+  @doc """
+  Returns the specified number of attempt results
+  filling missing ones with skipped value.
+  """
+  @spec pad_skipped(list(attempt_result()), pos_integer()) :: list(attempt_result())
   def pad_skipped(attempt_results, number_of_attempts)
       when length(attempt_results) > number_of_attempts do
     Enum.take(attempt_results, number_of_attempts)
@@ -34,6 +84,10 @@ defmodule WcaLive.Scoretaking.AttemptResult do
     attempt_results ++ List.duplicate(@skipped_value, missing)
   end
 
+  @doc """
+  Returns the best attempt result in the given list.
+  """
+  @spec best(list(attempt_result())) :: attempt_result()
   def best(attempt_results) do
     non_skipped = Enum.reject(attempt_results, &skipped?/1)
     complete = Enum.filter(attempt_results, &complete?/1)
@@ -45,6 +99,13 @@ defmodule WcaLive.Scoretaking.AttemptResult do
     end
   end
 
+  @doc """
+  Returns the average of the given attempt results.
+
+  Calculates either Mean of 3 or Average of 5 depending on
+  the number of the given attempt results.
+  """
+  @spec average(list(attempt_result()), String.t()) :: attempt_result()
   def average(_attempt_results, "333mbf"), do: @skipped_value
 
   def average(attempt_results, "333fm") do
@@ -91,6 +152,10 @@ defmodule WcaLive.Scoretaking.AttemptResult do
 
   defp mean([x, y, z]), do: round((x + y + z) / 3)
 
+  @doc """
+  Converts the given attempt result to a human-friendly string.
+  """
+  @spec format(attempt_result(), String.t()) :: String.t()
   def format(@skipped_value, _event_id), do: ""
   def format(@dnf_value, _event_id), do: "DNF"
   def format(@dns_value, _event_id), do: "DNS"

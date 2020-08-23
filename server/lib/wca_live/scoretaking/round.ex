@@ -1,4 +1,8 @@
 defmodule WcaLive.Scoretaking.Round do
+  @moduledoc """
+  A round of an event held at a competition.
+  """
+
   use WcaLive.Schema
   import Ecto.Query, warn: false
   import Ecto.Changeset
@@ -24,7 +28,6 @@ defmodule WcaLive.Scoretaking.Round do
     has_many :results, Result, on_replace: :delete
   end
 
-  @doc false
   def changeset(round, attrs) do
     round
     |> cast(attrs, @required_fields ++ @optional_fields)
@@ -34,7 +37,10 @@ defmodule WcaLive.Scoretaking.Round do
     |> validate_required(@required_fields)
   end
 
-  @doc false
+  @doc """
+  Returns a new changeset placing `results` association in `round`.
+  """
+  @spec put_results_in_round(list(%Result{} | Ecto.Changeset.t()), %Round{}) :: Ecto.Changeset.t()
   def put_results_in_round(results, round) do
     round |> change() |> put_assoc(:results, results)
   end
@@ -42,6 +48,7 @@ defmodule WcaLive.Scoretaking.Round do
   @doc """
   Returns a friendly round name.
   """
+  @spec name(%Round{}) :: String.t()
   def name(%Round{advancement_condition: nil}), do: "Final"
   def name(%Round{number: 1}), do: "First Round"
   def name(%Round{number: 2}), do: "Second Round"
@@ -53,6 +60,7 @@ defmodule WcaLive.Scoretaking.Round do
 
   *Note: `round` must have `results` loaded.*
   """
+  @spec label(%Round{}) :: String.t()
   def label(round) do
     round.results
     |> regional_record_tags()
@@ -88,6 +96,7 @@ defmodule WcaLive.Scoretaking.Round do
 
   *Note: `round` must have `results` loaded.*
   """
+  @spec open?(%Round{}) :: boolean()
   def open?(round), do: length(round.results) > 0
 
   @doc """
@@ -99,6 +108,7 @@ defmodule WcaLive.Scoretaking.Round do
 
   *Note: `round` must have `results` loaded.*
   """
+  @spec finished?(%Round{}) :: boolean()
   def finished?(%Round{results: []}), do: false
 
   def finished?(round) do
@@ -124,6 +134,7 @@ defmodule WcaLive.Scoretaking.Round do
 
   *Note: `round` must have `results` loaded.*
   """
+  @spec active?(%Round{}) :: boolean()
   def active?(round) do
     recent_updates =
       round.results
@@ -135,6 +146,9 @@ defmodule WcaLive.Scoretaking.Round do
     recent_updates >= 3
   end
 
+  @doc """
+  Limits query to `round`'s sibling given by `offset`.
+  """
   def where_sibling(query, round, offset) do
     from r in query,
       where:
@@ -142,6 +156,9 @@ defmodule WcaLive.Scoretaking.Round do
           r.number == ^(round.number + offset)
   end
 
+  @doc """
+  Orders query rounds by number.
+  """
   def order_by_number(query) do
     order_by(query, :number)
   end

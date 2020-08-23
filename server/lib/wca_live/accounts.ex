@@ -1,9 +1,21 @@
 defmodule WcaLive.Accounts do
+  @moduledoc """
+  Context for account management.
+  """
+
   import Ecto.Query, warn: false
+
   alias WcaLive.Repo
   alias WcaLive.Accounts.{User, AccessToken, OneTimeCode}
   alias WcaLive.Wca
 
+  @doc """
+  Saves the given user and OAuth access token attributes into the database.
+
+  If there's a user with matching `wca_user_id`, it gets updated.
+  Otherwise a new user is created.
+  """
+  @spec import_user(map(), map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def import_user(user_attrs, access_token_attrs) do
     attrs = Map.put(user_attrs, :access_token, access_token_attrs)
     user = Repo.get_by(User, wca_user_id: user_attrs.wca_user_id) || %User{}
@@ -15,15 +27,21 @@ defmodule WcaLive.Accounts do
     |> Repo.insert_or_update()
   end
 
+  @doc """
+  Gets a single user.
+  """
+  @spec get_user(term()) :: %User{} | nil
   def get_user(id), do: Repo.get(User, id)
 
-  def get_user!(id), do: Repo.get!(User, id)
-
-  def fetch_user(id), do: Repo.fetch(User, id)
-
   @doc """
-  Returns the list of users.
+  Returns a list of users.
+
+  Takes a map with the following optional arguments:
+
+    * `:limit` - The maximum number of users to return.
+    * `:filter` - A query string to filter the results by.
   """
+  @spec list_users(map()) :: list(%User{})
   def list_users(args \\ %{}) do
     limit = args[:limit] || 10
 
@@ -46,8 +64,8 @@ defmodule WcaLive.Accounts do
   def get_valid_access_token(user) do
     access_token = Ecto.assoc(user, :access_token) |> Repo.one!()
 
-    # Refresh the token if it expires in less than 2 minutes.
-    if DateTime.diff(access_token.expires_at, DateTime.utc_now(), :second) <= 2 * 60 do
+    # Refresh the token if it expires soon.
+    if AccessToken.expires_soon?(access_token) do
       with {:ok, token_attrs} <- Wca.OAuth.refresh_token(access_token.refresh_token),
            {:ok, new_access_token} <- update_access_token(access_token, token_attrs) do
         {:ok, new_access_token}
@@ -66,6 +84,12 @@ defmodule WcaLive.Accounts do
     |> Repo.update()
   end
 
+  @doc """
+  Creates a new one-time code for the given user.
+
+  If the user already has an OTC, it gets removed.
+  """
+  @spec generate_one_time_code(%User{}) :: {:ok, %OneTimeCode{}} | {:error, Ecto.Changeset.t()}
   def generate_one_time_code(user) do
     otc = OneTimeCode.new_for_user(user)
 
@@ -80,6 +104,13 @@ defmodule WcaLive.Accounts do
     end
   end
 
+  @doc """
+  Finds user for the given one-time code, unless it's expired.
+
+  The code is removed from the database.
+  """
+  @spec authenticate_by_code(String.t()) ::
+          {:ok, %User{}} | {:error, String.t() | Ecto.Changeset.t()}
   def authenticate_by_code(code) do
     OneTimeCode
     |> Repo.get_by(code: code)

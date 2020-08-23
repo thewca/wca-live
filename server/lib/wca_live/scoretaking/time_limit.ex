@@ -1,4 +1,10 @@
 defmodule WcaLive.Scoretaking.TimeLimit do
+  @moduledoc """
+  Represents a time under which an attempt(s) must be completed.
+
+  See [regulation A1a](https://www.worldcubeassociation.org/regulations/#A1a) for more details.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -16,7 +22,6 @@ defmodule WcaLive.Scoretaking.TimeLimit do
     field :cumulative_round_wcif_ids, {:array, :string}
   end
 
-  @doc false
   def changeset(time_limit, attrs) do
     time_limit
     |> cast(attrs, @required_fields ++ @optional_fields)

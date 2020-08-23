@@ -1,4 +1,8 @@
 defmodule WcaLive.Competitions.Qualification do
+  @moduledoc """
+  A requirement to qualify for competing in the corresopnding event.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -12,7 +16,6 @@ defmodule WcaLive.Competitions.Qualification do
     field :attempt_result, :integer
   end
 
-  @doc false
   def changeset(qualification, attrs) do
     qualification
     |> cast(attrs, @required_fields ++ @optional_fields)

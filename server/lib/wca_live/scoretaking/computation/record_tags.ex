@@ -33,13 +33,13 @@ defmodule WcaLive.Scoretaking.Computation.RecordTags do
           round.results
           |> Enum.map(fn result ->
             single_record_tag =
-              tags_with_record_key(result.person, event_id, "single")
+              tags_with_record_key(result.person, event_id, :single)
               |> Enum.find_value(fn %{record_key: record_key, tag: tag} ->
                 if result.best == records[record_key], do: tag, else: nil
               end)
 
             average_record_tag =
-              tags_with_record_key(result.person, event_id, "average")
+              tags_with_record_key(result.person, event_id, :average)
               |> Enum.find_value(fn %{record_key: record_key, tag: tag} ->
                 if result.average == records[record_key], do: tag, else: nil
               end)
@@ -77,7 +77,7 @@ defmodule WcaLive.Scoretaking.Computation.RecordTags do
 
   defp person_records(person) do
     Map.new(person.personal_bests, fn %{event_id: event_id, type: type, best: best} ->
-      {Wca.Records.record_key(event_id, type, person_record_scope(person)), best}
+      {Wca.Records.record_key(event_id, String.to_atom(type), person_record_scope(person)), best}
     end)
   end
 
@@ -89,7 +89,7 @@ defmodule WcaLive.Scoretaking.Computation.RecordTags do
       results
       |> Enum.filter(fn result -> AttemptResult.complete?(result.best) end)
       |> Enum.flat_map(fn result ->
-        tags_with_record_key(result.person, event_id, "single")
+        tags_with_record_key(result.person, event_id, :single)
         |> Enum.map(fn %{record_key: record_key} -> {record_key, result.best} end)
       end)
       |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
@@ -99,7 +99,7 @@ defmodule WcaLive.Scoretaking.Computation.RecordTags do
       results
       |> Enum.filter(fn result -> AttemptResult.complete?(result.average) end)
       |> Enum.flat_map(fn result ->
-        tags_with_record_key(result.person, event_id, "average")
+        tags_with_record_key(result.person, event_id, :average)
         |> Enum.map(fn %{record_key: record_key} -> {record_key, result.average} end)
       end)
       |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))

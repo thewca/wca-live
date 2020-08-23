@@ -1,4 +1,8 @@
 defmodule WcaLive.Competitions.PersonalBest do
+  @moduledoc """
+  A personal best single/average in a specific event.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -25,7 +29,6 @@ defmodule WcaLive.Competitions.PersonalBest do
     belongs_to :person, Person
   end
 
-  @doc false
   def changeset(personal_best, attrs) do
     personal_best
     |> cast(attrs, @required_fields ++ @optional_fields)

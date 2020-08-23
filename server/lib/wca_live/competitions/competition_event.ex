@@ -1,4 +1,8 @@
 defmodule WcaLive.Competitions.CompetitionEvent do
+  @moduledoc """
+  Corresponds to a WCA event held at a competition.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -19,7 +23,6 @@ defmodule WcaLive.Competitions.CompetitionEvent do
     many_to_many :registrations, Registration, join_through: "registration_competition_events"
   end
 
-  @doc false
   def changeset(competition_event, attrs) do
     competition_event
     |> cast(attrs, @required_fields ++ @optional_fields)

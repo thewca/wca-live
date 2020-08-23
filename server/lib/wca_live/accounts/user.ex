@@ -1,8 +1,12 @@
 defmodule WcaLive.Accounts.User do
+  @moduledoc """
+  A user of the application, imported from the WCA website.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Accounts.{AccessToken, OneTimeCode}
+  alias WcaLive.Accounts.{AccessToken, OneTimeCode, User}
   alias WcaLive.Competitions.StaffMember
 
   @admin_teams ["wrt", "wst"]
@@ -28,13 +32,17 @@ defmodule WcaLive.Accounts.User do
     timestamps()
   end
 
-  @doc false
   def changeset(user, attrs) do
     user
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
   end
 
+  @doc """
+  Converts the given JSON data received from
+  the WCA website into `User` attributes map.
+  """
+  @spec wca_json_to_attrs(map()) :: map()
   def wca_json_to_attrs(json) do
     %{
       email: json["email"],
@@ -48,6 +56,11 @@ defmodule WcaLive.Accounts.User do
     }
   end
 
+  @doc """
+  Returns `true` if `user` has admin rights based
+  on the WCA teams they belong to.
+  """
+  @spec admin?(%User{}) :: boolean()
   def admin?(user) do
     Enum.any?(user.wca_teams, fn team -> team in @admin_teams end)
   end

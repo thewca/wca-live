@@ -1,9 +1,14 @@
 defmodule WcaLive.Competitions.Competition do
+  @moduledoc """
+  An official WCA competition imported from the WCA website.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
   alias WcaLive.Accounts.User
   alias WcaLive.Competitions.{Competition, Venue, Person, CompetitionEvent, Activity, StaffMember}
+  alias WcaLive.Scoretaking.Round
   alias WcaLive.Wcif
 
   @required_fields [
@@ -38,7 +43,6 @@ defmodule WcaLive.Competitions.Competition do
     timestamps()
   end
 
-  @doc false
   def changeset(competition, attrs) do
     competition
     |> cast(attrs, @required_fields ++ @optional_fields)
@@ -46,13 +50,24 @@ defmodule WcaLive.Competitions.Competition do
     |> unique_constraint(:wca_id)
   end
 
+  @doc """
+  Same as `find_activity_by_wcif_id/2`, raises an error if no activity is found.
+  """
+  @spec find_activity_by_wcif_id!(%Competition{}, integer()) :: %Activity{}
   def find_activity_by_wcif_id!(competition, wcif_id) do
     case find_activity_by_wcif_id(competition, wcif_id) do
-      nil -> raise ArgumentError, message: "Activity with WCIF id \"#{wcif_id}\" not found."
+      nil -> raise ArgumentError, message: "activity with WCIF id '#{wcif_id}' not found"
       activity -> activity
     end
   end
 
+  @doc """
+  Looks up competition activity with matching `wcif_id`.
+
+  *Note: `competition` must have all the schedule associations
+  loaded (all way down to the activities).*
+  """
+  @spec find_activity_by_wcif_id(%Competition{}, integer()) :: %Activity{} | nil
   def find_activity_by_wcif_id(%Competition{} = competition, wcif_id) do
     competition.venues
     |> Enum.find_value(fn venue ->
@@ -70,6 +85,13 @@ defmodule WcaLive.Competitions.Competition do
     child_activities |> Enum.find_value(&find_activity_by_wcif_id(&1, wcif_id))
   end
 
+  @doc """
+  Looks up competition round corresponding to the given `activity_code`.
+
+  *Note: `competition` must have competition events and rounds loaded.*
+  """
+  @spec find_round_by_activity_code(%Competition{}, String.t() | Wcif.ActivityCode.t()) ::
+          %Round{}
   def find_round_by_activity_code(competition, activity_code) when is_binary(activity_code) do
     find_round_by_activity_code(competition, Wcif.ActivityCode.parse!(activity_code))
   end
@@ -84,6 +106,10 @@ defmodule WcaLive.Competitions.Competition do
 
   def find_round_by_activity_code(_competition, _activity_code), do: nil
 
+  @doc """
+  Returns `true` if `competition` is in the past according to its schedule.
+  """
+  @spec over?(%Competition{}) :: boolean()
   def over?(competition) do
     DateTime.compare(DateTime.utc_now(), competition.end_time) == :gt
   end

@@ -1,13 +1,24 @@
 defmodule WcaLive.Wca.RecordsStore do
+  @moduledoc """
+  A caching layer on top of `WcaLive.Wca.Records`.
+
+  The server periodically fetches regional records from the WCA API
+  and keeps them both in the memory and in a local file.
+  Provides a fast way of accessing the records without
+  making a web request. Also, by keeping them in a local file,
+  it works even if the WCA API is down while the app gets restarted.
+  """
+
   use GenServer
 
   require Logger
+
   alias WcaLive.Wca
 
   @name __MODULE__
 
   @type state :: %{
-          records: Records.Utils.records(),
+          records: Wca.Records.records(),
           updated_at: DateTime.t()
         }
 
@@ -20,6 +31,10 @@ defmodule WcaLive.Wca.RecordsStore do
     GenServer.start_link(@name, opts, name: @name)
   end
 
+  @doc """
+  Returns a cached version of regional records fetched from the WCA API.
+  """
+  @spec get_regional_records() :: Wca.Records.records()
   def get_regional_records() do
     GenServer.call(@name, :get_records)
   end

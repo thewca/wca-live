@@ -1,20 +1,32 @@
 defmodule WcaLive.Scoretaking do
+  @moduledoc """
+  Context for scoretaking.
+
+  This is the core logic and has mostly
+  to do with round and result management.
+  """
+
   import Ecto.Query, warn: false
+
   alias Ecto.{Changeset, Multi}
   alias WcaLive.Repo
   alias WcaLive.Wca.{Event, Format}
   alias WcaLive.Competitions.{Person, Registration, Competition}
-  alias WcaLive.Scoretaking.{Round, Result}
-  alias WcaLive.Scoretaking.Computation
+  alias WcaLive.Scoretaking.{Round, Result, Computation}
+  alias WcaLive.Accounts.User
 
   @doc """
   Gets a single round.
   """
+  @spec get_round(term()) :: %Round{} | nil
   def get_round(id), do: Repo.get(Round, id)
 
   @doc """
   Gets a single round.
+
+  Raises an error if no round is found.
   """
+  @spec get_round!(term()) :: %Round{}
   def get_round!(id, preloads \\ []) do
     Repo.get!(Round, id) |> Repo.preload(preloads)
   end
@@ -22,16 +34,29 @@ defmodule WcaLive.Scoretaking do
   @doc """
   Gets a single round.
   """
+  @spec fetch_round(term()) :: {:ok, %Round{}} | {:error, Ecto.Queryable.t()}
   def fetch_round(id), do: Repo.fetch(Round, id)
 
+  @doc """
+  Returns `round` with results loaded.
+  """
+  @spec preload_results(%Round{}) :: %Round{}
   def preload_results(round), do: Repo.preload(round, :results)
 
+  @doc """
+  Finds previous round, unless the first round is given.
+  """
+  @spec get_previous_round(%Round{}) :: %Round{} | nil
   def get_previous_round(round) do
     Round
     |> Round.where_sibling(round, -1)
     |> Repo.one()
   end
 
+  @doc """
+  Finds next round, unless the last round is given.
+  """
+  @spec get_next_round(%Round{}) :: %Round{} | nil
   def get_next_round(round) do
     Round
     |> Round.where_sibling(round, +1)
@@ -40,14 +65,26 @@ defmodule WcaLive.Scoretaking do
 
   @doc """
   Gets a single result.
+
+  Raises an error if no round is found.
   """
+  @spec get_result!(term()) :: %Result{}
   def get_result!(id), do: Repo.get!(Result, id)
 
   @doc """
   Gets a single result.
   """
+  @spec fetch_result(term()) :: {:ok, %Result{}} | {:error, Ecto.Queryable.t()}
   def fetch_result(id), do: Repo.fetch(Result, id)
 
+  @doc """
+  Updates result attempts with the given list.
+
+  Stores the timestamp and user who entered the attempts.
+  Also updates ranking, records and advancing based on the new state.
+  """
+  @spec enter_result_attempts(%Result{}, list(map()), %User{}) ::
+          {:ok, %Result{}} | {:error, Ecto.Changeset.t()}
   def enter_result_attempts(result, attempts, user) do
     result = Repo.preload(result, round: [:competition_event])
 
@@ -71,6 +108,14 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
+  @doc """
+  Creates empty results for all competitors that qualify to `round`.
+
+  In case of first round anyone who registered is added.
+  For subsequent rounds, empty results from the previous round
+  are removed first, then people qualify based on the advancement condition.
+  """
+  @spec open_round(%Round{}) :: {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def open_round(round) do
     round = round |> Repo.preload(:results)
 
@@ -157,6 +202,10 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
+  @doc """
+  Removes all results in `round`.
+  """
+  @spec clear_round(%Round{}) :: {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def clear_round(round) do
     round = round |> Repo.preload(:results)
     next = get_next_round(round) |> Repo.preload(:results)
@@ -170,6 +219,13 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
+  @doc """
+  Creates an empty result for `person` in `round` as long as they qualify.
+
+  If someone no longer qualifies as a result, they get removed.
+  """
+  @spec add_person_to_round(%Person{}, %Round{}) ::
+          {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def add_person_to_round(person, round) do
     round = round |> Repo.preload(:results)
 
@@ -196,7 +252,18 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
-  def remove_person_from_round(person, round, replace) do
+  @doc """
+  Removes `person` from `round` (by removing their result).
+
+  ## Options
+
+    * `:replace` - Add the next qualifying person to this round if applicable. Defaults to `false`.
+  """
+  @spec remove_person_from_round(%Person{}, %Round{}, keyword()) ::
+          {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
+  def remove_person_from_round(person, round, opts \\ []) do
+    replace = Keyword.get(opts, :replace, false)
+
     round = round |> Repo.preload(:results)
 
     result = Enum.find(round.results, &(&1.person_id == person.id))
@@ -221,6 +288,10 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
+  @doc """
+  Returns a list of people who would qualify to `round`, if one person quit `round`.
+  """
+  @spec next_qualifying_to_round(%Round{}) :: list(%Person{})
   def next_qualifying_to_round(round) do
     previous = get_previous_round(round) |> Repo.preload(results: :person)
 
@@ -300,11 +371,22 @@ defmodule WcaLive.Scoretaking do
     end)
   end
 
+  @doc """
+  Determines who could be added to `round` (is an advancement candidate).
+
+  Returns a map with the following keys:
+
+    * `:qualifying` - People who could be added to `round`, because they qualify.
+    * `:revocable` - People who are in the round, but would no longer qualify if one of the `qualifying` people was added.
+  """
+  @spec advancement_candidates(%Round{}) :: %{
+          qualifying: list(%Person{}),
+          revocable: list(%Person{})
+        }
   def advancement_candidates(round) do
     round = round |> Repo.preload(:results)
-    previous = get_previous_round(round) |> Repo.preload(results: :person)
 
-    if previous == nil do
+    if round.number == 1 do
       # Anyone qualifies to the first round.
 
       people =
@@ -322,6 +404,8 @@ defmodule WcaLive.Scoretaking do
 
       %{qualifying: qualifying, revocable: []}
     else
+      previous = get_previous_round(round) |> Repo.preload(results: :person)
+
       already_quit = already_quit_results(previous.results)
 
       could_just_advance =
@@ -356,11 +440,24 @@ defmodule WcaLive.Scoretaking do
   @type record :: %{
           id: String.t(),
           result: %Result{},
-          type: String.t(),
-          record_tag: String.t(),
+          type: :single | :average,
+          tag: String.t(),
           attempt_result: integer()
         }
 
+  @doc """
+  Returns a list of records done recently.
+
+  If record of a given type has been broken several times,
+  only the best result is included in the list.
+
+  ## Options
+
+    * `:days` - The number of past days to limit records to.
+      Competition start date is used, so that all records
+      from the same competitions disappear at the same time. Defaults to `10`.
+    * `:tags` - The record tags to limit records to. Defaults to `["WR", "CR", "NR"]`.
+  """
   @spec list_recent_records() :: list(record())
   def list_recent_records(opts \\ []) do
     days = Keyword.get(opts, :days, 10)
@@ -387,7 +484,7 @@ defmodule WcaLive.Scoretaking do
       |> Enum.map(fn result ->
         %{
           result: result,
-          type: "single",
+          type: :single,
           tag: result.single_record_tag,
           attempt_result: result.best
         }
@@ -399,7 +496,7 @@ defmodule WcaLive.Scoretaking do
       |> Enum.map(fn result ->
         %{
           result: result,
-          type: "average",
+          type: :average,
           tag: result.average_record_tag,
           attempt_result: result.average
         }
@@ -436,14 +533,24 @@ defmodule WcaLive.Scoretaking do
   defp record_tag_rank("CR"), do: 2
   defp record_tag_rank("NR"), do: 3
 
-  defp record_type_rank("single"), do: 1
-  defp record_type_rank("average"), do: 2
+  defp record_type_rank(:single), do: 1
+  defp record_type_rank(:average), do: 2
 
   @type podium :: %{
           round: %Round{},
           results: list(%Result{})
         }
 
+  @doc """
+  Returns a list of podium objects for the given competition,
+  one for each event.
+
+  Each podium object corresponds to a final round of an event
+  and holds a list of results with top 3 ranking from this round.
+  If a final round is not finished or not even open,
+  there's still a podium object representing it,
+  but the result list is empty.
+  """
   @spec list_podiums(%Competition{}) :: list(podium())
   def list_podiums(competition) do
     competition_events =

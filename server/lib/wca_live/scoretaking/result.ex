@@ -1,11 +1,19 @@
 defmodule WcaLive.Scoretaking.Result do
+  @moduledoc """
+  Represents competitor participation in a single round.
+
+  Consists of multiple attempt results and is assigned
+  a ranking by comparison to other results in the given round.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
   import Ecto.Query, warn: false
 
   alias WcaLive.Accounts.User
   alias WcaLive.Competitions.Person
-  alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult, Result}
+  alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult, Result, Cutoff}
+  alias WcaLive.Wca.Format
 
   @required_fields []
   @optional_fields []
@@ -28,7 +36,6 @@ defmodule WcaLive.Scoretaking.Result do
     timestamps()
   end
 
-  @doc false
   def changeset(result, attrs, event_id, number_of_attempts) do
     result
     |> cast(attrs, @required_fields ++ @optional_fields)
@@ -80,10 +87,20 @@ defmodule WcaLive.Scoretaking.Result do
     end
   end
 
+  @doc """
+  Returns an empty result changeset.
+
+  Accepts `attrs` for optional changes to include.
+  """
+  @spec empty_result(keyword()) :: Ecto.Changeset.t()
   def empty_result(attrs \\ []) do
     change(%Result{}, attrs)
   end
 
+  @doc """
+  Checks if `result` satisfies `cutoff` and is eligible for further attempts.
+  """
+  @spec meets_cutoff?(%Result{}, %Cutoff{}) :: boolean()
   def meets_cutoff?(_result, nil), do: true
 
   def meets_cutoff?(result, cutoff) do
@@ -94,6 +111,10 @@ defmodule WcaLive.Scoretaking.Result do
     end)
   end
 
+  @doc """
+  Checks if `result` has all the attempts it's expected to have.
+  """
+  @spec has_expected_attempts?(%Result{}, pos_integer(), %Cutoff{}) :: boolean()
   def has_expected_attempts?(result, max_attempts, cutoff) do
     if meets_cutoff?(result, cutoff) do
       length(result.attempts) == max_attempts
@@ -102,8 +123,22 @@ defmodule WcaLive.Scoretaking.Result do
     end
   end
 
+  @doc """
+  Returns `true` if `result` has no attempts.
+  """
+  @spec empty?(%Result{}) :: boolean()
   def empty?(result), do: length(result.attempts) == 0
 
+  @doc """
+  Returns a list of result stats (i.e. best and average)
+  ordered by significancy.
+  """
+  @spec ordered_result_stats(String.t(), %Format{}) ::
+          list(%{
+            name: String.t(),
+            field: atom(),
+            record_tag_field: atom()
+          })
   def ordered_result_stats(event_id, format) do
     best_stat = %{name: "Best", field: :best, record_tag_field: :single_record_tag}
     average_name = if format.number_of_attempts == 3, do: "Mean", else: "Average"
@@ -125,6 +160,9 @@ defmodule WcaLive.Scoretaking.Result do
     number_of_attempts in [3, 5]
   end
 
+  @doc """
+  Orders query results in a natural way - by ranking, then person name.
+  """
   def order_by_ranking(query) do
     from r in query,
       join: p in assoc(r, :person),

@@ -1,12 +1,23 @@
 defmodule WcaLive.Competitions do
-  import Ecto.Query, warn: false
-  alias WcaLive.Repo
+  @moduledoc """
+  Context for competition management.
+  """
 
+  import Ecto.Query, warn: false
+
+  alias WcaLive.Repo
   alias WcaLive.Competitions.{Competition, Person}
 
   @doc """
-  Returns the list of competitions.
+  Returns a list of competitions.
+
+  Takes a map with the following optional arguments:
+
+    * `:limit` - The maximum number of users to return.
+    * `:filter` - A query string to filter the results by.
+    * `:from` - A `Date` at/after which competitions should be considered.
   """
+  @spec list_competitions(map()) :: list(%Competition{})
   def list_competitions(args \\ %{}) do
     Competition
     |> maybe_limit(args[:limit])
@@ -36,23 +47,34 @@ defmodule WcaLive.Competitions do
   @doc """
   Gets a single competition.
   """
+  @spec get_competition(term()) :: %Competition{} | nil
   def get_competition(id), do: Repo.get(Competition, id)
 
   @doc """
   Gets a single competition.
   """
+  @spec fetch_competition(term()) :: {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
   def fetch_competition(id), do: Repo.fetch(Competition, id)
 
   @doc """
   Gets a single person.
   """
+  @spec get_person(term()) :: %Person{} | nil
   def get_person(id), do: Repo.get(Person, id)
 
   @doc """
   Gets a single person.
   """
+  @spec fetch_person(term()) :: {:ok, %Person{}} | {:error, Ecto.Queryable.t()}
   def fetch_person(id), do: Repo.fetch(Person, id)
 
+  @doc """
+  Updates `competition` with `attrs`.
+
+  Attributes may include nested `staff_members`.
+  """
+  @spec update_competition(%Competition{}, map()) ::
+          {:ok, %Competition{}} | {:error, Ecto.Changeset.t()}
   def update_competition(competition, attrs) do
     competition
     |> Repo.preload(:staff_members)

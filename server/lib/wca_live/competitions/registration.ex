@@ -1,4 +1,8 @@
 defmodule WcaLive.Competitions.Registration do
+  @moduledoc """
+  A person's registration data for a competition.
+  """
+
   use WcaLive.Schema
   import Ecto.Changeset
 
@@ -19,7 +23,6 @@ defmodule WcaLive.Competitions.Registration do
       join_through: "registration_competition_events"
   end
 
-  @doc false
   def changeset(registration, attrs) do
     registration
     |> cast(attrs, @required_fields ++ @optional_fields)
@@ -27,6 +30,10 @@ defmodule WcaLive.Competitions.Registration do
     |> validate_inclusion(:status, ["accepted", "pending", "deleted"])
   end
 
+  @doc """
+  Returns `true` if the given registration is accepted.
+  """
+  @spec accepted?(%Registration{}) :: boolean()
   def accepted?(%Registration{status: "accepted"}), do: true
   def accepted?(%Registration{status: _other}), do: false
 end
