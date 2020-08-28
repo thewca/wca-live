@@ -15,6 +15,10 @@ defmodule WcaLive.Synchronization.CompetitionBrief do
           end_date: Date.t()
         }
 
+  @doc """
+  Converts the given JSON data received from
+  the WCA website into a new `CompetitionBrief`.
+  """
   @spec from_wca_json(map()) :: t()
   def from_wca_json(json) do
     %__MODULE__{

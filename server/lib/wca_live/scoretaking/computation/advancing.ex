@@ -3,13 +3,17 @@ defmodule WcaLive.Scoretaking.Computation.Advancing do
   alias WcaLive.Repo
   alias WcaLive.Wca.Format
   alias WcaLive.Scoretaking
-  alias WcaLive.Scoretaking.{Round, AdvancementCondition, AttemptResult}
+  alias WcaLive.Scoretaking.{Round, AdvancementCondition, AttemptResult, Result}
 
-  # Wording note:
-  #
-  #   - **advancing** - actually being in the next round (the "green" results)
-  #   - **qualifying** - satisfying advancement criteria
+  # Note that **advancing** results mean actually being in the
+  # next round (the "green" results), whereas **qualifying** results
+  # are those satisfying advancement criteria.
 
+  @doc """
+  Calculates the `advancing` attribute on `round` results
+  and returns a changeset including the changes.
+  """
+  @spec compute_advancing(%Round{}) :: Ecto.Changeset.t(%Round{})
   def compute_advancing(round) do
     round = round |> Repo.preload(:results)
     advancing = advancing_results(round)
@@ -35,6 +39,11 @@ defmodule WcaLive.Scoretaking.Computation.Advancing do
     end
   end
 
+  @doc """
+  Returns a list of results in the given round
+  that satisfy advancement criteria.
+  """
+  @spec qualifying_results(%Round{}) :: list(%Result{})
   def qualifying_results(%Round{results: []}), do: []
 
   def qualifying_results(%Round{advancement_condition: nil} = round) do

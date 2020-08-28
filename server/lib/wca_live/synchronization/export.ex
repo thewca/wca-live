@@ -1,6 +1,4 @@
 defmodule WcaLive.Synchronization.Export do
-  @moduledoc false
-
   alias WcaLive.Repo
   alias WcaLive.Wcif
   alias WcaLive.Competitions.Competition

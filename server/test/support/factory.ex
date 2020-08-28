@@ -75,6 +75,26 @@ defmodule WcaLive.Factory do
     }
   end
 
+  def personal_best_factory do
+    %Competitions.PersonalBest{
+      event_id: "333",
+      type: "single",
+      best: 750,
+      world_ranking: 644,
+      continental_ranking: 344,
+      national_ranking: 21
+    }
+  end
+
+  def assignment_factory do
+    %Competitions.Assignment{
+      assignment_code: "competitor",
+      station_number: nil,
+      person: build(:person),
+      activity: build(:activity)
+    }
+  end
+
   def staff_member_factory do
     %Competitions.StaffMember{
       roles: ["organizer"],
@@ -145,6 +165,38 @@ defmodule WcaLive.Factory do
     %Scoretaking.Attempt{
       result: 900,
       reconstruction: nil
+    }
+  end
+
+  def venue_factory do
+    %Competitions.Venue{
+      wcif_id: 1,
+      name: "Venue 1",
+      latitude_microdegrees: -5120,
+      longitude_microdegrees: 10,
+      country_iso2: "GB",
+      timezone: "Europe/London",
+      competition: build(:competition)
+    }
+  end
+
+  def room_factory do
+    %Competitions.Room{
+      wcif_id: 1,
+      name: "Room 1",
+      color: "#fafafa",
+      venue: build(:venue)
+    }
+  end
+
+  def activity_factory do
+    %Competitions.Activity{
+      wcif_id: 1,
+      name: "Activity 1",
+      activity_code: "333-r1",
+      start_time: ~U[2020-04-10 08:00:00Z],
+      end_time: ~U[2020-04-10 18:00:00Z],
+      room: build(:room)
     }
   end
 

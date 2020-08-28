@@ -4,6 +4,11 @@ defmodule WcaLive.Scoretaking.Computation.Ranking do
   alias WcaLive.Wca.Format
   alias WcaLive.Scoretaking.{Round, AttemptResult}
 
+  @doc """
+  Calculates the `ranking` attribute on `round` results
+  and returns a changeset including the changes.
+  """
+  @spec compute_ranking(%Round{}) :: Ecto.Changeset.t(%Round{})
   def compute_ranking(round) do
     round = round |> Repo.preload(:results)
     results = round.results

@@ -3,10 +3,18 @@ defmodule WcaLive.Scoretaking.Computation.RecordTags do
   alias WcaLive.Repo
   alias WcaLive.Wca
   alias WcaLive.Wca.Country
+  alias WcaLive.Competitions.CompetitionEvent
   alias WcaLive.Scoretaking.{Round, AttemptResult}
 
-  # Updating a result with record may affect subsequent round results,
-  # so we compute proper record tags for all rounds of the given event.
+  @doc """
+  Calculates single and average record tags on all results
+  in the given `competition_event` and returns a changeset including the changes.
+
+  Updating result record tags may affect subsequent round record tags,
+  so after changing a result it's best to compute the record tags
+  for all rounds of the given evnet.
+  """
+  @spec compute_record_tags(%CompetitionEvent{}) :: Ecto.Changeset.t(%CompetitionEvent{})
   def compute_record_tags(competition_event) do
     competition_event =
       competition_event

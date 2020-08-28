@@ -1,6 +1,4 @@
 defmodule WcaLive.Synchronization.Import do
-  @moduledoc false
-
   import Ecto.Query, warn: false
   import Ecto.Changeset
 
