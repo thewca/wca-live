@@ -40,4 +40,35 @@ defmodule WcaLiveWeb.ConnCase do
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  # Handle custom tags
+
+  import WcaLive.Factory
+
+  setup context do
+    if context[:signed_in] do
+      user =
+        case context[:signed_in] do
+          :admin ->
+            insert(:user, wca_teams: ["wst"])
+
+          true ->
+            insert(:user)
+        end
+
+      token = WcaLiveWeb.Auth.generate_token(user.id)
+
+      conn =
+        context[:conn]
+        |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
+
+      {:ok, %{current_user: user, conn: conn}}
+    else
+      :ok
+    end
+  end
+
+  def to_gql_id(number) when is_integer(number) do
+    Integer.to_string(number)
+  end
 end

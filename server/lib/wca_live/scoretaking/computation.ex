@@ -34,7 +34,8 @@ defmodule WcaLive.Scoretaking.Computation do
   affect the `advancing` flag on previous round results
   and this function takes care of updating that.
   """
-  @spec update_round_and_previous_advancing(Ecto.Changeset.t(%Round{})) :: {:ok, %Round{}} | {:error, any()}
+  @spec update_round_and_previous_advancing(Ecto.Changeset.t(%Round{})) ::
+          {:ok, %Round{}} | {:error, any()}
   def update_round_and_previous_advancing(round_changeset) do
     Multi.new()
     |> Multi.update(:round, round_changeset)
