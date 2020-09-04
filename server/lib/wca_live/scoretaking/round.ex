@@ -46,6 +46,13 @@ defmodule WcaLive.Scoretaking.Round do
   end
 
   @doc """
+  Checks if the given round is the final round.
+  """
+  @spec final?(%Round{}) :: boolean()
+  def final?(%Round{advancement_condition: nil}), do: true
+  def final?(%Round{}), do: false
+
+  @doc """
   Returns a friendly round name.
   """
   @spec name(%Round{}) :: String.t()

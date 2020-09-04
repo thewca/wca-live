@@ -1,9 +1,13 @@
-defmodule WcaLive.Scoretaking.Computation.RecordTags do
+defmodule WcaLive.Scoretaking.RecordTags do
+  @moduledoc """
+  Functions related to calculating results record tags.
+  """
+
   alias Ecto.Changeset
   alias WcaLive.Repo
   alias WcaLive.Wca
   alias WcaLive.Wca.Country
-  alias WcaLive.Competitions.CompetitionEvent
+  alias WcaLive.Competitions.{CompetitionEvent, Person}
   alias WcaLive.Scoretaking.{Round, AttemptResult}
 
   @doc """
@@ -67,6 +71,12 @@ defmodule WcaLive.Scoretaking.Computation.RecordTags do
     |> Changeset.put_assoc(:rounds, round_changesets)
   end
 
+  @doc """
+  Returns a list of record tags with the corresponding record identifiers
+  specific to the given person (because they depend on person's country).
+  """
+  @spec tags_with_record_key(%Person{}, String.t(), :single | :average) ::
+          list(%{tag: String.t(), record_key: Wca.Records.record_key()})
   def tags_with_record_key(person, event_id, type) do
     country = Country.get_by_iso2!(person.country_iso2)
 

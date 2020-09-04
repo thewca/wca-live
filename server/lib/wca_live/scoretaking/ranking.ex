@@ -1,4 +1,8 @@
-defmodule WcaLive.Scoretaking.Computation.Ranking do
+defmodule WcaLive.Scoretaking.Ranking do
+  @moduledoc """
+  Functions related to calculating results ranking.
+  """
+
   alias Ecto.Changeset
   alias WcaLive.Repo
   alias WcaLive.Wca.Format
@@ -11,10 +15,10 @@ defmodule WcaLive.Scoretaking.Computation.Ranking do
   @spec compute_ranking(%Round{}) :: Ecto.Changeset.t(%Round{})
   def compute_ranking(round) do
     round = round |> Repo.preload(:results)
-    results = round.results
     format = Format.get_by_id!(round.format_id)
 
-    {empty, nonempty} = Enum.split_with(results, fn result -> Enum.empty?(result.attempts) end)
+    {empty, nonempty} =
+      Enum.split_with(round.results, fn result -> Enum.empty?(result.attempts) end)
 
     empty_with_ranking = Enum.map(empty, fn result -> {result, nil} end)
 

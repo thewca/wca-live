@@ -12,7 +12,7 @@ defmodule WcaLive.Scoretaking do
   alias WcaLive.Repo
   alias WcaLive.Wca.{Event, Format}
   alias WcaLive.Competitions.{Person, Registration, Competition}
-  alias WcaLive.Scoretaking.{Round, Result, Computation}
+  alias WcaLive.Scoretaking.{Round, Result, Ranking, Advancing, RecordTags}
   alias WcaLive.Accounts.User
 
   @doc """
@@ -99,13 +99,30 @@ defmodule WcaLive.Scoretaking do
       |> Changeset.put_change(:entered_at, DateTime.utc_now() |> DateTime.truncate(:second))
     end)
     |> Multi.merge(fn %{updated_result: result} ->
-      Computation.process_round_after_results_change(result.round)
+      process_round_after_results_change(result.round)
     end)
     |> Repo.transaction()
     |> case do
       {:ok, _} -> {:ok, get_result!(result.id)}
       {:error, _, reason, _} -> {:error, reason}
     end
+  end
+
+  # Updates attributes (`ranking`, `advancing` and record tags) of the given round results.
+  @spec process_round_after_results_change(%Round{}) :: Ecto.Multi.t()
+  defp process_round_after_results_change(round) do
+    Multi.new()
+    |> Multi.update(:compute_ranking, fn _ ->
+      Ranking.compute_ranking(round)
+    end)
+    |> Multi.update(:compute_advancing, fn %{compute_ranking: round} ->
+      # Note: advancement usually depends on ranking, that's why we compute it first.
+      Advancing.compute_advancing(round)
+    end)
+    |> Multi.update(:compute_record_tags, fn %{compute_advancing: round} ->
+      competition_event = round |> Ecto.assoc(:competition_event) |> Repo.one!()
+      RecordTags.compute_record_tags(competition_event)
+    end)
   end
 
   @doc """
@@ -156,7 +173,7 @@ defmodule WcaLive.Scoretaking do
       Multi.new()
       |> Multi.update(:remove_empty, Round.put_results_in_round(actual_results, round))
       |> Multi.update(:recompute_advancing, fn %{remove_empty: round} ->
-        Computation.Advancing.compute_advancing(round)
+        Advancing.compute_advancing(round)
       end)
       |> Repo.transaction()
       |> case do
@@ -215,7 +232,7 @@ defmodule WcaLive.Scoretaking do
     else
       []
       |> Round.put_results_in_round(round)
-      |> Computation.update_round_and_previous_advancing()
+      |> update_round_and_previous_advancing()
     end
   end
 
@@ -232,7 +249,7 @@ defmodule WcaLive.Scoretaking do
     if Enum.any?(round.results, &(&1.person_id == person.id)) do
       {:error, "cannot add person as they are already in this round"}
     else
-      %{qualifying: qualifying, revocable: revocable} = advancement_candidates(round)
+      %{qualifying: qualifying, revocable: revocable} = Advancing.advancement_candidates(round)
       qualifies? = Enum.any?(qualifying, &(&1.id == person.id))
 
       if not qualifies? do
@@ -247,7 +264,7 @@ defmodule WcaLive.Scoretaking do
 
         [new_result | results]
         |> Round.put_results_in_round(round)
-        |> Computation.update_round_and_previous_advancing()
+        |> update_round_and_previous_advancing()
       end
     end
   end
@@ -271,7 +288,7 @@ defmodule WcaLive.Scoretaking do
     if result == nil do
       {:error, "cannot remove person as they are not in this round"}
     else
-      substitutes = next_qualifying_to_round(round)
+      substitutes = Advancing.next_qualifying_to_round(round)
 
       new_results =
         if replace do
@@ -284,156 +301,34 @@ defmodule WcaLive.Scoretaking do
 
       results
       |> Round.put_results_in_round(round)
-      |> Computation.update_round_and_previous_advancing()
+      |> update_round_and_previous_advancing()
     end
   end
 
-  @doc """
-  Returns a list of people who would qualify to `round`, if one person quit `round`.
-  """
-  @spec next_qualifying_to_round(%Round{}) :: list(%Person{})
-  def next_qualifying_to_round(round) do
-    previous = get_previous_round(round) |> Repo.preload(results: :person)
+  # Saves the given round changeset and recomputes
+  # `advancing` for results in the previous round.
 
-    cond do
-      previous == nil ->
-        # Given a first round, so there is no *next* person who qualifies to it.
-        []
+  # Some changes to round results (specifically removing/adding a person)
+  # affect the `advancing` flag on previous round results
+  # and this function takes care of updating that.
+  @spec update_round_and_previous_advancing(Ecto.Changeset.t(%Round{})) ::
+          {:ok, %Round{}} | {:error, any()}
+  defp update_round_and_previous_advancing(round_changeset) do
+    Multi.new()
+    |> Multi.update(:round, round_changeset)
+    |> Multi.run(:previous, fn _, %{round: round} ->
+      previous = get_previous_round(round) |> Repo.preload(:results)
 
-      not Enum.any?(previous.results, & &1.advancing) ->
-        # This is only possible if the given round has no results (not open yet)
-        # and no one from the previous round satisfies the advancement condition.
-        # In this case there is no one who could qualify.
-        []
-
-      true ->
-        already_quit = already_quit_results(previous.results)
-
-        first_advancing =
-          previous.results |> Enum.filter(& &1.advancing) |> Enum.min_by(& &1.ranking)
-
-        candidates_to_qualify =
-          Enum.filter(previous.results, fn result ->
-            not result.advancing and result not in already_quit
-          end)
-
-        # Take already quit results and the first advancing one,
-        # then *pretend* they got the worst results and didn't qualify
-        # (ended up at the very bottom of results).
-        # This way we see who else would advance.
-        ignored_results = [first_advancing | already_quit]
-        hypothetically_qualifying = qualifying_results_ignoring(previous, ignored_results)
-
-        hypothetically_qualifying
-        |> Enum.filter(fn result -> result in candidates_to_qualify end)
-        |> Enum.map(& &1.person)
-    end
-  end
-
-  # Returns results that quit the next round by looking at the "gaps" in advancement.
-  # Note: if the last advancing result quits then this approach doesn't detect it,
-  # but it's still pretty much the best heuristic. We could compare qualifying and advancing results,
-  # but this wouldn't work when many results quit.
-  defp already_quit_results(results) do
-    max_advancing_ranking =
-      results
-      |> Enum.filter(& &1.advancing)
-      |> Enum.map(& &1.ranking)
-      |> Enum.max()
-
-    results
-    # Should advance...
-    |> Enum.filter(fn result -> result.ranking <= max_advancing_ranking end)
-    # ...but didn't, because they quit the next round.
-    |> Enum.filter(fn result -> not result.advancing end)
-  end
-
-  defp qualifying_results_ignoring(round, ignored_results) do
-    # Empty attempts rank ignored people at the end (making sure they don't qualify).
-    # Then recompute rankings and see who would qualify as a result.
-    hypothetical_results =
-      Enum.map(round.results, fn result ->
-        if result in ignored_results do
-          %{result | attempts: [], best: 0, average: 0}
-        else
-          result
-        end
-      end)
-
-    hypothetical_round =
-      %{round | results: hypothetical_results}
-      |> Computation.Ranking.compute_ranking()
-      |> Ecto.Changeset.apply_changes()
-
-    Computation.Advancing.qualifying_results(hypothetical_round)
-    |> Enum.map(fn hypothetical_result ->
-      Enum.find(round.results, &(&1.id == hypothetical_result.id))
-    end)
-  end
-
-  @doc """
-  Determines who could be added to `round` (is an advancement candidate).
-
-  Returns a map with the following keys:
-
-    * `:qualifying` - People who could be added to `round`, because they qualify.
-    * `:revocable` - People who are in the round, but would no longer qualify if one of the `qualifying` people was added.
-  """
-  @spec advancement_candidates(%Round{}) :: %{
-          qualifying: list(%Person{}),
-          revocable: list(%Person{})
-        }
-  def advancement_candidates(round) do
-    round = round |> Repo.preload(:results)
-
-    if round.number == 1 do
-      # Anyone qualifies to the first round.
-
-      people =
-        round
-        |> Ecto.assoc([:competition_event, :competition, :people])
-        |> Repo.all()
-        |> Repo.preload(:registration)
-
-      qualifying =
-        people
-        |> Enum.filter(&Person.competitor?/1)
-        |> Enum.reject(fn person ->
-          Enum.any?(round.results, fn result -> result.person_id == person.id end)
-        end)
-
-      %{qualifying: qualifying, revocable: []}
-    else
-      previous = get_previous_round(round) |> Repo.preload(results: :person)
-
-      already_quit = already_quit_results(previous.results)
-
-      could_just_advance =
-        qualifying_results_ignoring(previous, already_quit)
-        |> Enum.reject(& &1.advancing)
-
-      cond do
-        not Enum.empty?(could_just_advance) ->
-          qualifying = (already_quit ++ could_just_advance) |> Enum.map(& &1.person)
-          %{qualifying: qualifying, revocable: []}
-
-        not Enum.empty?(already_quit) ->
-          # See who wouldn't qualify if we un-quit one person.
-          new_qualifying = qualifying_results_ignoring(previous, Enum.drop(already_quit, 1))
-
-          revocable =
-            previous.results
-            |> Enum.filter(& &1.advancing)
-            |> Enum.filter(fn result -> result not in new_qualifying end)
-            |> Enum.map(& &1.person)
-
-          qualifying = already_quit |> Enum.map(& &1.person)
-          %{qualifying: qualifying, revocable: revocable}
-
-        true ->
-          # Everyone qualifying is already in the round.
-          %{qualifying: [], revocable: []}
+      if previous == nil do
+        {:ok, nil}
+      else
+        previous |> Advancing.compute_advancing() |> Repo.update()
       end
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{round: round}} -> {:ok, round}
+      {:error, _, reason, _} -> {:error, reason}
     end
   end
 
@@ -510,7 +405,7 @@ defmodule WcaLive.Scoretaking do
       event_id = record.result.round.competition_event.event_id
 
       %{record_key: record_key} =
-        Computation.RecordTags.tags_with_record_key(person, event_id, record.type)
+        RecordTags.tags_with_record_key(person, event_id, record.type)
         |> Enum.find(fn %{tag: tag} -> tag == record.tag end)
 
       Map.put(record, :id, record_key)

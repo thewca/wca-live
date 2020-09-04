@@ -29,11 +29,11 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
   end
 
   def round_next_qualifying(round, _args, _resolution) do
-    {:ok, Scoretaking.next_qualifying_to_round(round)}
+    {:ok, Scoretaking.Advancing.next_qualifying_to_round(round)}
   end
 
   def round_advancement_candidates(round, _args, _resolution) do
-    {:ok, Scoretaking.advancement_candidates(round)}
+    {:ok, Scoretaking.Advancing.advancement_candidates(round)}
   end
 
   def get_round(_parent, %{id: id}, _resolution) do
