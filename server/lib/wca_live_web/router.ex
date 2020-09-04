@@ -1,4 +1,9 @@
 defmodule WcaLiveWeb.Router do
+  @moduledoc """
+  The router configures how a web request proceeds
+  depending on the requested path.
+  """
+
   use WcaLiveWeb, :router
 
   pipeline :api do
@@ -22,12 +27,16 @@ defmodule WcaLiveWeb.Router do
     pipe_through :api
     pipe_through :graphql
 
+    # Enables GraphiQL interactive editor
+    # for crafting GraphQL queries during development.
     if Mix.env() == :dev do
       forward "/graphiql", Absinthe.Plug.GraphiQL,
         schema: WcaLiveWeb.Schema,
         socket: WcaLiveWeb.UserSocket
     end
 
+    # /api is a GrpahQL endpoint, so further processing
+    # is forwarded to the schema implementation.
     forward "/", Absinthe.Plug, schema: WcaLiveWeb.Schema
   end
 
@@ -35,9 +44,6 @@ defmodule WcaLiveWeb.Router do
   #
   # If you want to use the LiveDashboard in production, you should put
   # it behind authentication and allow only admins to access it.
-  # If your application does not have an admins-only section yet,
-  # you can use Plug.BasicAuth to set up some basic authentication
-  # as long as you are also using SSL (which you should anyway).
   if Mix.env() in [:dev, :test] do
     import Phoenix.LiveDashboard.Router
 

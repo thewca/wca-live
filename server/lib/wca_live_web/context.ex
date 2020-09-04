@@ -1,15 +1,21 @@
 defmodule WcaLiveWeb.Context do
+  @moduledoc """
+  A plug for attaching Absinthe context to the connection object.
+  """
+
   @behaviour Plug
 
   import Plug.Conn
   alias WcaLive.Accounts
 
+  @impl true
   def init(opts), do: opts
 
   @doc """
   Adds GraphQL context to the connection.
   The context includes current user extracted from an authorization token if present.
   """
+  @impl true
   def call(conn, _) do
     context = build_context(conn)
     Absinthe.Plug.put_options(conn, context: context)

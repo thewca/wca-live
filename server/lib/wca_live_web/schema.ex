@@ -1,4 +1,12 @@
 defmodule WcaLiveWeb.Schema do
+  @moduledoc """
+  The entry point to the GraphQL schema definition.
+
+  This file contains just some configuration
+  and imports the actual schema elements.
+  GraphQL types are defined in the `schema` directory.
+  """
+
   use Absinthe.Schema
 
   import_types Absinthe.Type.Custom

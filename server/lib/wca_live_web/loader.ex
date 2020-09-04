@@ -1,9 +1,23 @@
 defmodule WcaLiveWeb.Loader do
+  @moduledoc """
+  A module encapsulating custom dataloader behaviour.
+
+  Dataloader provides a mechanism for loading data in batches
+  to avoid the N+1 queries problem.
+
+  See https://hexdocs.pm/absinthe/dataloader.html for more details.
+  """
+
   require Ecto.Query
 
   alias WcaLive.Competitions.Person
   alias WcaLive.Scoretaking.{Round, Result}
 
+  @doc """
+  Returns a new dataloader with `:db` data source
+  on top of `WcaLive.Repo`.
+  """
+  @spec new_dataloader :: Dataloader.t()
   def new_dataloader() do
     source = Dataloader.Ecto.new(WcaLive.Repo, query: &query/2)
 

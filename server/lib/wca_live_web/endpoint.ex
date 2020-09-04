@@ -1,4 +1,10 @@
 defmodule WcaLiveWeb.Endpoint do
+  @moduledoc """
+  This is the starting point for web interaction.
+
+  See https://hexdocs.pm/phoenix/Phoenix.Endpoint.html for details.
+  """
+
   use Phoenix.Endpoint, otp_app: :wca_live
 
   # Absinthe subscriptions integration with Phoenix.

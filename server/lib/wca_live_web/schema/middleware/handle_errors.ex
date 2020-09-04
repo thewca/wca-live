@@ -1,6 +1,12 @@
 defmodule WcaLiveWeb.Schema.Middleware.HandleErrors do
+  @moduledoc """
+  A middleware transforming various error types
+  into readable strings.
+  """
+
   @behaviour Absinthe.Middleware
 
+  @impl true
   def call(resolution, _) do
     %{resolution | errors: Enum.flat_map(resolution.errors, &handle_error/1)}
   end
