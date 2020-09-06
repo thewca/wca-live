@@ -82,7 +82,8 @@ defmodule WcaLive.Factory do
       best: 750,
       world_ranking: 644,
       continental_ranking: 344,
-      national_ranking: 21
+      national_ranking: 21,
+      person: build(:person)
     }
   end
 

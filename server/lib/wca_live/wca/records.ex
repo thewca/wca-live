@@ -24,7 +24,7 @@ defmodule WcaLive.Wca.Records do
   """
   @spec get_regional_records() :: {:ok, records()} | {:error, any()}
   def get_regional_records() do
-    with {:ok, data} <- Wca.Api.get_records() do
+    with {:ok, data} <- Wca.Api.impl().get_records() do
       {:ok, wca_json_to_records(data)}
     end
   end

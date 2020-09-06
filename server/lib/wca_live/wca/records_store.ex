@@ -22,7 +22,7 @@ defmodule WcaLive.Wca.RecordsStore do
           updated_at: DateTime.t()
         }
 
-  @state_path "tmp/record-store.data"
+  @state_path "tmp/record-store.#{Mix.env()}.data"
   @update_interval_sec 1 * 60 * 60
 
   # Client API

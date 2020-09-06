@@ -36,28 +36,35 @@ defmodule WcaLive.Scoretaking.Result do
     timestamps()
   end
 
-  def changeset(result, attrs, event_id, number_of_attempts) do
+  def changeset(result, attrs, event_id, format, cutoff) do
     result
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> cast_embed(:attempts)
-    |> compute_best_and_average(event_id, number_of_attempts)
+    |> compute_best_and_average(event_id, format)
     |> validate_required(@required_fields)
-    |> validate_length(:attempts, max: number_of_attempts)
+    |> validate_length(:attempts, max: format.number_of_attempts)
     |> validate_no_trailing_skipped()
-    |> validate_not_all_dns(number_of_attempts)
+    |> validate_not_all_dns(format, cutoff)
   end
 
-  defp compute_best_and_average(changeset, event_id, number_of_attempts) do
+  defp compute_best_and_average(changeset, event_id, format) do
     %{attempts: attempts} = apply_changes(changeset)
 
     attempt_results =
       attempts
       |> Enum.map(& &1.result)
-      |> AttemptResult.pad_skipped(number_of_attempts)
+      |> AttemptResult.pad_skipped(format.number_of_attempts)
 
     changeset
     |> put_change(:best, AttemptResult.best(attempt_results))
-    |> put_change(:average, AttemptResult.average(attempt_results, event_id))
+    |> put_change(
+      :average,
+      if should_compute_average?(event_id, format) do
+        AttemptResult.average(attempt_results, event_id)
+      else
+        AttemptResult.skipped()
+      end
+    )
   end
 
   defp validate_no_trailing_skipped(changeset) do
@@ -71,12 +78,15 @@ defmodule WcaLive.Scoretaking.Result do
     end
   end
 
-  defp validate_not_all_dns(changeset, number_of_attempts) do
+  defp validate_not_all_dns(changeset, format, cutoff) do
     %{attempts: attempts} = apply_changes(changeset)
     attempt_results = Enum.map(attempts, & &1.result)
 
-    if length(attempt_results) == number_of_attempts and
-         Enum.all?(attempt_results, &AttemptResult.dns?/1) do
+    max_incomplete_attempts =
+      if cutoff, do: cutoff.number_of_attempts, else: format.number_of_attempts
+
+    if Enum.all?(attempt_results, &AttemptResult.dns?/1) and
+         length(attempt_results) == max_incomplete_attempts do
       add_error(
         changeset,
         :attempts,

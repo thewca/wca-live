@@ -21,11 +21,5 @@ config :wca_live, WcaLiveWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-config :wca_live, WcaLive.Wca.OAuth,
-  client_id: "example-application-id",
-  client_secret: "example-secret",
-  redirect_uri: "http://localhost:4000/oauth/callback",
-  authorize_url: "https://staging.worldcubeassociation.org/oauth/authorize",
-  token_url: "https://staging.worldcubeassociation.org/oauth/token"
-
-config :wca_live, WcaLive.Wca.Api, api_url: "https://staging.worldcubeassociation.org/api/v0"
+# config :wca_live, WcaLive.Wca.Api, api_url: "https://staging.worldcubeassociation.org/api/v0"
+config :wca_live, :wca_api, WcaLive.Wca.Api.InMemory

@@ -63,4 +63,5 @@ config :wca_live, WcaLive.Wca.OAuth,
   authorize_url: "https://staging.worldcubeassociation.org/oauth/authorize",
   token_url: "https://staging.worldcubeassociation.org/oauth/token"
 
-config :wca_live, WcaLive.Wca.Api, api_url: "https://staging.worldcubeassociation.org/api/v0"
+config :wca_live, :wca_api, WcaLive.Wca.Api.Http
+config :wca_live, WcaLive.Wca.Api.Http, api_url: "https://staging.worldcubeassociation.org/api/v0"

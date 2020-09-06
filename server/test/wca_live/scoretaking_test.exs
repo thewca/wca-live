@@ -99,8 +99,138 @@ defmodule WcaLive.ScoretakingTest do
     assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
     assert user.id == updated.entered_by_id
     assert [900, 800, 1000, 600, 700] == Enum.map(updated.attempts, & &1.result)
+  end
+
+  test "enter_result_attempts/1 computes best and average" do
+    user = insert(:user)
+    round = insert(:round, format_id: "a")
+    result = insert(:result, round: round, best: 0, average: 0)
+
+    attempts_attrs = [
+      %{result: 900},
+      %{result: 800},
+      %{result: 1000},
+      %{result: 600},
+      %{result: 700}
+    ]
+
+    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
     assert 600 == updated.best
     assert 800 == updated.average
+  end
+
+  test "enter_result_attempts/1 assigns skipped value to average if not applicable" do
+    user = insert(:user)
+    round = insert(:round, format_id: "1")
+    result = insert(:result, round: round, best: 0, average: 0)
+
+    attempts_attrs = [%{result: 900}]
+
+    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+    assert 900 == updated.best
+    assert 0 == updated.average
+  end
+
+  test "enter_result_attempts/1 updates ranking and advancing" do
+    user = insert(:user)
+    round = insert(:round, format_id: "1", advancement_condition: %{type: "percent", level: 50})
+
+    _result1 =
+      insert(:result,
+        round: round,
+        attempts: [%{result: 1000}],
+        best: 1000,
+        average: 0,
+        ranking: 1,
+        advancing: true
+      )
+
+    result2 = insert(:result, round: round, ranking: nil, attempts: [], advancing: false)
+
+    attempts_attrs = [%{result: 900}]
+
+    assert {:ok, updated} = Scoretaking.enter_result_attempts(result2, attempts_attrs, user)
+    assert 1 == updated.ranking
+    assert true == updated.advancing
+  end
+
+  test "enter_result_attempts/1 assigns record tags" do
+    user = insert(:user)
+
+    person = insert(:person, country_iso2: "GB")
+    insert(:personal_best, person: person, event_id: "333", type: "single", best: 1500)
+    insert(:personal_best, person: person, event_id: "333", type: "average", best: 2000)
+
+    result = insert(:result, person: person, single_record_tag: nil, average_record_tag: nil)
+
+    attempts_attrs = [
+      %{result: 1400},
+      %{result: 2500},
+      %{result: 2500},
+      %{result: 2500},
+      %{result: 2500}
+    ]
+
+    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+    assert "PB" == updated.single_record_tag
+    assert nil == updated.average_record_tag
+  end
+
+  test "enter_result_attempts/1 returns an error if all attempts are DNS" do
+    user = insert(:user)
+    round = insert(:round, cutoff: nil, format_id: "a")
+    result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
+
+    attempts_attrs = [
+      %{result: -2},
+      %{result: -2},
+      %{result: -2},
+      %{result: -2},
+      %{result: -2}
+    ]
+
+    assert {:error, changeset} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+
+    assert "can't all be DNS, remove the competitor from this round instead" in errors_on(
+             changeset
+           ).attempts
+  end
+
+  test "enter_result_attempts/1 does return an error if some attempts are DNS but remaining are skipped" do
+    user = insert(:user)
+    round = insert(:round, cutoff: nil, format_id: "a")
+    result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
+
+    attempts_attrs = [
+      %{result: -2},
+      %{result: -2},
+      %{result: -2}
+    ]
+
+    assert {:ok, _updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+  end
+
+  test "enter_result_attempts/1 returns an error if all cutoff attempts are DNS" do
+    user = insert(:user)
+
+    round =
+      insert(:round,
+        cutoff: build(:cutoff, number_of_attempts: 2, attempt_result: 1000),
+        format_id: "a"
+      )
+
+    result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
+
+    attempts_attrs = [
+      %{result: -2},
+      %{result: -2}
+    ]
+
+    assert {:error, changeset} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+
+    assert "can't all be DNS, remove the competitor from this round instead" in errors_on(
+             changeset
+           ).attempts
   end
 
   test "open_round/1 given the first round adds everyone who registered for the event" do

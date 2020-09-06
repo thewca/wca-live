@@ -11,7 +11,7 @@ defmodule WcaLiveWeb.AuthController do
 
   def callback(conn, %{"code" => code}) do
     with {:ok, token_attrs} <- Wca.OAuth.get_token(code),
-         {:ok, data} <- Wca.Api.get_me(token_attrs.access_token),
+         {:ok, data} <- Wca.Api.impl().get_me(token_attrs.access_token),
          user_attrs <- Accounts.User.wca_json_to_attrs(data["me"]),
          {:ok, user} <- Accounts.import_user(user_attrs, token_attrs) do
       token = WcaLiveWeb.Auth.generate_token(user.id)
