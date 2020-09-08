@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  migration:
+    build: ./server
+    environment:
+      - DATABASE_URL
+      - SECRET_KEY_BASE
+      - WCA_OAUTH_CLIENT_ID
+      - WCA_OAUTH_CLIENT_SECRET
+    command: migrate
+  server:
+    build: ./server
+    environment:
+      - DATABASE_URL
+      - SECRET_KEY_BASE
+      - WCA_OAUTH_CLIENT_ID
+      - WCA_OAUTH_CLIENT_SECRET
+    volumes:
+      # Persist cache data (like regional records).
+      - tmp:/app/tmp
+    expose:
+      - "4000"
+  client:
+    build: ./client
+    volumes:
+      - client:/build
+  nginx:
+    build: ./nginx
+    depends_on:
+      - client
+    volumes:
+      - client:/webroot
+      # Persist letsencrypt data (certificates).
+      - letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+
+volumes:
+  client:
+  letsencrypt:
+  tmp:

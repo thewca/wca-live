@@ -66,9 +66,6 @@ defmodule WcaLive.FactoryHelpers do
     end)
 
     get_people_by_rank = fn rank ->
-      index = Enum.find_index(first_round_ranks, &(&1 == rank))
-      Enum.at(people, index)
-
       people
       |> Enum.zip(first_round_ranks)
       |> Enum.filter(fn {_person, ranking} -> ranking == rank end)

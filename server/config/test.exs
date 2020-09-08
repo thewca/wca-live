@@ -1,6 +1,6 @@
 use Mix.Config
 
-# Configure your database
+# Configure the database
 #
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
@@ -21,5 +21,5 @@ config :wca_live, WcaLiveWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-# config :wca_live, WcaLive.Wca.Api, api_url: "https://staging.worldcubeassociation.org/api/v0"
+# Use a mock version of the WCA API.
 config :wca_live, :wca_api, WcaLive.Wca.Api.InMemory

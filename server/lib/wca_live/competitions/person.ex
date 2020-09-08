@@ -69,7 +69,7 @@ defmodule WcaLive.Competitions.Person do
   """
   @spec latin_name(%Person{}) :: String.t()
   def latin_name(person) do
-    String.replace(person.name, ~r/\s*[(（].*/, "")
+    String.replace(person.name, ~r/\s*[(（].*/u, "")
   end
 
   @doc """

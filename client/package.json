@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build && rm -rf build-prod && mv build build-prod",
+    "build": "react-app-rewired build",
     "test": "react-app-rewired test"
   },
   "dependencies": {

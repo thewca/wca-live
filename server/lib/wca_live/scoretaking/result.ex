@@ -137,7 +137,7 @@ defmodule WcaLive.Scoretaking.Result do
   Returns `true` if `result` has no attempts.
   """
   @spec empty?(%Result{}) :: boolean()
-  def empty?(result), do: length(result.attempts) == 0
+  def empty?(result), do: result.attempts == []
 
   @doc """
   Returns a list of result stats (i.e. best and average)

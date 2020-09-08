@@ -5,12 +5,13 @@
 # is restricted to this project.
 
 # General application configuration
+
 use Mix.Config
 
 config :wca_live,
   ecto_repos: [WcaLive.Repo]
 
-# Configures the endpoint
+# Configure the endpoint.
 config :wca_live, WcaLiveWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "gGJX3VwobpaORmDbmr0kXwPququm3j8IXPsp34d1Yc7RkQoJWwOs0l5kBQObpWpf",
@@ -18,12 +19,12 @@ config :wca_live, WcaLiveWeb.Endpoint,
   pubsub_server: WcaLive.PubSub,
   live_view: [signing_salt: "B1YpR/Hz"]
 
-# Configures Elixir's Logger
+# Configure Elixir's Logger.
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Use Jason for JSON parsing in Phoenix
+# Use Jason for JSON parsing in Phoenix.
 config :phoenix, :json_library, Jason
 
 # Use UTC timestamps in migrations.

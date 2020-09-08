@@ -1,14 +1,13 @@
 # In this file, we load production configuration and secrets
-# from environment variables. You can also hardcode secrets,
-# although such is generally not recommended and you have to
-# remember to add this file to your .gitignore.
-use Mix.Config
+# from environment variables.
+
+import Config
 
 database_url =
   System.get_env("DATABASE_URL") ||
     raise """
     environment variable DATABASE_URL is missing.
-    For example: ecto://USER:PASS@HOST/DATABASE
+    For example: postgres://USER:PASSWORD@HOST/DATABASE
     """
 
 config :wca_live, WcaLive.Repo,
@@ -35,13 +34,13 @@ config :wca_live, WcaLiveWeb.Endpoint,
 wca_oauth_client_id =
   System.get_env("WCA_OAUTH_CLIENT_ID") ||
     raise """
-    environment variable WCA_OAUTH_CLIENT_ID is missing.
+    environment variable WCA_OAUTH_CLIENT_ID is missing
     """
 
 wca_oauth_client_secret =
   System.get_env("WCA_OAUTH_CLIENT_SECRET") ||
     raise """
-    environment variable WCA_OAUTH_CLIENT_SECRET is missing.
+    environment variable WCA_OAUTH_CLIENT_SECRET is missing
     """
 
 config :wca_live, WcaLive.Wca.OAuth,
@@ -49,11 +48,6 @@ config :wca_live, WcaLive.Wca.OAuth,
   client_secret: wca_oauth_client_secret
 
 # ## Using releases (Elixir v1.9+)
-#
-# If you are doing OTP releases, you need to instruct Phoenix
-# to start each relevant endpoint:
-#
-#     config :wca_live, WcaLiveWeb.Endpoint, server: true
-#
-# Then you can assemble a release by calling `mix release`.
-# See `mix help release` for more information.
+
+# Instruct Phoenix to start each relevant endpoint.
+config :wca_live, WcaLiveWeb.Endpoint, server: true
