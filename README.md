@@ -9,3 +9,11 @@
   </strong>
 </div>
 <br />
+
+## Server
+
+See the corresponding [README](./server/README.md) for details.
+
+## Client
+
+See the corresponding [README](./client/README.md) for details.

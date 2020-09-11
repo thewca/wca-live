@@ -1,18 +1,38 @@
-# WcaLive
+# WCA Live API
 
-To start your Phoenix server:
+GraphQL API for the WCA Live app.
 
-  * Setup the project with `mix setup`
-  * Start Phoenix endpoint with `mix phx.server`
+Built with [Phoenix](https://www.phoenixframework.org/) and [Absinthe](https://absinthe-graphql.org/).
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Setup
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Requirements:
 
-## Learn more
+- Erlang & Elixir
+- PostgreSQL
+- wkhtmltopdf (on Ubuntu/Debian run `sudo apt update && sudo apt install wkhtmltopdf`)
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+```sh
+# Run the setup task, it installs dependencies and initialized the database.
+mix setup
+```
+
+## Development
+
+```sh
+# Start the server.
+mix phx.server
+```
+
+Now you can visit [`localhost:4000/api/graphiql`](http://localhost:4000/api/graphiql)
+from your browser for an interactive GraphQL client.
+
+## Testing
+
+```sh
+# Run all tests.
+mix test
+
+# See other usage examples.
+mix help test
+```
