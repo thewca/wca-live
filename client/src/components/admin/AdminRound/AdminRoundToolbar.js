@@ -34,7 +34,7 @@ function AdminRoundToolbar({ round, competitionId }) {
             <IconButton
               component="a"
               target="_blank"
-              href={appUrl(`/pdfs/rounds/${round.id}`)}
+              href={appUrl(`/pdf/rounds/${round.id}`)}
             >
               <PrintIcon />
             </IconButton>

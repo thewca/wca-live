@@ -19,8 +19,8 @@ defmodule WcaLiveWeb.Router do
     get "/callback", AuthController, :callback
   end
 
-  scope "/pdfs", WcaLiveWeb do
-    get "/round/:id", PdfController, :round
+  scope "/pdf", WcaLiveWeb do
+    get "/rounds/:id", PdfController, :round
   end
 
   scope "/api" do

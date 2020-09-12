@@ -4,7 +4,7 @@ on:
   push:
 jobs:
   test_client:
-    name: Client test
+    name: Client
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,7 +20,7 @@ jobs:
       - name: Run tests
         run: npm test
   test_server:
-    name: Server test
+    name: Server
     runs-on: ubuntu-latest
     defaults:
       run:

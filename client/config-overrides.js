@@ -38,11 +38,11 @@ module.exports = override(
   ),
   // Override Workbox default configuration.
   // Specifically we don't want service worker to return cached index.html
-  // for /oauth and /pdfs routes as those are not part of our SPA.
+  // for /oauth and /pdf routes as those are not part of our SPA.
   // Once CRA supports custom Workbox config (https://github.com/facebook/create-react-app/pull/5369)
   // we can remove this and use the provided solution.
   adjustWorkbox(wb => {
     // See https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin#generateSW-navigateFallbackBlacklist
-    wb.navigateFallbackBlacklist.push(/^\/oauth/, /^\/pdfs/);
+    wb.navigateFallbackBlacklist.push(/^\/oauth/, /^\/pdf/);
   })
 );
