@@ -16,6 +16,7 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "babel-plugin-import": "^1.13.0",
     "classnames": "^2.2.6",
+    "customize-cra": "^1.0.0",
     "date-fns": "^2.15.0",
     "graphql": "^15.3.0",
     "material-ui-confirm": "^2.1.1",
@@ -25,6 +26,7 @@
     "react-app-polyfill": "^1.0.6",
     "react-dom": "^16.13.1",
     "react-flag-icon-css": "^1.0.25",
+    "react-app-rewired": "^2.1.6",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.1",
     "react-timeago": "^4.4.0",
@@ -33,11 +35,9 @@
     "scroll-into-view-if-needed": "^2.2.25"
   },
   "devDependencies": {
-    "customize-cra": "^1.0.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5",
-    "react-app-rewired": "^2.1.6"
+    "prettier": "^2.0.5"
   },
   "eslintConfig": {
     "extends": "react-app"

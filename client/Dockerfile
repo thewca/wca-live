@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install npm dependencies.
 COPY package*.json ./
-RUN npm ci --silent --progress=false --no-audit --loglevel=error
+RUN npm ci --only prod --progress false --loglevel error --no-audit
 
 # Build artificats.
 COPY . .
