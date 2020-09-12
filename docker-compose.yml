@@ -3,41 +3,69 @@ version: "3.8"
 services:
   migration:
     build: ./server
+    image: wca-live-server
     environment:
+      - HOST
       - DATABASE_URL
       - SECRET_KEY_BASE
+      - WCA_HOST
       - WCA_OAUTH_CLIENT_ID
       - WCA_OAUTH_CLIENT_SECRET
     command: migrate
   server:
     build: ./server
+    image: wca-live-server
+    restart: always
     environment:
+      - HOST
       - DATABASE_URL
       - SECRET_KEY_BASE
+      - WCA_HOST
       - WCA_OAUTH_CLIENT_ID
       - WCA_OAUTH_CLIENT_SECRET
     volumes:
       # Persist cache data (like regional records).
-      - tmp:/app/tmp
+      - server-tmp:/app/tmp
     expose:
       - "4000"
+    logging:
+      driver: json-file
+      options:
+        # Note: by default Docker doesn't impose any limits on logs storage.
+        max-file: '10'
+        max-size: '10m'
   client:
     build: ./client
+    image: wca-live-client
     volumes:
       - client:/build
   nginx:
     build: ./nginx
+    image: wca-live-nginx
+    restart: always
     depends_on:
       - client
+    environment:
+      - HOST
+      - REQUEST_SSL_CERT
+      - EMAIL
     volumes:
       - client:/webroot
-      # Persist letsencrypt data (certificates).
       - letsencrypt:/etc/letsencrypt
     ports:
       - "80:80"
       - "443:443"
+    logging:
+      driver: json-file
+      options:
+        # Note: by default Docker doesn't impose any limits on logs storage.
+        max-file: '10'
+        max-size: '10m'
 
 volumes:
+  # Client build artifacts.
   client:
+  # Letsencrypt data (certificates).
   letsencrypt:
-  tmp:
+  # Server cache/tmp stuff.
+  server-tmp:

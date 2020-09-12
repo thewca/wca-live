@@ -3,6 +3,16 @@
 
 import Config
 
+host =
+  System.get_env("HOST") ||
+    raise """
+    environment variable HOST is missing
+    """
+
+# Configure the url host.
+# Phoenix uses this information when generating URLs.
+config :wca_live, WcaLiveWeb.Endpoint, url: [host: host, port: 80, scheme: "https"]
+
 database_url =
   System.get_env("DATABASE_URL") ||
     raise """
@@ -10,6 +20,7 @@ database_url =
     For example: postgres://USER:PASSWORD@HOST/DATABASE
     """
 
+# Configure the database
 config :wca_live, WcaLive.Repo,
   # ssl: true,
   url: database_url,
@@ -29,7 +40,11 @@ config :wca_live, WcaLiveWeb.Endpoint,
   ],
   secret_key_base: secret_key_base
 
-# WCA OAuth configuration
+wca_host =
+  System.get_env("WCA_HOST") ||
+    raise """
+    environment variable WCA_HOST is missing
+    """
 
 wca_oauth_client_id =
   System.get_env("WCA_OAUTH_CLIENT_ID") ||
@@ -43,9 +58,17 @@ wca_oauth_client_secret =
     environment variable WCA_OAUTH_CLIENT_SECRET is missing
     """
 
+# Configure WCA OAuth.
 config :wca_live, WcaLive.Wca.OAuth,
+  redirect_uri: "https://#{host}/oauth/callback",
+  authorize_url: "https://#{wca_host}/oauth/authorize",
+  token_url: "https://#{wca_host}/oauth/token",
   client_id: wca_oauth_client_id,
   client_secret: wca_oauth_client_secret
+
+# Use a real version of the WCA API, talking to an actual server.
+config :wca_live, :wca_api, WcaLive.Wca.Api.Http
+config :wca_live, WcaLive.Wca.Api.Http, api_url: "https://#{wca_host}/api/v0"
 
 # ## Using releases (Elixir v1.9+)
 
