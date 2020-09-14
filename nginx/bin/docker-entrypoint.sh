@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 conf_path='/etc/nginx/conf.d/default.conf'
 host="${HOST:?Missing env variable HOST}"
 

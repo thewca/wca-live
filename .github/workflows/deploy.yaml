@@ -1,0 +1,23 @@
+name: Deploy
+on:
+  push:
+    branches: prod
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push images to DockerHub
+        run: ./bin/build-and-push-images.sh
+      - name: Run the update script over SSH
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY_RSA }}
+          script: ~/wca-live/bin/server/update.sh

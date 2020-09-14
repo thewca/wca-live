@@ -43,8 +43,6 @@ services:
     build: ./nginx
     image: wca-live-nginx
     restart: always
-    depends_on:
-      - client
     environment:
       - HOST
       - REQUEST_SSL_CERT
