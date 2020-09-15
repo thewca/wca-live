@@ -5,6 +5,7 @@ RUN apk add --no-cache certbot
 
 # Copy all custom Nginx configuration files.
 COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/dhparam.pem /etc/nginx/dhparam.pem
 COPY conf/conf.d /etc/nginx/conf.d
 COPY conf/includes /etc/nginx/includes
 
