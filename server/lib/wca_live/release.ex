@@ -32,6 +32,11 @@ defmodule WcaLive.Release do
   end
 
   defp load_app do
+    # Load the application without starting the supervision tree.
     Application.load(@app)
+
+    # The database connection may be configured to use SSL
+    # so we also need to start the relevant application.
+    Application.ensure_all_started(:ssl)
   end
 end
