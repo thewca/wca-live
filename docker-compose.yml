@@ -3,7 +3,7 @@ version: "3.8"
 services:
   migration:
     build: ./server
-    image: wca-live-server
+    image: thewca/wca-live-server
     environment:
       - HOST
       - DATABASE_URL
@@ -14,7 +14,7 @@ services:
     command: migrate
   server:
     build: ./server
-    image: wca-live-server
+    image: thewca/wca-live-server
     restart: always
     environment:
       - HOST
@@ -36,12 +36,12 @@ services:
         max-size: '10m'
   client:
     build: ./client
-    image: wca-live-client
+    image: thewca/wca-live-client
     volumes:
       - client:/build
   nginx:
     build: ./nginx
-    image: wca-live-nginx
+    image: thewca/wca-live-nginx
     restart: always
     environment:
       - HOST
