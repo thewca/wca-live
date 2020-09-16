@@ -48,7 +48,7 @@ defmodule WcaLive.Wcif.UtilsTest do
   end
 
   test "end_date/1 returns Date based on schedule" do
-    assert ~D[2020-04-12] == Utils.end_date(@wcif_with_schedule)
+    assert ~D[2020-04-11] == Utils.end_date(@wcif_with_schedule)
   end
 
   test "first_activity_start_time/1 returns DateTime based on schedule activities" do

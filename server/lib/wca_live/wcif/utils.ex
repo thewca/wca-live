@@ -12,7 +12,7 @@ defmodule WcaLive.Wcif.Utils do
 
   @spec end_date(wcif()) :: Date.t()
   def end_date(wcif) do
-    start_date(wcif) |> Date.add(wcif["schedule"]["numberOfDays"])
+    start_date(wcif) |> Date.add(wcif["schedule"]["numberOfDays"] - 1)
   end
 
   @spec first_activity_start_time(wcif()) :: DateTime.t()

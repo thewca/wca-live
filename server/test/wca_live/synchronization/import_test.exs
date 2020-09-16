@@ -134,7 +134,7 @@ defmodule WcaLive.Synchronization.ImportTest do
     assert "WC2019" == competition.wca_id
     assert "WCA World Championship 2019" == competition.name
     assert ~D[2019-07-13] == competition.start_date
-    assert ~D[2019-07-15] == competition.end_date
+    assert ~D[2019-07-14] == competition.end_date
     assert ~U[2019-07-13 05:20:00Z] == competition.start_time
     assert ~U[2019-07-13 08:00:00Z] == competition.end_time
   end
