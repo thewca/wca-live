@@ -35,7 +35,7 @@ defmodule WcaLive.Synchronization.Export do
       "events" => competition.competition_events |> Enum.map(&competition_event_to_wcif/1),
       "schedule" => %{
         "startDate" => competition.start_date |> Date.to_iso8601(),
-        "numberOfDays" => Date.diff(competition.end_date, competition.start_date),
+        "numberOfDays" => Date.diff(competition.end_date, competition.start_date) + 1,
         "venues" => competition.venues |> Enum.map(&venue_to_wcif/1)
       },
       "competitorLimit" => competition.competitor_limit

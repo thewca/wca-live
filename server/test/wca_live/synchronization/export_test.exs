@@ -116,7 +116,7 @@ defmodule WcaLive.Synchronization.ExportTest do
         short_name: "WCA WC 2019",
         competitor_limit: 1000,
         start_date: ~D[2019-07-13],
-        end_date: ~D[2019-07-15]
+        end_date: ~D[2019-07-14]
       )
 
     competition_event =
