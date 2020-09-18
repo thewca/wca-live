@@ -2,7 +2,6 @@ version: "3.8"
 
 services:
   migration:
-    build: ./server
     image: thewca/wca-live-server
     environment:
       - HOST
@@ -13,7 +12,6 @@ services:
       - WCA_OAUTH_CLIENT_SECRET
     command: migrate
   server:
-    build: ./server
     image: thewca/wca-live-server
     restart: always
     environment:
@@ -35,12 +33,10 @@ services:
         max-file: '10'
         max-size: '10m'
   client:
-    build: ./client
     image: thewca/wca-live-client
     volumes:
       - client:/build
   nginx:
-    build: ./nginx
     image: thewca/wca-live-nginx
     restart: always
     environment:
