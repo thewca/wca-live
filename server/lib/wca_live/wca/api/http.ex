@@ -79,16 +79,18 @@ defmodule WcaLive.Wca.Api.Http do
 
   defp parse_response({:ok, %HTTPoison.Response{status_code: 200, body: body}}) do
     with {:ok, json} <- Jason.decode(body) do
-      json
+      {:ok, json}
     else _ ->
       {:error, "failed to parse response"}
     end
   end
 
   defp parse_response({:ok, %HTTPoison.Response{body: body}}) do
-    with {:ok, json} <- Jason.decode(body),
-        %{"error" => error} <- json do
-      {:error, error}
+    with {:ok, json} <- Jason.decode(body) do
+      case json do
+        %{"error" => error} -> {:error, error}
+        _ -> {:error, "something went wrong"}
+      end
     else _ ->
       {:error, "failed to parse response"}
     end
