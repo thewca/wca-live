@@ -53,7 +53,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 echo "* cloning the app repository"
 sudo apt install git
-git clone https://github.com/thewca/wca-live.git
+git clone --branch prod https://github.com/thewca/wca-live.git
 # Create .env file from the template
 cp wca-live/.env.template wca-live/.env
 
