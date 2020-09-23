@@ -1,32 +1,49 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Chip,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import VirtualList from '../VirtualList/VirtualList';
 import CompetitionFlagIcon from '../CompetitionFlagIcon/CompetitionFlagIcon';
 import { formatDateRange } from '../../lib/date';
+import { roleToLabel } from '../../lib/staff-member';
 
-function CompetitionList({ title, competitions }) {
+const useStyles = makeStyles((theme) => ({
+  rolesContainer: {
+    display: 'flex',
+  },
+  roleChip: {
+    fontWeight: 500,
+    margin: theme.spacing(0.5),
+  },
+}));
+
+function StaffMembersCompetitionList({ title, staffMembers }) {
+  const classes = useStyles();
+
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
       <VirtualList
         maxHeight={300}
         itemHeight={60}
-        items={competitions}
-        renderItem={(competition, { style }) => {
+        items={staffMembers}
+        renderItem={(staffMember, { style }) => {
+          const competition = staffMember.competition;
+
           return (
             <ListItem
               key={competition.id}
               style={style}
               button
               component={Link}
-              to={`/competitions/${competition.id}`}
+              to={`/admin/competitions/${competition.id}`}
             >
               <ListItemIcon>
                 <ListItemIcon>
@@ -40,6 +57,17 @@ function CompetitionList({ title, competitions }) {
                   competition.endDate
                 )}
               />
+              <div className={classes.rolesContainer}>
+                {staffMember.roles.map((role) => (
+                  <Chip
+                    key={role}
+                    label={roleToLabel(role)}
+                    size="small"
+                    color="secondary"
+                    className={classes.roleChip}
+                  />
+                ))}
+              </div>
             </ListItem>
           );
         }}
@@ -48,4 +76,4 @@ function CompetitionList({ title, competitions }) {
   );
 }
 
-export default CompetitionList;
+export default StaffMembersCompetitionList;

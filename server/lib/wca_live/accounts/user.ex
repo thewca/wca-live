@@ -7,7 +7,7 @@ defmodule WcaLive.Accounts.User do
   import Ecto.Changeset
 
   alias WcaLive.Accounts.{AccessToken, OneTimeCode, User}
-  alias WcaLive.Competitions.StaffMember
+  alias WcaLive.Competitions.{StaffMember, Person}
 
   @admin_teams ["wrt", "wst"]
 
@@ -28,6 +28,7 @@ defmodule WcaLive.Accounts.User do
     has_one :one_time_code, OneTimeCode, on_replace: :delete
 
     has_many :staff_members, StaffMember
+    has_many :people, Person, foreign_key: :wca_id, references: :wca_id
 
     timestamps()
   end

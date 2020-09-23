@@ -20,7 +20,8 @@ defmodule WcaLive.Competitions.Registration do
     belongs_to :person, Person
 
     many_to_many :competition_events, CompetitionEvent,
-      join_through: "registration_competition_events", on_replace: :delete
+      join_through: "registration_competition_events",
+      on_replace: :delete
   end
 
   def changeset(registration, attrs) do

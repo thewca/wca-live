@@ -108,6 +108,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :roles, non_null(list_of(non_null(:string)))
 
+    field :competition, non_null(:competition) do
+      resolve dataloader(:db)
+    end
+
     field :results, non_null(list_of(non_null(:result))) do
       resolve dataloader(:db)
     end

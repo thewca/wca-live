@@ -1,7 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import Admin from '../admin/Admin/Admin';
 import Home from '../Home/Home';
 import DefaultLayout from './DefaultLayout';
 import SignIn from '../SignIn/SignIn';
@@ -9,6 +8,7 @@ import About from '../About/About';
 import Error from '../Error/Error';
 import Loading from '../Loading/Loading';
 import Account from '../Account/Account';
+import MyCompetitions from '../MyCompetitions/MyCompetitions';
 
 const CURRENT_USER_QUERY = gql`
   query CurrentUser {
@@ -44,8 +44,8 @@ function DefaultNavigation() {
           <About />
         </Route>
         {currentUser && (
-          <Route exact path="/admin">
-            <Admin />
+          <Route exact path="/my-competitions">
+            <MyCompetitions />
           </Route>
         )}
         {currentUser && (

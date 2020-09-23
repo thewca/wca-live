@@ -71,6 +71,47 @@ defmodule WcaLiveWeb.Schema.AccountsTypesTest do
     end
   end
 
+  describe "query: user competitors" do
+    @current_user_query """
+    query CurrentUser {
+      currentUser {
+        competitors {
+          id
+        }
+      }
+    }
+    """
+
+    @tag signed_in: %{wca_id: "2020USER01"}
+    test "includes people with accepted registration matching user's WCA ID", %{
+      conn: conn,
+      current_user: current_user
+    } do
+      accepted_competitor = insert(:person, wca_id: current_user.wca_id)
+      insert(:registration, person: accepted_competitor, status: "accepted")
+      pending_competitor = insert(:person, wca_id: current_user.wca_id)
+      insert(:registration, person: pending_competitor, status: "pending")
+      deleted_competitor = insert(:person, wca_id: current_user.wca_id)
+      insert(:registration, person: deleted_competitor, status: "deleted")
+      _registrationless_competitor = insert(:person, wca_id: current_user.wca_id)
+
+      other_accepted_competitor = insert(:person, wca_id: "2020OTHR01")
+      insert(:registration, person: other_accepted_competitor, status: "accepted")
+
+      conn = post(conn, "/api", %{"query" => @current_user_query})
+
+      body = json_response(conn, 200)
+
+      assert %{
+               "data" => %{
+                 "currentUser" => %{
+                   "competitors" => [%{"id" => to_gql_id(accepted_competitor.id)}]
+                 }
+               }
+             } == body
+    end
+  end
+
   describe "query: list users" do
     @users_query """
     query Users {

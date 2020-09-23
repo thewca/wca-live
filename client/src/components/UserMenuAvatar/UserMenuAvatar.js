@@ -11,7 +11,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import SignOutMenuItem from './SignOutMenuItem';
 import PersonIcon from '@material-ui/icons/Person';
-import LockIcon from '@material-ui/icons/Lock';
+import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 
 const useStyles = makeStyles((theme) => ({
   menuList: {
@@ -55,11 +55,11 @@ function UserMenuAvatar({ user }) {
           </ListItemIcon>
           Account
         </MenuItem>
-        <MenuItem component={RouterLink} to="/admin">
+        <MenuItem component={RouterLink} to="/my-competitions">
           <ListItemIcon>
-            <LockIcon />
+            <AssignmentIndIcon />
           </ListItemIcon>
-          Admin
+          My competitions
         </MenuItem>
         <Divider className={classes.divider} />
         <SignOutMenuItem />

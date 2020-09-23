@@ -11,27 +11,27 @@ import VirtualList from '../VirtualList/VirtualList';
 import CompetitionFlagIcon from '../CompetitionFlagIcon/CompetitionFlagIcon';
 import { formatDateRange } from '../../lib/date';
 
-function CompetitionList({ title, competitions }) {
+function CompetitorsCompetitionList({ title, competitors }) {
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
       <VirtualList
         maxHeight={300}
         itemHeight={60}
-        items={competitions}
-        renderItem={(competition, { style }) => {
+        items={competitors}
+        renderItem={(person, { style }) => {
+          const competition = person.competition;
+
           return (
             <ListItem
               key={competition.id}
               style={style}
               button
               component={Link}
-              to={`/competitions/${competition.id}`}
+              to={`/competitions/${competition.id}/competitors/${person.id}`}
             >
               <ListItemIcon>
-                <ListItemIcon>
-                  <CompetitionFlagIcon competition={competition} />
-                </ListItemIcon>
+                <CompetitionFlagIcon competition={competition} />
               </ListItemIcon>
               <ListItemText
                 primary={competition.name}
@@ -48,4 +48,4 @@ function CompetitionList({ title, competitions }) {
   );
 }
 
-export default CompetitionList;
+export default CompetitorsCompetitionList;

@@ -49,11 +49,14 @@ defmodule WcaLiveWeb.ConnCase do
     if context[:signed_in] do
       user =
         case context[:signed_in] do
+          true ->
+            insert(:user)
+
           :admin ->
             insert(:user, wca_teams: ["wst"])
 
-          true ->
-            insert(:user)
+          %{} = attrs ->
+            insert(:user, attrs)
         end
 
       token = WcaLiveWeb.Auth.generate_token(user.id)
