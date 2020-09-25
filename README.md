@@ -116,3 +116,67 @@ files, handle TLS and proxy API requests to the Elixir app.
 The corresponding Docker image handles obtaining an SSL certificate and renewal.
 It also includes all the custom Nginx configuration that scores A+ in the [SSL Labs test](https://www.ssllabs.com/ssltest).
 See the corresponding [README](./nginx/README.md) for details.
+
+## Development
+
+There are two options when it comes to setting up your development environment.
+The Docker based one boils down to running a single command
+and is most likely what you want, especially when getting started.
+
+### Docker based setup
+
+Make sure you have Docker and Docker Compose installed.
+If you're running Ubuntu/Debian have a look at the [production setup script](./bin/server/setup.sh),
+which contains instructions to install both of these.
+
+To start all the services just run the following Docker Compose command:
+
+```sh
+docker-compose -f docker-compose.dev.yml up
+```
+
+This starts the client, server and database on ports `3000`, `4000` and `5432` respectively.
+Make sure those ports are free on your machine, so that Docker can bind the relevant services to them.
+Running it for the first time builds the docker images
+and installs all dependencies, so it may take a while.
+Subsequent runs should be relatively quick.
+
+Once everything is up and running you should be able to access the app at [`localhost:3000`](http://localhost:3000).
+
+Having the containers running you can easily execute custom commands inside them,
+just as you'd do on your machine. A few examples:
+
+```sh
+# Executing commands in running containers takes the following form:
+docker-compose -f docker-compose.dev.yml exec SERVICE COMMAND
+
+# Run client tests
+docker-compose -f docker-compose.dev.yml exec client npm test
+
+# Run server tests
+docker-compose -f docker-compose.dev.yml exec server mix test
+
+# Run the interactive Elixir shell with all the application modules loaded
+docker-compose -f docker-compose.dev.yml exec server iex -S mix
+
+# Run the database shell
+docker-compose -f docker-compose.dev.yml exec database psql -U postgres wca_live_dev
+```
+
+### Manual setup
+
+This option provides more control over the individual parts, but takes more time to set up
+and is less reproducible than the Docker based one.
+Follow the [client](./client/README.md) and [server](./server/README.md) READMEs respectively.
+
+### OAuth during development
+
+In the development environment, instead of interacting with the real WCA server
+we talk to the [staging server](https://staging.worldcubeassociation.org).
+It's similar to the production one, but used for testing purposes.
+In particular there is no sensitive data and every user has the password of `wca`,
+so you can sign in as whoever you want.
+
+To have a competition to work on, find an upcoming one with some registered
+competitors, then sign in as one of the delegates/organizers and import
+the competition under *My competitions*.

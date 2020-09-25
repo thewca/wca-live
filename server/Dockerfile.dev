@@ -1,0 +1,18 @@
+FROM elixir:1.10.4-alpine
+
+# Install dependencies.
+RUN apk add --no-cache \
+    # build
+    build-base git python \
+    # runtime
+    openssl ncurses-libs \
+    # PDF generation
+    ttf-ubuntu-font-family wkhtmltopdf
+
+# Install hex and rebar.
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+WORKDIR /server
+
+CMD [ "sh", "-c", "mix setup; mix phx.server" ]

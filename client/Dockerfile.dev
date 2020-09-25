@@ -1,0 +1,5 @@
+FROM node:14-alpine
+
+WORKDIR /client
+
+CMD [ "sh", "-c", "npm install; npm start" ]
