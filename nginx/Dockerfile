@@ -13,7 +13,8 @@ COPY conf/includes /etc/nginx/includes
 RUN mkdir -p /var/lib/letsencrypt
 
 # Let cron run the reneval script daily.
-COPY bin/renew.sh /etc/periodic/daily/renew.sh
+# We intentionally omit the file extension, as otherwise `run-parts` ignores it.
+COPY bin/renew.sh /etc/periodic/daily/renew
 
 COPY bin/docker-entrypoint.sh /
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
