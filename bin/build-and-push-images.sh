@@ -69,7 +69,7 @@ for service in "${services[@]}"; do
     -v $service_dir:/tmp/service \
     -v $HOME/.docker:/root/.docker \
     --entrypoint buildctl-daemonless.sh \
-    moby/buildkit:master \
+    moby/buildkit:latest \
       build \
       --frontend dockerfile.v0 \
       --local context=/tmp/service \
