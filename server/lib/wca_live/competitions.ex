@@ -51,6 +51,14 @@ defmodule WcaLive.Competitions do
   def get_competition(id), do: Repo.get(Competition, id)
 
   @doc """
+  Gets a single competition by human-readable WCA id.
+
+  Raises an error if no competition is found..
+  """
+  @spec get_competition_by_wca_id!(String.t()) :: %Competition{}
+  def get_competition_by_wca_id!(wca_id), do: Repo.get_by!(Competition, wca_id: wca_id)
+
+  @doc """
   Gets a single competition.
   """
   @spec fetch_competition(term()) :: {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}

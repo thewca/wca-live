@@ -29,6 +29,25 @@ defmodule WcaLive.ScoretakingTest do
     assert round.id == found.id
   end
 
+  test "get_round_by_event_and_number!/3 returns round if there is a matching one" do
+    round = insert(:round)
+
+    assert found =
+             Scoretaking.get_round_by_event_and_number!(
+               round.competition_event.competition_id,
+               round.competition_event.event_id,
+               round.number
+             )
+
+    assert round.id == found.id
+  end
+
+  test "get_round_by_event_and_number!/3 raises an error if no round is found" do
+    assert_raise Ecto.NoResultsError, fn ->
+      Scoretaking.get_round_by_event_and_number!(1, "333", 0)
+    end
+  end
+
   test "preload_results/1 returns round with results loaded" do
     round = insert(:round)
     insert_list(2, :result, round: round)

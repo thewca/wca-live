@@ -26,16 +26,32 @@ defmodule WcaLive.Scoretaking do
 
   Raises an error if no round is found.
   """
-  @spec get_round!(term()) :: %Round{}
+  @spec get_round!(term(), list()) :: %Round{}
   def get_round!(id, preloads \\ []) do
     Repo.get!(Round, id) |> Repo.preload(preloads)
   end
 
   @doc """
-  Gets a single round.
+  Finds a specific round of the given event and competition.
+
+  Raises an error if no round is found.
   """
   @spec fetch_round(term()) :: {:ok, %Round{}} | {:error, Ecto.Queryable.t()}
   def fetch_round(id), do: Repo.fetch(Round, id)
+
+  @doc """
+  Finds
+  """
+  @spec get_round_by_event_and_number!(term(), String.t(), pos_integer()) :: %Round{}
+  def get_round_by_event_and_number!(competition_id, event_id, round_number) do
+    Repo.one!(
+      from round in Round,
+        join: competition_event in assoc(round, :competition_event),
+        where:
+          competition_event.competition_id == ^competition_id and round.number == ^round_number and
+            competition_event.event_id == ^event_id
+    )
+  end
 
   @doc """
   Returns `round` with results loaded.
@@ -191,9 +207,7 @@ defmodule WcaLive.Scoretaking do
 
     if Enum.empty?(empty_results) do
       {:error,
-       "cannot open this round as no one #{
-         if round.number == 1, do: "registered", else: "qualified"
-       }"}
+       "cannot open this round as no one #{if round.number == 1, do: "registered", else: "qualified"}"}
     else
       empty_results
       |> Round.put_results_in_round(round)
