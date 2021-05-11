@@ -235,7 +235,7 @@ defmodule WcaLive.Synchronization.ImportTest do
 
     insert(:personal_best, person: person, event_id: "333", type: "single", best: 800)
 
-    assert {:ok, competition} = Import.import_competition(competition, @wcif)
+    assert {:ok, _competition} = Import.import_competition(competition, @wcif)
     personal_bests = person |> Ecto.assoc(:personal_bests) |> Repo.all()
     assert 1 == length(personal_bests)
     single333 = hd(personal_bests)
@@ -265,7 +265,7 @@ defmodule WcaLive.Synchronization.ImportTest do
         end)
       end)
 
-    assert {:ok, competition} = Import.import_competition(competition, wcif)
+    assert {:ok, _competition} = Import.import_competition(competition, wcif)
     personal_bests = person |> Ecto.assoc(:personal_bests) |> Repo.all()
     assert 2 == length(personal_bests)
 

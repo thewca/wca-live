@@ -243,7 +243,7 @@ defmodule WcaLive.ScoretakingTest do
 
     round333 = insert(:round, number: 1, competition_event: ce333)
 
-    assert {:ok, updated} = Scoretaking.open_round(round333)
+    assert {:ok, _updated} = Scoretaking.open_round(round333)
     results = round333 |> Ecto.assoc(:results) |> Repo.all()
     assert 2 == length(results)
   end
@@ -263,7 +263,7 @@ defmodule WcaLive.ScoretakingTest do
     for ranking <- 1..8, do: insert(:result, round: round1, ranking: ranking)
     insert_list(4, :result, round: round1, ranking: nil, attempts: [])
 
-    assert {:ok, updated} = Scoretaking.open_round(round2)
+    assert {:ok, _updated} = Scoretaking.open_round(round2)
     results1 = round1 |> Ecto.assoc(:results) |> Repo.all()
     results2 = round2 |> Ecto.assoc(:results) |> Repo.all()
     assert 8 == length(results1)
