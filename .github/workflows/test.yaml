@@ -45,6 +45,8 @@ jobs:
         with:
           otp-version: '23.0'
           elixir-version: '1.10.4'
+          # See https://github.com/actions/setup-elixir/issues/49
+          experimental-otp: true
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install wkhtmltopdf
       - name: Install mix dependencies
