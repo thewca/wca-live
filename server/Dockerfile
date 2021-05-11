@@ -1,5 +1,5 @@
 # Stage 1: build
-FROM elixir:1.10.4-alpine AS build
+FROM hexpm/elixir:1.11.4-erlang-23.3.4-alpine-3.13.3 AS build
 
 # Install build dependencies.
 RUN apk add --no-cache build-base git python3
