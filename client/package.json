@@ -28,7 +28,7 @@
     "react-dom": "^16.13.1",
     "react-flag-icon-css": "^1.0.25",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^4.0.3",
+    "react-scripts": "^3.4.4",
     "react-timeago": "^4.4.0",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.5",
