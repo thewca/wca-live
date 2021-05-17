@@ -9,8 +9,9 @@ defmodule WcaLiveWeb.AuthController do
     redirect(conn, external: url)
   end
 
-  def callback(conn, %{"code" => code}) do
-    with {:ok, token_attrs} <- Wca.OAuth.get_token(code),
+  def callback(conn, params) do
+    with %{"code" => code} <- params,
+         {:ok, token_attrs} <- Wca.OAuth.get_token(code),
          {:ok, data} <- Wca.Api.impl().get_me(token_attrs.access_token),
          user_attrs <- Accounts.User.wca_json_to_attrs(data["me"]),
          {:ok, user} <- Accounts.import_user(user_attrs, token_attrs) do
@@ -19,6 +20,8 @@ defmodule WcaLiveWeb.AuthController do
       conn
       # Return the token back to the browser in URL hash.
       |> redirect_to_app(to: "/#token=" <> token)
+    else
+      _ -> redirect_to_app(conn, to: "/")
     end
   end
 

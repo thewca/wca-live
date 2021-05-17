@@ -20,9 +20,7 @@ defmodule WcaLiveWeb.Schema.Middleware.HandleErrors do
       end)
     end)
     |> Enum.flat_map(fn {field, messages} ->
-      Enum.map(messages, fn message ->
-        "#{friendly_field_name(field)} #{message}"
-      end)
+      format_field_error_messages(field, messages)
     end)
   end
 
@@ -33,6 +31,24 @@ defmodule WcaLiveWeb.Schema.Middleware.HandleErrors do
   end
 
   defp handle_error(error), do: [error]
+
+  defp format_field_error_messages(field, messages) do
+    Enum.flat_map(messages, fn message ->
+      format_field_error_message(field, message)
+    end)
+  end
+
+  defp format_field_error_message(field, message) when is_binary(message) do
+    ["#{friendly_field_name(field)} #{message}"]
+  end
+
+  defp format_field_error_message(_field, %{} = message) do
+    # Errors may come from nested associated structures,
+    # so a message could be a map
+    Enum.flat_map(message, fn {field, messages} ->
+      format_field_error_messages(field, messages)
+    end)
+  end
 
   defp friendly_field_name(field) do
     field
