@@ -16,7 +16,7 @@ defmodule WcaLive.Competitions.Assignment do
     field :station_number, :integer
 
     belongs_to :person, Person
-    belongs_to :activity, Activity
+    belongs_to :activity, Activity, on_replace: :nilify
   end
 
   def changeset(assignment, attrs) do
