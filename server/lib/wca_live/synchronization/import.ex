@@ -259,7 +259,7 @@ defmodule WcaLive.Synchronization.Import do
     competition =
       Repo.preload(competition,
         competition_events: [rounds: [:results]],
-        venues: [rooms: [activities: [:child_activities]]],
+        venues: [rooms: [activities: [child_activities: [:child_activities]]]],
         people: [
           :results,
           :personal_bests,
