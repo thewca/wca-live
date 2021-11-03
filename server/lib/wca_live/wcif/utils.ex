@@ -25,7 +25,7 @@ defmodule WcaLive.Wcif.Utils do
 
     activities
     |> Enum.map(&(DateTime.from_iso8601(&1["startTime"]) |> elem(1)))
-    |> Enum.min()
+    |> Enum.min(DateTime)
   end
 
   @spec last_activity_end_time(wcif()) :: DateTime.t()
@@ -38,7 +38,7 @@ defmodule WcaLive.Wcif.Utils do
 
     activities
     |> Enum.map(&(DateTime.from_iso8601(&1["endTime"]) |> elem(1)))
-    |> Enum.max()
+    |> Enum.max(DateTime)
   end
 
   defp top_level_activities(wcif) do
