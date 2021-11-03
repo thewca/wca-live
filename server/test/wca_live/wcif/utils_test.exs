@@ -6,7 +6,7 @@ defmodule WcaLive.Wcif.UtilsTest do
   # Partial WCIF for the tests below.
   @wcif_with_schedule %{
     "schedule" => %{
-      "startDate" => "2020-04-10",
+      "startDate" => "2020-04-30",
       "numberOfDays" => 2,
       "venues" => [
         %{
@@ -17,14 +17,26 @@ defmodule WcaLive.Wcif.UtilsTest do
               "activities" => [
                 %{
                   "name" => "Activity 1",
-                  "startTime" => "2020-04-10T05:20:00Z",
-                  "endTime" => "2020-04-10T06:00:00Z",
+                  "startTime" => "2020-04-30T05:20:00Z",
+                  "endTime" => "2020-04-30T06:00:00Z",
                   "childActivities" => []
                 },
                 %{
                   "name" => "Activity 2",
-                  "startTime" => "2020-04-10T06:00:00Z",
-                  "endTime" => "2020-04-10T06:10:00Z",
+                  "startTime" => "2020-04-30T06:00:00Z",
+                  "endTime" => "2020-04-30T06:10:00Z",
+                  "childActivities" => []
+                },
+                %{
+                  "name" => "Activity 3",
+                  "startTime" => "2020-05-01T05:20:00Z",
+                  "endTime" => "2020-05-01T06:00:00Z",
+                  "childActivities" => []
+                },
+                %{
+                  "name" => "Activity 4",
+                  "startTime" => "2020-05-01T06:00:00Z",
+                  "endTime" => "2020-05-01T06:10:00Z",
                   "childActivities" => []
                 }
               ]
@@ -37,22 +49,22 @@ defmodule WcaLive.Wcif.UtilsTest do
 
   @wcif_with_no_activities %{
     "schedule" => %{
-      "startDate" => "2020-04-10",
+      "startDate" => "2020-04-30",
       "numberOfDays" => 2,
       "venues" => []
     }
   }
 
   test "start_date/1 returns Date based on schedule" do
-    assert ~D[2020-04-10] == Utils.start_date(@wcif_with_schedule)
+    assert ~D[2020-04-30] == Utils.start_date(@wcif_with_schedule)
   end
 
   test "end_date/1 returns Date based on schedule" do
-    assert ~D[2020-04-11] == Utils.end_date(@wcif_with_schedule)
+    assert ~D[2020-05-01] == Utils.end_date(@wcif_with_schedule)
   end
 
   test "first_activity_start_time/1 returns DateTime based on schedule activities" do
-    assert ~U[2020-04-10 05:20:00Z] == Utils.first_activity_start_time(@wcif_with_schedule)
+    assert ~U[2020-04-30 05:20:00Z] == Utils.first_activity_start_time(@wcif_with_schedule)
   end
 
   test "first_activity_start_time/1 raises error when there are no activities in schedule" do
@@ -62,7 +74,7 @@ defmodule WcaLive.Wcif.UtilsTest do
   end
 
   test "last_activity_end_time/1 returns DateTime based on schedule activities" do
-    assert ~U[2020-04-10 06:10:00Z] == Utils.last_activity_end_time(@wcif_with_schedule)
+    assert ~U[2020-05-01 06:10:00Z] == Utils.last_activity_end_time(@wcif_with_schedule)
   end
 
   test "last_activity_end_time/1 raises error when there are no activities in schedule" do
