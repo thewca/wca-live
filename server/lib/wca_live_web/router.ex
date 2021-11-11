@@ -45,10 +45,7 @@ defmodule WcaLiveWeb.Router do
     forward "/", Absinthe.Plug, schema: WcaLiveWeb.Schema
   end
 
-  # Enables LiveDashboard only for development
-  #
-  # If you want to use the LiveDashboard in production, you should put
-  # it behind authentication and allow only admins to access it.
+  # Enable LiveDashboard only for development
   if Mix.env() in [:dev, :test] do
     import Phoenix.LiveDashboard.Router
 
