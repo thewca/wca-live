@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Hidden, Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, useMediaQuery } from '@mui/material';
 import CompetitorResultsTable from './CompetitorResultsTable';
 import CompetitorResultDialog from './CompetitorResultDialog';
 import { groupBy, orderBy } from '../../lib/utils';
 
 function CompetitorResults({ results, competitionId }) {
+  const smScreen = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+
   const [selectedResult, setSelectedResult] = useState(null);
 
   const nonemptyResults = results.filter(
@@ -34,13 +36,13 @@ function CompetitorResults({ results, competitionId }) {
           </Grid>
         ))}
       </Grid>
-      <Hidden smUp>
+      {!smScreen && (
         <CompetitorResultDialog
           result={selectedResult}
           competitionId={competitionId}
           onClose={() => setSelectedResult(null)}
         />
-      </Hidden>
+      )}
     </>
   );
 }

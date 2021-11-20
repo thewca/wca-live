@@ -1,7 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Grid, Paper } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Box, Grid, Paper } from '@mui/material';
 import Error from '../Error/Error';
 import HomeFooter from './HomeFooter';
 import HomeCompetitions from './HomeCompetitions';
@@ -61,29 +60,7 @@ const COMPETITIONS_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(2, 1),
-    [theme.breakpoints.up('md')]: {
-      padding: theme.spacing(3),
-      paddingBottom: theme.spacing(2),
-    },
-    display: 'flex',
-    minHeight: '100%',
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  center: {
-    textAlign: 'center',
-  },
-}));
-
 function Home() {
-  const classes = useStyles();
   const { data, loading, error } = useQuery(COMPETITIONS_QUERY, {
     variables: { from: monthAgoDateString() },
   });
@@ -102,37 +79,42 @@ function Home() {
   const past = competitions.filter(isPast).reverse();
 
   return (
-    <>
-      <div className={classes.root}>
-        <Grid container spacing={2} direction="column" className={classes.grow}>
-          <Grid item>
-            <HomeToolbar
+    <Box
+      sx={{
+        py: { xs: 2, md: 3 },
+        px: { xs: 1, md: 3 },
+        display: 'flex',
+        minHeight: '100%',
+      }}
+    >
+      <Grid container spacing={2} direction="column" sx={{ flexGrow: 1 }}>
+        <Grid item>
+          <HomeToolbar
+            upcoming={upcoming}
+            inProgress={inProgress}
+            past={past}
+          />
+        </Grid>
+        <Grid item>
+          <Paper>
+            <HomeCompetitions
               upcoming={upcoming}
               inProgress={inProgress}
               past={past}
             />
-          </Grid>
-          <Grid item>
-            <Paper>
-              <HomeCompetitions
-                upcoming={upcoming}
-                inProgress={inProgress}
-                past={past}
-              />
-            </Paper>
-          </Grid>
-          <Grid item>
-            <Paper>
-              <RecordList title="Recent records" records={recentRecords} />
-            </Paper>
-          </Grid>
-          <Grid item className={classes.grow} />
-          <Grid item className={classes.fullWidth}>
-            <HomeFooter />
-          </Grid>
+          </Paper>
         </Grid>
-      </div>
-    </>
+        <Grid item>
+          <Paper>
+            <RecordList title="Recent records" records={recentRecords} />
+          </Paper>
+        </Grid>
+        <Grid item sx={{ flexGrow: 1 }} />
+        <Grid item sx={{ width: '100%' }}>
+          <HomeFooter />
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 

@@ -1,41 +1,26 @@
 import React, { useState } from 'react';
-import { AppBar, Drawer, Hidden, SwipeableDrawer } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
-import classNames from 'classnames';
+import {
+  AppBar,
+  Box,
+  Drawer,
+  SwipeableDrawer,
+  useMediaQuery,
+} from '@mui/material';
 import CompetitionDrawerContent from './CompetitionDrawerContent';
 import CompetitionToolbar from './CompetitionToolbar';
 
 const DRAWER_WIDTH = 250;
 
-const useStyles = makeStyles((theme) => ({
-  appBar: {
-    color: theme.palette.type === 'dark' ? '#fff' : null,
-    backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
-  },
+const styles = {
   appBarShift: {
-    [theme.breakpoints.up('lg')]: {
-      width: `calc(100% - ${DRAWER_WIDTH}px)`,
-      marginLeft: DRAWER_WIDTH,
-    },
+    width: { lg: `calc(100% - ${DRAWER_WIDTH}px)` },
+    ml: { lg: `${DRAWER_WIDTH}px` },
   },
-  drawer: {
-    [theme.breakpoints.up('lg')]: {
-      width: DRAWER_WIDTH,
-    },
-  },
-  content: {
-    position: 'relative', // For LinearProgress
-    overflowY: 'auto',
-    padding: theme.spacing(2, 1),
-    [theme.breakpoints.up('md')]: {
-      padding: theme.spacing(3),
-    },
-  },
-}));
+};
 
 function CompetitionLayout({ competition, children }) {
-  const classes = useStyles();
+  const lgScreen = useMediaQuery((theme) => theme.breakpoints.up('lg'));
+
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // See https://material-ui.com/components/drawers/#swipeable
@@ -43,10 +28,7 @@ function CompetitionLayout({ competition, children }) {
 
   return (
     <>
-      <AppBar
-        position="sticky"
-        className={classNames(classes.appBar, classes.appBarShift)}
-      >
+      <AppBar position="sticky" sx={styles.appBarShift}>
         {competition && (
           <CompetitionToolbar
             competition={competition}
@@ -54,13 +36,26 @@ function CompetitionLayout({ competition, children }) {
           />
         )}
       </AppBar>
-      <Hidden lgUp>
+      {lgScreen ? (
+        <Drawer
+          variant="permanent"
+          sx={{
+            '& .MuiDrawer-paper': { width: { lg: DRAWER_WIDTH } },
+          }}
+        >
+          {competition && (
+            <CompetitionDrawerContent competition={competition} />
+          )}
+        </Drawer>
+      ) : (
         <SwipeableDrawer
           open={mobileOpen}
           onOpen={() => setMobileOpen(true)}
           onClose={() => setMobileOpen(false)}
           onClick={() => setMobileOpen(false)}
-          classes={{ paper: classes.drawer }}
+          sx={{
+            '& .MuiDrawer-paper': { width: { lg: DRAWER_WIDTH } },
+          }}
           disableBackdropTransition={!iOS}
           disableDiscovery={iOS}
         >
@@ -68,17 +63,18 @@ function CompetitionLayout({ competition, children }) {
             <CompetitionDrawerContent competition={competition} />
           )}
         </SwipeableDrawer>
-      </Hidden>
-      <Hidden mdDown>
-        <Drawer variant="permanent" classes={{ paper: classes.drawer }}>
-          {competition && (
-            <CompetitionDrawerContent competition={competition} />
-          )}
-        </Drawer>
-      </Hidden>
-      <div className={classNames(classes.content, classes.appBarShift)}>
+      )}
+      <Box
+        sx={{
+          position: 'relative', // For LinearProgress
+          overflowY: 'auto',
+          py: { xs: 2, md: 3 },
+          px: { xs: 1, md: 3 },
+          ...styles.appBarShift,
+        }}
+      >
         {children}
-      </div>
+      </Box>
     </>
   );
 }

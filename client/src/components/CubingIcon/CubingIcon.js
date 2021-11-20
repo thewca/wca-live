@@ -1,24 +1,16 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
-
-const useStyles = makeStyles((theme) => ({
-  icon: {
-    color: theme.palette.type === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.54)',
-    fontSize: 24,
-  },
-  iconSmall: {
-    fontSize: 16,
-  },
-}));
+import { Box } from '@mui/material';
 
 function CubingIcon({ eventId, small = false, ...props }) {
-  const classes = useStyles();
   return (
-    <span
-      className={classNames('cubing-icon', `event-${eventId}`, classes.icon, {
-        [classes.iconSmall]: small,
-      })}
+    <Box
+      component="span"
+      className={`cubing-icon event-${eventId}`}
+      sx={{
+        color: (theme) =>
+          theme.palette.mode === 'dark' ? '#fff' : 'rgba(0, 0, 0, 0.54)',
+        fontSize: small ? 16 : 24,
+      }}
       {...props}
     />
   );

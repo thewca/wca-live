@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, Redirect, useParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import AdminCompetitionEvents from '../AdminCompetitionEvents/AdminCompetitionEvents';
 import Synchronization from '../Synchronization/Synchronization';
@@ -25,55 +25,37 @@ const COMPETITION_QUERY = gql`
 `;
 
 function AdminCompetitionNavigation() {
-  const { id } = useParams();
+  const { competitionId } = useParams();
 
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
-    variables: { id },
+    variables: { id: competitionId },
   });
 
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
   const { competition } = data;
 
-  if (!competition.access.canScoretake) return <Redirect to="/sign-in" />;
+  if (!competition.access.canScoretake) return <Navigate to="/sign-in" />;
 
   return (
     <AdminCompetitionLayout competition={competition}>
-      <Switch>
-        <Route
-          exact
-          path="/admin/competitions/:competitionId"
-          component={AdminCompetitionEvents}
-        />
-        <Route
-          exact
-          path="/admin/competitions/:competitionId/sync"
-          component={Synchronization}
-        />
+      <Routes>
+        <Route path="" element={<AdminCompetitionEvents />} />
+        <Route path="sync" element={<Synchronization />} />
         {competition.access.canManage && (
-          <Route
-            exact
-            path="/admin/competitions/:competitionId/settings"
-            component={AdminSettings}
-          />
+          <Route path="settings" element={<AdminSettings />} />
         )}
         <Route
-          exact
-          path="/admin/competitions/:competitionId/rounds/:roundId/doublecheck"
-          component={RoundDoubleCheck}
+          path="rounds/:roundId/doublecheck"
+          element={<RoundDoubleCheck />}
         />
+        <Route path="rounds/:roundId" element={<AdminRound />} />
+        <Route path="competitors" element={<AdminCompetitors />} />
         <Route
-          exact
-          path="/admin/competitions/:competitionId/rounds/:roundId"
-          component={AdminRound}
+          path="*"
+          element={<Navigate to={`/admin/competitions/${competition.id}`} />}
         />
-        <Route
-          exact
-          path="/admin/competitions/:competitionId/competitors"
-          component={AdminCompetitors}
-        />
-        <Redirect to={`/admin/competitions/${competition.id}`} />
-      </Switch>
+      </Routes>
     </AdminCompetitionLayout>
   );
 }

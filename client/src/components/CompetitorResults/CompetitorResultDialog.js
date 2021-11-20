@@ -9,7 +9,7 @@ import {
   Grid,
   Link,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import { formatAttemptResult } from '../../lib/attempt-result';
 import { orderedResultStats } from '../../lib/result';
 import RecordTagBadge from '../RecordTagBadge/RecordTagBadge';
@@ -34,6 +34,7 @@ function CompetitorResultDialog({ result, competitionId, onClose }) {
                 <Link
                   component={RouterLink}
                   to={`/competitions/${competitionId}/rounds/${result.round.id}`}
+                  underline="hover"
                 >
                   All results
                 </Link>

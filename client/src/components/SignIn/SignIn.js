@@ -1,32 +1,18 @@
 import React from 'react';
-import { Divider, Grid, Hidden, Box } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Divider, Grid, Box, useMediaQuery } from '@mui/material';
 import SignInCode from './SignInCode';
 import SignInWca from './SignInWca';
 
-const useStyles = makeStyles((theme) => ({
-  fullHeight: {
-    height: '100%',
-  },
-}));
-
 function SignIn() {
-  const classes = useStyles();
+  const mdScreen = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
   return (
-    <Box p={4} className={classes.fullHeight}>
-      <Grid
-        container
-        alignItems="center"
-        className={classes.fullHeight}
-        spacing={4}
-      >
+    <Box sx={{ height: '100%', p: 4 }}>
+      <Grid container alignItems="center" sx={{ height: '100%' }} spacing={4}>
         <Grid item xs={12} md>
           <SignInWca />
         </Grid>
-        <Hidden smDown>
-          <Divider orientation="vertical" flexItem />
-        </Hidden>
+        {mdScreen && <Divider orientation="vertical" flexItem />}
         <Grid item xs={12} md>
           <SignInCode />
         </Grid>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Grid, Link, Typography } from '@material-ui/core';
+import { Button, Grid, Link, Typography } from '@mui/material';
 import { appUrl, wcaUrl } from '../../lib/urls';
 
 function SignInWca() {
@@ -11,7 +11,10 @@ function SignInWca() {
         </Typography>
         <Typography color="textSecondary" align="center">
           If you don't have a WCA account, you can create one{' '}
-          <Link href={wcaUrl('/users/sign_up')}>here</Link>.
+          <Link href={wcaUrl('/users/sign_up')} underline="hover">
+            here
+          </Link>
+          .
         </Typography>
       </Grid>
       <Grid item>

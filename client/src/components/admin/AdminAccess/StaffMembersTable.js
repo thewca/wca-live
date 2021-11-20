@@ -8,7 +8,7 @@ import {
   TableRow,
   TableContainer,
   Paper,
-} from '@material-ui/core';
+} from '@mui/material';
 
 const rolesData = [
   { role: 'organizer', name: 'Organizer', editable: false },
@@ -48,7 +48,10 @@ function StaffMembersTable({ staffMembers, onChange }) {
         </TableHead>
         <TableBody>
           {staffMembers.map((staffMember) => (
-            <TableRow key={staffMember.user.id}>
+            <TableRow
+              key={staffMember.user.id}
+              sx={{ '&:last-child td': { border: 0 } }}
+            >
               <TableCell>{staffMember.user.name}</TableCell>
               {rolesData.map(({ role, editable }) => (
                 <TableCell key={role} padding="checkbox" align="center">

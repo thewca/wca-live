@@ -1,17 +1,17 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useApolloClient } from '@apollo/client';
-import { MenuItem, ListItemIcon } from '@material-ui/core';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { MenuItem, ListItemIcon } from '@mui/material';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { clearToken } from '../../lib/auth';
 
 function SignOutMenuItem() {
   const apolloClient = useApolloClient();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function handleSignOut() {
     clearToken();
-    history.push('/');
+    navigate('/');
     apolloClient.resetStore();
   }
 

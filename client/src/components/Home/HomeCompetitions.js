@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tab, Tabs } from '@material-ui/core';
+import { Tab, Tabs } from '@mui/material';
 import CompetitionList from '../CompetitionList/CompetitionList';
 
 function HomeCompetitions({ past, inProgress, upcoming }) {
@@ -14,7 +14,13 @@ function HomeCompetitions({ past, inProgress, upcoming }) {
 
   return (
     <>
-      <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
+      <Tabs
+        indicatorColor="secondary"
+        textColor="inherit"
+        value={tabValue}
+        onChange={handleTabChange}
+        variant="fullWidth"
+      >
         <Tab label="Upcoming" value="upcoming" />
         {inProgress.length > 0 && <Tab label="Right now" value="inProgress" />}
         {past.length > 0 && <Tab label="Past month" value="past" />}

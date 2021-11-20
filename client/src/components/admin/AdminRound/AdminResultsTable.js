@@ -6,32 +6,23 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
-import { green } from '@material-ui/core/colors';
+} from '@mui/material';
+import { green } from '@mui/material/colors';
 import { times } from '../../../lib/utils';
 import { formatAttemptResult } from '../../../lib/attempt-result';
 import { orderedResultStats, paddedAttemptResults } from '../../../lib/result';
 import RecordTagBadge from '../../RecordTagBadge/RecordTagBadge';
 
-const useStyles = makeStyles((theme) => ({
-  row: {
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-  },
+const styles = {
   ranking: {
-    paddingRight: 16,
+    pr: 2,
     width: 50,
   },
   advancing: {
-    color: theme.palette.getContrastText(green['A400']),
+    color: (theme) => theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
-  mainStat: {
-    fontWeight: 600,
-  },
-}));
+};
 
 function sortResults(results, orderBy, order) {
   if (orderBy === null) return results;
@@ -50,7 +41,6 @@ function sortResults(results, orderBy, order) {
 
 const AdminResultsTable = React.memo(
   ({ results, eventId, format, onResultClick }) => {
-    const classes = useStyles();
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState(null);
 
@@ -73,7 +63,7 @@ const AdminResultsTable = React.memo(
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell align="right" className={classes.ranking}>
+            <TableCell align="right" sx={styles.ranking}>
               #
             </TableCell>
             <TableCell align="right">
@@ -111,14 +101,19 @@ const AdminResultsTable = React.memo(
             <TableRow
               key={result.person.id}
               hover
-              className={classes.row}
+              sx={{
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                '&:last-child td': { border: 0 },
+              }}
               onClick={(event) => onResultClick(result, event)}
             >
               <TableCell
                 align="right"
-                className={classNames(classes.ranking, {
-                  [classes.advancing]: result.advancing,
-                })}
+                sx={{
+                  ...styles.ranking,
+                  ...(result.advancing ? styles.advancing : {}),
+                }}
               >
                 {result.ranking}
               </TableCell>
@@ -135,9 +130,7 @@ const AdminResultsTable = React.memo(
                 <TableCell
                   key={name}
                   align="right"
-                  className={classNames({
-                    [classes.mainStat]: index === 0,
-                  })}
+                  sx={{ fontWeight: index === 0 ? 600 : 400 }}
                 >
                   <RecordTagBadge recordTag={result[recordTagField]} hidePb>
                     {formatAttemptResult(result[field], eventId)}

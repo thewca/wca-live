@@ -13,23 +13,9 @@ import {
   TextField,
   Toolbar,
   Tooltip,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
+} from '@mui/material';
 import CubingIcon from '../../CubingIcon/CubingIcon';
 import { wcaUrl } from '../../../lib/urls';
-
-const useStyles = makeStyles((theme) => ({
-  row: {
-    whiteSpace: 'nowrap',
-  },
-  tableWrapper: {
-    overflowX: 'auto',
-  },
-  awaitingResults: {
-    opacity: 0.5,
-  },
-}));
 
 function searchCompetitors(competitors, search) {
   if (!search) return competitors;
@@ -52,8 +38,6 @@ function searchCompetitors(competitors, search) {
 
 const AdminCompetitorsTable = React.memo(
   ({ competitors, competitionEvents, competitionId }) => {
-    const classes = useStyles();
-
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [search, setSearch] = useState('');
@@ -89,6 +73,7 @@ const AdminCompetitorsTable = React.memo(
       <Paper>
         <Toolbar>
           <TextField
+            variant="standard"
             label="Search"
             value={search}
             onChange={handleSearchChange}
@@ -109,12 +94,20 @@ const AdminCompetitorsTable = React.memo(
             </TableHead>
             <TableBody>
               {displayedCompetitors.map((person) => (
-                <TableRow key={person.id} hover className={classes.row}>
+                <TableRow
+                  key={person.id}
+                  hover
+                  sx={{
+                    whiteSpace: 'nowrap',
+                    '&:last-child td': { border: 0 },
+                  }}
+                >
                   <TableCell align="right">{person.registrantId}</TableCell>
                   <TableCell>
                     <Link
                       component={RouterLink}
                       to={`/competitions/${competitionId}/competitors/${person.id}`}
+                      underline="hover"
                     >
                       {person.name}
                     </Link>
@@ -125,6 +118,7 @@ const AdminCompetitorsTable = React.memo(
                       <Link
                         href={wcaUrl(`/persons/${person.wcaId}`)}
                         target="_blank"
+                        underline="hover"
                       >
                         {person.wcaId}
                       </Link>
@@ -138,10 +132,10 @@ const AdminCompetitorsTable = React.memo(
                       <TableCell
                         key={competitionEvent.id}
                         align="center"
-                        className={classNames({
-                          [classes.awaitingResults]:
-                            result && result.attempts.length === 0,
-                        })}
+                        sx={{
+                          opacity:
+                            result && result.attempts.length === 0 ? 0.5 : 1.0,
+                        }}
                         padding="none"
                       >
                         {result && (
@@ -175,8 +169,8 @@ const AdminCompetitorsTable = React.memo(
           count={competitors.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handlePageChange}
-          onChangeRowsPerPage={handleRowsPerPageChange}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Paper>
     );

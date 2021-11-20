@@ -1,8 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import { Grid, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Grid, Typography } from '@mui/material';
 import wcaLogo from './wca-logo.svg';
 import Loading from '../Loading/Loading';
 import Error from '../Error/Error';
@@ -43,6 +42,7 @@ const COMPETITOR_QUERY = gql`
             }
           }
           format {
+            id
             numberOfAttempts
             sortBy
           }
@@ -52,17 +52,7 @@ const COMPETITOR_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  competitor: {
-    marginBottom: theme.spacing(2),
-  },
-  grow: {
-    flexGrow: 1,
-  },
-}));
-
 function Competitor() {
-  const classes = useStyles();
   const { competitionId, competitorId } = useParams();
 
   const { data, loading, error } = useQuery(COMPETITOR_QUERY, {
@@ -75,13 +65,13 @@ function Competitor() {
 
   return (
     <>
-      <Grid container alignContent="center" className={classes.competitor}>
+      <Grid container alignContent="center" sx={{ mb: 2 }}>
         <Grid item>
           <Typography variant="h5">
             {person.name} <FlagIcon code={person.country.iso2.toLowerCase()} />
           </Typography>
         </Grid>
-        <Grid item className={classes.grow} />
+        <Grid item sx={{ flexGrow: 1 }} />
         {person.wcaId && (
           <Grid item>
             <a

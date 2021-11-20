@@ -1,49 +1,38 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Button, Grid, Toolbar, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Box, Button, Grid, Toolbar, Typography } from '@mui/material';
 import logo from './logo.svg';
 import UserMenuAvatar from '../UserMenuAvatar/UserMenuAvatar';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  homeLink: {
-    display: 'flex',
-    alignItems: 'center',
-    textDecoration: 'none',
-    color: 'inherit',
-  },
-  title: {
-    marginLeft: theme.spacing(1),
-  },
-  content: {
-    flexGrow: 1,
-  },
-}));
-
 function DefaultLayout({ currentUser, loaded, children }) {
-  const classes = useStyles();
-
   return (
-    <div className={classes.root}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Toolbar>
         <Grid container spacing={2} alignItems="center">
           <Grid item>
-            <RouterLink to="/" className={classes.homeLink}>
+            <Box
+              component={RouterLink}
+              to="/"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+            >
               <img src={logo} alt="wca logo" height="40" />
-              <Typography variant="h6" className={classes.title}>
+              <Typography variant="h6" sx={{ ml: 1 }}>
                 WCA Live
               </Typography>
-            </RouterLink>
+            </Box>
           </Grid>
-          <Grid item className={classes.grow} />
+          <Grid item sx={{ flexGrow: 1 }} />
           {loaded &&
             (currentUser ? (
               <Grid item>
@@ -64,8 +53,8 @@ function DefaultLayout({ currentUser, loaded, children }) {
             ))}
         </Grid>
       </Toolbar>
-      <div className={classes.content}>{children}</div>
-    </div>
+      <Box sx={{ flexGrow: 1 }}>{children}</Box>
+    </Box>
   );
 }
 

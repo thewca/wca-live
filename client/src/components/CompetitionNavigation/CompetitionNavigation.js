@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, Redirect, useParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import CompetitionHome from '../CompetitionHome/CompetitionHome';
 import Round from '../Round/Round';
@@ -36,10 +36,10 @@ const COMPETITION_QUERY = gql`
 `;
 
 function CompetitionNavigation() {
-  const { id } = useParams();
+  const { competitionId } = useParams();
 
   const { data, error, loading } = useQuery(COMPETITION_QUERY, {
-    variables: { id: id },
+    variables: { id: competitionId },
     // Eventually update rounds data (open, label).
     pollInterval: 60 * 1000,
   });
@@ -53,33 +53,17 @@ function CompetitionNavigation() {
   return (
     <CompetitionLayout competition={competition}>
       {loading && <Loading />}
-      <Switch>
+      <Routes>
+        <Route path="" element={<CompetitionHome />} />
+        <Route path="rounds/:roundId/*" element={<Round />} />
+        <Route path="competitors" element={<Competitors />} />
+        <Route path="competitors/:competitorId" element={<Competitor />} />
+        <Route path="podiums" element={<Podiums />} />
         <Route
-          exact
-          path="/competitions/:competitionId"
-          component={CompetitionHome}
+          path="*"
+          element={<Navigate to={`/competitions/${competitionId}`} />}
         />
-        <Route
-          path="/competitions/:competitionId/rounds/:roundId"
-          component={Round}
-        />
-        <Route
-          exact
-          path="/competitions/:competitionId/competitors"
-          component={Competitors}
-        />
-        <Route
-          exact
-          path="/competitions/:competitionId/competitors/:competitorId"
-          component={Competitor}
-        />
-        <Route
-          exact
-          path="/competitions/:competitionId/podiums"
-          component={Podiums}
-        />
-        <Redirect to={`/competitions/${id}`} />
-      </Switch>
+      </Routes>
     </CompetitionLayout>
   );
 }

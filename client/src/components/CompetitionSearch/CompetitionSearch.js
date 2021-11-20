@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { TextField } from '@material-ui/core';
+import Autocomplete from '@mui/material/Autocomplete';
+import { TextField } from '@mui/material';
 import useDebounce from '../../hooks/useDebounce';
 
 const COMPETITIONS = gql`
@@ -32,7 +32,7 @@ function CompetitionSearch({ onChange, TextFieldProps = {} }) {
   }
 
   function handleChange(event, user, reason) {
-    if (reason === 'select-option') {
+    if (reason === 'selectOption') {
       onChange(user);
     }
   }

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Tab, Tabs } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Grid, Tab, Tabs } from '@mui/material';
 import ScheduleCard from './ScheduleCard';
 import { groupBy, uniq, orderBy } from '../../lib/utils';
 import {
@@ -11,15 +10,7 @@ import {
 import { eventRoundForActivityCode } from '../../lib/competition';
 import { parseActivityCode } from '../../lib/activity-code';
 
-const useStyles = makeStyles((theme) => ({
-  tabs: {
-    marginBottom: theme.spacing(2),
-  },
-}));
-
 function Schedule({ venues, competitionEvents, competitionId }) {
-  const classes = useStyles();
-
   const activities = venues
     .flatMap((venue) => venue.rooms)
     .flatMap((room) =>
@@ -56,10 +47,12 @@ function Schedule({ venues, competitionEvents, competitionId }) {
   return (
     <>
       <Tabs
-        value={selectedDate}
+        indicatorColor="secondary"
         variant="scrollable"
+        textColor="inherit"
+        value={selectedDate}
         onChange={(event, value) => setSelectedDate(value)}
-        className={classes.tabs}
+        sx={{ mb: 2 }}
       >
         {dates.map((date) => (
           <Tab key={date} label={formatDateShort(date)} value={date} />

@@ -346,11 +346,7 @@ describe('applyTimeLimit', () => {
         centiseconds: 1250,
       };
       expect(applyTimeLimit(attemptResults, timeLimit)).toEqual([
-        1000,
-        -1,
-        1100,
-        -1,
-        0,
+        1000, -1, 1100, -1, 0,
       ]);
     });
   });
@@ -363,9 +359,7 @@ describe('applyTimeLimit', () => {
         centiseconds: 20000,
       };
       expect(applyTimeLimit(attemptResults, timeLimit)).toEqual([
-        3000,
-        12000,
-        -1,
+        3000, 12000, -1,
       ]);
     });
   });

@@ -7,7 +7,7 @@ import {
   DialogActions,
   Button,
   LinearProgress,
-} from '@material-ui/core';
+} from '@mui/material';
 import { parseISO } from 'date-fns';
 
 function getExpirationPercent(oneTimeCode) {

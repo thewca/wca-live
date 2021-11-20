@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import { TextField } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
+import { TextField } from '@mui/material';
+import { Autocomplete } from '@mui/material';
 import useDebounce from '../../hooks/useDebounce';
 
 const USERS = gql`
@@ -32,7 +32,7 @@ function UserSearch({ onChange, TextFieldProps = {} }) {
   }
 
   function handleChange(event, user, reason) {
-    if (reason === 'select-option') {
+    if (reason === 'selectOption') {
       onChange(user);
     }
   }

@@ -9,7 +9,7 @@ import {
   DialogTitle,
   Grid,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import PersonSelect from '../PersonSelect/PersonSelect';
@@ -56,10 +56,10 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
 
   const [selectedCompetitor, setSelectedCompetitor] = useState(null);
 
-  const [
-    getAdvancementCandidates,
-    { data, loading, error },
-  ] = useLazyQuery(ADVANCEMENT_CANDIDATES_QUERY, { variables: { roundId } });
+  const [getAdvancementCandidates, { data, loading, error }] = useLazyQuery(
+    ADVANCEMENT_CANDIDATES_QUERY,
+    { variables: { roundId } }
+  );
 
   useEffect(() => {
     if (open) {

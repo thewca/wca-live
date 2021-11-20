@@ -6,7 +6,7 @@ import {
   ListItemIcon,
   ListItemText,
   ListSubheader,
-} from '@material-ui/core';
+} from '@mui/material';
 import VirtualList from '../VirtualList/VirtualList';
 import CompetitionFlagIcon from '../CompetitionFlagIcon/CompetitionFlagIcon';
 import { formatDateRange } from '../../lib/date';

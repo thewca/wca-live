@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@mui/material';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import AdminCompetitionEventCard from './AdminCompetitionEventCard';

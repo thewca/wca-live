@@ -1,65 +1,46 @@
 import React from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { IconButton, Toolbar, Tooltip, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import RemoveRedEyeIcon from '@material-ui/icons/RemoveRedEye';
-import SyncIcon from '@material-ui/icons/Sync';
-import ViewListIcon from '@material-ui/icons/ViewList';
-import SettingsIcon from '@material-ui/icons/Settings';
-import PeopleIcon from '@material-ui/icons/People';
-
-const useStyles = makeStyles((theme) => ({
-  toolbar: {
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: 'center',
-    },
-  },
-  titleLink: {
-    color: 'inherit',
-    textDecoration: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  admin: {
-    marginLeft: theme.spacing(1),
-  },
-  grow: {
-    flexGrow: 1,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-}));
+import { Box, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import SyncIcon from '@mui/icons-material/Sync';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import SettingsIcon from '@mui/icons-material/Settings';
+import PeopleIcon from '@mui/icons-material/People';
 
 function AdminCompetitionToolbar({ competition }) {
-  const classes = useStyles();
   const location = useLocation();
 
   return (
-    <Toolbar className={classes.toolbar}>
-      <RouterLink
+    <Toolbar sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }}>
+      <Box
+        component={RouterLink}
         to={`/admin/competitions/${competition.id}`}
-        className={classes.titleLink}
+        sx={{
+          color: 'inherit',
+          textDecoration: 'none',
+          display: { xs: 'none', md: 'unset' },
+        }}
       >
         <Typography variant="h6" color="inherit" component="span">
           {competition.shortName}
         </Typography>
-        <Typography
-          variant="overline"
-          component="span"
-          className={classes.admin}
-        >
+        <Typography variant="overline" component="span" sx={{ ml: 1 }}>
           Admin
         </Typography>
-      </RouterLink>
-      <div className={classes.grow} />
+      </Box>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: { xs: 'none', md: 'unset' },
+        }}
+      />
       <Tooltip title="Events">
         <IconButton
           color="inherit"
           component={RouterLink}
           to={`/admin/competitions/${competition.id}`}
+          size="large"
         >
           <ViewListIcon />
         </IconButton>
@@ -69,6 +50,7 @@ function AdminCompetitionToolbar({ competition }) {
           color="inherit"
           component={RouterLink}
           to={`/admin/competitions/${competition.id}/sync`}
+          size="large"
         >
           <SyncIcon />
         </IconButton>
@@ -78,6 +60,7 @@ function AdminCompetitionToolbar({ competition }) {
           color="inherit"
           component={RouterLink}
           to={`/admin/competitions/${competition.id}/competitors`}
+          size="large"
         >
           <PeopleIcon />
         </IconButton>
@@ -88,6 +71,7 @@ function AdminCompetitionToolbar({ competition }) {
             color="inherit"
             component={RouterLink}
             to={`/admin/competitions/${competition.id}/settings`}
+            size="large"
           >
             <SettingsIcon />
           </IconButton>
@@ -98,12 +82,18 @@ function AdminCompetitionToolbar({ competition }) {
           color="inherit"
           component={RouterLink}
           to={location.pathname.replace(/^\/admin/, '')}
+          size="large"
         >
           <RemoveRedEyeIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Admin">
-        <IconButton color="inherit" component={RouterLink} to="/admin">
+      <Tooltip title="My competitions">
+        <IconButton
+          color="inherit"
+          component={RouterLink}
+          to="/my-competitions"
+          size="large"
+        >
           <AccountCircleIcon />
         </IconButton>
       </Tooltip>

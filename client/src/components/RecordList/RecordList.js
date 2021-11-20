@@ -1,33 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Box,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+} from '@mui/material';
 import RecordTag from '../RecordTag/RecordTag';
 import { formatAttemptResult } from '../../lib/attempt-result';
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    maxHeight: 300,
-    overflowY: 'auto',
-  },
-  attemptResult: {
-    fontWeight: 600,
-  },
-}));
-
 function RecordList({ title, records }) {
-  const classes = useStyles();
-
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
-      <div className={classes.container}>
+      <Box
+        sx={{
+          maxHeight: 300,
+          overflowY: 'auto',
+        }}
+      >
         {records.map((record) => (
           <ListItem
             key={record.id}
@@ -42,19 +35,19 @@ function RecordList({ title, records }) {
               primary={
                 <span>
                   <span>{`${record.result.round.competitionEvent.event.name} ${record.type} of `}</span>
-                  <span className={classes.attemptResult}>
+                  <Box component="span" sx={{ fontWeight: 600 }}>
                     {`${formatAttemptResult(
                       record.attemptResult,
                       record.result.round.competitionEvent.event.id
                     )}`}
-                  </span>
+                  </Box>
                 </span>
               }
               secondary={`${record.result.person.name} from ${record.result.person.country.name}`}
             />
           </ListItem>
         ))}
-      </div>
+      </Box>
     </List>
   );
 }

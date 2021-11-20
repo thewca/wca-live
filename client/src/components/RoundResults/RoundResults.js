@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Hidden, Button, Grid } from '@material-ui/core';
+import { Button, Grid, useMediaQuery } from '@mui/material';
 import RoundResultsTable from './RoundResultsTable';
 import RoundResultDialog from './RoundResultDialog';
 
 const DEFAULT_VISIBLE_RESULTS = 100;
 
 function RoundResults({ results, format, eventId, competitionId }) {
+  const smScreen = useMediaQuery((theme) => theme.breakpoints.up('sm'));
+
   const [selectedResult, setSelectedResult] = useState(null);
   const [showAll, setShowAll] = useState(
     results.length <= DEFAULT_VISIBLE_RESULTS
@@ -52,7 +54,7 @@ function RoundResults({ results, format, eventId, competitionId }) {
           </Grid>
         )}
       </Grid>
-      <Hidden smUp>
+      {smScreen && (
         <RoundResultDialog
           result={selectedResult}
           format={format}
@@ -60,7 +62,7 @@ function RoundResults({ results, format, eventId, competitionId }) {
           competitionId={competitionId}
           onClose={() => setSelectedResult(null)}
         />
-      </Hidden>
+      )}
     </>
   );
 }

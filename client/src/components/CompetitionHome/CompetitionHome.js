@@ -9,9 +9,8 @@ import {
   Link,
   Tooltip,
   Typography,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
+} from '@mui/material';
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import Loading from '../Loading/Loading';
 import Error from '../Error/Error';
 import Schedule from '../Schedule/Schedule';
@@ -65,17 +64,7 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  fullWidth: {
-    width: '100%',
-  },
-  grow: {
-    flexGrow: 1,
-  },
-}));
-
 function CompetitionHome() {
-  const classes = useStyles();
   const { competitionId } = useParams();
   const { data, loading, error } = useQuery(COMPETITION_QUERY, {
     variables: { id: competitionId },
@@ -95,7 +84,7 @@ function CompetitionHome() {
 
   return (
     <Grid container direction="column" spacing={2}>
-      <Grid item className={classes.fullWidth}>
+      <Grid item sx={{ width: '100%' }}>
         <Typography variant="h5" gutterBottom noWrap>
           Welcome to {competition.name}!
         </Typography>
@@ -107,6 +96,7 @@ function CompetitionHome() {
           <Link
             href={wcaUrl(`/competitions/${competition.wcaId}`)}
             target="_blank"
+            underline="hover"
           >
             WCA website
           </Link>
@@ -114,7 +104,7 @@ function CompetitionHome() {
         </Typography>
       </Grid>
       {active.length > 0 && (
-        <Grid item className={classes.fullWidth}>
+        <Grid item sx={{ width: '100%' }}>
           <Typography variant="h5" gutterBottom>
             Active rounds
           </Typography>
@@ -139,12 +129,12 @@ function CompetitionHome() {
           </Grid>
         </Grid>
       )}
-      <Grid item className={classes.fullWidth}>
+      <Grid item sx={{ width: '100%' }}>
         <Grid container alignContent="center">
           <Grid item>
             <Typography variant="h5">Schedule</Typography>
           </Grid>
-          <Grid item className={classes.grow} />
+          <Grid item sx={{ flexGrow: 1 }} />
           <Grid item>
             <Tooltip
               title={`

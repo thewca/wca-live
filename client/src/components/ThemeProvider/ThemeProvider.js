@@ -7,14 +7,14 @@ import React, {
   useMemo,
 } from 'react';
 import {
-  createMuiTheme,
+  createTheme,
   ThemeProvider as MuiThemeProvider,
-} from '@material-ui/core/styles';
-import { useMediaQuery } from '@material-ui/core';
-import { blue, grey, pink } from '@material-ui/core/colors';
+} from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
+import { blue, grey, pink } from '@mui/material/colors';
 
 const themes = {
-  light: createMuiTheme({
+  light: createTheme({
     palette: {
       primary: {
         main: blue[700],
@@ -24,9 +24,9 @@ const themes = {
       },
     },
   }),
-  dark: createMuiTheme({
+  dark: createTheme({
     palette: {
-      type: 'dark',
+      mode: 'dark',
       primary: {
         main: blue[200],
       },

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import { Tab, Tabs } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Box, Tab, Tabs } from '@mui/material';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import AdminAccess from '../AdminAccess/AdminAccess';
@@ -23,14 +22,7 @@ const COMPETITION_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  tabContent: {
-    marginTop: theme.spacing(2),
-  },
-}));
-
 function AdminSettings() {
-  const classes = useStyles();
   const { competitionId } = useParams();
   const [tabValue, setTabValue] = useState('access');
 
@@ -44,12 +36,17 @@ function AdminSettings() {
 
   return (
     <>
-      <Tabs value={tabValue} onChange={(event, value) => setTabValue(value)}>
+      <Tabs
+        indicatorColor="secondary"
+        textColor="inherit"
+        value={tabValue}
+        onChange={(event, value) => setTabValue(value)}
+      >
         <Tab label="Access" value="access" />
       </Tabs>
-      <div className={classes.tabContent}>
+      <Box sx={{ mt: 2 }}>
         {tabValue === 'access' && <AdminAccess competition={competition} />}
-      </div>
+      </Box>
     </>
   );
 }

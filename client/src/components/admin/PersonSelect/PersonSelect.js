@@ -1,6 +1,6 @@
 import React from 'react';
-import { TextField } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
+import { TextField } from '@mui/material';
+import { Autocomplete } from '@mui/material';
 import { uniq, toInt } from '../../../lib/utils';
 
 function personToLabel(person) {
@@ -25,7 +25,7 @@ function searchPersons(persons, search) {
 
 function PersonSelect({ persons, value, onChange, TextFieldProps = {} }) {
   function handleChange(event, value, reason) {
-    if (reason === 'select-option') {
+    if (reason === 'selectOption') {
       onChange(value);
     }
   }
