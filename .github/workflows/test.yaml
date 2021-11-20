@@ -20,6 +20,8 @@ jobs:
           node-version: '14.x'
       - name: Install npm dependencies
         run: npm ci
+      - name: Check formatting
+        run: npm run format-check
       - name: Run tests
         run: npm test
   test_server:
@@ -54,5 +56,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install wkhtmltopdf
       - name: Install mix dependencies
         run: mix deps.get
+      - name: Check formatting
+        run: mix format --check-formatted
+      - name: Check warnings
+        run: mix compile --warnings-as-errors
       - name: Run tests
         run: mix test
