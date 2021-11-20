@@ -83,7 +83,7 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
               >
                 {result.ranking}
               </TableCell>
-              <TableCell xs={styles.roundName}>
+              <TableCell sx={styles.roundName}>
                 {smScreen ? (
                   <Link
                     component={RouterLink}

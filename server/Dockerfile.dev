@@ -1,13 +1,13 @@
-FROM hexpm/elixir:1.11.4-erlang-23.3.4-alpine-3.13.3
+FROM hexpm/elixir:1.12.3-erlang-24.1.6-alpine-3.14.2
 
 # Install dependencies.
 RUN apk add --no-cache \
     # build
-    build-base git python \
+    build-base git python3 \
     # runtime
     openssl ncurses-libs \
     # PDF generation
-    ttf-ubuntu-font-family wkhtmltopdf
+    ttf-freefont wkhtmltopdf
 
 # Install hex and rebar.
 RUN mix local.hex --force && \

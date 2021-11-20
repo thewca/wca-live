@@ -46,12 +46,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install Erlang & Elixir
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
-          otp-version: '23.0'
-          elixir-version: '1.10.4'
-          # See https://github.com/actions/setup-elixir/issues/49
-          experimental-otp: true
+          otp-version: '24.1.6'
+          elixir-version: '1.12.3'
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install wkhtmltopdf
       - name: Install mix dependencies

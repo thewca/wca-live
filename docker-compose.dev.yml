@@ -17,8 +17,6 @@ services:
       - database
     volumes:
       - ./server:/server
-      - /server/_build
-      - /server/deps
     network_mode: "host"
   client:
     build:
@@ -26,7 +24,6 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./client:/client
-      - /client/node_modules
     network_mode: "host"
     # The client process exists immediately if STDIN is not open.
     # See: https://github.com/facebook/create-react-app/issues/8688
