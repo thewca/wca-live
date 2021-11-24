@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Box, Grid, Paper } from '@material-ui/core';
+import { Box, Grid, Paper } from '@mui/material';
 import Loading from '../Loading/Loading';
 import Error from '../Error/Error';
 import StaffMembersCompetitionList from './StaffMembersCompetitionList';

@@ -1,5 +1,5 @@
 # Stage 1: build
-FROM node:14-alpine AS build
+FROM node:14.18.1-alpine3.143.14 AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: final image
-FROM alpine:3.12
+FROM alpine:3.14.2
 
 WORKDIR /app
 

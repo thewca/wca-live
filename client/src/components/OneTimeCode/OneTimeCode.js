@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { Button, Grid, Typography } from '@material-ui/core';
+import { Button, Grid, Typography } from '@mui/material';
 import useApolloErrorHandler from '../../hooks/useApolloErrorHandler';
 import CodeDialog from './CodeDialog';
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Button, Grid, Tooltip, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import KeyboardIcon from '@material-ui/icons/Keyboard';
+import { Button, Grid, Tooltip, Typography } from '@mui/material';
+import KeyboardIcon from '@mui/icons-material/Keyboard';
 import { useConfirm } from 'material-ui-confirm';
 import AttemptResultField from '../AttemptResultField/AttemptResultField';
 import useKeyNavigation from './useKeyNavigation';
@@ -23,18 +22,6 @@ import {
   paddedAttemptResults,
 } from '../../../lib/result';
 
-const useStyles = makeStyles((theme) => ({
-  resultSelect: {
-    margin: theme.spacing(2, 0),
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  keyboardIcon: {
-    verticalAlign: 'middle',
-  },
-}));
-
 function ResultAttemptsForm({
   result,
   results,
@@ -47,7 +34,6 @@ function ResultAttemptsForm({
   disabled = false,
   focusOnResultChange = false,
 }) {
-  const classes = useStyles();
   const confirm = useConfirm();
 
   const { numberOfAttempts } = format;
@@ -73,10 +59,8 @@ function ResultAttemptsForm({
   useEffect(() => {
     if (!focusOnResultChange) return;
 
-    const [
-      resultInput,
-      firstAttemptInput,
-    ] = rootRef.current.getElementsByTagName('input');
+    const [resultInput, firstAttemptInput] =
+      rootRef.current.getElementsByTagName('input');
 
     if (result) {
       // Wait for the above useEffect to set attempt result values
@@ -135,7 +119,7 @@ function ResultAttemptsForm({
           Cutoff: {formatCutoff(cutoff, eventId)}
         </Typography>
       </Grid>
-      <Grid item className={classes.resultSelect}>
+      <Grid item sx={{ my: 2 }}>
         <ResultSelect
           results={results}
           value={result}
@@ -191,7 +175,7 @@ function ResultAttemptsForm({
             Submit
           </Button>
         </Grid>
-        <Grid item className={classes.grow} />
+        <Grid item sx={{ flexGrow: 1 }} />
         <Grid item>
           <Tooltip
             title={
@@ -203,7 +187,7 @@ function ResultAttemptsForm({
               </div>
             }
           >
-            <KeyboardIcon className={classes.keyboardIcon} color="action" />
+            <KeyboardIcon sx={{ verticalAlign: 'middle' }} color="action" />
           </Tooltip>
         </Grid>
       </Grid>

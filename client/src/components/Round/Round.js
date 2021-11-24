@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Switch, Route, Redirect, useParams } from 'react-router-dom';
-import { Grid } from '@material-ui/core';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { Grid } from '@mui/material';
 import Loading from '../Loading/Loading';
 import Error from '../Error/Error';
 import ResultsProjector from '../ResultsProjector/ResultsProjector';
@@ -45,6 +45,7 @@ const ROUND_QUERY = gql`
         }
       }
       format {
+        id
         numberOfAttempts
         sortBy
       }
@@ -73,12 +74,14 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
 function Round() {
   const { competitionId, roundId } = useParams();
 
-  const { data: newData, loading, error, subscribeToMore } = useQuery(
-    ROUND_QUERY,
-    {
-      variables: { id: roundId },
-    }
-  );
+  const {
+    data: newData,
+    loading,
+    error,
+    subscribeToMore,
+  } = useQuery(ROUND_QUERY, {
+    variables: { id: roundId },
+  });
 
   const [previousData, setPreviousData] = React.useState(undefined);
 
@@ -114,32 +117,39 @@ function Round() {
           <RoundToolbar round={round} competitionId={competitionId} />
         </Grid>
         <Grid item>
-          <Switch>
+          <Routes>
             <Route
-              exact
-              path={`/competitions/${competitionId}/rounds/${roundId}/projector`}
-            >
-              <ResultsProjector
-                results={round.results}
-                format={round.format}
-                eventId={round.competitionEvent.event.id}
-                title={`${round.competitionEvent.event.name} - ${round.name}`}
-                exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
-              />
-            </Route>
+              path="projector"
+              element={
+                <ResultsProjector
+                  results={round.results}
+                  format={round.format}
+                  eventId={round.competitionEvent.event.id}
+                  title={`${round.competitionEvent.event.name} - ${round.name}`}
+                  exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
+                />
+              }
+            />
             <Route
-              exact
-              path={`/competitions/${competitionId}/rounds/${roundId}`}
-            >
-              <RoundResults
-                results={round.results}
-                format={round.format}
-                eventId={round.competitionEvent.event.id}
-                competitionId={competitionId}
-              />
-            </Route>
-            <Redirect to={`/competitions/${competitionId}/rounds/${roundId}`} />
-          </Switch>
+              path=""
+              element={
+                <RoundResults
+                  results={round.results}
+                  format={round.format}
+                  eventId={round.competitionEvent.event.id}
+                  competitionId={competitionId}
+                />
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={`/competitions/${competitionId}/rounds/${roundId}`}
+                />
+              }
+            />
+          </Routes>
         </Grid>
       </Grid>
     </>

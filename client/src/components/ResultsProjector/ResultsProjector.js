@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import classNames from 'classnames';
 import {
   AppBar,
+  Box,
   Dialog,
   Fade,
   IconButton,
@@ -14,47 +14,29 @@ import {
   TableRow,
   Toolbar,
   Typography,
-} from '@material-ui/core';
-import { green, grey } from '@material-ui/core/colors';
-import { makeStyles } from '@material-ui/core/styles';
-import CloseIcon from '@material-ui/icons/Close';
+} from '@mui/material';
+import { green } from '@mui/material/colors';
+import CloseIcon from '@mui/icons-material/Close';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
 import { orderedResultStats, paddedAttemptResults } from '../../lib/result';
 import RecordTagBadge from '../RecordTagBadge/RecordTagBadge';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    maxHeight: '100vh',
-    overflow: 'hidden',
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  appBar: {
-    color: theme.palette.type === 'dark' ? '#fff' : null,
-    backgroundColor: theme.palette.type === 'dark' ? grey['900'] : null,
-  },
-  table: {
-    tableLayout: 'fixed',
-  },
-  row: {
-    whiteSpace: 'nowrap',
-  },
+const styles = {
   cell: {
     fontSize: '1.5rem',
-    paddingRight: 0,
+    pr: 0,
     '&:last-child': {
-      paddingRight: 32,
+      pr: 4,
     },
   },
   ranking: {
     width: 75,
-    paddingRight: 16,
+    pr: 2,
   },
   advancing: {
-    color: theme.palette.getContrastText(green['A400']),
+    color: (theme) => theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
   name: {
@@ -65,10 +47,7 @@ const useStyles = makeStyles((theme) => ({
   country: {
     width: 50,
   },
-  mainStat: {
-    fontWeight: 600,
-  },
-}));
+};
 
 const STATUS = {
   SHOWING: Symbol('showing'),
@@ -88,7 +67,6 @@ function getNumberOfRows() {
 }
 
 function ResultsProjector({ results, format, eventId, title, exitUrl }) {
-  const classes = useStyles();
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
@@ -136,40 +114,52 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
       TransitionProps={{ direction: 'up' }}
       transitionDuration={500}
     >
-      <div className={classes.root}>
-        <AppBar position="sticky" className={classes.appBar}>
+      <Box
+        sx={{
+          maxHeight: '100vh',
+          overflow: 'hidden',
+        }}
+      >
+        <AppBar position="sticky">
           <Toolbar>
             <Typography variant="h4" color="inherit">
               {title}
             </Typography>
-            <div className={classes.grow} />
-            <IconButton color="inherit" component={Link} to={exitUrl}>
+            <Box sx={{ flexGrow: 1 }} />
+            <IconButton
+              color="inherit"
+              component={Link}
+              to={exitUrl}
+              size="large"
+            >
               <CloseIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
-        <Table className={classes.table}>
+        <Table
+          sx={{
+            tableLayout: 'fixed',
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell
-                className={classNames(classes.cell, classes.ranking)}
+                sx={{ ...styles.cell, ...styles.ranking }}
                 align="right"
               >
                 #
               </TableCell>
-              <TableCell className={classNames(classes.cell, classes.name)}>
+              <TableCell sx={{ ...styles.cell, ...styles.name }}>
                 Name
               </TableCell>
-              <TableCell
-                className={classNames(classes.cell, classes.country)}
-              ></TableCell>
+              <TableCell sx={{ ...styles.cell, ...styles.country }}></TableCell>
               {times(format.numberOfAttempts, (index) => (
-                <TableCell key={index} className={classes.cell} align="right">
+                <TableCell key={index} sx={styles.cell} align="right">
                   {index + 1}
                 </TableCell>
               ))}
               {stats.map(({ name }) => (
-                <TableCell key={name} className={classes.cell} align="right">
+                <TableCell key={name} sx={styles.cell} align="right">
                   {name}
                 </TableCell>
               ))}
@@ -189,32 +179,33 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                   in={[STATUS.SHOWING, STATUS.SHOWN].includes(status)}
                   key={result.person.id}
                 >
-                  <TableRow className={classes.row}>
+                  <TableRow
+                    sx={{
+                      whiteSpace: 'nowrap',
+                      '&:last-child td': { border: 0 },
+                    }}
+                  >
                     <TableCell
                       align="right"
-                      className={classNames(classes.cell, classes.ranking, {
-                        [classes.advancing]: result.advancing,
-                      })}
+                      sx={{
+                        ...styles.cell,
+                        ...styles.ranking,
+                        ...(result.advancing ? styles.advancing : {}),
+                      }}
                     >
                       {result.ranking}
                     </TableCell>
-                    <TableCell
-                      className={classNames(classes.cell, classes.name)}
-                    >
+                    <TableCell sx={{ ...styles.cell, ...styles.name }}>
                       {result.person.name}
                     </TableCell>
-                    <TableCell className={classes.cell} align="center">
+                    <TableCell sx={styles.cell} align="center">
                       <FlagIcon
                         code={result.person.country.iso2.toLowerCase()}
                       />
                     </TableCell>
                     {paddedAttemptResults(result, format.numberOfAttempts).map(
                       (attemptResult, index) => (
-                        <TableCell
-                          key={index}
-                          align="right"
-                          className={classes.cell}
-                        >
+                        <TableCell key={index} align="right" sx={styles.cell}>
                           {formatAttemptResult(attemptResult, eventId)}
                         </TableCell>
                       )
@@ -223,9 +214,10 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                       <TableCell
                         key={name}
                         align="right"
-                        className={classNames(classes.cell, {
-                          [classes.mainStat]: index === 0,
-                        })}
+                        sx={{
+                          ...styles.cell,
+                          fontWeight: index === 0 ? 600 : 400,
+                        }}
                       >
                         <RecordTagBadge
                           recordTag={result[recordTagField]}
@@ -240,7 +232,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
               ))}
           </TableBody>
         </Table>
-      </div>
+      </Box>
     </Dialog>
   );
 }

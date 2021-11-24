@@ -1,30 +1,31 @@
 import React, { useState, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Fade, Grid, IconButton, Tooltip } from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
-import NearMeIcon from '@material-ui/icons/NearMe';
+import { useNavigate } from 'react-router-dom';
+import { Fade, Grid, IconButton, Tooltip } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import NearMeIcon from '@mui/icons-material/NearMe';
 
 import CompetitionSearch from '../CompetitionSearch/CompetitionSearch';
 import { geolocationAvailable } from '../../lib/geolocation';
 import { nearestCompetition } from '../../lib/competition';
 
 function HomeToolbar({ upcoming, inProgress, past }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef(null);
 
   return (
-    <Grid container alignItems="center" justify="flex-end" spacing={1}>
+    <Grid container alignItems="center" justifyContent="flex-end" spacing={1}>
       {inProgress.length > 0 && geolocationAvailable && (
         <Grid item>
           <Tooltip title="Find nearest competition" placement="top">
             <IconButton
               onClick={() => {
                 nearestCompetition(inProgress).then((competition) => {
-                  history.push(`/competitions/${competition.id}`);
+                  navigate(`/competitions/${competition.id}`);
                 });
               }}
               aria-label="Nearest competition"
+              size="large"
             >
               <NearMeIcon />
             </IconButton>
@@ -33,7 +34,7 @@ function HomeToolbar({ upcoming, inProgress, past }) {
       )}
       <Grid item>
         <Tooltip title="Search competitions" placement="top">
-          <IconButton onClick={() => setSearchOpen(!searchOpen)}>
+          <IconButton onClick={() => setSearchOpen(!searchOpen)} size="large">
             <SearchIcon />
           </IconButton>
         </Tooltip>
@@ -47,7 +48,7 @@ function HomeToolbar({ upcoming, inProgress, past }) {
           <div>
             <CompetitionSearch
               onChange={(competition) =>
-                history.push(`/competitions/${competition.id}`)
+                navigate(`/competitions/${competition.id}`)
               }
               TextFieldProps={{
                 fullWidth: true,

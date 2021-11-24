@@ -1,59 +1,51 @@
 import React from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { IconButton, Toolbar, Tooltip, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import LockIcon from '@material-ui/icons/Lock';
-import MenuIcon from '@material-ui/icons/Menu';
-
-const useStyles = makeStyles((theme) => ({
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20,
-    [theme.breakpoints.up('lg')]: {
-      display: 'none',
-    },
-  },
-  title: {
-    flexGrow: 1,
-    color: 'inherit',
-    textDecoration: 'none',
-  },
-  grow: {
-    flexGrow: 1,
-  },
-}));
+import { Box, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
+import LockIcon from '@mui/icons-material/Lock';
+import MenuIcon from '@mui/icons-material/Menu';
 
 function CompetitionToolbar({ competition, onMenuClick }) {
-  const classes = useStyles();
   const location = useLocation();
 
   return (
     <Toolbar>
       <IconButton
         color="inherit"
-        className={classes.menuButton}
+        sx={{
+          ml: '-12px',
+          mr: '20px',
+          display: {
+            lg: 'none',
+          },
+        }}
         onClick={onMenuClick}
         aria-label="Menu"
+        size="large"
       >
         <MenuIcon />
       </IconButton>
       <Typography
         variant="h6"
         color="inherit"
-        className={classes.title}
+        sx={{
+          flexGrow: 1,
+          color: 'inherit',
+          textDecoration: 'none',
+        }}
         noWrap={true}
         component={RouterLink}
         to={`/competitions/${competition.id}`}
       >
         {competition.shortName}
       </Typography>
-      <div className={classes.grow} />
+      <Box sx={{ flexGrow: 1 }} />
       {competition.access.canScoretake && (
         <Tooltip title="Admin view">
           <IconButton
             color="inherit"
             component={RouterLink}
             to={`/admin${location.pathname}`}
+            size="large"
           >
             <LockIcon />
           </IconButton>

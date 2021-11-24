@@ -4,20 +4,11 @@ import {
   AccordionSummary,
   AccordionDetails,
   Typography,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ImportableCompetitionList from './ImportableCompetitionList';
 
-const useStyles = makeStyles((theme) => ({
-  accordionDetailsRoot: {
-    padding: 0,
-  },
-}));
-
 function ImportableCompetitions() {
-  const classes = useStyles();
-
   return (
     <Accordion TransitionProps={{ mountOnEnter: true }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -25,7 +16,7 @@ function ImportableCompetitions() {
           Importable competitions
         </Typography>
       </AccordionSummary>
-      <AccordionDetails classes={{ root: classes.accordionDetailsRoot }}>
+      <AccordionDetails sx={{ p: 0 }}>
         <ImportableCompetitionList />
       </AccordionDetails>
     </Accordion>

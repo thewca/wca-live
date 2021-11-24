@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
-import { Grid, Typography, Tooltip } from '@material-ui/core';
+import { Grid, Typography, Tooltip } from '@mui/material';
 import Loading from '../Loading/Loading';
 import Error from '../Error/Error';
 import RoundResults from '../RoundResults/RoundResults';
@@ -24,6 +24,7 @@ const PODIUMS_QUERY = gql`
             }
           }
           format {
+            id
             numberOfAttempts
             sortBy
           }

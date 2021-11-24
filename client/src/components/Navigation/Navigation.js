@@ -1,19 +1,22 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import AdminCompetitionNavigation from '../admin/AdminCompetitionNavigation/AdminCompetitionNavigation';
 import CompetitionNavigation from '../CompetitionNavigation/CompetitionNavigation';
 import DefaultNavigation from '../DefaultNavigation/DefaultNavigation';
 
 function Navigation() {
   return (
-    <Switch>
-      <Route path="/competitions/:id" component={CompetitionNavigation} />
+    <Routes>
       <Route
-        path="/admin/competitions/:id"
-        component={AdminCompetitionNavigation}
+        path="/competitions/:competitionId/*"
+        element={<CompetitionNavigation />}
       />
-      <Route path="/" component={DefaultNavigation} />
-    </Switch>
+      <Route
+        path="/admin/competitions/:competitionId/*"
+        element={<AdminCompetitionNavigation />}
+      />
+      <Route path="/*" element={<DefaultNavigation />} />
+    </Routes>
   );
 }
 

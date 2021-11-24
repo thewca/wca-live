@@ -18,8 +18,17 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '14.x'
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install npm dependencies
         run: npm ci
+      - name: Check formatting
+        run: npm run format-check
       - name: Run tests
         run: npm test
   test_server:
@@ -44,15 +53,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install Erlang & Elixir
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
-          otp-version: '23.0'
-          elixir-version: '1.10.4'
-          # See https://github.com/actions/setup-elixir/issues/49
-          experimental-otp: true
+          otp-version: '24.1.6'
+          elixir-version: '1.12.3'
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install wkhtmltopdf
+      - name: Cache Mix
+        uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
       - name: Install mix dependencies
         run: mix deps.get
+      - name: Check formatting
+        run: mix format --check-formatted
+      - name: Check warnings
+        run: mix compile --warnings-as-errors
       - name: Run tests
         run: mix test

@@ -5,39 +5,39 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test"
+    "test": "react-app-rewired test",
+    "format": "prettier --single-quote --trailing-comma es5 --write src/**/*.{js,json,css,md} --no-error-on-unmatched-pattern",
+    "format-check": "prettier --single-quote --trailing-comma es5 --check src/**/*.{js,json,css,md} --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@absinthe/socket": "^0.2.1",
     "@absinthe/socket-apollo-link": "^0.2.1",
-    "@apollo/client": "^3.1.2",
-    "@material-ui/core": "^4.11.0",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.56",
-    "babel-plugin-import": "^1.13.0",
-    "classnames": "^2.2.6",
+    "@apollo/client": "^3.4.17",
+    "@emotion/react": "^11.5.0",
+    "@emotion/styled": "^11.3.0",
+    "@mui/icons-material": "^5.1.0",
+    "@mui/material": "^5.1.0",
+    "babel-plugin-import": "^1.13.3",
     "customize-cra": "^1.0.0",
-    "date-fns": "^2.15.0",
-    "graphql": "^15.3.0",
-    "material-ui-confirm": "^2.1.1",
-    "notistack": "^0.9.17",
-    "phoenix": "^1.5.4",
-    "react": "^16.13.1",
-    "react-app-polyfill": "^1.0.6",
-    "react-app-rewired": "^2.1.6",
-    "react-dom": "^16.13.1",
+    "date-fns": "^2.25.0",
+    "graphql": "^16.0.1",
+    "material-ui-confirm": "^3.0.2",
+    "notistack": "^2.0.3",
+    "phoenix": "^1.6.2",
+    "react": "^17.0.2",
+    "react-app-polyfill": "^2.0.0",
+    "react-app-rewired": "^2.1.8",
+    "react-dom": "^17.0.2",
     "react-flag-icon-css": "^1.0.25",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.4",
-    "react-timeago": "^4.4.0",
-    "react-virtualized-auto-sizer": "^1.0.2",
-    "react-window": "^1.8.5",
-    "scroll-into-view-if-needed": "^2.2.25"
+    "react-router-dom": "^6.0.2",
+    "react-scripts": "^4.0.3",
+    "react-timeago": "^6.2.1",
+    "react-virtualized-auto-sizer": "^1.0.6",
+    "react-window": "^1.8.6",
+    "scroll-into-view-if-needed": "^2.2.28"
   },
   "devDependencies": {
-    "husky": "^4.2.5",
-    "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5"
+    "prettier": "^2.4.1"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -52,16 +52,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.{js,json,css,md}": [
-      "prettier --single-quote --trailing-comma es5 --write"
     ]
   }
 }

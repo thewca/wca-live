@@ -2,55 +2,36 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Link,
-  Hidden,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
   Paper,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
-import { green } from '@material-ui/core/colors';
+  useMediaQuery,
+} from '@mui/material';
+import { green } from '@mui/material/colors';
 import { times } from '../../lib/utils';
 import { formatAttemptResult } from '../../lib/attempt-result';
 import { orderedResultStats, paddedAttemptResults } from '../../lib/result';
 import RecordTagBadge from '../RecordTagBadge/RecordTagBadge';
 
-const useStyles = makeStyles((theme) => ({
-  table: {
-    tableLayout: 'fixed',
-  },
-  row: {
-    whiteSpace: 'nowrap',
-  },
-  cell: {},
+const styles = {
   ranking: {
-    paddingRight: 16,
-    width: 50,
-    [theme.breakpoints.down('sm')]: {
-      paddingRight: 8,
-      width: 40,
-    },
-  },
-  roundName: {
-    width: 200,
-    [theme.breakpoints.down('md')]: {
-      width: 150,
-    },
+    pr: { xs: 1, md: 2 },
+    width: { xs: 40, md: 50 },
   },
   advancing: {
-    color: theme.palette.getContrastText(green['A400']),
+    color: (theme) => theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
-  mainStat: {
-    fontWeight: 600,
+  roundName: {
+    width: { xs: 150, lg: 200 },
   },
-}));
+};
 
 function CompetitorResultsTable({ results, competitionId, onResultClick }) {
-  const classes = useStyles();
+  const smScreen = useMediaQuery((theme) => theme.breakpoints.up('sm'));
 
   /* Assume every round has the same format. */
   const {
@@ -65,27 +46,21 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
 
   return (
     <Paper>
-      <Table size="small" className={classes.table}>
+      <Table size="small" sx={{ tableLayout: 'fixed' }}>
         <TableHead>
           <TableRow>
-            <TableCell
-              className={classNames(classes.cell, classes.ranking)}
-              align="right"
-            >
+            <TableCell align="right" sx={styles.ranking}>
               #
             </TableCell>
-            <TableCell className={classNames(classes.cell, classes.roundName)}>
-              Round
-            </TableCell>
-            <Hidden xsDown>
-              {times(numberOfAttempts, (index) => (
+            <TableCell sx={styles.roundName}>Round</TableCell>
+            {smScreen &&
+              times(numberOfAttempts, (index) => (
                 <TableCell key={index} align="right">
                   {index + 1}
                 </TableCell>
               ))}
-            </Hidden>
             {stats.map(({ name }) => (
-              <TableCell key={name} className={classes.cell} align="right">
+              <TableCell key={name} align="right">
                 {name}
               </TableCell>
             ))}
@@ -96,46 +71,46 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
             <TableRow
               key={result.round.id}
               hover
-              className={classes.row}
+              sx={{ whiteSpace: 'nowrap', '&:last-child td': { border: 0 } }}
               onClick={(event) => onResultClick(result, event)}
             >
               <TableCell
                 align="right"
-                className={classNames(classes.cell, classes.ranking, {
-                  [classes.advancing]: result.advancing,
-                })}
+                sx={{
+                  ...styles.ranking,
+                  ...(result.advancing ? styles.advancing : {}),
+                }}
               >
                 {result.ranking}
               </TableCell>
-              <TableCell
-                className={classNames(classes.cell, classes.roundName)}
-              >
-                <Hidden xsDown>
+              <TableCell sx={styles.roundName}>
+                {smScreen ? (
                   <Link
                     component={RouterLink}
                     to={`/competitions/${competitionId}/rounds/${result.round.id}`}
+                    underline="hover"
                   >
                     {result.round.name}
                   </Link>
-                </Hidden>
-                <Hidden smUp>{result.round.name}</Hidden>
+                ) : (
+                  result.round.name
+                )}
               </TableCell>
-              <Hidden xsDown>
-                {paddedAttemptResults(result, format.numberOfAttempts).map(
+              {smScreen &&
+                paddedAttemptResults(result, format.numberOfAttempts).map(
                   (attemptResult, index) => (
                     <TableCell key={index} align="right">
                       {formatAttemptResult(attemptResult, event.id)}
                     </TableCell>
                   )
                 )}
-              </Hidden>
               {stats.map(({ name, field, recordTagField }, index) => (
                 <TableCell
                   key={name}
                   align="right"
-                  className={classNames(classes.cell, {
-                    [classes.mainStat]: index === 0,
-                  })}
+                  sx={{
+                    fontWeight: index === 0 ? 600 : 400,
+                  }}
                 >
                   <RecordTagBadge recordTag={result[recordTagField]}>
                     {formatAttemptResult(result[field], event.id)}

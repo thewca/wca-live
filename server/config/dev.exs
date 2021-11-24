@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure the database
 config :wca_live, WcaLive.Repo,

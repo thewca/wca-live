@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { Grid, Paper, TableContainer } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Grid, Paper, TableContainer } from '@mui/material';
 import { useConfirm } from 'material-ui-confirm';
 import { useSnackbar } from 'notistack';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
@@ -30,17 +29,7 @@ const ENTER_RESULT_ATTEMPTS = gql`
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
-const useStyles = makeStyles((theme) => ({
-  tableGridItem: {
-    maxWidth: '100%',
-  },
-  tableContainer: {
-    paddingRight: 4, // A bit of space for record tags.
-  },
-}));
-
 function AdminRoundContent({ round, competitionId }) {
-  const classes = useStyles();
   const confirm = useConfirm();
   const { enqueueSnackbar } = useSnackbar();
   const apolloErrorHandler = useApolloErrorHandler();
@@ -117,10 +106,10 @@ function AdminRoundContent({ round, competitionId }) {
           <Grid item>
             <AdminRoundToolbar round={round} competitionId={competitionId} />
           </Grid>
-          <Grid item className={classes.tableGridItem}>
+          <Grid item sx={{ maxWidth: '100%' }}>
             <TableContainer
               component={Paper}
-              className={classes.tableContainer}
+              sx={{ pr: 0.5 /* A bit of space for record tags. */ }}
             >
               <AdminResultsTable
                 results={round.results}

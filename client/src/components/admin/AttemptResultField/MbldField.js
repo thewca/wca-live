@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@mui/material';
 import { DNF_KEYS, DNS_KEYS } from './keybindings';
 import TimeField from './TimeField';
 import CubesField from './CubesField';

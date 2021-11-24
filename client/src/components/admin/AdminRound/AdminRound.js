@@ -25,6 +25,7 @@ const ROUND_QUERY = gql`
         }
       }
       format {
+        id
         numberOfAttempts
         sortBy
       }

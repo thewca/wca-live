@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField } from '@material-ui/core';
+import { TextField } from '@mui/material';
 import { toInt } from '../../../lib/utils';
 
 function numberToInput(number) {

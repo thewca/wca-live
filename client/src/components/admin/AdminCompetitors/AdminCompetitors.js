@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import AdminCompetitorsTable from './AdminCompetitorsTable';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';

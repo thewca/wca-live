@@ -1,43 +1,31 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Typography, Grid } from '@material-ui/core';
+import { Box, Typography, Grid } from '@mui/material';
 import errorImage from './error.svg';
 import { apolloErrorToMessage } from '../../lib/errors';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    padding: theme.spacing(3),
-  },
-  image: {
-    maxWidth: '100%',
-  },
-}));
-
 function Error({ error = null }) {
-  const classes = useStyles();
-
   const message = apolloErrorToMessage(error);
 
   return (
-    <div className={classes.root}>
+    <Box sx={{ width: '100%' }}>
       <Grid container direction="column" spacing={2} alignItems="center">
         <Grid item>
           <Typography variant="h5">Oh dear!</Typography>
         </Grid>
         <Grid item>
-          <img
+          <Box
+            component="img"
             src={errorImage}
             height="300"
             alt="error"
-            className={classes.image}
+            sx={{ maxWidth: '100%' }}
           />
         </Grid>
         <Grid item>
           <Typography variant="subtitle1">{message}</Typography>
         </Grid>
       </Grid>
-    </div>
+    </Box>
   );
 }
 

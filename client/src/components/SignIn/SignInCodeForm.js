@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, IconButton } from '@material-ui/core';
-import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+import { TextField, IconButton } from '@mui/material';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 function isValidCode(code) {
   return /^\d+-\d{6}$/.test(code);
@@ -24,7 +24,11 @@ function SignInCodeForm({ onSubmit, disabled = false }) {
         disabled={disabled}
         InputProps={{
           endAdornment: (
-            <IconButton type="submit" disabled={disabled || !isValidCode(code)}>
+            <IconButton
+              type="submit"
+              disabled={disabled || !isValidCode(code)}
+              size="large"
+            >
               <ArrowForwardIcon />
             </IconButton>
           ),

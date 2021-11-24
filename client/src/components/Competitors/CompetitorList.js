@@ -9,20 +9,9 @@ import {
   ListItemText,
   ListItemIcon,
   Paper,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import FlagIcon from '../FlagIcon/FlagIcon';
-
-const useStyles = makeStyles((theme) => ({
-  searchBox: {
-    padding: '2px 2px 2px 16px',
-    display: 'inline-block',
-  },
-  fullWidth: {
-    width: '100%',
-  },
-}));
 
 function searchCompetitors(competitors, search) {
   const searchParts = search.toLowerCase().split(/\s+/);
@@ -32,30 +21,33 @@ function searchCompetitors(competitors, search) {
 }
 
 function CompetitorList({ competitors, competitionId }) {
-  const classes = useStyles();
   const [search, setSearch] = useState('');
 
-  const filteredCompetitors = searchCompetitors(
-    competitors,
-    search
-  ).sort((a, b) => a.name.localeCompare(b.name));
+  const filteredCompetitors = searchCompetitors(competitors, search).sort(
+    (a, b) => a.name.localeCompare(b.name)
+  );
 
   return (
     <Grid container direction="column" alignItems="center" spacing={1}>
       <Grid item>
-        <Paper className={classes.searchBox}>
+        <Paper
+          sx={{
+            p: '2px 2px 2px 16px',
+            display: 'inline-block',
+          }}
+        >
           <InputBase
             autoFocus
             value={search}
             placeholder="Search competitor"
             onChange={(event) => setSearch(event.target.value)}
           />
-          <IconButton disabled>
+          <IconButton disabled size="large">
             <SearchIcon />
           </IconButton>
         </Paper>
       </Grid>
-      <Grid item className={classes.fullWidth}>
+      <Grid item sx={{ width: '100%' }}>
         <List>
           {filteredCompetitors.map((competitor) => (
             <ListItem

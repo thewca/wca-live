@@ -10,7 +10,7 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-} from '@material-ui/core';
+} from '@mui/material';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
@@ -48,10 +48,10 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
 
   const [replaceAnswer, setReplaceAnswer] = useState('');
 
-  const [
-    getNextQualifying,
-    { data, loading, error },
-  ] = useLazyQuery(NEXT_QUALIFYING_QUERY, { variables: { roundId } });
+  const [getNextQualifying, { data, loading, error }] = useLazyQuery(
+    NEXT_QUALIFYING_QUERY,
+    { variables: { roundId } }
+  );
 
   useEffect(() => {
     if (open) {

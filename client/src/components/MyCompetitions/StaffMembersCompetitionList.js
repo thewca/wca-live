@@ -1,32 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Box,
   Chip,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+} from '@mui/material';
 import VirtualList from '../VirtualList/VirtualList';
 import CompetitionFlagIcon from '../CompetitionFlagIcon/CompetitionFlagIcon';
 import { formatDateRange } from '../../lib/date';
 import { roleToLabel } from '../../lib/staff-member';
 
-const useStyles = makeStyles((theme) => ({
-  rolesContainer: {
-    display: 'flex',
-  },
-  roleChip: {
-    fontWeight: 500,
-    margin: theme.spacing(0.5),
-  },
-}));
-
 function StaffMembersCompetitionList({ title, staffMembers }) {
-  const classes = useStyles();
-
   return (
     <List dense={true} disablePadding>
       {title && <ListSubheader disableSticky>{title}</ListSubheader>}
@@ -57,17 +45,20 @@ function StaffMembersCompetitionList({ title, staffMembers }) {
                   competition.endDate
                 )}
               />
-              <div className={classes.rolesContainer}>
+              <Box sx={{ display: 'flex' }}>
                 {staffMember.roles.map((role) => (
                   <Chip
                     key={role}
                     label={roleToLabel(role)}
                     size="small"
                     color="secondary"
-                    className={classes.roleChip}
+                    sx={{
+                      fontWeight: 500,
+                      margin: 0.5,
+                    }}
                   />
                 ))}
-              </div>
+              </Box>
             </ListItem>
           );
         }}

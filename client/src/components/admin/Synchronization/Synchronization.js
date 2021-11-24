@@ -10,12 +10,12 @@ import {
   Typography,
   Paper,
   ListSubheader,
-} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import EditIcon from '@material-ui/icons/Edit';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import GroupIcon from '@material-ui/icons/Group';
-import BuildIcon from '@material-ui/icons/Build';
+} from '@mui/material';
+import { Alert } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import GroupIcon from '@mui/icons-material/Group';
+import BuildIcon from '@mui/icons-material/Build';
 import TimeAgo from 'react-timeago';
 import { parseISO } from 'date-fns';
 import Loading from '../../Loading/Loading';
@@ -83,7 +83,9 @@ function Synchronization() {
       <Grid item>
         <Paper>
           <List dense={true}>
-            <ListSubheader>WCA website</ListSubheader>
+            <ListSubheader sx={{ backgroundColor: 'inherit' }}>
+              WCA website
+            </ListSubheader>
             <ListItem
               button
               component="a"
@@ -116,7 +118,9 @@ function Synchronization() {
                 secondary="Use a form on the WCA website to register someone during the competition (if applicable)."
               />
             </ListItem>
-            <ListSubheader>Additional tools</ListSubheader>
+            <ListSubheader sx={{ backgroundColor: 'inherit' }}>
+              Additional tools
+            </ListSubheader>
             <ListItem
               button
               component="a"

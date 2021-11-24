@@ -2,16 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Grid,
-  Hidden,
   IconButton,
   Tooltip,
   Typography,
-} from '@material-ui/core';
-import TvIcon from '@material-ui/icons/Tv';
-import PrintIcon from '@material-ui/icons/Print';
+  useMediaQuery,
+} from '@mui/material';
+import TvIcon from '@mui/icons-material/Tv';
+import PrintIcon from '@mui/icons-material/Print';
 import { appUrl } from '../../lib/urls';
 
 function RoundToolbar({ round, competitionId }) {
+  const mdScreen = useMediaQuery((theme) => theme.breakpoints.up('md'));
+
   return (
     <Grid item container alignItems="center">
       <Grid item>
@@ -20,13 +22,14 @@ function RoundToolbar({ round, competitionId }) {
         </Typography>
       </Grid>
       <Grid item style={{ flexGrow: 1 }} />
-      <Hidden smDown>
+      {mdScreen && (
         <Grid item>
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"
               target="_blank"
               href={appUrl(`/pdf/rounds/${round.id}`)}
+              size="large"
             >
               <PrintIcon />
             </IconButton>
@@ -35,12 +38,13 @@ function RoundToolbar({ round, competitionId }) {
             <IconButton
               component={Link}
               to={`/competitions/${competitionId}/rounds/${round.id}/projector`}
+              size="large"
             >
               <TvIcon />
             </IconButton>
           </Tooltip>
         </Grid>
-      </Hidden>
+      )}
     </Grid>
   );
 }

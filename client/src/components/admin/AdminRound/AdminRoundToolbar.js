@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Grid, IconButton, Tooltip, Typography } from '@material-ui/core';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import CheckIcon from '@material-ui/icons/Check';
-import PrintIcon from '@material-ui/icons/Print';
+import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CheckIcon from '@mui/icons-material/Check';
+import PrintIcon from '@mui/icons-material/Print';
 import AddCompetitorDialog from './AddCompetitorDialog';
 import { appUrl } from '../../../lib/urls';
 
@@ -35,12 +35,13 @@ function AdminRoundToolbar({ round, competitionId }) {
               component="a"
               target="_blank"
               href={appUrl(`/pdf/rounds/${round.id}`)}
+              size="large"
             >
               <PrintIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="Add competitor" placement="top">
-            <IconButton onClick={() => setAddDialogOpen(true)}>
+            <IconButton onClick={() => setAddDialogOpen(true)} size="large">
               <PersonAddIcon />
             </IconButton>
           </Tooltip>
@@ -48,6 +49,7 @@ function AdminRoundToolbar({ round, competitionId }) {
             <IconButton
               component={RouterLink}
               to={`/admin/competitions/${competitionId}/rounds/${round.id}/doublecheck`}
+              size="large"
             >
               <CheckIcon />
             </IconButton>

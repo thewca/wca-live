@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../Home/Home';
 import DefaultLayout from './DefaultLayout';
 import SignIn from '../SignIn/SignIn';
@@ -33,29 +33,17 @@ function DefaultNavigation() {
   return (
     <DefaultLayout currentUser={currentUser} loaded={loaded}>
       {loading && <Loading />}
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route exact path="/sign-in">
-          <SignIn />
-        </Route>
-        <Route exact path="/about">
-          <About />
-        </Route>
+      <Routes>
+        <Route path="" element={<Home />} />
+        <Route path="sign-in" element={<SignIn />} />
+        <Route path="about" element={<About />} />
         {currentUser && (
-          <Route exact path="/my-competitions">
-            <MyCompetitions />
-          </Route>
+          <Route path="my-competitions" element={<MyCompetitions />} />
         )}
-        {currentUser && (
-          <Route exact path="/account">
-            <Account />
-          </Route>
-        )}
+        {currentUser && <Route path="account" element={<Account />} />}
         {/* Wait for data before redirecting as the user routes are rendered conditionally. */}
-        {loaded && <Redirect to="/" />}
-      </Switch>
+        {loaded && <Route path="*" element={<Navigate to="/" />} />}
+      </Routes>
     </DefaultLayout>
   );
 }

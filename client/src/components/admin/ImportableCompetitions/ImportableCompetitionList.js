@@ -1,7 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import List from '@material-ui/core/List';
-import { makeStyles } from '@material-ui/core/styles';
+import List from '@mui/material/List';
 
 import Error from '../../Error/Error';
 import Loading from '../../Loading/Loading';
@@ -18,17 +17,7 @@ const IMPORTABLE_COMPETITIONS_QUERY = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    maxHeight: 240,
-    overflowY: 'auto',
-  },
-}));
-
 function ImportableCompetitionList() {
-  const classes = useStyles();
-
   const { data, loading, error } = useQuery(IMPORTABLE_COMPETITIONS_QUERY);
 
   if (loading && !data) return <Loading />;
@@ -36,7 +25,15 @@ function ImportableCompetitionList() {
   const { importableCompetitions } = data;
 
   return (
-    <List dense={true} disablePadding className={classes.root}>
+    <List
+      dense={true}
+      disablePadding
+      sx={{
+        width: '100%',
+        maxHeight: 240,
+        overflowY: 'auto',
+      }}
+    >
       {importableCompetitions.map((competition) => (
         <ImportableCompetitionListItem
           key={competition.wcaId}

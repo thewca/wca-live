@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, List } from '@material-ui/core';
+import { Card, CardContent, CardHeader, List } from '@mui/material';
 import AdminRoundListItem from './AdminRoundListItem';
 import CubingIcon from '../../CubingIcon/CubingIcon';
 

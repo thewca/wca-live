@@ -1,7 +1,7 @@
 import React from 'react';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { useHistory } from 'react-router-dom';
-import { Grid, Typography } from '@material-ui/core';
+import { useNavigate } from 'react-router-dom';
+import { Grid, Typography } from '@mui/material';
 import SignInCodeForm from './SignInCodeForm';
 import useApolloErrorHandler from '../../hooks/useApolloErrorHandler';
 import { storeToken } from '../../lib/auth';
@@ -17,13 +17,13 @@ const SIGN_IN = gql`
 function SignInCode() {
   const apolloErrorHandler = useApolloErrorHandler();
   const apolloClient = useApolloClient();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [signIn, { loading }] = useMutation(SIGN_IN, {
     onError: apolloErrorHandler,
     onCompleted: ({ signIn: { token } }) => {
       storeToken(token);
-      history.push('/');
+      navigate('/');
       apolloClient.resetStore();
     },
   });

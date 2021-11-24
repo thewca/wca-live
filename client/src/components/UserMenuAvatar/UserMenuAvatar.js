@@ -7,23 +7,12 @@ import {
   ListItemIcon,
   Menu,
   MenuItem,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+} from '@mui/material';
 import SignOutMenuItem from './SignOutMenuItem';
-import PersonIcon from '@material-ui/icons/Person';
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
-
-const useStyles = makeStyles((theme) => ({
-  menuList: {
-    minWidth: 200,
-  },
-  divider: {
-    margin: theme.spacing(1, 0),
-  },
-}));
+import PersonIcon from '@mui/icons-material/Person';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
 function UserMenuAvatar({ user }) {
-  const classes = useStyles();
   const [menuOpen, setMenuOpen] = useState(false);
   const anchorEl = useRef();
 
@@ -46,8 +35,7 @@ function UserMenuAvatar({ user }) {
           vertical: 'top',
           horizontal: 'right',
         }}
-        getContentAnchorEl={null}
-        classes={{ list: classes.menuList }}
+        sx={{ minWidth: 200 }}
       >
         <MenuItem component={RouterLink} to="/account">
           <ListItemIcon>
@@ -61,7 +49,7 @@ function UserMenuAvatar({ user }) {
           </ListItemIcon>
           My competitions
         </MenuItem>
-        <Divider className={classes.divider} />
+        <Divider sx={{ my: 1 }} />
         <SignOutMenuItem />
       </Menu>
     </>

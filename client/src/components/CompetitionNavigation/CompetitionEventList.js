@@ -7,22 +7,12 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+} from '@mui/material';
 import scrollIntoView from 'scroll-into-view-if-needed';
 
 import CubingIcon from '../CubingIcon/CubingIcon';
 
-const useStyles = makeStyles((theme) => ({
-  labelChip: {
-    borderRadius: 6,
-    fontSize: '0.8em',
-    fontWeight: 500,
-  },
-}));
-
 function CompetitionEventList({ competitionEvents, competitionId }) {
-  const classes = useStyles();
   const [selectedId, setSelectedId] = useState(null);
 
   function handleCompetitionEventClick(event, competitionEvent) {
@@ -75,7 +65,11 @@ function CompetitionEventList({ competitionEvents, competitionId }) {
                     <Chip
                       label={round.label}
                       size="small"
-                      className={classes.labelChip}
+                      sx={{
+                        borderRadius: '6px',
+                        fontSize: '0.7em',
+                        fontWeight: 500,
+                      }}
                     />
                   )}
                 </ListItem>

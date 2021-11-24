@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { Grid, IconButton, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { Grid, IconButton, Typography } from '@mui/material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Loading from '../../Loading/Loading';
 import Error from '../../Error/Error';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
@@ -25,6 +24,7 @@ const ROUND_QUERY = gql`
         }
       }
       format {
+        id
         numberOfAttempts
       }
       timeLimit {
@@ -64,14 +64,7 @@ const ENTER_RESULT_ATTEMPTS = gql`
   }
 `;
 
-const useStyles = makeStyles((theme) => ({
-  centerContent: {
-    textAlign: 'center',
-  },
-}));
-
 function RoundDoubleCheck() {
-  const classes = useStyles();
   const apolloErrorHandler = useApolloErrorHandler();
   const { roundId } = useParams();
   const [resultIndex, updateResultIndex] = useState(0);
@@ -129,11 +122,12 @@ function RoundDoubleCheck() {
 
   return (
     <Grid container direction="row" alignItems="center" spacing={2}>
-      <Grid item md className={classes.centerContent}>
+      <Grid item md sx={{ textAlign: 'center' }}>
         <IconButton
           ref={leftButtonRef}
           onClick={() => updateResultIndex(resultIndex - 1)}
           disabled={resultIndex === 0}
+          size="large"
         >
           <ChevronLeftIcon />
         </IconButton>
@@ -151,12 +145,13 @@ function RoundDoubleCheck() {
           onSubmit={handleResultAttemptsSubmit}
         />
       </Grid>
-      <Grid item md className={classes.centerContent}>
+      <Grid item md sx={{ textAlign: 'center' }}>
         <IconButton
           ref={rightButtonRef}
           autoFocus
           onClick={() => updateResultIndex(resultIndex + 1)}
           disabled={resultIndex === results.length - 1}
+          size="large"
         >
           <ChevronRightIcon />
         </IconButton>

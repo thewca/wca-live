@@ -197,9 +197,8 @@ export function formatAttemptResult(attemptResult, eventId) {
 }
 
 function formatMbldAttemptResult(attemptResult) {
-  const { solved, attempted, centiseconds } = decodeMbldAttemptResult(
-    attemptResult
-  );
+  const { solved, attempted, centiseconds } =
+    decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, '');
   return `${solved}/${attempted} ${shortClockFormat}`;
@@ -259,9 +258,8 @@ export function autocompleteTimeAttemptResult(time) {
  * a warning message if some are found.
  */
 export function attemptResultsWarning(attemptResults, eventId) {
-  const skippedGapIndex = trimTrailingSkipped(attemptResults).indexOf(
-    SKIPPED_VALUE
-  );
+  const skippedGapIndex =
+    trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return `You've omitted attempt ${
       skippedGapIndex + 1

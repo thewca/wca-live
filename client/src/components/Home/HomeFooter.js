@@ -1,25 +1,18 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Grid, Link, IconButton } from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-import EmojiObjectsOutlinedIcon from '@material-ui/icons/EmojiObjectsOutlined';
+import { Grid, Link, IconButton } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import EmojiObjectsOutlinedIcon from '@mui/icons-material/EmojiObjectsOutlined';
 import { useToggleTheme } from '../ThemeProvider/ThemeProvider';
 
-const useStyles = makeStyles((theme) => ({
-  link: {
-    '&:hover': {
-      textDecoration: 'none',
-      opacity: 0.7,
-    },
+const linkStyles = {
+  '&:hover': {
+    opacity: 0.7,
   },
-  grow: {
-    flexGrow: 1,
-  },
-}));
+};
 
 function HomeFooter() {
-  const classes = useStyles();
   const theme = useTheme();
   const toggleTheme = useToggleTheme();
 
@@ -31,31 +24,33 @@ function HomeFooter() {
           onClick={toggleTheme}
           aria-label="Toggle theme"
         >
-          {theme.palette.type === 'dark' ? (
+          {theme.palette.mode === 'dark' ? (
             <EmojiObjectsIcon />
           ) : (
             <EmojiObjectsOutlinedIcon />
           )}
         </IconButton>
       </Grid>
-      <Grid item className={classes.grow} />
+      <Grid item sx={{ flexGrow: 1 }} />
       <Grid item>
         <Link
-          className={classes.link}
+          sx={linkStyles}
           variant="subtitle1"
           component={RouterLink}
           to="/about"
+          underline="none"
         >
           About
         </Link>
       </Grid>
       <Grid item>
         <Link
-          className={classes.link}
+          sx={linkStyles}
           variant="subtitle1"
           href="https://github.com/thewca/wca-live"
           target="_blank"
           rel="noopener noreferrer"
+          underline="none"
         >
           GitHub
         </Link>

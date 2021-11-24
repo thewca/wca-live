@@ -1,5 +1,5 @@
 # Stage 1: build
-FROM hexpm/elixir:1.11.4-erlang-23.3.4-alpine-3.13.3 AS build
+FROM hexpm/elixir:1.12.3-erlang-24.1.6-alpine-3.14.2 AS build
 
 # Install build dependencies.
 RUN apk add --no-cache build-base git python3
@@ -24,14 +24,14 @@ COPY lib lib
 RUN mix do compile, release
 
 # Stage 2: release image
-FROM alpine:3.12
+FROM alpine:3.14.2
 
 # Install dependencies.
 RUN apk add --no-cache \
     # runtime
     openssl ncurses-libs \
     # PDF generation
-    ttf-ubuntu-font-family wkhtmltopdf
+    ttf-freefont wkhtmltopdf
 
 WORKDIR /app
 
