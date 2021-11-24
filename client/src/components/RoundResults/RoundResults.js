@@ -54,7 +54,7 @@ function RoundResults({ results, format, eventId, competitionId }) {
           </Grid>
         )}
       </Grid>
-      {smScreen && (
+      {!smScreen && (
         <RoundResultDialog
           result={selectedResult}
           format={format}
