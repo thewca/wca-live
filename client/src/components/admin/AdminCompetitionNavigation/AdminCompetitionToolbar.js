@@ -45,16 +45,18 @@ function AdminCompetitionToolbar({ competition }) {
           <ViewListIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Synchronization">
-        <IconButton
-          color="inherit"
-          component={RouterLink}
-          to={`/admin/competitions/${competition.id}/sync`}
-          size="large"
-        >
-          <SyncIcon />
-        </IconButton>
-      </Tooltip>
+      {competition.access.canManage && (
+        <Tooltip title="Synchronization">
+          <IconButton
+            color="inherit"
+            component={RouterLink}
+            to={`/admin/competitions/${competition.id}/sync`}
+            size="large"
+          >
+            <SyncIcon />
+          </IconButton>
+        </Tooltip>
+      )}
       <Tooltip title="Competitors">
         <IconButton
           color="inherit"

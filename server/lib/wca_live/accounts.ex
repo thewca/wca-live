@@ -71,7 +71,7 @@ defmodule WcaLive.Accounts do
         {:ok, new_access_token}
       else
         {:error, _} ->
-          {:error, "failed to refresh access token"}
+          {:error, "failed to refresh access token, please try to sign out and in"}
       end
     else
       {:ok, access_token}

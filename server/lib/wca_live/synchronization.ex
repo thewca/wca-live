@@ -47,17 +47,11 @@ defmodule WcaLive.Synchronization do
   The final goal is for the local database and the WCA database
   to reflect the same state, so that other applications
   may load the latest data from the WCA API.
-
-  Uses OAuth access token of whoever imported the competition.
   """
-  @spec synchronize_competition(%Competition{}) :: {:ok, %Competition{}} | {:error, any()}
-  def synchronize_competition(competition) do
-    # Use oauth credentials of whoever imported the competition to do synchronization,
-    # because plain scoretakers don't have permissions to save WCIF to the WCA website,
-    # yet we still want them to be able to synchronize results.
-    imported_by = competition |> Ecto.assoc(:imported_by) |> Repo.one!()
-
-    with {:ok, access_token} <- Accounts.get_valid_access_token(imported_by),
+  @spec synchronize_competition(%Competition{}, %User{}) ::
+          {:ok, %Competition{}} | {:error, any()}
+  def synchronize_competition(competition, user) do
+    with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, wcif} <- Wca.Api.impl().get_wcif(competition.wca_id, access_token.access_token),
          {:ok, updated_competition} <-
            Synchronization.Import.import_competition(competition, wcif),

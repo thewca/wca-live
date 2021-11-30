@@ -1,7 +1,6 @@
 defmodule WcaLiveWeb.Resolvers.SynchronizationMutation do
   alias WcaLive.Competitions
   alias WcaLive.Synchronization
-  alias WcaLive.Scoretaking
 
   def import_competition(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
     with {:ok, competition} <- Synchronization.import_competition(input.wca_id, current_user) do
@@ -14,9 +13,9 @@ defmodule WcaLiveWeb.Resolvers.SynchronizationMutation do
   def synchronize_competition(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
     with {:ok, competition} <- Competitions.fetch_competition(input.id),
          true <-
-           Scoretaking.Access.can_scoretake_competition?(current_user, competition) ||
+           Competitions.Access.can_manage_competition?(current_user, competition) ||
              {:error, "access denied"},
-         {:ok, competition} <- Synchronization.synchronize_competition(competition) do
+         {:ok, competition} <- Synchronization.synchronize_competition(competition, current_user) do
       {:ok, %{competition: competition}}
     end
   end
