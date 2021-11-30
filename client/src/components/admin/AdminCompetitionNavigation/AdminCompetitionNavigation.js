@@ -41,7 +41,9 @@ function AdminCompetitionNavigation() {
     <AdminCompetitionLayout competition={competition}>
       <Routes>
         <Route path="" element={<AdminCompetitionEvents />} />
-        <Route path="sync" element={<Synchronization />} />
+        {competition.access.canManage && (
+          <Route path="sync" element={<Synchronization />} />
+        )}
         {competition.access.canManage && (
           <Route path="settings" element={<AdminSettings />} />
         )}

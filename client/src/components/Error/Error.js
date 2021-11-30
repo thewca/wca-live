@@ -7,7 +7,7 @@ function Error({ error = null }) {
   const message = apolloErrorToMessage(error);
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', py: 4 }}>
       <Grid container direction="column" spacing={2} alignItems="center">
         <Grid item>
           <Typography variant="h5">Oh dear!</Typography>
@@ -16,7 +16,7 @@ function Error({ error = null }) {
           <Box
             component="img"
             src={errorImage}
-            height="300"
+            height={300}
             alt="error"
             sx={{ maxWidth: '100%' }}
           />
