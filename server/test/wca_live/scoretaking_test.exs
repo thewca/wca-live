@@ -522,7 +522,10 @@ defmodule WcaLive.ScoretakingTest do
       person: build(:person, country_iso2: "GB")
     )
 
-    assert 2 = length(Scoretaking.list_recent_records())
+    records = Scoretaking.list_recent_records()
+
+    assert 2 = length(records)
+    assert 2 = records |> Enum.uniq_by(& &1.id) |> length()
   end
 
   test "list_podiums/1 returns one podium object for each final round" do
