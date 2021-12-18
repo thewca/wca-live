@@ -393,6 +393,7 @@ defmodule WcaLive.Scoretaking do
       |> Enum.filter(fn result -> result.single_record_tag in tags end)
       |> Enum.map(fn result ->
         %{
+          id: "#{result.id}-single",
           result: result,
           type: :single,
           tag: result.single_record_tag,
@@ -405,6 +406,7 @@ defmodule WcaLive.Scoretaking do
       |> Enum.filter(fn result -> result.average_record_tag in tags end)
       |> Enum.map(fn result ->
         %{
+          id: "#{result.id}-average",
           result: result,
           type: :average,
           tag: result.average_record_tag,
@@ -415,7 +417,7 @@ defmodule WcaLive.Scoretaking do
     # Group by record key, then pick best in each group,
     # so that we show only one record of each type.
     (single_records ++ average_records)
-    |> Enum.map(fn record ->
+    |> Enum.group_by(fn record ->
       person = record.result.person
       event_id = record.result.round.competition_event.event_id
 
@@ -423,9 +425,8 @@ defmodule WcaLive.Scoretaking do
         RecordTags.tags_with_record_key(person, event_id, record.type)
         |> Enum.find(fn %{tag: tag} -> tag == record.tag end)
 
-      Map.put(record, :id, record_key)
+      record_key
     end)
-    |> Enum.group_by(& &1.id)
     |> Enum.flat_map(fn {_, records} ->
       # Note: if there is a tie, we want both records.
       min_attempt_result = records |> Enum.map(& &1.attempt_result) |> Enum.min()
@@ -433,9 +434,10 @@ defmodule WcaLive.Scoretaking do
     end)
     |> Enum.sort_by(fn record ->
       event_id = record.result.round.competition_event.event_id
+      person_name = record.result.person.name
 
       {record_tag_rank(record.tag), Event.get_rank_by_id!(event_id),
-       record_type_rank(record.type), record.attempt_result}
+       record_type_rank(record.type), record.attempt_result, person_name}
     end)
   end
 
