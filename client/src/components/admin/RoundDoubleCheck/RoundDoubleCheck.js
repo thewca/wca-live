@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton, LinearProgress, Typography } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Loading from '../../Loading/Loading';
@@ -120,58 +120,72 @@ function RoundDoubleCheck() {
     });
   }
 
+  const progressPercentage = Math.round(
+    ((resultIndex + 1) / results.length) * 100
+  );
+
   return (
-    <Grid container direction="row" alignItems="center" spacing={2}>
-      <Grid item md sx={{ textAlign: 'center' }}>
-        <IconButton
-          ref={leftButtonRef}
-          onClick={() => updateResultIndex(resultIndex - 1)}
-          disabled={resultIndex === 0}
-          size="large"
-        >
-          <ChevronLeftIcon />
-        </IconButton>
+    <>
+      <LinearProgress
+        variant="determinate"
+        value={progressPercentage}
+        sx={{ position: 'absolute', top: 0, left: 0, right: 0 }}
+      />
+      <Typography variant="subtitle1" align="right">
+        {resultIndex + 1} of {results.length}
+      </Typography>
+      <Grid container direction="row" alignItems="center" spacing={2}>
+        <Grid item md sx={{ textAlign: 'center' }}>
+          <IconButton
+            ref={leftButtonRef}
+            onClick={() => updateResultIndex(resultIndex - 1)}
+            disabled={resultIndex === 0}
+            size="large"
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+        </Grid>
+        <Grid item md={3}>
+          <ResultAttemptsForm
+            result={results[resultIndex]}
+            results={round.results}
+            onResultChange={handleResultChange}
+            eventId={round.competitionEvent.event.id}
+            format={round.format}
+            timeLimit={round.timeLimit}
+            cutoff={round.cutoff}
+            disabled={enterLoading}
+            onSubmit={handleResultAttemptsSubmit}
+          />
+        </Grid>
+        <Grid item md sx={{ textAlign: 'center' }}>
+          <IconButton
+            ref={rightButtonRef}
+            autoFocus
+            onClick={() => updateResultIndex(resultIndex + 1)}
+            disabled={resultIndex === results.length - 1}
+            size="large"
+          >
+            <ChevronRightIcon />
+          </IconButton>
+        </Grid>
+        <Grid item md={5}>
+          <Typography variant="h5" align="center">
+            {round.competitionEvent.event.name} - {round.name}
+          </Typography>
+          <Typography variant="subtitle1" align="center" gutterBottom>
+            Double-check
+          </Typography>
+          <Typography align="justify">
+            {`Here you can iterate over results ordered by entry time (newest first).
+              When doing double-check you can place a scorecard
+              next to the form to quickly compare attempt results.
+              For optimal experience make sure to always put entered/updated
+              scorecard at the top of the pile.`}
+          </Typography>
+        </Grid>
       </Grid>
-      <Grid item md={3}>
-        <ResultAttemptsForm
-          result={results[resultIndex]}
-          results={round.results}
-          onResultChange={handleResultChange}
-          eventId={round.competitionEvent.event.id}
-          format={round.format}
-          timeLimit={round.timeLimit}
-          cutoff={round.cutoff}
-          disabled={enterLoading}
-          onSubmit={handleResultAttemptsSubmit}
-        />
-      </Grid>
-      <Grid item md sx={{ textAlign: 'center' }}>
-        <IconButton
-          ref={rightButtonRef}
-          autoFocus
-          onClick={() => updateResultIndex(resultIndex + 1)}
-          disabled={resultIndex === results.length - 1}
-          size="large"
-        >
-          <ChevronRightIcon />
-        </IconButton>
-      </Grid>
-      <Grid item md={5}>
-        <Typography variant="h5" align="center">
-          {round.competitionEvent.event.name} - {round.name}
-        </Typography>
-        <Typography variant="subtitle1" align="center" gutterBottom>
-          Double-check
-        </Typography>
-        <Typography align="justify">
-          {`Here you can iterate over results ordered by entry time (newest first).
-            When doing double-check you can place a scorecard
-            next to the form to quickly compare attempt results.
-            For optimal experience make sure to always put entered/updated
-            scorecard at the top of the pile.`}
-        </Typography>
-      </Grid>
-    </Grid>
+    </>
   );
 }
 
