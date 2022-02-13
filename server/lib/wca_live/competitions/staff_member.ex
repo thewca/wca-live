@@ -9,7 +9,7 @@ defmodule WcaLive.Competitions.StaffMember do
   alias WcaLive.Accounts.User
   alias WcaLive.Competitions.{Competition, StaffMember}
 
-  @allowed_roles ["delegate", "organizer", "staff-dataentry"]
+  @allowed_roles ["delegate", "trainee-delegate", "organizer", "staff-dataentry"]
   @min_roles 1
 
   @required_fields [:roles]
@@ -41,7 +41,8 @@ defmodule WcaLive.Competitions.StaffMember do
   """
   @spec manager?(%StaffMember{}) :: boolean()
   def manager?(staff_member) do
-    "delegate" in staff_member.roles or "organizer" in staff_member.roles
+    "delegate" in staff_member.roles or "trainee-delegate" in staff_member.roles or
+      "organizer" in staff_member.roles
   end
 
   @doc """
