@@ -301,9 +301,9 @@ defmodule WcaLive.Synchronization.Import do
 
   defp wcif_qualification_to_attrs(wcif_qualification) do
     %{
-      attempt_result: wcif_qualification["attemptResult"],
+      level: wcif_qualification["level"],
       type: wcif_qualification["type"],
-      when: wcif_qualification["when"]
+      when_date: wcif_qualification["whenDate"]
     }
   end
 
