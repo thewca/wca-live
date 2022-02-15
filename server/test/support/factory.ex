@@ -113,6 +113,14 @@ defmodule WcaLive.Factory do
     }
   end
 
+  def qualification_factory do
+    %Competitions.Qualification{
+      type: "ranking",
+      when_date: ~D[2020-02-10],
+      level: 50
+    }
+  end
+
   def round_factory do
     %Scoretaking.Round{
       number: 1,

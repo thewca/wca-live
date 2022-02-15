@@ -82,7 +82,11 @@ defmodule WcaLive.Synchronization.ImportTest do
           }
         ],
         "competitorLimit" => nil,
-        "qualification" => nil,
+        "qualification" => %{
+          "whenDate" => "2019-07-01",
+          "type" => "ranking",
+          "level" => 50
+        },
         "extensions" => []
       }
     ],
@@ -176,6 +180,7 @@ defmodule WcaLive.Synchronization.ImportTest do
     assert 1 == length(competition_events)
     competition_event = hd(competition_events)
     assert "333" == competition_event.event_id
+    assert ~D[2019-07-01] == competition_event.qualification.when_date
 
     # Rounds
 

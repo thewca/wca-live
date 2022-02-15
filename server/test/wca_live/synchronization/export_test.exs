@@ -72,7 +72,11 @@ defmodule WcaLive.Synchronization.ExportTest do
           }
         ],
         "competitorLimit" => nil,
-        "qualification" => nil
+        "qualification" => %{
+          "whenDate" => "2019-07-01",
+          "type" => "ranking",
+          "level" => 50
+        }
       }
     ],
     "schedule" => %{
@@ -124,7 +128,8 @@ defmodule WcaLive.Synchronization.ExportTest do
         competition: competition,
         event_id: "333",
         competitor_limit: nil,
-        qualification: nil
+        qualification:
+          build(:qualification, when_date: ~D[2019-07-01], type: "ranking", level: 50)
       )
 
     insert(:round,

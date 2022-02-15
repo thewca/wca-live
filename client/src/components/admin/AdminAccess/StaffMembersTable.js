@@ -13,6 +13,7 @@ import {
 const rolesData = [
   { role: 'organizer', name: 'Organizer', editable: false },
   { role: 'delegate', name: 'Delegate', editable: false },
+  { role: 'trainee-delegate', name: 'Trainee delegate', editable: false },
   { role: 'staff-dataentry', name: 'Scoretaker', editable: true },
 ];
 
