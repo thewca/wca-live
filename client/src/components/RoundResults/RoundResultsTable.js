@@ -20,6 +20,9 @@ const styles = {
   cell: {
     pr: { xs: '6px', md: '16px' },
     pl: { xs: '10px', md: '16px' },
+    '&:last-child': {
+      pr: 2,
+    },
   },
   ranking: {
     pr: { xs: 1, md: 2 },
