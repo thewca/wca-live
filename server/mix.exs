@@ -14,9 +14,6 @@ defmodule WcaLive.MixProject do
     ]
   end
 
-  # Configuration for the OTP application.
-  #
-  # Type `mix help compile.app` for more information.
   def application do
     [
       mod: {WcaLive.Application, []},
@@ -24,13 +21,9 @@ defmodule WcaLive.MixProject do
     ]
   end
 
-  # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  # Specifies your project dependencies.
-  #
-  # Type `mix help deps` for examples and options.
   defp deps do
     [
       {:phoenix, "~> 1.6.2"},
@@ -43,7 +36,9 @@ defmodule WcaLive.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:httpoison, "~> 1.6"},
-      {:absinthe, "~> 1.5"},
+      # TODO: update when https://github.com/absinthe-graphql/absinthe/issues/1064 is resolved.
+      # Make sure that entering a result triggers a single batched subscription update for all subscribers
+      {:absinthe, "1.5.5"},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_phoenix, "~> 2.0"},
       {:dataloader, "~> 1.0"},
@@ -53,12 +48,6 @@ defmodule WcaLive.MixProject do
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to install project dependencies and perform other setup tasks, run:
-  #
-  #     $ mix setup
-  #
-  # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
       setup: ["deps.get", "ecto.setup"],
