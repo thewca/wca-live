@@ -26,7 +26,7 @@ update_authorized_keys() {
     --comment "Keys for WST members" \
     github \
     --organization thewca \
-    --team "Software Team" \
+    --team "WST Admin" \
     --token $token \
     $authorized_keys_path
 
