@@ -83,9 +83,10 @@ defmodule WcaLive.Synchronization.ImportTest do
         ],
         "competitorLimit" => nil,
         "qualification" => %{
-          "whenDate" => "2019-07-01",
           "type" => "ranking",
-          "level" => 50
+          "resultType" => "average",
+          "level" => 50,
+          "whenDate" => "2019-07-01"
         },
         "extensions" => []
       }

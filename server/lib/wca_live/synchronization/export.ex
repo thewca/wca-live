@@ -109,8 +109,9 @@ defmodule WcaLive.Synchronization.Export do
   defp qualification_to_wcif(qualification) do
     %{
       "type" => qualification.type,
-      "whenDate" => qualification.when_date |> Date.to_iso8601(),
-      "level" => qualification.level
+      "resultType" => qualification.result_type,
+      "level" => qualification.level,
+      "whenDate" => qualification.when_date |> Date.to_iso8601()
     }
   end
 

@@ -116,8 +116,9 @@ defmodule WcaLive.Factory do
   def qualification_factory do
     %Competitions.Qualification{
       type: "ranking",
-      when_date: ~D[2020-02-10],
-      level: 50
+      result_type: "average",
+      level: 50,
+      when_date: ~D[2020-02-10]
     }
   end
 
