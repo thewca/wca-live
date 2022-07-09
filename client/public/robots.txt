@@ -1,2 +1,4 @@
 User-agent: *
 Disallow: /admin
+Disallow: /competitions/*/rounds/*
+Disallow: /competitions/*/competitors/*
