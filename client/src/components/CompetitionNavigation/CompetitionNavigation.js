@@ -41,7 +41,9 @@ function CompetitionNavigation() {
   const { data, error, loading } = useQuery(COMPETITION_QUERY, {
     variables: { id: competitionId },
     // Eventually update rounds data (open, label).
-    pollInterval: 60 * 1000,
+    // TODO: since every user is at some competition page,
+    // we don't want to overload the server with pooling
+    // pollInterval: 60 * 1000,
   });
 
   if (error) return <Error error={error} />;
