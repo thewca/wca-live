@@ -6,13 +6,7 @@ defmodule WcaLive.Application do
   use Application
 
   def start(_type, _args) do
-    :ok =
-      :telemetry.attach(
-        "slow-query-handler",
-        [:wca_live, :repo, :query],
-        &WcaLive.Telemetry.handle_event/4,
-        %{}
-      )
+    WcaLive.Telemetry.attach()
 
     children = [
       # Start the Ecto repository
