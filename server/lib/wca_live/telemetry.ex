@@ -2,7 +2,7 @@ defmodule WcaLive.Telemetry do
   require Logger
 
   @slow_query_threshold_ms 800
-  @slow_graphql_threshold_ms 2_000
+  @slow_graphql_threshold_ms 1_000
 
   def attach do
     events = [
