@@ -30,7 +30,7 @@ defmodule WcaLiveWeb.Loader do
   end
 
   defp query(Round, _args) do
-    Round |> Round.order_by_number() |> Ecto.Query.preload(:results)
+    Round |> Round.order_by_number()
   end
 
   defp query(Result, _args) do

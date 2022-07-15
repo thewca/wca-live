@@ -37,7 +37,7 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
   end
 
   def get_round(_parent, %{id: id}, _resolution) do
-    round = Scoretaking.get_round(id) |> Scoretaking.preload_results()
+    round = Scoretaking.get_round(id)
     {:ok, round}
   end
 

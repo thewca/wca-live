@@ -11,7 +11,6 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
     with {:ok, round} <- Scoretaking.fetch_round(input.id),
          true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
          {:ok, round} <- Scoretaking.open_round(round) do
-      round = Scoretaking.preload_results(round)
       {:ok, %{round: round}}
     end
   end
@@ -22,7 +21,6 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
     with {:ok, round} <- Scoretaking.fetch_round(input.id),
          true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
          {:ok, round} <- Scoretaking.clear_round(round) do
-      round = Scoretaking.preload_results(round)
       {:ok, %{round: round}}
     end
   end
@@ -34,7 +32,6 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
          {:ok, person} <- Competitions.fetch_person(input.person_id),
          true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
          {:ok, round} <- Scoretaking.add_person_to_round(person, round) do
-      round = Scoretaking.preload_results(round)
       {:ok, %{round: round}}
     end
   end
@@ -47,7 +44,6 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
          true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
          {:ok, round} <-
            Scoretaking.remove_person_from_round(person, round, replace: input.replace) do
-      round = Scoretaking.preload_results(round)
       {:ok, %{round: round}}
     end
   end

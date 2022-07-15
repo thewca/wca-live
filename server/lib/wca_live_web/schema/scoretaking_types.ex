@@ -26,19 +26,19 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     end
 
     field :label, :string do
-      resolve &Resolvers.Scoretaking.round_label/3
+      resolve with_round_results(&Resolvers.Scoretaking.round_label/3)
     end
 
     field :open, non_null(:boolean) do
-      resolve &Resolvers.Scoretaking.round_open/3
+      resolve with_round_results(&Resolvers.Scoretaking.round_open/3)
     end
 
     field :finished, non_null(:boolean) do
-      resolve &Resolvers.Scoretaking.round_finished/3
+      resolve with_round_results(&Resolvers.Scoretaking.round_finished/3)
     end
 
     field :active, non_null(:boolean) do
-      resolve &Resolvers.Scoretaking.round_active/3
+      resolve with_round_results(&Resolvers.Scoretaking.round_active/3)
     end
 
     field :format, non_null(:format) do
@@ -139,5 +139,22 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
             "If this list is not empty, it means the qualifying people have quit before, " <>
             "and thus may supersede whoever replaced them."
     field :revocable, non_null(list_of(non_null(:person)))
+  end
+
+  # Helpers
+
+  # Loads round results with dataloader before calling the resolver function
+  defp with_round_results(fun) do
+    fn round, args, resolution ->
+      dataloader_fun =
+        dataloader(:db, :results,
+          callback: fn results, round, _args ->
+            round = put_in(round.results, results)
+            fun.(round, args, resolution)
+          end
+        )
+
+      dataloader_fun.(round, args, resolution)
+    end
   end
 end
