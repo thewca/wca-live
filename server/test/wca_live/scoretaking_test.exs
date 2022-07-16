@@ -440,6 +440,26 @@ defmodule WcaLive.ScoretakingTest do
     assert not Enum.any?(results, &(&1.person_id == second_person.id))
   end
 
+  test "remove_person_from_round/3 updates advancing" do
+    round =
+      insert(:round,
+        number: 1,
+        advancement_condition: build(:advancement_condition, type: "percent", level: 50)
+      )
+
+    for ranking <- 1..5, do: insert(:result, round: round, ranking: ranking, advancing: true)
+    for ranking <- 6..8, do: insert(:result, round: round, ranking: ranking, advancing: false)
+
+    # With 9 people in the round, 5 should advance, once we remove
+    # the missing result, only 4 should
+    missing_result = insert(:result, round: round, ranking: nil, attempts: [], advancing: false)
+
+    assert {:ok, updated} = Scoretaking.remove_person_from_round(missing_result.person, round)
+
+    results = updated |> Ecto.assoc(:results) |> Repo.all()
+    assert 4 == Enum.count(results, & &1.advancing)
+  end
+
   test "list_recent_records/1 ignores old records" do
     insert_result_x_days_ago(
       20,

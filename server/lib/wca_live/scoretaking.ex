@@ -247,7 +247,7 @@ defmodule WcaLive.Scoretaking do
     else
       []
       |> Round.put_results_in_round(round)
-      |> update_round_and_previous_advancing()
+      |> update_round_and_advancing()
     end
   end
 
@@ -279,7 +279,7 @@ defmodule WcaLive.Scoretaking do
 
         [new_result | results]
         |> Round.put_results_in_round(round)
-        |> update_round_and_previous_advancing()
+        |> update_round_and_advancing()
       end
     end
   end
@@ -316,22 +316,27 @@ defmodule WcaLive.Scoretaking do
 
       results
       |> Round.put_results_in_round(round)
-      |> update_round_and_previous_advancing()
+      |> update_round_and_advancing()
     end
   end
 
-  # Saves the given round changeset and recomputes
-  # `advancing` for results in the previous round.
+  # Saves the given round changeset and recomputes `advancing` for
+  # results in this and the previous round.
 
-  # Some changes to round results (specifically removing/adding a person)
-  # affect the `advancing` flag on previous round results
-  # and this function takes care of updating that.
-  @spec update_round_and_previous_advancing(Ecto.Changeset.t(%Round{})) ::
+  # Certain changes to round results (specifically removing/adding a person)
+  # affect the `advancing` flag on previous round result and this function
+  # takes care of updating that. Also, change in the number of competitors
+  # impact advancement in the given round, if a percentage advancement
+  # condition is used.
+  @spec update_round_and_advancing(Ecto.Changeset.t(%Round{})) ::
           {:ok, %Round{}} | {:error, any()}
-  defp update_round_and_previous_advancing(round_changeset) do
+  defp update_round_and_advancing(round_changeset) do
     Multi.new()
     |> Multi.update(:round, round_changeset)
-    |> Multi.run(:previous, fn _, %{round: round} ->
+    |> Multi.update(:compute_advancing, fn %{round: round} ->
+      Advancing.compute_advancing(round)
+    end)
+    |> Multi.run(:compute_previous_advancing, fn _, %{compute_advancing: round} ->
       previous = get_previous_round(round) |> Repo.preload(:results)
 
       if previous == nil do
@@ -342,7 +347,7 @@ defmodule WcaLive.Scoretaking do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{round: round}} -> {:ok, round}
+      {:ok, %{compute_advancing: round}} -> {:ok, round}
       {:error, _, reason, _} -> {:error, reason}
     end
   end
