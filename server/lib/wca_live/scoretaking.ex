@@ -187,16 +187,9 @@ defmodule WcaLive.Scoretaking do
       # Note: we remove empty results, so we need to recompute advancing results,
       # because an advancement condition may depend on the total number of results (i.e. "percent" type).
 
-      Multi.new()
-      |> Multi.update(:remove_empty, Round.put_results_in_round(actual_results, round))
-      |> Multi.update(:recompute_advancing, fn %{remove_empty: round} ->
-        Advancing.compute_advancing(round)
-      end)
-      |> Repo.transaction()
-      |> case do
-        {:ok, %{recompute_advancing: round}} -> {:ok, round}
-        {:error, _, reason, _} -> {:error, reason}
-      end
+      actual_results
+      |> Round.put_results_in_round(round)
+      |> update_round_and_advancing()
     end
   end
 

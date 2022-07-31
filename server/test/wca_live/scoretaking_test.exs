@@ -289,6 +289,49 @@ defmodule WcaLive.ScoretakingTest do
     assert 4 == length(results2)
   end
 
+  test "open_round/1 updates advancing for competitors removed from the previous round" do
+    competition_event = insert(:competition_event)
+
+    round1 =
+      insert(:round,
+        number: 1,
+        competition_event: competition_event,
+        advancement_condition: build(:advancement_condition, type: "ranking", level: 10)
+      )
+
+    round2 =
+      insert(:round,
+        number: 2,
+        competition_event: competition_event,
+        advancement_condition: build(:advancement_condition, type: "ranking", level: 4)
+      )
+
+    round3 = insert(:round, number: 3, competition_event: competition_event)
+
+    # In round 1, the first 10 competitors are advancing
+
+    round1_results = for ranking <- 1..16, do: insert(:result, round: round1, ranking: ranking)
+
+    [round1_first_result | round1_advancing_results] = Enum.take(round1_results, 10)
+
+    assert round1_first_result.advancing
+
+    # In round 2, the first person does not compete
+
+    insert(:result, round: round2, person: round1_first_result.person, ranking: nil, attempts: [])
+
+    for {%{person: person}, ranking} <- Enum.with_index(round1_advancing_results, 1) do
+      insert(:result, round: round2, person: person, ranking: ranking)
+    end
+
+    # Opening round 3 removes the first person from round 2, so it
+    # should also mark it as non-advancing in round 1
+
+    assert {:ok, _updated} = Scoretaking.open_round(round3)
+    round1_first_result = Repo.reload(round1_first_result)
+    refute round1_first_result.advancing
+  end
+
   test "open_round/1 returns an error if the previous round has less than 8 competitors as per #9m3" do
     competition_event = insert(:competition_event)
 
