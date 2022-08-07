@@ -6,7 +6,9 @@ export default function useKeyNavigation(containerRef) {
 
     function handleKeyDown(event) {
       if (
-        !['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(event.key)
+        !['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape', ' '].includes(
+          event.key
+        )
       ) {
         return;
       }
@@ -64,6 +66,14 @@ export default function useKeyNavigation(containerRef) {
         return;
       }
 
+      if (event.key === ' ') {
+        event.preventDefault();
+        const [firstInput] = getInputs(container);
+        if (firstInput) {
+          focusAndSelect(firstInput);
+        }
+      }
+
       // Other event handlers may change which fields are disabled,
       // so let them run first by wrapping the logic in setTimeout(..., 0).
       setTimeout(() => {
@@ -73,15 +83,13 @@ export default function useKeyNavigation(containerRef) {
         const mod = (n) => (n + inputs.length) % inputs.length;
         if (event.key === 'ArrowUp') {
           const previousElement = inputs[mod(index - 1)];
-          previousElement.focus();
-          previousElement.select && previousElement.select();
+          focusAndSelect(previousElement);
         } else if (
           event.key === 'ArrowDown' ||
           (event.target.tagName === 'INPUT' && event.key === 'Enter')
         ) {
           const nextElement = inputs[mod(index + 1)];
-          nextElement.focus();
-          nextElement.select && nextElement.select();
+          focusAndSelect(nextElement);
         }
       }, 0);
     }
@@ -95,15 +103,14 @@ export default function useKeyNavigation(containerRef) {
 
     function handleKeyDown(event) {
       if (
-        ['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key) &&
+        ['ArrowUp', 'ArrowDown', 'Enter', ' '].includes(event.key) &&
         event.target === document.body
       ) {
         // Focus the form if no input is focused and one of the above keys gets pressed.
         event.preventDefault();
         const [firstInput] = getInputs(container);
         if (firstInput) {
-          firstInput.focus();
-          firstInput.select();
+          focusAndSelect(firstInput);
         }
       }
     }
@@ -117,4 +124,9 @@ function getInputs(container) {
   return Array.from(container.querySelectorAll('input, button')).filter(
     (input) => !input.disabled
   );
+}
+
+function focusAndSelect(element) {
+  element.focus();
+  element.select && element.select();
 }
