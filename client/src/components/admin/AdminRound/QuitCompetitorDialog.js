@@ -99,7 +99,7 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
                   value="yes"
                   label={`
                     Yes, remove ${competitor && competitor.name}
-                    and replace they with other qualifying competitors:
+                    and replace them with other qualifying competitors:
                     ${data.round.nextQualifying
                       .map(({ name }) => name)
                       .join(', ')}.
