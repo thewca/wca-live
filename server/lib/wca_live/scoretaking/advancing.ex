@@ -69,7 +69,9 @@ defmodule WcaLive.Scoretaking.Advancing do
 
         # See: https://www.worldcubeassociation.org/regulations/#9p1
         max_qualifying = floor(length(results) * 0.75)
-        rankings = results |> Enum.map(& &1.ranking) |> Enum.reject(&is_nil/1) |> Enum.sort()
+        rankings = Enum.filter(results, fn result ->
+          result.best != nil
+        end) |> Enum.map(& &1.ranking) |> Enum.reject(&is_nil/1) |> Enum.sort()
 
         first_non_qualifying_ranking =
           if length(rankings) > max_qualifying do
