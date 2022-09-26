@@ -15,10 +15,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancement_condition: %{type: "ranking", level: 3}
       )
 
-    result1 = insert(:result, round: round1, ranking: 1, advancing: false)
-    result2 = insert(:result, round: round1, ranking: 2, advancing: false)
-    result3 = insert(:result, round: round1, ranking: 3, advancing: false)
-    result4 = insert(:result, round: round1, ranking: 4, advancing: false)
+    result1 = insert(:result, round: round1, ranking: 1, best: 1000, advancing: false)
+    result2 = insert(:result, round: round1, ranking: 2, best: 1100, advancing: false)
+    result3 = insert(:result, round: round1, ranking: 3, best: 1200, advancing: false)
+    result4 = insert(:result, round: round1, ranking: 4, best: 1300, advancing: false)
 
     round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
@@ -50,10 +50,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancement_condition: %{type: "ranking", level: 3}
       )
 
-    result1 = insert(:result, round: round1, ranking: 1, advancing: false)
-    result2 = insert(:result, round: round1, ranking: 2, advancing: false)
-    result3 = insert(:result, round: round1, ranking: 3, advancing: false)
-    result4 = insert(:result, round: round1, ranking: 4, advancing: false)
+    result1 = insert(:result, round: round1, ranking: 1, best: 1000, advancing: false)
+    result2 = insert(:result, round: round1, ranking: 2, best: 1100, advancing: false)
+    result3 = insert(:result, round: round1, ranking: 3, best: 1200, advancing: false)
+    result4 = insert(:result, round: round1, ranking: 4, best: 1300, advancing: false)
 
     _round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
@@ -100,6 +100,18 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result3 = insert(:result, round: round, ranking: 3)
     _result4 = insert(:result, round: round, ranking: 4)
     _result5 = insert(:result, round: round, ranking: 5)
+
+    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+  end
+
+  test "qualifying_results/1 given `percent` advancement condition, ignores results that are not entered yet" do
+    round = insert(:round, number: 1, advancement_condition: %{type: "percent", level: 50})
+    result1 = insert(:result, round: round, ranking: 1, best: 1000)
+    result2 = insert(:result, round: round, ranking: 2, best: 1100)
+    _result3 = insert(:result, round: round, ranking: 3, best: 1200)
+    _result4 = insert(:result, round: round, ranking: 4, best: 1400)
+    _result5 = insert(:result, round: round, ranking: 5)
+    _result6 = insert(:result, round: round, ranking: 6)
 
     assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
   end
