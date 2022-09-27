@@ -67,9 +67,16 @@ defmodule WcaLive.Scoretaking.Advancing do
         %{results: results, advancement_condition: advancement_condition} = round
         format = Format.get_by_id!(round.format_id)
 
+        # We ignore unranked results until they are entered. For percentage-based
+        # advancement rules this means that we qualify less results initially and
+        # start qualifying more as the missing results are entered. This way, in
+        # case the remaining missing results are quit, we don't un-qualify anyone
+        results = Enum.filter(results, & &1.ranking)
+
         # See: https://www.worldcubeassociation.org/regulations/#9p1
         max_qualifying = floor(length(results) * 0.75)
-        rankings = results |> Enum.map(& &1.ranking) |> Enum.reject(&is_nil/1) |> Enum.sort()
+
+        rankings = results |> Enum.map(& &1.ranking) |> Enum.sort()
 
         first_non_qualifying_ranking =
           if length(rankings) > max_qualifying do
@@ -181,12 +188,12 @@ defmodule WcaLive.Scoretaking.Advancing do
   end
 
   defp qualifying_results_ignoring(round, ignored_results) do
-    # Empty attempts rank ignored people at the end (making sure they don't qualify).
+    # DNF attempts rank ignored people at the end (making sure they don't qualify).
     # Then recompute rankings and see who would qualify as a result.
     hypothetical_results =
       Enum.map(round.results, fn result ->
         if result in ignored_results do
-          %{result | attempts: [], best: 0, average: 0}
+          %{result | attempts: [-1], best: -1, average: -1}
         else
           result
         end

@@ -104,6 +104,18 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
   end
 
+  test "qualifying_results/1 given `percent` advancement condition, ignores results that are not entered yet" do
+    round = insert(:round, number: 1, advancement_condition: %{type: "percent", level: 50})
+    result1 = insert(:result, round: round, ranking: 1, best: 1000)
+    result2 = insert(:result, round: round, ranking: 2, best: 1100)
+    _result3 = insert(:result, round: round, ranking: 3, best: 1200)
+    _result4 = insert(:result, round: round, ranking: 4, best: 1400)
+    _result5 = insert(:result, round: round, ranking: nil)
+    _result6 = insert(:result, round: round, ranking: nil)
+
+    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+  end
+
   test "qualifying_results/1 given `attemptResult` advancement condition and format sorting by best, returns results with best strictly better than the specified value" do
     round =
       insert(:round,
