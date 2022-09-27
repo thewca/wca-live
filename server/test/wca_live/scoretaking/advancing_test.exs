@@ -110,8 +110,8 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     result2 = insert(:result, round: round, ranking: 2, best: 1100)
     _result3 = insert(:result, round: round, ranking: 3, best: 1200)
     _result4 = insert(:result, round: round, ranking: 4, best: 1400)
-    _result5 = insert(:result, round: round, ranking: 5)
-    _result6 = insert(:result, round: round, ranking: 6)
+    _result5 = insert(:result, round: round, ranking: nil)
+    _result6 = insert(:result, round: round, ranking: nil)
 
     assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
   end
