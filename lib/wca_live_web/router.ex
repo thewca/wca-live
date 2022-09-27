@@ -14,6 +14,8 @@ defmodule WcaLiveWeb.Router do
     plug WcaLiveWeb.Context
   end
 
+  get "/health", WcaLiveWeb.HealthController, :index
+
   scope "/oauth", WcaLiveWeb do
     get "/authorize", AuthController, :authorize
     get "/callback", AuthController, :callback
