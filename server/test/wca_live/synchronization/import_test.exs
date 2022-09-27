@@ -7,6 +7,7 @@ defmodule WcaLive.Synchronization.ImportTest do
   alias WcaLive.Repo
 
   @wcif %{
+    "formatVersion" => "1.0",
     "id" => "WC2019",
     "name" => "WCA World Championship 2019",
     "shortName" => "WCA WC 2019",
@@ -77,7 +78,8 @@ defmodule WcaLive.Synchronization.ImportTest do
             "advancementCondition" => nil,
             "results" => [],
             "scrambleSetCount" => 4,
-            "scrambleSets" => [],
+            # Ignored until WCA API supports it
+            # "scrambleSets" => [],
             "extensions" => []
           }
         ],
@@ -115,7 +117,8 @@ defmodule WcaLive.Synchronization.ImportTest do
                   "startTime" => "2019-07-13T05:20:00Z",
                   "endTime" => "2019-07-13T08:00:00Z",
                   "childActivities" => [],
-                  "scrambleSetId" => 1,
+                  # Ignored until WCA API supports it
+                  # "scrambleSetId" => 1,
                   "extensions" => []
                 }
               ],
@@ -254,22 +257,7 @@ defmodule WcaLive.Synchronization.ImportTest do
     insert(:personal_best, person: person, event_id: "333", type: "single", best: 800)
 
     # Create new WCIF with future activities start/end time.
-    wcif =
-      update_in(@wcif, ["schedule", "venues"], fn venues ->
-        Enum.map(venues, fn venue ->
-          update_in(venue, ["rooms"], fn rooms ->
-            Enum.map(rooms, fn room ->
-              update_in(room, ["activities"], fn activities ->
-                Enum.map(activities, fn activity ->
-                  starts = DateTime.utc_now() |> DateTime.add(1 * 3600) |> DateTime.to_iso8601()
-                  ends = DateTime.utc_now() |> DateTime.add(2 * 3600) |> DateTime.to_iso8601()
-                  %{activity | "startTime" => starts, "endTime" => ends}
-                end)
-              end)
-            end)
-          end)
-        end)
-      end)
+    wcif = move_to_today(@wcif)
 
     assert {:ok, _competition} = Import.import_competition(competition, wcif)
     personal_bests = person |> Ecto.assoc(:personal_bests) |> Repo.all()
@@ -280,4 +268,47 @@ defmodule WcaLive.Synchronization.ImportTest do
 
     assert 790 == single333.best
   end
+
+  test "import-export integration test" do
+    user = insert(:user)
+
+    competition = %Competition{imported_by: user}
+
+    import_wcif = move_to_today(@wcif)
+
+    assert {:ok, competition} = Import.import_competition(competition, import_wcif)
+    export_wcif = WcaLive.Synchronization.Export.export_competition(competition)
+
+    # We don't use extensions and they are optional, so we don't store them
+    expected_wcif = without_extensions(import_wcif)
+
+    assert export_wcif == expected_wcif
+  end
+
+  defp move_to_today(wcif) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    wcif
+    |> put_in(["schedule", "startDate"], now |> DateTime.to_date() |> Date.to_iso8601())
+    |> update_in(
+      ["schedule", "venues", Access.all(), "rooms", Access.all(), "activities", Access.all()],
+      fn activity ->
+        starts = now |> DateTime.add(1 * 3600) |> DateTime.to_iso8601()
+        ends = now |> DateTime.add(2 * 3600) |> DateTime.to_iso8601()
+        %{activity | "startTime" => starts, "endTime" => ends}
+      end
+    )
+  end
+
+  defp without_extensions(data) when is_map(data) do
+    data
+    |> Map.delete("extensions")
+    |> Map.new(fn {key, value} -> {key, without_extensions(value)} end)
+  end
+
+  defp without_extensions(data) when is_list(data) do
+    Enum.map(data, &without_extensions/1)
+  end
+
+  defp without_extensions(data), do: data
 end
