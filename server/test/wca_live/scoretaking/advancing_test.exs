@@ -15,10 +15,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancement_condition: %{type: "ranking", level: 3}
       )
 
-    result1 = insert(:result, round: round1, ranking: 1, best: 1000, advancing: false)
-    result2 = insert(:result, round: round1, ranking: 2, best: 1100, advancing: false)
-    result3 = insert(:result, round: round1, ranking: 3, best: 1200, advancing: false)
-    result4 = insert(:result, round: round1, ranking: 4, best: 1300, advancing: false)
+    result1 = insert(:result, round: round1, ranking: 1, advancing: false)
+    result2 = insert(:result, round: round1, ranking: 2, advancing: false)
+    result3 = insert(:result, round: round1, ranking: 3, advancing: false)
+    result4 = insert(:result, round: round1, ranking: 4, advancing: false)
 
     round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
@@ -50,10 +50,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancement_condition: %{type: "ranking", level: 3}
       )
 
-    result1 = insert(:result, round: round1, ranking: 1, best: 1000, advancing: false)
-    result2 = insert(:result, round: round1, ranking: 2, best: 1100, advancing: false)
-    result3 = insert(:result, round: round1, ranking: 3, best: 1200, advancing: false)
-    result4 = insert(:result, round: round1, ranking: 4, best: 1300, advancing: false)
+    result1 = insert(:result, round: round1, ranking: 1, advancing: false)
+    result2 = insert(:result, round: round1, ranking: 2, advancing: false)
+    result3 = insert(:result, round: round1, ranking: 3, advancing: false)
+    result4 = insert(:result, round: round1, ranking: 4, advancing: false)
 
     _round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
