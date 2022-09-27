@@ -6,7 +6,7 @@ defmodule WcaLive.Competitions.Qualification do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  @required_fields [:type, :result_type, :when_date]
+  @required_fields [:type, :result_type, :when_date, :level]
   @optional_fields []
 
   @primary_key false
