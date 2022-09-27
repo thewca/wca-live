@@ -20,7 +20,20 @@ config :wca_live, WcaLiveWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
+  watchers: [
+    # TODO: remove the wrapper once it is resolved upstream,
+    # see https://github.com/facebook/create-react-app/issues/11255
+    # node: [
+    #   "node_modules/react-app-rewired/bin/index.js",
+    #   "start",
+    #   cd: Path.expand("../client", __DIR__)
+    # ]
+    "#{Path.expand("../client/wrapper.sh", __DIR__)}": [
+      "./node_modules/react-app-rewired/bin/index.js",
+      "start",
+      cd: Path.expand("../client", __DIR__)
+    ]
+  ]
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

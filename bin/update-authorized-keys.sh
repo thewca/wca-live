@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/.."
 
 source ./bin/utils.sh
 load_dotenv
@@ -34,7 +34,7 @@ update_authorized_keys() {
   echo "" >> $authorized_keys_path
   echo "# Keys for GitHub Actions workflows" >> $authorized_keys_path
   local github_actions_public_key="$(cat ./.github/key_rsa.pub)"
-  echo 'command="~/wca-live/bin/server/update.sh"' $github_actions_public_key >> $authorized_keys_path
+  echo 'command="~/wca-live/bin/update.sh"' $github_actions_public_key >> $authorized_keys_path
 }
 
 if [ $# -gt 0 ]; then

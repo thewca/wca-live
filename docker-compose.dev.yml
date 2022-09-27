@@ -9,22 +9,14 @@ services:
     volumes:
       - /var/lib/postgresql/data
     network_mode: "host"
-  server:
+  app:
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile.dev
     depends_on:
       - database
     volumes:
-      - ./server:/server
+      - ./:/app
     network_mode: "host"
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./client:/client
-    network_mode: "host"
-    # The client process exists immediately if STDIN is not open.
-    # See: https://github.com/facebook/create-react-app/issues/8688
-    stdin_open: true
+    # Don't run as root, so that generated files have the correct user
+    user: ${UID:-1000}:${GID:-1000}

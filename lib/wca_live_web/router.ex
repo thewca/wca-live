@@ -54,4 +54,6 @@ defmodule WcaLiveWeb.Router do
       live_dashboard "/dashboard", metrics: WcaLiveWeb.Telemetry
     end
   end
+
+  get "/*parts", WcaLiveWeb.CatchAllController, :catch_all
 end

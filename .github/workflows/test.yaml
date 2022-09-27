@@ -17,7 +17,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '16.x'
       - name: Cache npm dependencies
         uses: actions/cache@v2
         with:
@@ -34,9 +34,6 @@ jobs:
   test_server:
     name: Server
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: server
     services:
       postgres:
         image: postgres:12.4

@@ -1,0 +1,15 @@
+# Mirrors .gitignore
+
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+erl_crash.dump
+*.ez
+wca_live-*.tar
+/tmp/
+/priv/static/
+/client/node_modules/
+/client/npm-debug.log*
+/client/coverage/

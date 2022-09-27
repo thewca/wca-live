@@ -3,7 +3,7 @@ import 'react-app-polyfill/stable';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './components/App/App';
-import { register } from './service-worker-registration';
+import { unregister } from './service-worker-registration';
 
 import { maybeGrabTokenFromUrl } from './lib/auth';
 
@@ -17,4 +17,4 @@ root.render(
 );
 
 // See https://create-react-app.dev/docs/making-a-progressive-web-app
-register();
+unregister();
