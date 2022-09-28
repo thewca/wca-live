@@ -13,11 +13,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push images to DockerHub
-        run: ./bin/build-and-push-images.sh
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: thewca/wca-live:latest
+          cache-from: type=registry,ref=thewca/wca-live:buildcache
+          cache-to: type=registry,ref=thewca/wca-live:buildcache,mode=max
       - name: Run the update script over SSH
         uses: appleboy/ssh-action@v0.1.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY_RSA }}
-          script: ~/wca-live/bin/server/update.sh
+          script: ~/wca-live/bin/update.sh

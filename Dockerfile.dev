@@ -1,6 +1,9 @@
 FROM hexpm/elixir:1.12.3-erlang-24.1.6-alpine-3.14.2
 
-# Install dependencies.
+# Install node
+RUN apk add nodejs npm
+
+# Install dependencies
 RUN apk add --no-cache \
     # build
     build-base git python3 \
@@ -9,10 +12,14 @@ RUN apk add --no-cache \
     # PDF generation
     ttf-freefont wkhtmltopdf
 
-# Install hex and rebar.
+ENV HOME=/home/app
+# Create home dir explicitly, in case someone runs with `--user`
+RUN mkdir $HOME && chmod 777 $HOME
+
+# Install hex and rebar
 RUN mix local.hex --force && \
     mix local.rebar --force
 
-WORKDIR /server
+WORKDIR /app
 
 CMD [ "sh", "-c", "mix setup; mix phx.server" ]

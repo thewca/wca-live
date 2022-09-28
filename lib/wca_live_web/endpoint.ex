@@ -25,6 +25,11 @@ defmodule WcaLiveWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
+  plug Plug.Static,
+    at: "/",
+    from: :wca_live,
+    gzip: true
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

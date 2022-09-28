@@ -13,7 +13,7 @@
 #   mkdir .ssh
 #
 # Invoke this script without cloning the repo up-front (this is taken care of later):
-# bash <(curl -s https://raw.githubusercontent.com/thewca/wca-live/master/bin/server/setup.sh)
+# bash <(curl -s https://raw.githubusercontent.com/thewca/wca-live/master/bin/setup.sh)
 
 set -e
 
@@ -26,33 +26,24 @@ echo "Setting up the environment"
 
 ##
 # Install Docker
-# See https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
 ##
 
 echo "* installing Docker"
-sudo apt update
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-sudo apt update
-sudo apt install -y docker-ce
-# Add the current user to docker group to run docker without sudo.
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+# Add the current user to docker group to run docker without sudo
 sudo usermod -aG docker $USER
-
-##
-# Install Docker Compose
-##
-
-echo "* installing Docker Compose"
-sudo curl -L "https://github.com/docker/compose/releases/download/1.27.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
 
 ##
 # Set up the app repository
 ##
 
 echo "* cloning the app repository"
-sudo apt install git
+sudo apt-get install git
 git clone --branch prod https://github.com/thewca/wca-live.git
 # Create .env file from the template
 cp wca-live/.env.template wca-live/.env
@@ -63,5 +54,5 @@ cp wca-live/.env.template wca-live/.env
 
 echo -e "\n# Next steps\n"
 echo "1. Set environment variables in ~/wca-live/.env"
-echo "2. Update authorized RSA keys by running ~/wca-live/bin/server/update-authorized-keys.sh"
-echo "3. Start the app by running ~/wca-live/bin/server/up.sh"
+echo "2. Update authorized RSA keys by running ~/wca-live/bin/update-authorized-keys.sh"
+echo "3. Start the app by running ~/wca-live/bin/up.sh"

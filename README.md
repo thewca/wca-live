@@ -33,8 +33,7 @@ real-time updates as results get entered).
 
 Briefly speaking, WCA Live is a WCA-integrated application
 composed of a web client and a GraphQL API server with
-a relational database behind, deployed with Nginx on top
-and using Docker. Let's break it down.
+a relational database behind. Let's break it down.
 
 ### WCA Integration
 
@@ -96,26 +95,17 @@ in a single web request. It leverages a library called Apollo
 that provides a number of valuable features, from basic ones
 like React hooks for querying/mutating data, to more sophisticated ones
 like configurable cache with clever updates.
-The app comes with a basic Service Worker caching static
-resources, which allows it to be installed as a desktop/mobile application.
-See the corresponding [README](./client/README.md) for details.
 
 ### Deployment
 
 Currently we use a single AWS EC2 instance for hosting the app
 and a RDS instance with the database.
-To set up a fresh instance we use [this](./bin/server/setup.sh) tiny script
+To set up a fresh instance we use [this](./bin/setup.sh) tiny script
 that basically installs Docker and fetches the app.
-Images for the individual components are hosted on DockerHub and built automatically.
+The application image is hosted on DockerHub and built automatically.
 We have an automated GitHub Actions [workflow](./.github/workflows/deploy.yaml)
-that builds the images, pushes them to DockerHub and finally tells the
+that builds the image, pushes them to DockerHub and finally tells the
 the app to pick up the new images.
-
-In production we use the Nginx web server to serve all the static
-files, handle TLS and proxy API requests to the Elixir app.
-The corresponding Docker image handles obtaining an SSL certificate and renewal.
-It also includes all the custom Nginx configuration that scores A+ in the [SSL Labs test](https://www.ssllabs.com/ssltest).
-See the corresponding [README](./nginx/README.md) for details.
 
 ## Development
 
@@ -126,13 +116,13 @@ and is most likely what you want, especially when getting started.
 ### Docker based setup
 
 Make sure you have Docker and Docker Compose installed.
-If you're running Ubuntu/Debian have a look at the [production setup script](./bin/server/setup.sh),
-which contains instructions to install both of these.
+If you're running Ubuntu/Debian have a look at the [production setup script](./bin/setup.sh),
+which contains the relevant installation instructions.
 
 To start all the services just run the following Docker Compose command:
 
 ```sh
-docker-compose -f docker-compose.dev.yml up
+docker compose -f docker compose.dev.yml up
 ```
 
 This starts the client, server and database on ports `3000`, `4000` and `5432` respectively.
@@ -146,28 +136,31 @@ Once everything is up and running you should be able to access the app at [`loca
 Having the containers running you can easily execute custom commands inside them,
 just as you'd do on your machine. A few examples:
 
+TODO: update with the latest changes
+
 ```sh
 # Executing commands in running containers takes the following form:
-docker-compose -f docker-compose.dev.yml exec SERVICE COMMAND
+docker compose -f docker compose.dev.yml exec SERVICE COMMAND
 
 # Run client tests
-docker-compose -f docker-compose.dev.yml exec client npm test
+docker compose -f docker compose.dev.yml exec client npm test
 
 # Run server tests
-docker-compose -f docker-compose.dev.yml exec server mix test
+docker compose -f docker compose.dev.yml exec server mix test
 
 # Run the interactive Elixir shell with all the application modules loaded
-docker-compose -f docker-compose.dev.yml exec server iex -S mix
+docker compose -f docker compose.dev.yml exec server iex -S mix
 
 # Run the database shell
-docker-compose -f docker-compose.dev.yml exec database psql -U postgres wca_live_dev
+docker compose -f docker compose.dev.yml exec database psql -U postgres wca_live_dev
 ```
 
 ### Manual setup
 
 This option provides more control over the individual parts, but takes more time to set up
 and is less reproducible than the Docker based one.
-Follow the [client](./client/README.md) and [server](./server/README.md) READMEs respectively.
+
+TODO: expand on this
 
 ### OAuth during development
 
