@@ -7,17 +7,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push images to DockerHub
-        run: ./bin/build-and-push-images.sh
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: thewca/wca-live:latest
+          cache-from: type=registry,ref=thewca/wca-live:buildcache
+          cache-to: type=registry,ref=thewca/wca-live:buildcache,mode=max
       - name: Run the update script over SSH
         uses: appleboy/ssh-action@v0.1.3
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY_RSA }}
-          script: ~/wca-live/bin/server/update.sh
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: ~/wca-live/bin/update.sh
