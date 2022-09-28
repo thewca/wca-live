@@ -26,7 +26,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install npm dependencies
-        run: npm ci
+        # TODO: remove --legacy-peer-deps once we can install without it
+        run: npm ci --legacy-peer-deps
       - name: Check formatting
         run: npm run format-check
       - name: Run tests
