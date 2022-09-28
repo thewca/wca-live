@@ -3,8 +3,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
-      - prod
+      - main
 jobs:
   test_client:
     name: Client

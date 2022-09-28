@@ -13,7 +13,7 @@
 #   mkdir .ssh
 #
 # Invoke this script without cloning the repo up-front (this is taken care of later):
-# bash <(curl -s https://raw.githubusercontent.com/thewca/wca-live/master/bin/setup.sh)
+# bash <(curl -s https://raw.githubusercontent.com/thewca/wca-live/main/bin/setup.sh)
 
 set -e
 
