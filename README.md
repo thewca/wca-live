@@ -75,7 +75,6 @@ Under the hood it often makes requests to the WCA API
 in order to fetch/save WCIF data, to get regional records
 or to list competitions that the current user may import.
 It also uses a relational database as a primary source of data.
-See the corresponding [README](./server/README.md) for more details.
 
 ### Database
 

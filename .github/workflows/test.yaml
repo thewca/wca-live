@@ -34,6 +34,8 @@ jobs:
   test_server:
     name: Server
     runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
     services:
       postgres:
         image: postgres:12.4
@@ -60,11 +62,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            server/deps
-            server/_build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
+            ${{ runner.os }}-mix-${{ env.elixir }}-${{ env.otp }}-
       - name: Install mix dependencies
         run: mix deps.get
       - name: Check formatting
