@@ -11,6 +11,8 @@ defmodule WcaLive.Synchronization.ImportTest do
     "id" => "WC2019",
     "name" => "WCA World Championship 2019",
     "shortName" => "WCA WC 2019",
+    # TODO: import competition series
+    "series" => nil,
     "persons" => [
       %{
         "registrantId" => 1,
@@ -281,6 +283,9 @@ defmodule WcaLive.Synchronization.ImportTest do
 
     # We don't use extensions and they are optional, so we don't store them
     expected_wcif = without_extensions(import_wcif)
+
+    # We currently don't store series information
+    expected_wcif = Map.delete(expected_wcif, "series")
 
     assert export_wcif == expected_wcif
   end
