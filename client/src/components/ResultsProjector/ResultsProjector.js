@@ -63,7 +63,7 @@ const DURATION = {
 
 /* (window height - app bar - table header) / row height */
 function getNumberOfRows() {
-  return Math.floor((window.innerHeight - 64 - 50) / 63);
+  return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
 function ResultsProjector({ results, format, eventId, title, exitUrl }) {
