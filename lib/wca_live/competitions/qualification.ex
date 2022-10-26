@@ -6,8 +6,8 @@ defmodule WcaLive.Competitions.Qualification do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  @required_fields [:type, :result_type, :when_date, :level]
-  @optional_fields []
+  @required_fields [:type, :result_type, :when_date]
+  @optional_fields [:level]
 
   @primary_key false
   embedded_schema do
@@ -18,10 +18,17 @@ defmodule WcaLive.Competitions.Qualification do
   end
 
   def changeset(qualification, attrs) do
-    qualification
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
-    |> validate_inclusion(:type, ["attemptResult", "ranking", "anyResult"])
-    |> validate_inclusion(:result_type, ["single", "average"])
+    changeset =
+      qualification
+      |> cast(attrs, @required_fields ++ @optional_fields)
+      |> validate_required(@required_fields)
+      |> validate_inclusion(:type, ["attemptResult", "ranking", "anyResult"])
+      |> validate_inclusion(:result_type, ["single", "average"])
+
+    if get_field(changeset, :type) in ["attemptResult", "ranking"] do
+      validate_required(changeset, [:level])
+    else
+      changeset
+    end
   end
 end
