@@ -17,11 +17,11 @@ defmodule WcaLive.Scoretaking.RoundTest do
     assert "CR" == Round.label(round)
   end
 
-  test "label/1 ignores PB record tags" do
+  test "label/1 ignores PR record tags" do
     round =
       build(:round,
         results: [
-          build(:result, average_record_tag: "PB"),
+          build(:result, average_record_tag: "PR"),
           build(:result, attempts: []),
           build(:result, attempts: [])
         ]

@@ -35,7 +35,7 @@ defmodule WcaLive.Scoretaking.RecordTagsTest do
     changeset = RecordTags.compute_record_tags(competition_event)
 
     assert %{
-             result.id => %{single: "PB", average: "PB"}
+             result.id => %{single: "PR", average: "PR"}
            } == competition_event_changeset_to_record_tags_map(changeset)
   end
 
@@ -104,8 +104,8 @@ defmodule WcaLive.Scoretaking.RecordTagsTest do
     changeset = RecordTags.compute_record_tags(competition_event)
 
     assert %{
-             person1_result.id => %{single: "PB", average: "WR"},
-             person2_result.id => %{single: "WR", average: "PB"}
+             person1_result.id => %{single: "PR", average: "WR"},
+             person2_result.id => %{single: "WR", average: "PR"}
            } == competition_event_changeset_to_record_tags_map(changeset)
   end
 

@@ -129,7 +129,7 @@ const RoundResultsTable = React.memo(
                       fontWeight: index === 0 ? 600 : 400,
                     }}
                   >
-                    <RecordTagBadge recordTag={result[recordTagField]} hidePb>
+                    <RecordTagBadge recordTag={result[recordTagField]} hidePr>
                       {formatAttemptResult(result[field], eventId)}
                     </RecordTagBadge>
                   </TableCell>

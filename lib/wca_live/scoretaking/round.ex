@@ -88,7 +88,7 @@ defmodule WcaLive.Scoretaking.Round do
   defp regional_record_tags(results) do
     results
     |> Enum.flat_map(fn result -> [result.average_record_tag, result.single_record_tag] end)
-    |> Enum.filter(fn tag -> tag not in [nil, "PB"] end)
+    |> Enum.filter(fn tag -> tag not in [nil, "PR"] end)
     |> Enum.uniq()
   end
 

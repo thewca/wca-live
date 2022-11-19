@@ -2,8 +2,8 @@ import React from 'react';
 import { Box } from '@mui/material';
 import RecordTag from '../RecordTag/RecordTag';
 
-function RecordTagBadge({ recordTag, hidePb = false, children }) {
-  if (!recordTag || (hidePb && recordTag === 'PB')) {
+function RecordTagBadge({ recordTag, hidePr = false, children }) {
+  if (!recordTag || (hidePr && recordTag === 'PR')) {
     return children;
   }
 

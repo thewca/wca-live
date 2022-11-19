@@ -191,7 +191,7 @@ defmodule WcaLive.ScoretakingTest do
     ]
 
     assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
-    assert "PB" == updated.single_record_tag
+    assert "PR" == updated.single_record_tag
     assert nil == updated.average_record_tag
   end
 
