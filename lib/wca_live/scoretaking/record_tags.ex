@@ -85,7 +85,7 @@ defmodule WcaLive.Scoretaking.RecordTags do
       %{tag: "CR", record_key: Wca.Records.record_key(event_id, type, country.continent_name)},
       %{tag: "NR", record_key: Wca.Records.record_key(event_id, type, country.iso2)},
       %{
-        tag: "PB",
+        tag: "PR",
         record_key: Wca.Records.record_key(event_id, type, person_record_scope(person))
       }
     ]

@@ -221,7 +221,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                       >
                         <RecordTagBadge
                           recordTag={result[recordTagField]}
-                          hidePb
+                          hidePr
                         >
                           {formatAttemptResult(result[field], eventId)}
                         </RecordTagBadge>

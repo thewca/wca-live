@@ -266,7 +266,7 @@ defmodule WcaLive.Synchronization.ImportTest do
     assert 2 == length(personal_bests)
 
     single333 =
-      Enum.find(personal_bests, fn pb -> pb.event_id == "333" and pb.type == "single" end)
+      Enum.find(personal_bests, fn pr -> pr.event_id == "333" and pr.type == "single" end)
 
     assert 790 == single333.best
   end

@@ -15,7 +15,7 @@ const styles = {
     color: (theme) => theme.palette.getContrastText(green['A400']),
     backgroundColor: green['A400'],
   },
-  pb: {
+  pr: {
     color: (theme) => theme.palette.getContrastText(blue[700]),
     backgroundColor: blue[700],
   },

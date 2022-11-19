@@ -132,7 +132,7 @@ const AdminResultsTable = React.memo(
                   align="right"
                   sx={{ fontWeight: index === 0 ? 600 : 400 }}
                 >
-                  <RecordTagBadge recordTag={result[recordTagField]} hidePb>
+                  <RecordTagBadge recordTag={result[recordTagField]} hidePr>
                     {formatAttemptResult(result[field], eventId)}
                   </RecordTagBadge>
                 </TableCell>
