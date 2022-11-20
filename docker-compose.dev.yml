@@ -8,15 +8,18 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - /var/lib/postgresql/data
-    network_mode: "host"
   app:
     build:
       context: .
       dockerfile: Dockerfile.dev
     depends_on:
       - database
+    environment:
+      - DB_HOST=database
     volumes:
       - ./:/app
-    network_mode: "host"
+    ports:
+      - "4000:4000"
+      - "3000:3000"
     # Don't run as root, so that generated files have the correct user
     user: ${UID:-1000}:${GID:-1000}
