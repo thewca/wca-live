@@ -67,7 +67,6 @@ function RoundResultDialog({
                       <Typography variant="body2">
                         <RecordTagBadge
                           recordTag={result[recordTagField]}
-                          hidePr
                         >
                           {formatAttemptResult(result[field], eventId)}
                         </RecordTagBadge>
