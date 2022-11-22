@@ -33,7 +33,7 @@ update_authorized_keys() {
   # Add keys used by GitHub Actions workflows.
   echo "" >> $authorized_keys_path
   echo "# Keys for GitHub Actions workflows" >> $authorized_keys_path
-  local github_actions_public_key="$(cat ./.github/key_rsa.pub)"
+  local github_actions_public_key="$(cat ./.github/key.pub)"
   echo 'command="~/wca-live/bin/update.sh"' $github_actions_public_key >> $authorized_keys_path
 }
 
