@@ -65,9 +65,7 @@ function RoundResultDialog({
                     <Grid item key={name}>
                       <Typography variant="subtitle2">{name}</Typography>
                       <Typography variant="body2">
-                        <RecordTagBadge
-                          recordTag={result[recordTagField]}
-                        >
+                        <RecordTagBadge recordTag={result[recordTagField]}>
                           {formatAttemptResult(result[field], eventId)}
                         </RecordTagBadge>
                       </Typography>
