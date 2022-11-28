@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { red, yellow, green, blue } from '@mui/material/colors';
+import { red, yellow, green, blue, grey } from '@mui/material/colors';
 
 const styles = {
   wr: {
@@ -19,9 +19,22 @@ const styles = {
     color: (theme) => theme.palette.getContrastText(blue[700]),
     backgroundColor: blue[700],
   },
+  litePr: {
+    color: (theme) =>
+      theme.palette.getContrastText(
+        theme.palette.mode === 'dark' ? grey[800] : grey[200]
+      ),
+    backgroundColor: (theme) =>
+      theme.palette.mode === 'dark' ? grey[800] : grey[200],
+  },
 };
 
-function RecordTag({ recordTag, sx }) {
+function RecordTag({ recordTag, sx, litePr = false }) {
+  const tagStyle =
+    litePr && recordTag === 'PR'
+      ? styles.litePr
+      : styles[recordTag.toLowerCase()] || {};
+
   return (
     <Box
       component="span"
@@ -34,7 +47,7 @@ function RecordTag({ recordTag, sx }) {
         fontWeight: 600,
         fontSize: '0.7em',
         ...sx,
-        ...(styles[recordTag.toLowerCase()] || {}),
+        ...tagStyle,
       }}
     >
       {recordTag}
