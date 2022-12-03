@@ -22,6 +22,11 @@ defmodule WcaLive.Synchronization.Import do
   alias WcaLive.Scoretaking.{Round, Result}
   alias WcaLive.Accounts.User
 
+  # When importing a competition, all inserts happen within a single
+  # transaction and for largest competitions it may hit the default
+  # transaction timeout of 15s
+  @import_transaction_timeout 30_000
+
   @doc """
   Either inserts or updates the given competition and all the relevant
   associations based on the given WCIF.
@@ -46,7 +51,7 @@ defmodule WcaLive.Synchronization.Import do
     |> Multi.update(:update_people, fn %{update_schedule: competition} ->
       competition_people_changeset(competition, wcif)
     end)
-    |> Repo.transaction()
+    |> Repo.transaction(timeout: @import_transaction_timeout)
     |> case do
       {:ok, %{update_people: competition}} -> {:ok, competition}
       {:error, _, reason, _} -> {:error, reason}
