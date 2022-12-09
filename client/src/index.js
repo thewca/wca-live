@@ -1,3 +1,5 @@
+import '@cubing/icons';
+
 import 'react-app-polyfill/stable';
 
 import React from 'react';

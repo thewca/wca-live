@@ -13,6 +13,7 @@
     "@absinthe/socket": "^0.2.1",
     "@absinthe/socket-apollo-link": "^0.2.1",
     "@apollo/client": "^3.4.17",
+    "@cubing/icons": "^1.0.6",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@mui/icons-material": "^5.1.0",
