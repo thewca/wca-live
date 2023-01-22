@@ -224,16 +224,16 @@ describe('autocompleteMbldDecodedValue', () => {
     });
   });
 
-  test('allows 30 seconds over the time limit for +2s', () => {
+  test('allows several seconds over the time limit for +2s', () => {
     const decoded = {
       solved: 2,
       attempted: 3,
-      centiseconds: 30 * 60 * 100 + 30 * 100,
+      centiseconds: 30 * 60 * 100 + 12 * 100,
     };
     expect(autocompleteMbldDecodedValue(decoded)).toEqual({
       solved: 2,
       attempted: 3,
-      centiseconds: 30 * 60 * 100 + 30 * 100,
+      centiseconds: 30 * 60 * 100 + 12 * 100,
     });
   });
 

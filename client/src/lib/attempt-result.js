@@ -229,8 +229,11 @@ export function autocompleteMbldDecodedValue({
     return { solved: 0, attempted: 0, centiseconds: DNF_VALUE };
   }
   // See https://www.worldcubeassociation.org/regulations/#H1b
-  // But allow additional (arbitrary) 30 seconds over the limit for possible +2s.
-  if (centiseconds > 10 * 60 * 100 * Math.min(6, attempted) + 30 * 100) {
+  // But allow additional two +2s per cube over the limit, just in case.
+  if (
+    centiseconds >
+    10 * 60 * 100 * Math.min(6, attempted) + attempted * 2 * 2 * 100
+  ) {
     return { solved: 0, attempted: 0, centiseconds: DNF_VALUE };
   }
   return { solved, attempted, centiseconds };
