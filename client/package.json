@@ -6,8 +6,8 @@
     "start": "react-app-rewired start",
     "build": "BUILD_PATH='../priv/static' react-app-rewired build",
     "test": "react-app-rewired test",
-    "format": "prettier --single-quote --trailing-comma es5 --write src/**/*.{js,json,css,md} --no-error-on-unmatched-pattern",
-    "format-check": "prettier --single-quote --trailing-comma es5 --check src/**/*.{js,json,css,md} --no-error-on-unmatched-pattern"
+    "format": "prettier --single-quote --trailing-comma es5 --write 'src/**/*.{js,json,css,md}' --no-error-on-unmatched-pattern",
+    "format-check": "prettier --single-quote --trailing-comma es5 --check 'src/**/*.{js,json,css,md}' --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@absinthe/socket": "^0.2.1",

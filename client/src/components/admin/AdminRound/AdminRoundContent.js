@@ -31,7 +31,7 @@ const ENTER_RESULT_ATTEMPTS = gql`
 
 function AdminRoundContent({ round, competitionId }) {
   const confirm = useConfirm();
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const apolloErrorHandler = useApolloErrorHandler();
 
   const [editedResult, setEditedResult] = useState(null);
@@ -78,10 +78,12 @@ function AdminRoundContent({ round, competitionId }) {
 
   useEffect(() => {
     if (nextOpen) {
-      enqueueSnackbar(
+      const snackbarId = enqueueSnackbar(
         "The next round has already been open, any changes won't affect it!",
         { variant: 'info' }
       );
+
+      return () => closeSnackbar(snackbarId);
     }
   }, [nextOpen, enqueueSnackbar]);
 
