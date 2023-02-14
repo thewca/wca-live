@@ -24,6 +24,7 @@ COPY client client
 RUN mix do client.setup, client.build
 
 # Compile and build release
+COPY rel rel
 COPY priv priv
 COPY lib lib
 RUN mix do compile, release
@@ -33,10 +34,12 @@ FROM alpine:3.14.2
 
 # Install runtime dependencies
 RUN apk add --no-cache \
-    # runtime
+    # Runtime
     openssl ncurses-libs \
     # PDF generation
-    ttf-freefont wkhtmltopdf
+    ttf-freefont wkhtmltopdf \
+    # Getting node IP in env.sh
+    curl jq
 
 WORKDIR /app
 

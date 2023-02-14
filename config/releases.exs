@@ -74,3 +74,18 @@ config :wca_live, WcaLive.Wca.Api.Http, api_url: "https://#{wca_host}/api/v0"
 
 # Instruct Phoenix to start each relevant endpoint.
 config :wca_live, WcaLiveWeb.Endpoint, server: true
+
+if dns_query = System.get_env("CLUSTER_DNS_QUERY") do
+  config :libcluster,
+    topologies: [
+      dns_poll: [
+        strategy: Cluster.Strategy.DNSPoll,
+        config: [
+          polling_interval: 10_000,
+          query: dns_query,
+          # We name the nodes {release_name}@{ip}
+          node_basename: "wca_live"
+        ]
+      ]
+    ]
+end
