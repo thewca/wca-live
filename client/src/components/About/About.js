@@ -57,7 +57,7 @@ function About() {
             >
               WCA rules
             </Link>{' '}
-            are fallowed). All attempt results are put down on a piece of paper
+            are followed). All attempt results are put down on a piece of paper
             as the competitor does them, then a scoretaker enters them to the
             system to eventually build up competitors ranking for the given
             round. After a competition all the competitor results end up in{' '}
