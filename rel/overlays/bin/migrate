@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd -P -- "$(dirname -- "$0")"
+exec ./wca_live eval WcaLive.Release.migrate

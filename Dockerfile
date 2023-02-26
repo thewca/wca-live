@@ -48,4 +48,4 @@ COPY --from=build /app/_build/prod/rel/wca_live ./
 
 ENV HOME=/app
 
-CMD [ "/app/bin/wca_live", "start" ]
+CMD ["/app/bin/server"]
