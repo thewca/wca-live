@@ -84,15 +84,6 @@ GraphQL API. It uses the Apollo library that provides a number of valuable featu
 from basic ones like React hooks for querying/mutating data, to more sophisticated
 ones like configurable cache with clever updates.
 
-### Deployment
-
-Currently we use a single AWS EC2 instance for hosting the app and a RDS instance
-with the database. To set up a fresh instance we use [this](./bin/setup.sh) tiny
-script that basically installs Docker and fetches the app. The application image
-is hosted on DockerHub and built automatically. We have an automated GitHub Actions
-[workflow](./.github/workflows/deploy.yaml) that builds the image, pushes them to
-DockerHub and finally tells the the app to pick up the new images.
-
 ## Development
 
 You need to install Elixir, Node.js, PostgreSQL, as well as `wkhtmltopdf`. Then:
