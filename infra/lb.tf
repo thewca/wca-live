@@ -86,12 +86,18 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
-# TODO: for wca-live we want HTTPS listener and attach a certificate
+data "aws_acm_certificate" "this" {
+  domain   = "live.worldcubeassociation.org"
+  statuses = ["ISSUED"]
+}
 
 resource "aws_lb_listener" "this" {
   load_balancer_arn = aws_lb.this.arn
-  port              = 80
-  protocol          = "HTTP"
+
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.this.arn
 
   default_action {
     target_group_arn = aws_lb_target_group.this[0].arn

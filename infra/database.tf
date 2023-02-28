@@ -50,11 +50,10 @@ resource "aws_db_instance" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.database.id]
 
-  # TODO: change for prod
-  skip_final_snapshot = true
+  skip_final_snapshot = false
 
   lifecycle {
-    # TODO: change for prod
-    prevent_destroy = false
+    # TODO: make this based on var.env once possible (https://github.com/hashicorp/terraform/issues/22544)
+    prevent_destroy = true
   }
 }
