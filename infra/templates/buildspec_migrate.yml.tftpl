@@ -1,0 +1,13 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - run_result=$(aws ecs run-task --cluster ${ecs_cluster_name} --task-definition ${ecs_task_definition_arn} --network-configuration "awsvpcConfiguration={subnets=[${ecs_subnet_ids}],securityGroups=[${ecs_security_groups}]}")
+      - echo "$run_result"
+      - container_arn=$(echo $run_result | jq '.tasks[0].taskArn' | sed -e 's/^"//' -e 's/"$//')
+      - aws ecs wait tasks-stopped --cluster ${ecs_cluster_name} --tasks "$container_arn"
+      - describe_result=$(aws ecs describe-tasks --cluster ${ecs_cluster_name} --tasks "$container_arn")
+      - terminated_status=$(echo "$describe_result" | jq '.tasks[0].containers[0].exitCode')
+      - echo $terminated_status
+      - exit $terminated_status
