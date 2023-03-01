@@ -297,7 +297,7 @@ resource "aws_ecs_service" "web" {
     ]
   }
 
-  depends_on = [aws_lb_listener.this]
+  depends_on = [aws_lb_listener.https, aws_lb_listener.http]
 }
 
 resource "aws_appautoscaling_target" "this" {

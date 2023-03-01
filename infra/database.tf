@@ -50,7 +50,10 @@ resource "aws_db_instance" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.database.id]
 
-  skip_final_snapshot = false
+  # Set this to create the database from a specific snapshot
+  # snapshot_identifier = "<snapshot_id>"
+
+  skip_final_snapshot = true
 
   lifecycle {
     # TODO: make this based on var.env once possible (https://github.com/hashicorp/terraform/issues/22544)

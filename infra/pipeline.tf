@@ -208,7 +208,7 @@ resource "aws_codedeploy_deployment_group" "this" {
   load_balancer_info {
     target_group_pair_info {
       prod_traffic_route {
-        listener_arns = [aws_lb_listener.this.arn]
+        listener_arns = [aws_lb_listener.https.arn]
       }
 
       target_group {
