@@ -236,8 +236,8 @@ data "aws_ecs_task_definition" "web" {
 }
 
 resource "aws_ecs_service" "web" {
-  name                               = "${var.name_prefix}-web"
-  cluster                            = aws_ecs_cluster.this.id
+  name    = "${var.name_prefix}-web"
+  cluster = aws_ecs_cluster.this.id
   # During deployment a new task revision is created with modified
   # container image, so we want use data.aws_ecs_task_definition to
   # always point to the active task definition

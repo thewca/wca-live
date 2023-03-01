@@ -91,13 +91,13 @@ data "aws_acm_certificate" "this" {
   statuses = ["ISSUED"]
 }
 
-resource "aws_lb_listener" "this" {
+resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.this.arn
 
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.this.arn
+  port            = 443
+  protocol        = "HTTPS"
+  ssl_policy      = "ELBSecurityPolicy-2016-08"
+  certificate_arn = data.aws_acm_certificate.this.arn
 
   default_action {
     target_group_arn = aws_lb_target_group.this[0].arn
@@ -110,6 +110,27 @@ resource "aws_lb_listener" "this" {
   }
 
   tags = {
-    Name = var.name_prefix
+    Name = "${var.name_prefix}-https"
+  }
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.this.arn
+
+  port     = 80
+  protocol = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+
+  tags = {
+    Name = "${var.name_prefix}-http"
   }
 }
