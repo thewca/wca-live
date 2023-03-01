@@ -14,14 +14,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push images to DockerHub
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: thewca/wca-live:latest
-          cache-from: type=registry,ref=thewca/wca-live:buildcache
-          cache-to: type=registry,ref=thewca/wca-live:buildcache,mode=max
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -31,11 +23,11 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: wca-live
-          IMAGE_TAG: latest
-        run: |
-          docker tag thewca/wca-live:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Build and push images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: thewca/wca-live:latest,${{ steps.login-ecr.outputs.registry }}/wca-live:latest
+          cache-from: type=registry,ref=thewca/wca-live:buildcache
+          cache-to: type=registry,ref=thewca/wca-live:buildcache,mode=max
