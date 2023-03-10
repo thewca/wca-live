@@ -9,6 +9,8 @@ defmodule WcaLive.Wca.Api.Http do
 
   @behaviour WcaLive.Wca.Api
 
+  @long_request_options [timeout: 60_000, recv_timeout: 60_000]
+
   @impl true
   def get_me(access_token) do
     api_url("/me")
@@ -19,7 +21,7 @@ defmodule WcaLive.Wca.Api.Http do
   @impl true
   def get_wcif(competition_wca_id, access_token) do
     api_url("/competitions/#{competition_wca_id}/wcif")
-    |> HTTPoison.get(headers(access_token: access_token))
+    |> HTTPoison.get(headers(access_token: access_token), @long_request_options)
     |> parse_response()
   end
 
@@ -29,7 +31,7 @@ defmodule WcaLive.Wca.Api.Http do
     body = Jason.encode!(wcif)
 
     api_url("/competitions/#{competition_wca_id}/wcif")
-    |> HTTPoison.patch(body, headers(access_token: access_token))
+    |> HTTPoison.patch(body, headers(access_token: access_token), @long_request_options)
     |> parse_response()
   end
 
