@@ -44,7 +44,10 @@ defmodule WcaLiveWeb.Router do
 
     # /api is a GrpahQL endpoint, so further processing
     # is forwarded to the schema implementation.
-    forward "/", Absinthe.Plug, schema: WcaLiveWeb.Schema
+    forward "/", Absinthe.Plug,
+      schema: WcaLiveWeb.Schema,
+      analyze_complexity: true,
+      max_complexity: 5000
   end
 
   # Enable LiveDashboard only for development

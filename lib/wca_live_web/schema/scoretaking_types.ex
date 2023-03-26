@@ -56,6 +56,10 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     @desc "Results ordered by ranking and person name."
     field :results, non_null(list_of(non_null(:result))) do
       resolve dataloader(:db)
+
+      complexity fn _args, child_complexity ->
+        50 * child_complexity
+      end
     end
 
     @desc "People who would qualify to this round, if one person quit."

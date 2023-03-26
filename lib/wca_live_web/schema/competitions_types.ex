@@ -10,6 +10,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
       arg :filter, :string
       arg :from, :date
       resolve &Resolvers.Competitions.list_competitions/3
+
+      complexity fn _args, child_complexity ->
+        100 * child_complexity
+      end
     end
 
     field :competition, :competition do
@@ -46,6 +50,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
                    )}
                 end
               )
+
+      complexity fn _args, child_complexity ->
+        8 * child_complexity
+      end
     end
 
     field :venues, non_null(list_of(non_null(:venue))) do
@@ -54,6 +62,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :competitors, non_null(list_of(non_null(:person))) do
       resolve dataloader(:db, :people, args: %{competitor: true})
+
+      complexity fn _args, child_complexity ->
+        10 * child_complexity
+      end
     end
 
     field :staff_members, non_null(list_of(non_null(:staff_member))) do
@@ -66,6 +78,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :podiums, non_null(list_of(non_null(:podium))) do
       resolve &Resolvers.Competitions.competition_podiums/3
+
+      complexity fn _args, child_complexity ->
+        10 * child_complexity
+      end
     end
   end
 
@@ -80,6 +96,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :rounds, non_null(list_of(non_null(:round))) do
       resolve dataloader(:db)
+
+      complexity fn _args, child_complexity ->
+        2 * child_complexity
+      end
     end
 
     field :competition, non_null(:competition) do
@@ -114,6 +134,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :results, non_null(list_of(non_null(:result))) do
       resolve dataloader(:db)
+
+      complexity fn _args, child_complexity ->
+        10 * child_complexity
+      end
     end
 
     field :assignments, non_null(list_of(non_null(:assignment))) do
