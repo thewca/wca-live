@@ -503,6 +503,25 @@ defmodule WcaLive.ScoretakingTest do
     assert 4 == Enum.count(results, & &1.advancing)
   end
 
+  test "removes_no_shows_from_round/2 removes no-show result with matching ids from the given round" do
+    round = insert(:round, number: 1)
+    insert_list(4, :result, round: round)
+
+    person1 = insert(:person)
+    insert(:result, person: person1, round: round)
+
+    person2 = insert(:person)
+    insert(:result, person: person2, round: round, attempts: [])
+
+    assert {:ok, updated} =
+             Scoretaking.remove_no_shows_from_round(round, [person1.id, person2.id])
+
+    results = updated |> Ecto.assoc(:results) |> Repo.all()
+    assert 5 == length(results)
+    assert Enum.any?(results, &(&1.person_id == person1.id))
+    assert not Enum.any?(results, &(&1.person_id == person2.id))
+  end
+
   test "list_recent_records/1 ignores old records" do
     insert_result_x_days_ago(
       20,

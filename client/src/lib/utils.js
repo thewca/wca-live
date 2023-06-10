@@ -70,6 +70,10 @@ export function minBy(arr, fn) {
   return arr.reduce((x, y) => (fn(x) < fn(y) ? x : y));
 }
 
+export function toggleElement(arr, x) {
+  return arr.includes(x) ? arr.filter((y) => y !== x) : [x, ...arr];
+}
+
 export function clamp(x, left, right) {
   return Math.min(Math.max(x, left), right);
 }
