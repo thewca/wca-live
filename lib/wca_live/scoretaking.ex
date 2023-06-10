@@ -313,6 +313,22 @@ defmodule WcaLive.Scoretaking do
     end
   end
 
+  @doc """
+  Removes results from `round` corresponding to the given `person_ids`,
+  provided they have no attempts.
+  """
+  @spec remove_no_shows_from_round(%Round{}, list(pos_integer())) ::
+          {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
+  def remove_no_shows_from_round(round, person_ids) do
+    round = round |> Repo.preload(:results)
+
+    results = Enum.reject(round.results, &(&1.person_id in person_ids and &1.attempts == []))
+
+    results
+    |> Round.put_results_in_round(round)
+    |> update_round_and_advancing()
+  end
+
   # Saves the given round changeset and recomputes `advancing` for
   # results in this and the previous round.
 

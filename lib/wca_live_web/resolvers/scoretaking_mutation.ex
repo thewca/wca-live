@@ -50,6 +50,20 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
 
   def remove_person_from_round(_parent, _args, _resolution), do: @not_authenticated
 
+  def remove_no_shows_from_round(_parent, %{input: input}, %{
+        context: %{current_user: current_user}
+      }) do
+    person_ids = Enum.map(input.person_ids, &String.to_integer/1)
+
+    with {:ok, round} <- Scoretaking.fetch_round(input.round_id),
+         true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
+         {:ok, round} <- Scoretaking.remove_no_shows_from_round(round, person_ids) do
+      {:ok, %{round: round}}
+    end
+  end
+
+  def remove_no_shows_from_round(_parent, _args, _resolution), do: @not_authenticated
+
   # Results
 
   def enter_result_attempts(_parent, %{input: input}, %{context: %{current_user: current_user}}) do

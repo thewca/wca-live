@@ -132,7 +132,11 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypesTest do
         insert(:result, round: round, ranking: 4, person: build(:person, name: "Ron Weasley"))
 
       result3 =
-        insert(:result, round: round, ranking: 2, person: build(:person, name: "Hermione Granger"))
+        insert(:result,
+          round: round,
+          ranking: 2,
+          person: build(:person, name: "Hermione Granger")
+        )
 
       result2 =
         insert(:result, round: round, ranking: 2, person: build(:person, name: "Harry Potter"))

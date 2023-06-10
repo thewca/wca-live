@@ -48,7 +48,7 @@ function AdminCompetitionNavigation() {
           <Route path="settings" element={<AdminSettings />} />
         )}
         <Route
-          path="rounds/:roundId/doublecheck"
+          path="rounds/:roundId/double-check"
           element={<RoundDoubleCheck />}
         />
         <Route path="rounds/:roundId" element={<AdminRound />} />

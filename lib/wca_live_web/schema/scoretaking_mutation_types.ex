@@ -28,6 +28,11 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
       arg :input, non_null(:remove_person_from_round_input)
       resolve &Resolvers.ScoretakingMutation.remove_person_from_round/3
     end
+
+    field :remove_no_shows_from_round, non_null(:remove_no_shows_from_round_payload) do
+      arg :input, non_null(:remove_no_shows_from_round_input)
+      resolve &Resolvers.ScoretakingMutation.remove_no_shows_from_round/3
+    end
   end
 
   # Inputs
@@ -61,6 +66,11 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
     field :replace, non_null(:boolean)
   end
 
+  input_object :remove_no_shows_from_round_input do
+    field :round_id, non_null(:id)
+    field :person_ids, non_null(list_of(non_null(:id)))
+  end
+
   # Payloads
 
   object :open_round_payload do
@@ -80,6 +90,10 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
   end
 
   object :remove_person_from_round_payload do
+    field :round, :round
+  end
+
+  object :remove_no_shows_from_round_payload do
     field :round, :round
   end
 end

@@ -18,6 +18,7 @@ const ENTER_RESULT_ATTEMPTS = gql`
         id
         round {
           id
+          number
           results {
             id
             ...adminRoundResult
@@ -85,7 +86,7 @@ function AdminRoundContent({ round, competitionId }) {
 
       return () => closeSnackbar(snackbarId);
     }
-  }, [nextOpen, enqueueSnackbar]);
+  }, [nextOpen, enqueueSnackbar, closeSnackbar]);
 
   return (
     <>

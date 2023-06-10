@@ -27,6 +27,11 @@ defmodule WcaLiveWeb.Schema.ScoretakingSubscriptionTypes do
           %{round: round} -> round && round.id
         end
 
+      trigger :remove_no_shows_from_round,
+        topic: fn
+          %{round: round} -> round && round.id
+        end
+
       resolve fn
         %{round: round}, _, _ ->
           {:ok, round}

@@ -463,6 +463,105 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
     end
   end
 
+  describe "mutation: remove no-shows from round" do
+    @remove_no_shows_from_round_mutation """
+    mutation RemoveNoShowsFromRound($input: RemoveNoShowsFromRoundInput!) {
+      removeNoShowsFromRound(input: $input) {
+        round {
+          id
+          results {
+            person {
+              id
+            }
+          }
+        }
+      }
+    }
+    """
+
+    @tag signed_in: :admin
+    test "removes round result of the given person", %{conn: conn} do
+      round = insert(:round)
+      person1 = insert(:person)
+      insert(:result, round: round, person: person1)
+
+      person2 = insert(:person)
+      insert(:result, round: round, person: person2, attempts: [])
+
+      person3 = insert(:person)
+      insert(:result, round: round, person: person3, attempts: [])
+
+      input = %{
+        "roundId" => to_gql_id(round.id),
+        "personIds" => [to_gql_id(person2.id), to_gql_id(person3.id)]
+      }
+
+      conn =
+        post(conn, "/api", %{
+          "query" => @remove_no_shows_from_round_mutation,
+          "variables" => %{"input" => input}
+        })
+
+      body = json_response(conn, 200)
+
+      assert %{
+               "data" => %{
+                 "removeNoShowsFromRound" => %{
+                   "round" => %{
+                     "id" => to_gql_id(round.id),
+                     "results" => [%{"person" => %{"id" => to_gql_id(person1.id)}}]
+                   }
+                 }
+               }
+             } == body
+    end
+
+    @tag :signed_in
+    test "grants access for scoretakers", %{conn: conn, current_user: current_user} do
+      round = insert_round_with_scoretaker(current_user)
+      person = insert(:person)
+      insert(:result, round: round, person: person, attempts: [])
+
+      input = %{
+        "roundId" => to_gql_id(round.id),
+        "personIds" => [to_gql_id(person.id)]
+      }
+
+      conn =
+        post(conn, "/api", %{
+          "query" => @remove_no_shows_from_round_mutation,
+          "variables" => %{"input" => input}
+        })
+
+      body = json_response(conn, 200)
+
+      assert %{"data" => %{"removeNoShowsFromRound" => _}} = body
+      assert false == Map.has_key?(body, "errors")
+    end
+
+    @tag :signed_in
+    test "returns an error when not authorized", %{conn: conn} do
+      round = insert(:round)
+      person = insert(:person)
+      insert(:result, round: round, person: person, attempts: [])
+
+      input = %{
+        "roundId" => to_gql_id(round.id),
+        "personIds" => [to_gql_id(person.id)]
+      }
+
+      conn =
+        post(conn, "/api", %{
+          "query" => @remove_no_shows_from_round_mutation,
+          "variables" => %{"input" => input}
+        })
+
+      body = json_response(conn, 200)
+
+      assert %{"errors" => [%{"message" => "access denied"}]} = body
+    end
+  end
+
   def insert_round_with_scoretaker(user, attrs \\ []) do
     competition = insert(:competition)
     insert(:staff_member, competition: competition, user: user, roles: ["staff-dataentry"])
