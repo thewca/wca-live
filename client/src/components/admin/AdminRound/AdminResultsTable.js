@@ -6,7 +6,9 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  Tooltip,
 } from '@mui/material';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import { green } from '@mui/material/colors';
 import { times } from '../../../lib/utils';
 import { formatAttemptResult } from '../../../lib/attempt-result';
@@ -118,7 +120,18 @@ const AdminResultsTable = React.memo(
                 {result.ranking}
               </TableCell>
               <TableCell align="right">{result.person.registrantId}</TableCell>
-              <TableCell>{result.person.name}</TableCell>
+              <TableCell>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div>{result.person.name}</div>
+                  {!result.person.wcaId && (
+                    <div style={{ display: 'flex' }}>
+                      <Tooltip title="Newcomer" placement="right">
+                        <EmojiPeopleIcon fontSize="small" />
+                      </Tooltip>
+                    </div>
+                  )}
+                </div>
+              </TableCell>
               {paddedAttemptResults(result, format.numberOfAttempts).map(
                 (attemptResult, index) => (
                   <TableCell key={index} align="right">

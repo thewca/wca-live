@@ -15,6 +15,7 @@ export const ADMIN_ROUND_RESULT_FRAGMENT = gql`
       id
       registrantId
       name
+      wcaId
     }
     singleRecordTag
     averageRecordTag
