@@ -25,7 +25,7 @@ defmodule WcaLive.Synchronization.Import do
   # When importing a competition, all inserts happen within a single
   # transaction and for largest competitions it may hit the default
   # transaction timeout of 15s
-  @import_transaction_timeout 30_000
+  @import_transaction_timeout 60_000
 
   @doc """
   Either inserts or updates the given competition and all the relevant
