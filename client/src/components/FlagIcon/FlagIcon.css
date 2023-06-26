@@ -1,0 +1,7 @@
+.flag-icon-tw {
+  background-image: url('./images/4x3/tw.svg');
+}
+
+.flag-icon-tw.flag-icon-squared {
+  background-image: url('./images/1x1/tw.svg');
+}
