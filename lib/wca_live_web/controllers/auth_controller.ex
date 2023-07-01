@@ -3,6 +3,7 @@ defmodule WcaLiveWeb.AuthController do
 
   alias WcaLive.Wca
   alias WcaLive.Accounts
+  alias WcaLiveWeb.UserAuth
 
   def authorize(conn, _params) do
     url = Wca.OAuth.authorize_url("public manage_competitions email")
@@ -15,14 +16,30 @@ defmodule WcaLiveWeb.AuthController do
          {:ok, data} <- Wca.Api.impl().get_me(token_attrs.access_token),
          user_attrs <- Accounts.User.wca_json_to_attrs(data["me"]),
          {:ok, user} <- Accounts.import_user(user_attrs, token_attrs) do
-      token = WcaLiveWeb.Auth.generate_token(user.id)
-
       conn
-      # Return the token back to the browser in URL hash.
-      |> redirect_to_app(to: "/#token=" <> token)
+      |> UserAuth.sign_in_user(user)
+      |> redirect_to_app(to: "/")
     else
       _ -> redirect_to_app(conn, to: "/")
     end
+  end
+
+  def sign_in_by_code(conn, params) do
+    case Accounts.authenticate_by_code(params["code"]) do
+      {:ok, user} ->
+        conn
+        |> UserAuth.sign_in_user(user)
+        |> json(%{status: :ok})
+
+      {:error, message} ->
+        json(conn, %{status: :error, message: message})
+    end
+  end
+
+  def sign_out(conn, _params) do
+    conn
+    |> UserAuth.sign_out_user()
+    |> json(%{status: :ok})
   end
 
   # Improve developer experience by redirecting to the client host in development.

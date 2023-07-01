@@ -1,35 +1,33 @@
-import React from 'react';
-import { gql, useMutation, useApolloClient } from '@apollo/client';
+import React, { useState } from 'react';
+import { useApolloClient } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { Grid, Typography } from '@mui/material';
-import SignInCodeForm from './SignInCodeForm';
-import useApolloErrorHandler from '../../hooks/useApolloErrorHandler';
-import { storeToken } from '../../lib/auth';
+import { useSnackbar } from 'notistack';
+import { formatSentence } from '../../lib/utils';
 
-const SIGN_IN = gql`
-  mutation SignIn($code: String!) {
-    signIn(input: { code: $code }) {
-      token
-    }
-  }
-`;
+import SignInCodeForm from './SignInCodeForm';
+import { signInByCode } from '../../lib/auth';
 
 function SignInCode() {
-  const apolloErrorHandler = useApolloErrorHandler();
   const apolloClient = useApolloClient();
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
-  const [signIn, { loading }] = useMutation(SIGN_IN, {
-    onError: apolloErrorHandler,
-    onCompleted: ({ signIn: { token } }) => {
-      storeToken(token);
-      navigate('/');
-      apolloClient.resetStore();
-    },
-  });
+  const [loading, setLoading] = useState(false);
 
   function handleSubmit(code) {
-    signIn({ variables: { code } });
+    setLoading(true);
+
+    signInByCode(code).then(({ status, message }) => {
+      setLoading(false);
+
+      if (status === 'ok') {
+        navigate('/');
+        apolloClient.resetStore();
+      } else {
+        enqueueSnackbar(formatSentence(message), { variant: 'error' });
+      }
+    });
   }
 
   return (

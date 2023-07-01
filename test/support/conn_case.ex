@@ -59,11 +59,12 @@ defmodule WcaLiveWeb.ConnCase do
             insert(:user, attrs)
         end
 
-      token = WcaLiveWeb.Auth.generate_token(user.id)
+      token = WcaLive.Accounts.generate_user_session_token(user)
 
       conn =
         context[:conn]
-        |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
+        |> Phoenix.ConnTest.init_test_session(%{})
+        |> Plug.Conn.put_session(:user_token, token)
 
       {:ok, %{current_user: user, conn: conn}}
     else
