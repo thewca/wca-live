@@ -474,7 +474,7 @@ defmodule WcaLive.Wca.Country do
     },
     %{
       iso2: "HK",
-      name: "Hong Kong",
+      name: "Hong Kong, China",
       wca_id: "Hong Kong",
       continent_name: "Asia"
     },
@@ -642,7 +642,7 @@ defmodule WcaLive.Wca.Country do
     },
     %{
       iso2: "MO",
-      name: "Macau",
+      name: "Macau, China",
       wca_id: "Macau",
       continent_name: "Asia"
     },
@@ -1056,7 +1056,7 @@ defmodule WcaLive.Wca.Country do
     },
     %{
       iso2: "TW",
-      name: "Taiwan",
+      name: "Chinese Taipei",
       wca_id: "Taiwan",
       continent_name: "Asia"
     },
