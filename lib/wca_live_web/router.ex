@@ -43,6 +43,12 @@ defmodule WcaLiveWeb.Router do
     get "/competitions/:wca_id/rounds/:event_id/:round_number", LinkController, :round
   end
 
+  scope "/api", WcaLiveWeb do
+    pipe_through :api
+
+    get "/competitions/:id/wcif", CompetitionController, :show_wcif
+  end
+
   scope "/api" do
     pipe_through :api
     pipe_through :graphql
