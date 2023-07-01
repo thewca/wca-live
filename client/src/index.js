@@ -7,10 +7,6 @@ import { createRoot } from 'react-dom/client';
 import App from './components/App/App';
 import { unregister } from './service-worker-registration';
 
-import { maybeGrabTokenFromUrl } from './lib/auth';
-
-maybeGrabTokenFromUrl();
-
 const root = createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

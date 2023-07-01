@@ -8,16 +8,4 @@ defmodule WcaLiveWeb.Resolvers.AccountsMutation do
   end
 
   def generate_one_time_code(_parent, _args, _resolution), do: {:error, "not authenticated"}
-
-  def sign_in(_parent, %{input: input}, _resolution) do
-    with {:ok, user} <- Accounts.authenticate_by_code(input.code) do
-      token = WcaLiveWeb.Auth.generate_token(user.id)
-
-      {:ok,
-       %{
-         token: token,
-         user: user
-       }}
-    end
-  end
 end

@@ -6,12 +6,10 @@ import {
   split,
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
-import { setContext } from '@apollo/client/link/context';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { Socket as PhoenixSocket } from 'phoenix';
 import * as AbsintheSocket from '@absinthe/socket';
 import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
-import { getToken } from '../../lib/auth';
 
 // Http link
 
@@ -30,21 +28,10 @@ const retryLink = new RetryLink({
   },
 });
 
-const authLink = setContext((request, { headers }) => {
-  const token = getToken();
-  if (!token) return { headers };
-  return {
-    headers: {
-      ...headers,
-      authorization: `Bearer ${token}`,
-    },
-  };
-});
-
 const httpLink =
   process.env.NODE_ENV === 'production'
-    ? ApolloLink.from([authLink, retryLink, baseHttpLink])
-    : ApolloLink.from([authLink, baseHttpLink]);
+    ? ApolloLink.from([retryLink, baseHttpLink])
+    : ApolloLink.from([baseHttpLink]);
 
 // WebSocket link
 

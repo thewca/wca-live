@@ -6,7 +6,7 @@ defmodule WcaLive.Accounts do
   import Ecto.Query, warn: false
 
   alias WcaLive.Repo
-  alias WcaLive.Accounts.{User, AccessToken, OneTimeCode}
+  alias WcaLive.Accounts.{User, AccessToken, OneTimeCode, UserToken}
   alias WcaLive.Wca
 
   @doc """
@@ -55,6 +55,30 @@ defmodule WcaLive.Accounts do
 
   defp filter_by_text(query, filter) do
     from u in query, where: ilike(u.name, ^"#{filter}%")
+  end
+
+  @doc """
+  Generates a session token.
+  """
+  def generate_user_session_token(user) do
+    user_token = UserToken.build_session_token(user)
+    Repo.insert!(user_token)
+    user_token.token
+  end
+
+  @doc """
+  Gets the user with the given token.
+  """
+  def get_user_by_session_token(token) do
+    Repo.one(UserToken.verify_session_token_query(token))
+  end
+
+  @doc """
+  Deletes session token by value.
+  """
+  def delete_user_session_token(token) do
+    Repo.delete_all(UserToken.token_and_context_query(token, "session"))
+    :ok
   end
 
   @doc """
@@ -109,8 +133,7 @@ defmodule WcaLive.Accounts do
 
   The code is removed from the database.
   """
-  @spec authenticate_by_code(String.t()) ::
-          {:ok, %User{}} | {:error, String.t() | Ecto.Changeset.t()}
+  @spec authenticate_by_code(String.t()) :: {:ok, %User{}} | {:error, String.t()}
   def authenticate_by_code(code) do
     OneTimeCode
     |> Repo.get_by(code: code)
@@ -122,11 +145,10 @@ defmodule WcaLive.Accounts do
         if OneTimeCode.expired?(otc) do
           {:error, "code expired"}
         else
+          user = Ecto.assoc(otc, :user) |> Repo.one!()
           # Delete the one time code as it's been used.
-          with {:ok, _} <- Repo.delete(otc) do
-            user = Ecto.assoc(otc, :user) |> Repo.one!()
-            {:ok, user}
-          end
+          Repo.delete!(otc)
+          {:ok, user}
         end
     end
   end

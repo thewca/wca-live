@@ -1,13 +1,17 @@
 defmodule WcaLiveWeb.Router do
-  @moduledoc """
-  The router configures how a web request proceeds
-  depending on the requested path.
-  """
-
   use WcaLiveWeb, :router
+
+  import WcaLiveWeb.UserAuth
+
+  pipeline :browser do
+    plug :fetch_session
+    plug :fetch_current_user
+  end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug :fetch_current_user
   end
 
   pipeline :graphql do
@@ -17,8 +21,17 @@ defmodule WcaLiveWeb.Router do
   get "/health", WcaLiveWeb.HealthController, :index
 
   scope "/oauth", WcaLiveWeb do
+    pipe_through :browser
+
     get "/authorize", AuthController, :authorize
     get "/callback", AuthController, :callback
+  end
+
+  scope "/auth", WcaLiveWeb do
+    pipe_through :api
+
+    post "/sign-in-by-code", AuthController, :sign_in_by_code
+    delete "/sign-out", AuthController, :sign_out
   end
 
   scope "/pdf", WcaLiveWeb do
