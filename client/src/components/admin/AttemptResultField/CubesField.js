@@ -33,6 +33,7 @@ function CubesField({ value, onChange, label, disabled, TextFieldProps = {} }) {
   return (
     <TextField
       {...TextFieldProps}
+      type="tel"
       label={label}
       disabled={disabled}
       spellCheck={false}
