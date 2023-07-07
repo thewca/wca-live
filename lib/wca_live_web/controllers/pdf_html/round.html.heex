@@ -1,6 +1,6 @@
 <html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title><%= @event.name %> - <%= Round.name(@round) %></title>
     <style>
       body {
@@ -99,27 +99,24 @@
           <th>
             Country
           </th>
-          <%= for n <- 1..@format.number_of_attempts do %>
-            <th class="right">
-              <%= n %>
-            </th>
-          <% end %>
-          <%= for stat <- @stats do %>
-            <th class="right">
-              <%= stat.name %>
-            </th>
-          <% end %>
+          <th :for={n <- 1..@format.number_of_attempts} class="right">
+            <%= n %>
+          </th>
+          <th :for={stat <- @stats} class="right">
+            <%= stat.name %>
+          </th>
         </tr>
       </thead>
       <tbody>
         <%= for result <- @round.results do %>
           <% country = Wca.Country.get_by_iso2!(result.person.country_iso2) %>
-          <% attempt_results = result.attempts
+          <% attempt_results =
+            result.attempts
             |> Enum.map(& &1.result)
             |> AttemptResult.pad_skipped(@format.number_of_attempts) %>
 
           <tr>
-            <td class="right <%= if result.advancing, do: "advancing" %>">
+            <td class={["right", result.advancing && "advancing"]}>
               <%= result.ranking %>
             </td>
             <td>
@@ -128,19 +125,15 @@
             <td>
               <%= country.name %>
             </td>
-            <%= for attempt_result <- attempt_results do %>
-              <td class="right">
-                <%= AttemptResult.format(attempt_result, @event.id) %>
-              </td>
-            <% end %>
+            <td :for={attempt_result <- attempt_results} class="right">
+              <%= AttemptResult.format(attempt_result, @event.id) %>
+            </td>
             <%= for stat <- @stats do %>
               <% record_tag = Map.fetch!(result, stat.record_tag_field) %>
-              <td class="right <%= if stat == hd(@stats), do: "main-stat" %>">
-                <%= if record_tag in ["WR", "CR", "NR"] do %>
-                  <span class="record-tag <%= record_tag %>">
-                    <%= record_tag %>
-                  </span>
-                <% end %>
+              <td class={["right", stat == hd(@stats) && "main-stat"]}>
+                <span :if={record_tag in ["WR", "CR", "NR"]} class={["record-tag", record_tag]}>
+                  <%= record_tag %>
+                </span>
                 <%= AttemptResult.format(Map.fetch!(result, stat.field), @event.id) %>
               </td>
             <% end %>

@@ -7,7 +7,7 @@ config :wca_live,
 config :wca_live, WcaLiveWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "gGJX3VwobpaORmDbmr0kXwPququm3j8IXPsp34d1Yc7RkQoJWwOs0l5kBQObpWpf",
-  render_errors: [view: WcaLiveWeb.ErrorView, accepts: ~w(json), layout: false],
+  render_errors: [formats: [json: WcaLiveWeb.ErrorJSON], layout: false],
   pubsub_server: WcaLive.PubSub,
   live_view: [signing_salt: "B1YpR/Hz"]
 

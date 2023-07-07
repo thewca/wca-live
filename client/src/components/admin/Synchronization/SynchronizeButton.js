@@ -4,7 +4,7 @@ import { Button } from '@mui/material';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 
 const SYNCHRONIZE_MUTATION = gql`
-  mutation Synchronize($input: SynchronizeInput!) {
+  mutation Synchronize($input: SynchronizeCompetitionInput!) {
     synchronizeCompetition(input: $input) {
       competition {
         id
