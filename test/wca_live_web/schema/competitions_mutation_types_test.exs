@@ -5,7 +5,7 @@ defmodule WcaLiveWeb.Schema.CompetitonsMutationTypesTest do
 
   describe "mutation: update competition access" do
     @update_competition_access_mutation """
-    mutation UpdateCompetitionAccess($input: UpdateCompetitionAccessMutation!) {
+    mutation UpdateCompetitionAccess($input: UpdateCompetitionAccessInput!) {
       updateCompetitionAccess(input: $input) {
         competition {
           id

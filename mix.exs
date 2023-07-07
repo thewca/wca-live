@@ -36,9 +36,7 @@ defmodule WcaLive.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:httpoison, "~> 1.6"},
-      # TODO: update when https://github.com/absinthe-graphql/absinthe/issues/1064 is resolved.
-      # Make sure that entering a result triggers a single batched subscription update for all subscribers
-      {:absinthe, "1.5.5"},
+      {:absinthe, "~> 1.7"},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_phoenix, "~> 2.0"},
       {:dataloader, "~> 1.0"},
