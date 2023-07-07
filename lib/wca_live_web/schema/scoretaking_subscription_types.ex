@@ -12,9 +12,9 @@ defmodule WcaLiveWeb.Schema.ScoretakingSubscriptionTypes do
         {:ok, topic: args.id, context_id: "global"}
       end
 
-      trigger :enter_result_attempts,
+      trigger :enter_results,
         topic: fn
-          %{result: result} -> result && result.round_id
+          %{round: round} -> round && round.id
         end
 
       trigger :add_person_to_round,
