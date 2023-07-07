@@ -173,16 +173,18 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
 
   describe "mutation: enter result attempts" do
     @enter_reslut_attempt_mutation """
-    mutation EnterResultAttempts($input: EnterResultAttemptInput!) {
-      enterResultAttempts(input: $input) {
-        result {
-          id
-          attempts {
-            result
+    mutation EnterResults($input: EnterResultsInput!) {
+      enterResults(input: $input) {
+        round {
+          results {
+            id
+            attempts {
+              result
+            }
+            best
+            average
+            ranking
           }
-          best
-          average
-          ranking
         }
       }
     }
@@ -194,13 +196,18 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
       result = insert(:result, round: round)
 
       input = %{
-        "id" => to_gql_id(result.id),
-        "attempts" => [
-          %{"result" => 1500},
-          %{"result" => 1400},
-          %{"result" => 1300},
-          %{"result" => -1},
-          %{"result" => 1100}
+        "id" => to_gql_id(round.id),
+        "results" => [
+          %{
+            "id" => to_gql_id(result.id),
+            "attempts" => [
+              %{"result" => 1500},
+              %{"result" => 1400},
+              %{"result" => 1300},
+              %{"result" => -1},
+              %{"result" => 1100}
+            ]
+          }
         ]
       }
 
@@ -214,19 +221,23 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
 
       assert %{
                "data" => %{
-                 "enterResultAttempts" => %{
-                   "result" => %{
-                     "id" => to_gql_id(result.id),
-                     "attempts" => [
-                       %{"result" => 1500},
-                       %{"result" => 1400},
-                       %{"result" => 1300},
-                       %{"result" => -1},
-                       %{"result" => 1100}
-                     ],
-                     "best" => 1100,
-                     "average" => 1400,
-                     "ranking" => 1
+                 "enterResults" => %{
+                   "round" => %{
+                     "results" => [
+                       %{
+                         "id" => to_gql_id(result.id),
+                         "attempts" => [
+                           %{"result" => 1500},
+                           %{"result" => 1400},
+                           %{"result" => 1300},
+                           %{"result" => -1},
+                           %{"result" => 1100}
+                         ],
+                         "best" => 1100,
+                         "average" => 1400,
+                         "ranking" => 1
+                       }
+                     ]
                    }
                  }
                }
@@ -239,8 +250,13 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
       result = insert(:result, round: round)
 
       input = %{
-        "id" => to_gql_id(result.id),
-        "attempts" => []
+        "id" => to_gql_id(round.id),
+        "results" => [
+          %{
+            "id" => to_gql_id(result.id),
+            "attempts" => []
+          }
+        ]
       }
 
       conn =
@@ -251,7 +267,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
 
       body = json_response(conn, 200)
 
-      assert %{"data" => %{"enterResultAttempts" => _}} = body
+      assert %{"data" => %{"enterResults" => _}} = body
       assert false == Map.has_key?(body, "errors")
     end
 
@@ -261,8 +277,13 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
       result = insert(:result, round: round)
 
       input = %{
-        "id" => to_gql_id(result.id),
-        "attempts" => []
+        "id" => to_gql_id(round.id),
+        "results" => [
+          %{
+            "id" => to_gql_id(result.id),
+            "attempts" => []
+          }
+        ]
       }
 
       conn =

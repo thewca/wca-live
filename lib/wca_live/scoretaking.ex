@@ -94,33 +94,43 @@ defmodule WcaLive.Scoretaking do
   def fetch_result(id), do: Repo.fetch(Result, id)
 
   @doc """
-  Updates result attempts with the given list.
+  Updates attempts for a batch of results.
 
-  Stores the timestamp and user who entered the attempts.
-  Also updates ranking, records and advancing based on the new state.
+  Stores the timestamp and user who entered the attempts. Also updates
+  ranking, records and advancing based on the new state.
   """
-  @spec enter_result_attempts(%Result{}, list(map()), %User{}) ::
-          {:ok, %Result{}} | {:error, Ecto.Changeset.t()}
-  def enter_result_attempts(result, attempts, user) do
-    result = Repo.preload(result, round: [:competition_event])
+  @spec enter_results(%Result{}, list({term(), list(map())}), %User{}) ::
+          {:ok, %Round{}} | {:error, Ecto.Changeset.t()}
+  def enter_results(round, result_ids_with_attempts, user) do
+    round = Repo.preload(round, [:competition_event, :results])
 
-    Multi.new()
-    |> Multi.update(:updated_result, fn _changes ->
-      format = Format.get_by_id!(result.round.format_id)
-      event_id = result.round.competition_event.event_id
-      cutoff = result.round.cutoff
+    format = Format.get_by_id!(round.format_id)
+    event_id = round.competition_event.event_id
+    cutoff = round.cutoff
 
-      result
-      |> Result.changeset(%{attempts: attempts}, event_id, format, cutoff)
-      |> Changeset.put_change(:entered_by_id, user.id)
-      |> Changeset.put_change(:entered_at, DateTime.utc_now() |> DateTime.truncate(:second))
-    end)
-    |> Multi.merge(fn %{updated_result: result} ->
-      process_round_after_results_change(result.round)
+    results_with_attempts =
+      for {result_id, attempts} <- result_ids_with_attempts,
+          result = Enum.find(round.results, &(&1.id == result_id)),
+          do: {result, attempts}
+
+    results_multi =
+      Enum.reduce(results_with_attempts, Multi.new(), fn {result, attempts}, multi ->
+        Multi.update(multi, {:updated_result, result.id}, fn _changes ->
+          result
+          |> Result.changeset(%{attempts: attempts}, event_id, format, cutoff)
+          |> Changeset.put_change(:entered_by_id, user.id)
+          |> Changeset.put_change(:entered_at, DateTime.utc_now() |> DateTime.truncate(:second))
+        end)
+      end)
+
+    results_multi
+    |> Multi.merge(fn _ ->
+      round = Repo.preload(round, :results, force: true)
+      process_round_after_results_change(round)
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, _} -> {:ok, get_result!(result.id)}
+      {:ok, _} -> {:ok, get_round!(round.id)}
       {:error, _, reason, _} -> {:error, reason}
     end
   end

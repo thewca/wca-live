@@ -103,54 +103,52 @@ defmodule WcaLive.ScoretakingTest do
     assert result.id == found.id
   end
 
-  test "enter_result_attempts/1 updates result attempts and who entered them" do
+  test "enter_results/3 updates result attempts and who entered them" do
     user = insert(:user)
-    result = insert(:result, attempts: build_list(3, :attempt, result: 1000))
+    round = insert(:round)
+    result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
-    attempts_attrs = [
-      %{result: 900},
-      %{result: 800},
-      %{result: 1000},
-      %{result: 600},
-      %{result: 700}
+    attrs = [
+      {result.id,
+       [%{result: 900}, %{result: 800}, %{result: 1000}, %{result: 600}, %{result: 700}]}
     ]
 
-    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
-    assert user.id == updated.entered_by_id
-    assert [900, 800, 1000, 600, 700] == Enum.map(updated.attempts, & &1.result)
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert user.id == result.entered_by_id
+    assert [900, 800, 1000, 600, 700] == Enum.map(result.attempts, & &1.result)
   end
 
-  test "enter_result_attempts/1 computes best and average" do
+  test "enter_results/3 computes best and average" do
     user = insert(:user)
     round = insert(:round, format_id: "a")
     result = insert(:result, round: round, best: 0, average: 0)
 
-    attempts_attrs = [
-      %{result: 900},
-      %{result: 800},
-      %{result: 1000},
-      %{result: 600},
-      %{result: 700}
+    attrs = [
+      {result.id,
+       [%{result: 900}, %{result: 800}, %{result: 1000}, %{result: 600}, %{result: 700}]}
     ]
 
-    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
-    assert 600 == updated.best
-    assert 800 == updated.average
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert 600 == result.best
+    assert 800 == result.average
   end
 
-  test "enter_result_attempts/1 assigns skipped value to average if not applicable" do
+  test "enter_results/3 assigns skipped value to average if not applicable" do
     user = insert(:user)
     round = insert(:round, format_id: "1")
     result = insert(:result, round: round, best: 0, average: 0)
 
-    attempts_attrs = [%{result: 900}]
+    attrs = [{result.id, [%{result: 900}]}]
 
-    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
-    assert 900 == updated.best
-    assert 0 == updated.average
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert 900 == result.best
+    assert 0 == result.average
   end
 
-  test "enter_result_attempts/1 updates ranking and advancing" do
+  test "enter_results/3 updates ranking and advancing" do
     user = insert(:user)
     round = insert(:round, format_id: "1", advancement_condition: %{type: "percent", level: 50})
 
@@ -166,70 +164,69 @@ defmodule WcaLive.ScoretakingTest do
 
     result2 = insert(:result, round: round, ranking: nil, attempts: [], advancing: false)
 
-    attempts_attrs = [%{result: 900}]
+    attrs = [{result2.id, [%{result: 900}]}]
 
-    assert {:ok, updated} = Scoretaking.enter_result_attempts(result2, attempts_attrs, user)
-    assert 1 == updated.ranking
-    assert true == updated.advancing
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result2 = Repo.reload(result2)
+    assert 1 == result2.ranking
+    assert true == result2.advancing
   end
 
-  test "enter_result_attempts/1 assigns record tags" do
+  test "enter_results/3 assigns record tags" do
     user = insert(:user)
 
     person = insert(:person, country_iso2: "GB")
     insert(:personal_best, person: person, event_id: "333", type: "single", best: 1500)
     insert(:personal_best, person: person, event_id: "333", type: "average", best: 2000)
 
-    result = insert(:result, person: person, single_record_tag: nil, average_record_tag: nil)
+    round = insert(:round)
 
-    attempts_attrs = [
-      %{result: 1400},
-      %{result: 2500},
-      %{result: 2500},
-      %{result: 2500},
-      %{result: 2500}
+    result =
+      insert(:result,
+        round: round,
+        person: person,
+        single_record_tag: nil,
+        average_record_tag: nil
+      )
+
+    attrs = [
+      {result.id,
+       [%{result: 1400}, %{result: 2500}, %{result: 2500}, %{result: 2500}, %{result: 2500}]}
     ]
 
-    assert {:ok, updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
-    assert "PR" == updated.single_record_tag
-    assert nil == updated.average_record_tag
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert "PR" == result.single_record_tag
+    assert nil == result.average_record_tag
   end
 
-  test "enter_result_attempts/1 returns an error if all attempts are DNS" do
+  test "enter_results/3 returns an error if all attempts are DNS" do
     user = insert(:user)
     round = insert(:round, cutoff: nil, format_id: "a")
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
-    attempts_attrs = [
-      %{result: -2},
-      %{result: -2},
-      %{result: -2},
-      %{result: -2},
-      %{result: -2}
+    attrs = [
+      {result.id, [%{result: -2}, %{result: -2}, %{result: -2}, %{result: -2}, %{result: -2}]}
     ]
 
-    assert {:error, changeset} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+    assert {:error, changeset} = Scoretaking.enter_results(round, attrs, user)
 
     assert "can't all be DNS, remove the competitor from this round instead" in errors_on(
              changeset
            ).attempts
   end
 
-  test "enter_result_attempts/1 does return an error if some attempts are DNS but remaining are skipped" do
+  test "enter_results/3 does not return an error if some attempts are DNS but remaining are skipped" do
     user = insert(:user)
     round = insert(:round, cutoff: nil, format_id: "a")
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
-    attempts_attrs = [
-      %{result: -2},
-      %{result: -2},
-      %{result: -2}
-    ]
+    attrs = [{result.id, [%{result: -2}, %{result: -2}, %{result: -2}]}]
 
-    assert {:ok, _updated} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+    assert {:ok, _updated} = Scoretaking.enter_results(round, attrs, user)
   end
 
-  test "enter_result_attempts/1 returns an error if all cutoff attempts are DNS" do
+  test "enter_results/3 returns an error if all cutoff attempts are DNS" do
     user = insert(:user)
 
     round =
@@ -240,16 +237,44 @@ defmodule WcaLive.ScoretakingTest do
 
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
-    attempts_attrs = [
-      %{result: -2},
-      %{result: -2}
-    ]
+    attrs = [{result.id, [%{result: -2}, %{result: -2}]}]
 
-    assert {:error, changeset} = Scoretaking.enter_result_attempts(result, attempts_attrs, user)
+    assert {:error, changeset} = Scoretaking.enter_results(round, attrs, user)
 
     assert "can't all be DNS, remove the competitor from this round instead" in errors_on(
              changeset
            ).attempts
+  end
+
+  test "enter_results/3 works with multiple results" do
+    user = insert(:user)
+    round = insert(:round)
+    result1 = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
+    result2 = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
+
+    attrs = [
+      {result1.id,
+       [%{result: 900}, %{result: 800}, %{result: 1000}, %{result: 600}, %{result: 700}]},
+      {result2.id,
+       [%{result: 901}, %{result: 801}, %{result: 1001}, %{result: 601}, %{result: 701}]}
+    ]
+
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result1 = Repo.reload(result1)
+    assert user.id == result1.entered_by_id
+    assert [900, 800, 1000, 600, 700] == Enum.map(result1.attempts, & &1.result)
+    result2 = Repo.reload(result2)
+    assert user.id == result2.entered_by_id
+    assert [901, 801, 1001, 601, 701] == Enum.map(result2.attempts, & &1.result)
+  end
+
+  test "enter_results/3 ignores nonexistent results" do
+    user = insert(:user)
+    round = insert(:round)
+
+    attrs = [{111_111_111, []}]
+
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
   end
 
   test "open_round/1 given the first round adds everyone who registered for the event" do

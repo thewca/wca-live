@@ -52,12 +52,15 @@ const ROUND_QUERY = gql`
 `;
 
 const ENTER_RESULT_ATTEMPTS = gql`
-  mutation EnterResultAttempts($input: EnterResultAttemptsInput!) {
-    enterResultAttempts(input: $input) {
-      result {
+  mutation EnterResults($input: EnterResultsInput!) {
+    enterResults(input: $input) {
+      round {
         id
-        attempts {
-          result
+        results {
+          id
+          attempts {
+            result
+          }
         }
       }
     }
@@ -88,7 +91,7 @@ function RoundDoubleCheck() {
     variables: { id: roundId },
   });
 
-  const [enterResultAttempts, { error: enterLoading }] = useMutation(
+  const [enterResults, { error: enterLoading }] = useMutation(
     ENTER_RESULT_ATTEMPTS,
     {
       onCompleted: () => {
@@ -115,8 +118,13 @@ function RoundDoubleCheck() {
   }
 
   function handleResultAttemptsSubmit(attempts) {
-    enterResultAttempts({
-      variables: { input: { id: results[resultIndex].id, attempts } },
+    enterResults({
+      variables: {
+        input: {
+          id: round.id,
+          results: [{ id: results[resultIndex].id, attempts }],
+        },
+      },
     });
   }
 

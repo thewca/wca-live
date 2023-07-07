@@ -14,9 +14,9 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
       resolve &Resolvers.ScoretakingMutation.clear_round/3
     end
 
-    field :enter_result_attempts, non_null(:enter_result_attempts_payload) do
-      arg :input, non_null(:enter_result_attempts_input)
-      resolve &Resolvers.ScoretakingMutation.enter_result_attempts/3
+    field :enter_results, non_null(:enter_results_payload) do
+      arg :input, non_null(:enter_results_input)
+      resolve &Resolvers.ScoretakingMutation.enter_results/3
     end
 
     field :add_person_to_round, non_null(:add_person_to_round_payload) do
@@ -46,6 +46,16 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
   end
 
   input_object :enter_result_attempts_input do
+    field :id, non_null(:id)
+    field :attempts, non_null(list_of(non_null(:attempt_input)))
+  end
+
+  input_object :enter_results_input do
+    field :id, non_null(:id)
+    field :results, non_null(list_of(non_null(:result_attempts_input)))
+  end
+
+  input_object :result_attempts_input do
     field :id, non_null(:id)
     field :attempts, non_null(list_of(non_null(:attempt_input)))
   end
@@ -81,8 +91,9 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
     field :round, :round
   end
 
-  object :enter_result_attempts_payload do
-    field :result, :result
+  object :enter_results_payload do
+    field :round, :round
+    field :results, list_of(:result)
   end
 
   object :add_person_to_round_payload do

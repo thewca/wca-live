@@ -66,14 +66,15 @@ defmodule WcaLiveWeb.Resolvers.ScoretakingMutation do
 
   # Results
 
-  def enter_result_attempts(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
-    with {:ok, result} <- Scoretaking.fetch_result(input.id),
-         true <- Scoretaking.Access.can_manage_result?(current_user, result) || @access_denied,
-         {:ok, result} <-
-           Scoretaking.enter_result_attempts(result, input.attempts, current_user) do
-      {:ok, %{result: result}}
+  def enter_results(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
+    result_inputs = for input <- input.results, do: {String.to_integer(input.id), input.attempts}
+
+    with {:ok, round} <- Scoretaking.fetch_round(input.id),
+         true <- Scoretaking.Access.can_manage_round?(current_user, round) || @access_denied,
+         {:ok, round} <- Scoretaking.enter_results(round, result_inputs, current_user) do
+      {:ok, %{round: round}}
     end
   end
 
-  def enter_result_attempts(_parent, _args, _resolution), do: @not_authenticated
+  def enter_results(_parent, _args, _resolution), do: @not_authenticated
 end
