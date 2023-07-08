@@ -18,12 +18,15 @@ defmodule WcaLive.Wca.RecordsStore do
   @name __MODULE__
 
   @type state :: %{
-          records: Wca.Records.records(),
+          records_map: Wca.Records.regional_records_map(),
           updated_at: DateTime.t()
         }
 
   @state_path "tmp/record-store.#{Mix.env()}.data"
   @update_interval_sec 1 * 60 * 60
+
+  @records_key {__MODULE__, :records}
+  @records_map_key {__MODULE__, :records_map}
 
   # Client API
 
@@ -34,9 +37,17 @@ defmodule WcaLive.Wca.RecordsStore do
   @doc """
   Returns a cached version of regional records fetched from the WCA API.
   """
-  @spec get_regional_records() :: Wca.Records.records()
+  @spec get_regional_records() :: list(Wca.Records.record())
   def get_regional_records() do
-    GenServer.call(@name, :get_records)
+    :persistent_term.get(@records_key)
+  end
+
+  @doc """
+  Returns a cached version of regional records map.
+  """
+  @spec get_regional_records_map() :: Wca.Records.records_map()
+  def get_regional_records_map() do
+    :persistent_term.get(@records_map_key)
   end
 
   # Callbacks
@@ -51,11 +62,6 @@ defmodule WcaLive.Wca.RecordsStore do
     schedule_update(update_in)
 
     {:ok, state}
-  end
-
-  @impl true
-  def handle_call(:get_records, _from, %{records: records} = state) do
-    {:reply, records, state}
   end
 
   @impl true
@@ -82,7 +88,9 @@ defmodule WcaLive.Wca.RecordsStore do
 
   defp get_initial_state!() do
     if File.exists?(@state_path) do
-      read_state!()
+      state = read_state!()
+      put_state_in_persistent_term(state)
+      state
     else
       case update_state() do
         {:ok, state} -> state
@@ -111,10 +119,24 @@ defmodule WcaLive.Wca.RecordsStore do
 
   defp update_state() do
     with {:ok, records} <- fetch_records() do
-      state = %{records: records, updated_at: DateTime.utc_now()}
+      records_map = Wca.Records.records_to_map(records)
+
+      state = %{
+        records_map: records_map,
+        records: records,
+        updated_at: DateTime.utc_now()
+      }
+
+      put_state_in_persistent_term(state)
+
       write_state!(state)
       {:ok, state}
     end
+  end
+
+  defp put_state_in_persistent_term(state) do
+    :persistent_term.put(@records_key, state.records)
+    :persistent_term.put(@records_map_key, state.records_map)
   end
 
   defp log(message) do

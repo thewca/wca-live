@@ -18,12 +18,12 @@ defmodule WcaLive.Application do
       WcaLiveWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: WcaLive.PubSub},
+      # Start RecordsStore with official WCA records cache
+      WcaLive.Wca.RecordsStore,
       # Start the Endpoint (http/https)
       WcaLiveWeb.Endpoint,
       # Start the Absinthe Subscription supervisor
-      {Absinthe.Subscription, WcaLiveWeb.Endpoint},
-      # Start RecordsStore with official WCA records cache
-      WcaLive.Wca.RecordsStore
+      {Absinthe.Subscription, WcaLiveWeb.Endpoint}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

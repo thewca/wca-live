@@ -27,7 +27,7 @@ defmodule WcaLive.Scoretaking.RecordTags do
     rounds = competition_event.rounds
     event_id = competition_event.event_id
 
-    regional_records = Wca.RecordsStore.get_regional_records()
+    regional_records = Wca.RecordsStore.get_regional_records_map()
 
     personal_records =
       hd(rounds).results

@@ -98,10 +98,26 @@ defmodule WcaLive.Wca.Event do
       name: "3x3x3 Multi-Blind",
       rank: 17
     },
+    # Old events
     %{
       id: "333ft",
       name: "3x3x3 With Feet",
       rank: 18
+    },
+    %{
+      id: "magic",
+      name: "Magic",
+      rank: 19
+    },
+    %{
+      id: "mmagic",
+      name: "Master Magic",
+      rank: 20
+    },
+    %{
+      id: "333mbo",
+      name: "3x3x3 Multi-Blind Old Style",
+      rank: 21
     }
   ]
 

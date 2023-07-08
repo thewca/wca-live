@@ -13,6 +13,10 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :recent_records, non_null(list_of(non_null(:record))) do
       resolve &Resolvers.Scoretaking.list_recent_records/3
     end
+
+    field :official_world_records, non_null(list_of(non_null(:official_record))) do
+      resolve &Resolvers.Scoretaking.official_world_records/3
+    end
   end
 
   @desc "A round."
@@ -143,6 +147,16 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
             "If this list is not empty, it means the qualifying people have quit before, " <>
             "and thus may supersede whoever replaced them."
     field :revocable, non_null(list_of(non_null(:person)))
+  end
+
+  @desc "Official regional record from the WCA rankings."
+  object :official_record do
+    field :event, non_null(:event) do
+      resolve &Resolvers.Scoretaking.record_event/3
+    end
+
+    field :type, non_null(:string)
+    field :attempt_result, non_null(:integer)
   end
 
   # Helpers

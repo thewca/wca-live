@@ -1,6 +1,6 @@
 defmodule WcaLiveWeb.Resolvers.Scoretaking do
   alias WcaLive.Scoretaking
-  alias WcaLive.Wca.Format
+  alias WcaLive.Wca.{Format, Event}
 
   # Rounds
 
@@ -45,5 +45,15 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
 
   def list_recent_records(_parent, _args, _resolution) do
     {:ok, Scoretaking.list_recent_records()}
+  end
+
+  def official_world_records(_parent, _args, _resolution) do
+    records = WcaLive.Wca.RecordsStore.get_regional_records()
+    world_records = Enum.filter(records, &(&1.scope == "world"))
+    {:ok, world_records}
+  end
+
+  def record_event(%{event_id: event_id}, _args, _resolution) do
+    {:ok, Event.get_by_id!(event_id)}
   end
 end
