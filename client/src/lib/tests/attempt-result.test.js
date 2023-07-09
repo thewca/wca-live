@@ -11,6 +11,7 @@ import {
   attemptResultsWarning,
   applyTimeLimit,
   applyCutoff,
+  isWorldRecord,
 } from '../attempt-result';
 
 describe('best', () => {
@@ -295,6 +296,82 @@ describe('meetsCutoff', () => {
   });
 });
 
+describe('isWorldRecord', () => {
+  it('returns true when a new world record average is achieved', () => {
+    const attemptResult = 500;
+    const worldRecords = [
+      {
+        type: 'average',
+        event: {
+          id: '333',
+        },
+        attemptResult: 701,
+      },
+    ];
+    expect(isWorldRecord(attemptResult, '333', 'average', worldRecords)).toBe(
+      true
+    );
+  });
+
+  it('returns false when a new world record average is not achieved', () => {
+    const attemptResults = 500;
+    const worldRecords = [
+      {
+        type: 'average',
+        event: {
+          id: '333',
+        },
+        attemptResult: 200,
+      },
+    ];
+    expect(isWorldRecord(attemptResults, '333', 'average', worldRecords)).toBe(
+      false
+    );
+  });
+
+  it('returns true when a new world record single is achieved', () => {
+    const attemptResult = 500;
+    const worldRecords = [
+      {
+        type: 'single',
+        event: {
+          id: '333',
+        },
+        attemptResult: 701,
+      },
+    ];
+    expect(isWorldRecord(attemptResult, '333', 'single', worldRecords)).toBe(
+      true
+    );
+  });
+
+  it('returns false when a new world record single is not achieved', () => {
+    const attemptResults = 500;
+    const worldRecords = [
+      {
+        type: 'single',
+        event: {
+          id: '333',
+        },
+        attemptResult: 200,
+      },
+    ];
+    expect(isWorldRecord(attemptResults, '333', 'single', worldRecords)).toBe(
+      false
+    );
+  });
+
+  it('returns false when there is no world record of a given type', () => {
+    const attemptResults = 500;
+    const worldRecords = [
+      // no MBLD average world record
+    ];
+    expect(
+      isWorldRecord(attemptResults, '333mbf', 'average', worldRecords)
+    ).toBe(false);
+  });
+});
+
 describe('attemptResultsWarning', () => {
   const normalize = (string) => string.replace(/\s+/g, ' ');
 
@@ -302,26 +379,44 @@ describe('attemptResultsWarning', () => {
     it('returns a warning if an attempt has impossibly low time', () => {
       const attemptResults = [970360001, 970006001];
       expect(
-        normalize(attemptResultsWarning(attemptResults, '333mbf'))
+        normalize(attemptResultsWarning(attemptResults, '333mbf', []))
       ).toMatch('attempt 2 is done in less than 30 seconds per cube tried');
+    });
+
+    it('returns a warning if an attempt breaks a world record', () => {
+      const attemptResults = [970360001, 970006001];
+      const worldRecords = [
+        {
+          type: 'single',
+          event: {
+            id: '333mbf',
+          },
+          attemptResult: 980000000,
+        },
+      ];
+      expect(
+        normalize(attemptResultsWarning(attemptResults, '333mbf', worldRecords))
+      ).toMatch(
+        "The result you're trying to submit includes a new world record single (3/4 1:00). Please check that the results are accurate."
+      );
     });
   });
 
   it('returns a warning if best and worst attempt results are far apart', () => {
     const attemptResults = [500, 1000, 2500];
-    expect(normalize(attemptResultsWarning(attemptResults, '333'))).toMatch(
+    expect(normalize(attemptResultsWarning(attemptResults, '333', []))).toMatch(
       "There's a big difference between the best single (5.00) and the worst single (25.00)"
     );
   });
 
   it('returns null if attempt results do not look suspicious', () => {
     const attemptResults = [900, 1000, 800];
-    expect(attemptResultsWarning(attemptResults, '333')).toEqual(null);
+    expect(attemptResultsWarning(attemptResults, '333', [])).toEqual(null);
   });
 
   it('does not treat DNF as being far apart from other attempt results', () => {
     const attemptResults = [-1, 1000, 2500];
-    expect(attemptResultsWarning(attemptResults, '333')).toEqual(null);
+    expect(attemptResultsWarning(attemptResults, '333', [])).toEqual(null);
   });
 
   it('returns a warning if an attempt result is omitted', () => {
@@ -333,7 +428,43 @@ describe('attemptResultsWarning', () => {
 
   it('does not treat trailing skipped attempt results as omitted', () => {
     const attemptResults = [1000, 0, 0];
-    expect(attemptResultsWarning(attemptResults, '333')).toEqual(null);
+    expect(attemptResultsWarning(attemptResults, '333', [])).toEqual(null);
+  });
+
+  it('returns a warning if an attempt breaks a world record single', () => {
+    const attemptResults = [398, 401, 404];
+    const worldRecords = [
+      {
+        type: 'single',
+        event: {
+          id: '333',
+        },
+        attemptResult: 400,
+      },
+    ];
+    expect(
+      normalize(attemptResultsWarning(attemptResults, '333', worldRecords))
+    ).toMatch(
+      "The result you're trying to submit includes a new world record single (3.98). Please check that the results are accurate."
+    );
+  });
+
+  it('returns a warning if the results break the world record average', () => {
+    const attemptResults = [300, 400, 500, 600, 700];
+    const worldRecords = [
+      {
+        type: 'average',
+        event: {
+          id: '333',
+        },
+        attemptResult: 501,
+      },
+    ];
+    expect(
+      normalize(attemptResultsWarning(attemptResults, '333', worldRecords))
+    ).toMatch(
+      "The result you're trying to submit is a new world record average (5.00). Please check that the results are accurate."
+    );
   });
 });
 

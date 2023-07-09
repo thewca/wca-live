@@ -33,6 +33,7 @@ function ResultAttemptsForm({
   onSubmit,
   disabled = false,
   focusOnResultChange = false,
+  officialWorldRecords,
 }) {
   const confirm = useConfirm();
 
@@ -95,7 +96,11 @@ function ResultAttemptsForm({
   }
 
   function confirmSubmission() {
-    const submissionWarning = attemptResultsWarning(attemptResults, eventId);
+    const submissionWarning = attemptResultsWarning(
+      attemptResults,
+      eventId,
+      officialWorldRecords
+    );
 
     if (submissionWarning) {
       return confirm({
