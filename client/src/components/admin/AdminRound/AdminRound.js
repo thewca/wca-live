@@ -42,6 +42,13 @@ const ROUND_QUERY = gql`
         ...adminRoundResult
       }
     }
+    officialWorldRecords {
+      event {
+        id
+      }
+      type
+      attemptResult
+    }
   }
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
@@ -55,9 +62,15 @@ function AdminRound() {
 
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
-  const { round } = data;
+  const { round, officialWorldRecords } = data;
 
-  return <AdminRoundContent round={round} competitionId={competitionId} />;
+  return (
+    <AdminRoundContent
+      round={round}
+      competitionId={competitionId}
+      officialWorldRecords={officialWorldRecords}
+    />
+  );
 }
 
 export default AdminRound;

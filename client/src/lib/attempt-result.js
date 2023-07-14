@@ -257,10 +257,31 @@ export function autocompleteTimeAttemptResult(time) {
 }
 
 /**
+ * Checks whether a given attempt is a world record of the given type.
+ * Returns the corresponding boolean.
+ */
+export function isWorldRecord(
+  attemptResult,
+  eventId,
+  type,
+  officialWorldRecords = []
+) {
+  const wr =
+    officialWorldRecords.find(
+      (wr) => wr.type === type && wr.event.id === eventId
+    ) || null;
+  return wr !== null && attemptResult <= wr.attemptResult;
+}
+
+/**
  * Checks the given attempt results for discrepancies and returns
  * a warning message if some are found.
  */
-export function attemptResultsWarning(attemptResults, eventId) {
+export function attemptResultsWarning(
+  attemptResults,
+  eventId,
+  officialWorldRecords = []
+) {
   const skippedGapIndex =
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
@@ -268,24 +289,50 @@ export function attemptResultsWarning(attemptResults, eventId) {
       skippedGapIndex + 1
     }. Make sure it's intentional.`;
   }
-  if (eventId === '333mbf') {
-    const lowTimeIndex = attemptResults.findIndex((attempt) => {
-      const { attempted, centiseconds } = decodeMbldAttemptResult(attempt);
-      return attempt > 0 && centiseconds / attempted < 30 * 100;
-    });
-    if (lowTimeIndex !== -1) {
+  const completeAttempts = attemptResults.filter(isComplete);
+  if (completeAttempts.length > 0) {
+    const bestSingle = Math.min(...completeAttempts);
+    const newWorldRecordSingle = isWorldRecord(
+      bestSingle,
+      eventId,
+      'single',
+      officialWorldRecords
+    );
+    if (newWorldRecordSingle) {
       return `
+          The result you're trying to submit includes a new world record single
+          (${formatAttemptResult(bestSingle, eventId)}).
+          Please check that the results are accurate.
+        `;
+    }
+    if (eventId === '333mbf') {
+      const lowTimeIndex = attemptResults.findIndex((attempt) => {
+        const { attempted, centiseconds } = decodeMbldAttemptResult(attempt);
+        return attempt > 0 && centiseconds / attempted < 30 * 100;
+      });
+      if (lowTimeIndex !== -1) {
+        return `
         The result you're trying to submit seems to be impossible:
         attempt ${lowTimeIndex + 1} is done in
         less than 30 seconds per cube tried.
         If you want to enter minutes, don't forget to add two zeros
         for centiseconds at the end of the score.
       `;
-    }
-  } else {
-    const completeAttempts = attemptResults.filter(isComplete);
-    if (completeAttempts.length > 0) {
-      const bestSingle = Math.min(...completeAttempts);
+      }
+    } else {
+      const newWorldRecordAverage = isWorldRecord(
+        average(attemptResults, eventId),
+        eventId,
+        'average',
+        officialWorldRecords
+      );
+      if (newWorldRecordAverage) {
+        return `
+          The result you're trying to submit is a new world record average
+          (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
+          Please check that the results are accurate.
+        `;
+      }
       const worstSingle = Math.max(...completeAttempts);
       const inconsistent = worstSingle > bestSingle * 4;
       if (inconsistent) {

@@ -48,6 +48,13 @@ const ROUND_QUERY = gql`
         enteredAt
       }
     }
+    officialWorldRecords {
+      event {
+        id
+      }
+      type
+      attemptResult
+    }
   }
 `;
 
@@ -103,7 +110,7 @@ function RoundDoubleCheck() {
 
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
-  const { round } = data;
+  const { round, officialWorldRecords } = data;
 
   const results = orderBy(
     round.results,
@@ -164,6 +171,7 @@ function RoundDoubleCheck() {
             cutoff={round.cutoff}
             disabled={enterLoading}
             onSubmit={handleResultAttemptsSubmit}
+            officialWorldRecords={officialWorldRecords}
           />
         </Grid>
         <Grid item md sx={{ textAlign: 'center' }}>

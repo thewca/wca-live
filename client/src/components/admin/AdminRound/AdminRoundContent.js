@@ -36,7 +36,7 @@ const ENTER_RESULTS = gql`
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
-function AdminRoundContent({ round, competitionId }) {
+function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const confirm = useConfirm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const apolloErrorHandler = useApolloErrorHandler();
@@ -135,6 +135,7 @@ function AdminRoundContent({ round, competitionId }) {
             focusOnResultChange={true}
             disabled={loading}
             onSubmit={handleResultAttemptsSubmit}
+            officialWorldRecords={officialWorldRecords}
           />
           <Box sx={{ mt: 4 }}>
             <FormControlLabel
