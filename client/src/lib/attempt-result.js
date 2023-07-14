@@ -270,7 +270,12 @@ export function isWorldRecord(
     officialWorldRecords.find(
       (wr) => wr.type === type && wr.event.id === eventId
     ) || null;
-  return wr !== null && attemptResult <= wr.attemptResult;
+
+  return (
+    wr !== null &&
+    isComplete(attemptResult) &&
+    attemptResult <= wr.attemptResult
+  );
 }
 
 /**

@@ -466,6 +466,22 @@ describe('attemptResultsWarning', () => {
       "The result you're trying to submit is a new world record average (5.00). Please check that the results are accurate."
     );
   });
+
+  it('does not return a world record warning when average is DNF', () => {
+    const attemptResults = [300, 400, -1, 600, -1];
+    const worldRecords = [
+      {
+        type: 'average',
+        event: {
+          id: '333',
+        },
+        attemptResult: 501,
+      },
+    ];
+    expect(attemptResultsWarning(attemptResults, '333', worldRecords)).toEqual(
+      null
+    );
+  });
 });
 
 describe('applyTimeLimit', () => {
