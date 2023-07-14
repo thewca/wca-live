@@ -264,9 +264,8 @@ export function isWorldRecord(
   attemptResult,
   eventId,
   type,
-  officialWorldRecords
+  officialWorldRecords = []
 ) {
-  // if (officialWorldRecords === undefined) return false;
   const wr =
     officialWorldRecords.find(
       (wr) => wr.type === type && wr.event.id === eventId
