@@ -280,7 +280,7 @@ export function isWorldRecord(
 export function attemptResultsWarning(
   attemptResults,
   eventId,
-  officialWorldRecords
+  officialWorldRecords = []
 ) {
   const skippedGapIndex =
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
