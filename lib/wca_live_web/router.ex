@@ -66,7 +66,9 @@ defmodule WcaLiveWeb.Router do
     forward "/", Absinthe.Plug,
       schema: WcaLiveWeb.Schema,
       analyze_complexity: true,
-      max_complexity: 5000
+      max_complexity: 5000,
+      # TODO: remove ths custom error rewrite in the future
+      pipeline: {__MODULE__, :absinthe_pipeline}
   end
 
   # Enable LiveDashboard only for development
@@ -80,4 +82,13 @@ defmodule WcaLiveWeb.Router do
   end
 
   get "/*parts", WcaLiveWeb.CatchAllController, :catch_all
+
+  def absinthe_pipeline(config, opts) do
+    config
+    |> Absinthe.Plug.default_pipeline(opts)
+    |> Absinthe.Pipeline.insert_after(
+      Absinthe.Phase.Document.Result,
+      WcaLiveWeb.ErrorRewritePhase
+    )
+  end
 end
