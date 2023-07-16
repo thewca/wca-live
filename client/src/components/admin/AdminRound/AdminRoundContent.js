@@ -39,6 +39,25 @@ const ENTER_RESULTS = gql`
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
+// Persist batch results in local storage, in case people navigate
+// or refresh the page
+
+function getStoreBatchResults(roundId) {
+  const json = localStorage.getItem(`wca-live:batch-results:${roundId}`);
+  return json ? JSON.parse(json) : [];
+}
+
+function setStoredBatchResults(roundId, results) {
+  if (results.length > 0) {
+    localStorage.setItem(
+      `wca-live:batch-results:${roundId}`,
+      JSON.stringify(results)
+    );
+  } else {
+    localStorage.removeItem(`wca-live:batch-results:${roundId}`);
+  }
+}
+
 function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const confirm = useConfirm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -48,15 +67,17 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [resultMenuProps, updateResultMenuProps] = useState({});
   const [competitorToQuit, setCompetitorToQuit] = useState(null);
 
-  const [isBatchMode, setIsBatchMode] = useState(false);
-  const [batchResults, setBatchResults] = useState([]);
+  const [batchResults, setBatchResults] = useState(() =>
+    getStoreBatchResults(round.id)
+  );
+  const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
   const formContainerRef = useRef(null);
 
   const [enterResults, { loading }] = useMutation(ENTER_RESULTS, {
     onCompleted: () => {
       setEditedResult(null);
 
-      if (batchResults.length > 0) {
+      if (isBatchMode) {
         setBatchResults([]);
         formContainerRef.current.querySelector('input').focus();
       }
@@ -130,6 +151,10 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
       return () => closeSnackbar(snackbarId);
     }
   }, [nextOpen, enqueueSnackbar, closeSnackbar]);
+
+  useEffect(() => {
+    setStoredBatchResults(round.id, batchResults);
+  }, [round.id, batchResults]);
 
   return (
     <>
