@@ -45,11 +45,6 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
     field :id, non_null(:id)
   end
 
-  input_object :enter_result_attempts_input do
-    field :id, non_null(:id)
-    field :attempts, non_null(list_of(non_null(:attempt_input)))
-  end
-
   input_object :enter_results_input do
     field :id, non_null(:id)
     field :results, non_null(list_of(non_null(:result_attempts_input)))
@@ -58,6 +53,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypes do
   input_object :result_attempts_input do
     field :id, non_null(:id)
     field :attempts, non_null(list_of(non_null(:attempt_input)))
+    field :entered_at, :datetime
   end
 
   input_object :attempt_input do

@@ -73,3 +73,10 @@ export function monthAgoDateString() {
   const monthAgo = sub(startOfToday(), { months: 1 });
   return formatISO(monthAgo, { representation: 'date' });
 }
+
+/**
+ * Returns the current date time as ISO string.
+ */
+export function nowISOString() {
+  return new Date().toISOString();
+}

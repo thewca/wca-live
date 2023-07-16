@@ -22,6 +22,7 @@ import AdminRoundToolbar from './AdminRoundToolbar';
 import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 import QuitCompetitorDialog from './QuitCompetitorDialog';
+import { nowISOString } from '../../../lib/date';
 
 const ENTER_RESULTS = gql`
   mutation EnterResults($input: EnterResultsInput!) {
@@ -89,13 +90,18 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     if (isBatchMode) {
       setBatchResults([
         ...batchResults.filter((result) => result.id !== editedResult.id),
-        { id: editedResult.id, attempts },
+        { id: editedResult.id, attempts, enteredAt: nowISOString() },
       ]);
       setEditedResult(null);
     } else {
       enterResults({
         variables: {
-          input: { id: round.id, results: [{ id: editedResult.id, attempts }] },
+          input: {
+            id: round.id,
+            results: [
+              { id: editedResult.id, attempts, enteredAt: nowISOString() },
+            ],
+          },
         },
       });
     }

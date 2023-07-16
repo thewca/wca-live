@@ -206,7 +206,8 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
               %{"result" => 1300},
               %{"result" => -1},
               %{"result" => 1100}
-            ]
+            ],
+            "enteredAt" => DateTime.utc_now() |> DateTime.to_iso8601()
           }
         ]
       }
@@ -254,7 +255,8 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
         "results" => [
           %{
             "id" => to_gql_id(result.id),
-            "attempts" => []
+            "attempts" => [],
+            "enteredAt" => DateTime.utc_now() |> DateTime.to_iso8601()
           }
         ]
       }
@@ -281,7 +283,8 @@ defmodule WcaLiveWeb.Schema.ScoretakingMutationTypesTest do
         "results" => [
           %{
             "id" => to_gql_id(result.id),
-            "attempts" => []
+            "attempts" => [],
+            "enteredAt" => DateTime.utc_now() |> DateTime.to_iso8601()
           }
         ]
       }
