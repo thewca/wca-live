@@ -109,8 +109,17 @@ defmodule WcaLive.ScoretakingTest do
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
     attrs = [
-      {result.id,
-       [%{result: 900}, %{result: 800}, %{result: 1000}, %{result: 600}, %{result: 700}]}
+      %{
+        id: result.id,
+        attempts: [
+          %{result: 900},
+          %{result: 800},
+          %{result: 1000},
+          %{result: 600},
+          %{result: 700}
+        ],
+        entered_at: DateTime.utc_now()
+      }
     ]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
@@ -125,8 +134,17 @@ defmodule WcaLive.ScoretakingTest do
     result = insert(:result, round: round, best: 0, average: 0)
 
     attrs = [
-      {result.id,
-       [%{result: 900}, %{result: 800}, %{result: 1000}, %{result: 600}, %{result: 700}]}
+      %{
+        id: result.id,
+        attempts: [
+          %{result: 900},
+          %{result: 800},
+          %{result: 1000},
+          %{result: 600},
+          %{result: 700}
+        ],
+        entered_at: DateTime.utc_now()
+      }
     ]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
@@ -140,7 +158,7 @@ defmodule WcaLive.ScoretakingTest do
     round = insert(:round, format_id: "1")
     result = insert(:result, round: round, best: 0, average: 0)
 
-    attrs = [{result.id, [%{result: 900}]}]
+    attrs = [%{id: result.id, attempts: [%{result: 900}], entered_at: DateTime.utc_now()}]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
     result = Repo.reload(result)
@@ -164,7 +182,7 @@ defmodule WcaLive.ScoretakingTest do
 
     result2 = insert(:result, round: round, ranking: nil, attempts: [], advancing: false)
 
-    attrs = [{result2.id, [%{result: 900}]}]
+    attrs = [%{id: result2.id, attempts: [%{result: 900}], entered_at: DateTime.utc_now()}]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
     result2 = Repo.reload(result2)
@@ -190,8 +208,17 @@ defmodule WcaLive.ScoretakingTest do
       )
 
     attrs = [
-      {result.id,
-       [%{result: 1400}, %{result: 2500}, %{result: 2500}, %{result: 2500}, %{result: 2500}]}
+      %{
+        id: result.id,
+        attempts: [
+          %{result: 1400},
+          %{result: 2500},
+          %{result: 2500},
+          %{result: 2500},
+          %{result: 2500}
+        ],
+        entered_at: DateTime.utc_now()
+      }
     ]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
@@ -206,7 +233,11 @@ defmodule WcaLive.ScoretakingTest do
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
     attrs = [
-      {result.id, [%{result: -2}, %{result: -2}, %{result: -2}, %{result: -2}, %{result: -2}]}
+      %{
+        id: result.id,
+        attempts: [%{result: -2}, %{result: -2}, %{result: -2}, %{result: -2}, %{result: -2}],
+        entered_at: DateTime.utc_now()
+      }
     ]
 
     assert {:error, changeset} = Scoretaking.enter_results(round, attrs, user)
@@ -221,7 +252,13 @@ defmodule WcaLive.ScoretakingTest do
     round = insert(:round, cutoff: nil, format_id: "a")
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
-    attrs = [{result.id, [%{result: -2}, %{result: -2}, %{result: -2}]}]
+    attrs = [
+      %{
+        id: result.id,
+        attempts: [%{result: -2}, %{result: -2}, %{result: -2}],
+        entered_at: DateTime.utc_now()
+      }
+    ]
 
     assert {:ok, _updated} = Scoretaking.enter_results(round, attrs, user)
   end
@@ -237,7 +274,9 @@ defmodule WcaLive.ScoretakingTest do
 
     result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
-    attrs = [{result.id, [%{result: -2}, %{result: -2}]}]
+    attrs = [
+      %{id: result.id, attempts: [%{result: -2}, %{result: -2}], entered_at: DateTime.utc_now()}
+    ]
 
     assert {:error, changeset} = Scoretaking.enter_results(round, attrs, user)
 
@@ -253,10 +292,28 @@ defmodule WcaLive.ScoretakingTest do
     result2 = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
 
     attrs = [
-      {result1.id,
-       [%{result: 900}, %{result: 800}, %{result: 1000}, %{result: 600}, %{result: 700}]},
-      {result2.id,
-       [%{result: 901}, %{result: 801}, %{result: 1001}, %{result: 601}, %{result: 701}]}
+      %{
+        id: result1.id,
+        attempts: [
+          %{result: 900},
+          %{result: 800},
+          %{result: 1000},
+          %{result: 600},
+          %{result: 700}
+        ],
+        entered_at: DateTime.utc_now()
+      },
+      %{
+        id: result2.id,
+        attempts: [
+          %{result: 901},
+          %{result: 801},
+          %{result: 1001},
+          %{result: 601},
+          %{result: 701}
+        ],
+        entered_at: DateTime.utc_now()
+      }
     ]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
@@ -272,7 +329,7 @@ defmodule WcaLive.ScoretakingTest do
     user = insert(:user)
     round = insert(:round)
 
-    attrs = [{111_111_111, []}]
+    attrs = [%{id: 111_111_111, attempts: [], entered_at: DateTime.utc_now()}]
 
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
   end

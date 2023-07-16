@@ -6,10 +6,13 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  IconButton,
   Paper,
   TableContainer,
+  Tooltip,
   Typography,
 } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useConfirm } from 'material-ui-confirm';
 import { useSnackbar } from 'notistack';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
@@ -19,6 +22,7 @@ import AdminRoundToolbar from './AdminRoundToolbar';
 import { ADMIN_ROUND_RESULT_FRAGMENT } from './fragments';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
 import QuitCompetitorDialog from './QuitCompetitorDialog';
+import { nowISOString } from '../../../lib/date';
 
 const ENTER_RESULTS = gql`
   mutation EnterResults($input: EnterResultsInput!) {
@@ -36,6 +40,25 @@ const ENTER_RESULTS = gql`
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
+// Persist batch results in local storage, in case people navigate
+// or refresh the page
+
+function getStoreBatchResults(roundId) {
+  const json = localStorage.getItem(`wca-live:batch-results:${roundId}`);
+  return json ? JSON.parse(json) : [];
+}
+
+function setStoredBatchResults(roundId, results) {
+  if (results.length > 0) {
+    localStorage.setItem(
+      `wca-live:batch-results:${roundId}`,
+      JSON.stringify(results)
+    );
+  } else {
+    localStorage.removeItem(`wca-live:batch-results:${roundId}`);
+  }
+}
+
 function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const confirm = useConfirm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -45,15 +68,17 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [resultMenuProps, updateResultMenuProps] = useState({});
   const [competitorToQuit, setCompetitorToQuit] = useState(null);
 
-  const [isBatchMode, setIsBatchMode] = useState(false);
-  const [batchResults, setBatchResults] = useState([]);
+  const [batchResults, setBatchResults] = useState(() =>
+    getStoreBatchResults(round.id)
+  );
+  const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
   const formContainerRef = useRef(null);
 
   const [enterResults, { loading }] = useMutation(ENTER_RESULTS, {
     onCompleted: () => {
       setEditedResult(null);
 
-      if (batchResults.length > 0) {
+      if (isBatchMode) {
         setBatchResults([]);
         formContainerRef.current.querySelector('input').focus();
       }
@@ -65,13 +90,18 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     if (isBatchMode) {
       setBatchResults([
         ...batchResults.filter((result) => result.id !== editedResult.id),
-        { id: editedResult.id, attempts },
+        { id: editedResult.id, attempts, enteredAt: nowISOString() },
       ]);
       setEditedResult(null);
     } else {
       enterResults({
         variables: {
-          input: { id: round.id, results: [{ id: editedResult.id, attempts }] },
+          input: {
+            id: round.id,
+            results: [
+              { id: editedResult.id, attempts, enteredAt: nowISOString() },
+            ],
+          },
         },
       });
     }
@@ -82,6 +112,14 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
       variables: {
         input: { id: round.id, results: batchResults },
       },
+    });
+  }
+
+  function discardBatch() {
+    confirm({
+      description: `This will discard all entered results that are currently in the batch.`,
+    }).then(() => {
+      setBatchResults([]);
     });
   }
 
@@ -120,6 +158,10 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     }
   }, [nextOpen, enqueueSnackbar, closeSnackbar]);
 
+  useEffect(() => {
+    setStoredBatchResults(round.id, batchResults);
+  }, [round.id, batchResults]);
+
   return (
     <>
       <Grid container direction="row" spacing={2}>
@@ -149,13 +191,24 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
               label="Batch mode"
             />
             {isBatchMode && (
-              <Grid container direction="row" alignItems="center">
+              <Grid container direction="row" alignItems="center" gap={1}>
                 <Grid item>
                   <Typography>
                     Results in batch: {batchResults.length}
                   </Typography>
                 </Grid>
                 <Grid item flexGrow={1}></Grid>
+                <Grid item>
+                  <Tooltip title="Discard batch" placement="top">
+                    <IconButton
+                      onClick={discardBatch}
+                      size="small"
+                      disabled={batchResults.length === 0}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
                 <Grid item>
                   <Button
                     type="submit"

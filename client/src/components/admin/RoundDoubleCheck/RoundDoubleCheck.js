@@ -10,6 +10,7 @@ import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
 import { orderBy } from '../../../lib/utils';
 import { parseISO } from 'date-fns';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';
+import { nowISOString } from '../../../lib/date';
 
 const ROUND_QUERY = gql`
   query Round($id: ID!) {
@@ -129,7 +130,13 @@ function RoundDoubleCheck() {
       variables: {
         input: {
           id: round.id,
-          results: [{ id: results[resultIndex].id, attempts }],
+          results: [
+            {
+              id: results[resultIndex].id,
+              attempts,
+              enteredAt: nowISOString(),
+            },
+          ],
         },
       },
     });
