@@ -6,10 +6,13 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  IconButton,
   Paper,
   TableContainer,
+  Tooltip,
   Typography,
 } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useConfirm } from 'material-ui-confirm';
 import { useSnackbar } from 'notistack';
 import ResultAttemptsForm from '../ResultAttemptsForm/ResultAttemptsForm';
@@ -85,6 +88,14 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     });
   }
 
+  function discardBatch() {
+    confirm({
+      description: `This will discard all entered results that are currently in the batch.`,
+    }).then(() => {
+      setBatchResults([]);
+    });
+  }
+
   function handleClearResult(result) {
     confirm({
       description: `This will clear all attempts of ${result.person.name}.`,
@@ -149,13 +160,24 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
               label="Batch mode"
             />
             {isBatchMode && (
-              <Grid container direction="row" alignItems="center">
+              <Grid container direction="row" alignItems="center" gap={1}>
                 <Grid item>
                   <Typography>
                     Results in batch: {batchResults.length}
                   </Typography>
                 </Grid>
                 <Grid item flexGrow={1}></Grid>
+                <Grid item>
+                  <Tooltip title="Discard batch" placement="top">
+                    <IconButton
+                      onClick={discardBatch}
+                      size="small"
+                      disabled={batchResults.length === 0}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
                 <Grid item>
                   <Button
                     type="submit"
