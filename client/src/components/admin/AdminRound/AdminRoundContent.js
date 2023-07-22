@@ -129,7 +129,12 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     }).then(() => {
       enterResults({
         variables: {
-          input: { id: round.id, results: [{ id: result.id, attempts: [] }] },
+          input: {
+            id: round.id,
+            results: [
+              { id: result.id, attempts: [], enteredAt: nowISOString() },
+            ],
+          },
         },
       });
     });
