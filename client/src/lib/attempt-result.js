@@ -1,4 +1,5 @@
 import { times } from './utils';
+import { shouldComputeAverage } from './result';
 
 export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
@@ -310,6 +311,24 @@ export function attemptResultsWarning(
           Please check that the results are accurate.
         `;
     }
+
+    if (shouldComputeAverage(eventId, attemptResults.length)) {
+      const newWorldRecordAverage = isWorldRecord(
+        average(attemptResults, eventId),
+        eventId,
+        'average',
+        officialWorldRecords
+      );
+
+      if (newWorldRecordAverage) {
+        return `
+          The result you're trying to submit is a new world record average
+          (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
+          Please check that the results are accurate.
+        `;
+      }
+    }
+
     if (eventId === '333mbf') {
       const lowTimeIndex = attemptResults.findIndex((attempt) => {
         const { attempted, centiseconds } = decodeMbldAttemptResult(attempt);
@@ -325,19 +344,6 @@ export function attemptResultsWarning(
       `;
       }
     } else {
-      const newWorldRecordAverage = isWorldRecord(
-        average(attemptResults, eventId),
-        eventId,
-        'average',
-        officialWorldRecords
-      );
-      if (newWorldRecordAverage) {
-        return `
-          The result you're trying to submit is a new world record average
-          (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
-          Please check that the results are accurate.
-        `;
-      }
       const worstSingle = Math.max(...completeAttempts);
       const inconsistent = worstSingle > bestSingle * 4;
       if (inconsistent) {

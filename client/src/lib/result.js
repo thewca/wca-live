@@ -8,7 +8,7 @@ import { padSkipped } from './attempt-result';
 export function orderedResultStats(eventId, format) {
   const { numberOfAttempts, sortBy } = format;
 
-  if (!shouldComputeAverage(eventId, format)) {
+  if (!shouldComputeAverage(eventId, numberOfAttempts)) {
     return [{ name: 'Best', field: 'best', recordTagField: 'singleRecordTag' }];
   }
 
@@ -26,9 +26,9 @@ export function orderedResultStats(eventId, format) {
 /**
  * Checks if an average should be calculated in case of the given event and format.
  */
-export function shouldComputeAverage(eventId, format) {
+export function shouldComputeAverage(eventId, numberOfAttempts) {
   if (eventId === '333mbf') return false;
-  return [3, 5].includes(format.numberOfAttempts);
+  return [3, 5].includes(numberOfAttempts);
 }
 
 /**

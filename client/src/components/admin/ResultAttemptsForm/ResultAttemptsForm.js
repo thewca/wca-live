@@ -159,7 +159,7 @@ function ResultAttemptsForm({
             Best: {formatAttemptResult(best(attemptResults), eventId)}
           </Typography>
         </Grid>
-        {shouldComputeAverage(eventId, format) && (
+        {shouldComputeAverage(eventId, format.numberOfAttempts) && (
           <Grid item xs>
             <Typography variant="body2">
               Average:{' '}

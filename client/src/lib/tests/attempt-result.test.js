@@ -482,6 +482,29 @@ describe('attemptResultsWarning', () => {
       null
     );
   });
+
+  it('does not check for world record average if there are not enough attempts', () => {
+    const attemptResults = [19];
+    const worldRecords = [
+      {
+        type: 'single',
+        event: {
+          id: '333fm',
+        },
+        attemptResult: 18,
+      },
+      {
+        type: 'average',
+        event: {
+          id: '333fm',
+        },
+        attemptResult: 2000,
+      },
+    ];
+    expect(
+      attemptResultsWarning(attemptResults, '333fm', worldRecords)
+    ).toEqual(null);
+  });
 });
 
 describe('applyTimeLimit', () => {
