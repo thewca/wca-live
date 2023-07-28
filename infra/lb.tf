@@ -87,7 +87,7 @@ resource "aws_lb_target_group" "this" {
 }
 
 data "aws_acm_certificate" "this" {
-  domain   = "live.worldcubeassociation.org"
+  domain   = "${var.host}"
   statuses = ["ISSUED"]
 }
 
