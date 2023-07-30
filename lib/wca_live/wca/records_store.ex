@@ -2,11 +2,11 @@ defmodule WcaLive.Wca.RecordsStore do
   @moduledoc """
   A caching layer on top of `WcaLive.Wca.Records`.
 
-  The server periodically fetches regional records from the WCA API
-  and keeps them both in the memory and in a local file.
-  Provides a fast way of accessing the records without
-  making a web request. Also, by keeping them in a local file,
-  it works even if the WCA API is down while the app gets restarted.
+  The server periodically fetches regional records from the WCA API.
+  The records are stored in memory for fast access, avoiding a web
+  request. Also, the records are persisted in the database, so that
+  they can be used as the initial on future application startups.
+  This is particularly important when WCA API is temporarily down.
   """
 
   use GenServer
@@ -17,13 +17,19 @@ defmodule WcaLive.Wca.RecordsStore do
 
   @name __MODULE__
 
+  # Bump this whenever the persisted state changes
+  @version 1
+
   @type state :: %{
-          records_map: Wca.Records.regional_records_map(),
+          records_map: Wca.Records.records_map(),
+          records: list(Wca.Records.record()),
           updated_at: DateTime.t()
         }
 
-  @state_path "tmp/record-store.#{Mix.env()}.data"
-  @update_interval_sec 1 * 60 * 60
+  @storage_key "records_store"
+
+  # 1 hour
+  @update_interval_in_seconds 1 * 60 * 60
 
   @records_key {__MODULE__, :records}
   @records_map_key {__MODULE__, :records_map}
@@ -55,12 +61,7 @@ defmodule WcaLive.Wca.RecordsStore do
   @impl true
   def init(_) do
     state = get_initial_state!()
-
-    updated_ago = DateTime.diff(DateTime.utc_now(), state.updated_at, :second)
-    update_in = max(@update_interval_sec - updated_ago, 0)
-
-    schedule_update(update_in)
-
+    state |> scheduled_update_in() |> schedule_update()
     {:ok, state}
   end
 
@@ -69,69 +70,76 @@ defmodule WcaLive.Wca.RecordsStore do
     case update_state() do
       {:ok, new_state} ->
         log("Updated records.")
-        schedule_update(@update_interval_sec)
+        state |> scheduled_update_in() |> schedule_update()
         {:noreply, new_state}
 
       {:error, error} ->
         log("Update failed: #{error}.")
-        schedule_update(@update_interval_sec)
+        schedule_update(@update_interval_in_seconds)
         {:noreply, state}
     end
   end
 
   defp schedule_update(seconds) do
-    # In 1 hour
     Process.send_after(self(), :update, seconds * 1000)
   end
 
-  # Internal state management
+  defp scheduled_update_in(state) do
+    updated_ago = DateTime.diff(DateTime.utc_now(), state.updated_at, :second)
+    max(@update_interval_in_seconds - updated_ago, 0)
+  end
 
   defp get_initial_state!() do
-    if File.exists?(@state_path) do
-      state = read_state!()
-      put_state_in_persistent_term(state)
-      state
-    else
-      case update_state() do
-        {:ok, state} -> state
-        {:error, message} -> raise RuntimeError, message: message
-      end
+    case fetch_state() do
+      {:ok, state} ->
+        put_state_in_persistent_term(state)
+        state
+
+      :error ->
+        case update_state() do
+          {:ok, state} -> state
+          {:error, message} -> raise RuntimeError, message: message
+        end
     end
-  end
-
-  defp read_state!() do
-    log("Reading state from file.")
-    binary = File.read!(@state_path)
-    :erlang.binary_to_term(binary)
-  end
-
-  defp write_state!(state) do
-    log("Writing state to file.")
-    File.mkdir_p!(Path.dirname(@state_path))
-    binary = :erlang.term_to_binary(state)
-    File.write!(@state_path, binary)
-  end
-
-  defp fetch_records() do
-    log("Fetching fresh records.")
-    Wca.Records.get_regional_records()
   end
 
   defp update_state() do
-    with {:ok, records} <- fetch_records() do
-      records_map = Wca.Records.records_to_map(records)
+    :global.trans({:records_store_update, node()}, fn ->
+      with {:ok, state} <- fetch_state(),
+           # The state may have been updated by another node
+           true <- scheduled_update_in(state) > 0 do
+        {:ok, state}
+      else
+        _ ->
+          log("Fetching fresh records.")
 
-      state = %{
-        records_map: records_map,
-        records: records,
-        updated_at: DateTime.utc_now()
-      }
+          with {:ok, records} <- Wca.Records.get_regional_records() do
+            records_map = Wca.Records.records_to_map(records)
 
-      put_state_in_persistent_term(state)
+            state = %{
+              records_map: records_map,
+              records: records,
+              updated_at: DateTime.utc_now()
+            }
 
-      write_state!(state)
-      {:ok, state}
+            put_state_in_persistent_term(state)
+            log("Persisting state.")
+            persist_state(state)
+            {:ok, state}
+          end
+      end
+    end)
+  end
+
+  defp fetch_state() do
+    case WcaLive.Storage.fetch(@storage_key) do
+      {:ok, {@version, state}} -> {:ok, state}
+      _ -> :error
     end
+  end
+
+  defp persist_state(state) do
+    WcaLive.Storage.put(@storage_key, {@version, state})
   end
 
   defp put_state_in_persistent_term(state) do
