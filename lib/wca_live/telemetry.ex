@@ -10,10 +10,10 @@ defmodule WcaLive.Telemetry do
       [:absinthe, :execute, :operation, :stop]
     ]
 
-    :ok = :telemetry.attach_many("wca-live-handler", events, &handle_event/4, %{})
+    :ok = :telemetry.attach_many("wca-live-handler", events, &__MODULE__.handle_event/4, %{})
   end
 
-  defp handle_event([:wca_live, :repo, :query], measurements, metadata, _config) do
+  def handle_event([:wca_live, :repo, :query], measurements, metadata, _config) do
     query_time_ms = System.convert_time_unit(measurements.query_time, :native, :millisecond)
 
     if query_time_ms > @slow_query_threshold_ms do
@@ -29,7 +29,7 @@ defmodule WcaLive.Telemetry do
     end
   end
 
-  defp handle_event([:absinthe, :execute, :operation, :stop], measurements, metadata, _config) do
+  def handle_event([:absinthe, :execute, :operation, :stop], measurements, metadata, _config) do
     duration_ms = System.convert_time_unit(measurements.duration, :native, :millisecond)
 
     if duration_ms > @slow_graphql_threshold_ms do
