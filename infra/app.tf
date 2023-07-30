@@ -320,7 +320,7 @@ resource "aws_appautoscaling_policy" "this" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value = 45
+    target_value = 50
   }
 
   depends_on = [aws_appautoscaling_target.this]
