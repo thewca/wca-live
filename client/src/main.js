@@ -1,11 +1,8 @@
 import '@cubing/icons';
 
-import 'react-app-polyfill/stable';
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './components/App/App';
-import { unregister } from './service-worker-registration';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
@@ -15,4 +12,18 @@ root.render(
 );
 
 // See https://create-react-app.dev/docs/making-a-progressive-web-app
-unregister();
+
+// We used to enable SW, so we unregister if one is still installed
+unregisterSW();
+
+function unregisterSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready
+      .then((registration) => {
+        registration.unregister();
+      })
+      .catch((error) => {
+        console.error(error.message);
+      });
+  }
+}

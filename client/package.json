@@ -3,11 +3,12 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH='../priv/static' react-app-rewired build",
-    "test": "react-app-rewired test",
-    "format": "prettier --single-quote --trailing-comma es5 --write 'src/**/*.{js,json,css,md}' --no-error-on-unmatched-pattern",
-    "format-check": "prettier --single-quote --trailing-comma es5 --check 'src/**/*.{js,json,css,md}' --no-error-on-unmatched-pattern"
+    "dev": "vite",
+    "build": "vite build",
+    "test": "jest",
+    "lint": "eslint 'src/**/*.{js,jsx}' --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --single-quote --trailing-comma es5 --write 'src/**/*.{js,jsx,json,css,md}' --no-error-on-unmatched-pattern",
+    "format-check": "prettier --single-quote --trailing-comma es5 --check 'src/**/*.{js,jsx,json,css,md}' --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@absinthe/socket": "^0.2.1",
@@ -18,30 +19,36 @@
     "@emotion/styled": "^11.3.0",
     "@mui/icons-material": "^5.1.0",
     "@mui/material": "^5.1.0",
-    "babel-plugin-import": "^1.13.3",
-    "customize-cra": "^1.0.0",
     "date-fns": "^2.25.0",
     "graphql": "^16.0.1",
     "material-ui-confirm": "^3.0.2",
     "notistack": "^2.0.3",
     "phoenix": "^1.6.2",
     "react": "^18.2.0",
-    "react-app-polyfill": "^3.0.0",
-    "react-app-rewired": "^2.1.8",
     "react-dom": "^18.2.0",
     "react-flag-icon-css": "^1.0.25",
     "react-router-dom": "^6.0.2",
-    "react-scripts": "^4.0.3",
     "react-timeago": "^7.1.0",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6",
     "scroll-into-view-if-needed": "^2.2.28"
   },
   "devDependencies": {
-    "prettier": "^2.4.1"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "@babel/preset-env": "^7.22.9",
+    "@babel/preset-react": "^7.22.5",
+    "@vitejs/plugin-legacy": "^4.1.1",
+    "@vitejs/plugin-react": "^4.0.3",
+    "eslint": "^8.46.0",
+    "eslint-plugin-jest": "^27.2.3",
+    "eslint-plugin-react": "^7.33.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "jest": "^29.6.2",
+    "jest-environment-jsdom": "^29.6.2",
+    "prettier": "^2.4.1",
+    "terser": "^5.19.2",
+    "vite": "^4.4.7",
+    "vite-plugin-eslint": "^1.8.1"
   },
   "browserslist": {
     "production": [
@@ -54,6 +61,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://127.0.0.1:4000"
+  }
 }

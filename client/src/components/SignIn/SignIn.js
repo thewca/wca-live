@@ -1,4 +1,3 @@
-import React from 'react';
 import { Divider, Grid, Box, useMediaQuery } from '@mui/material';
 import SignInCode from './SignInCode';
 import SignInWca from './SignInWca';

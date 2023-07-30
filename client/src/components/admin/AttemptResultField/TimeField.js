@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TextField } from '@mui/material';
 import { DNF_KEYS, DNS_KEYS } from './keybindings';
 import { toInt } from '../../../lib/utils';

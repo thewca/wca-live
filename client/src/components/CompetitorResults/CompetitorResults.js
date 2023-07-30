@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Grid, Typography, useMediaQuery } from '@mui/material';
 import CompetitorResultsTable from './CompetitorResultsTable';
 import CompetitorResultDialog from './CompetitorResultDialog';

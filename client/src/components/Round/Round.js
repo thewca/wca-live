@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';

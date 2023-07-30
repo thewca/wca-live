@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Button, Grid, Typography } from '@mui/material';
 import StaffMembersTable from './StaffMembersTable';

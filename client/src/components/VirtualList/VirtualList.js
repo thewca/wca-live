@@ -1,4 +1,3 @@
-import React from 'react';
 import { FixedSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 

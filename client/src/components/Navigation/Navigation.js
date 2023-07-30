@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AdminCompetitionNavigation from '../admin/AdminCompetitionNavigation/AdminCompetitionNavigation';
 import CompetitionNavigation from '../CompetitionNavigation/CompetitionNavigation';

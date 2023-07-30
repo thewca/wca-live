@@ -29,6 +29,8 @@ jobs:
         run: npm ci --legacy-peer-deps
       - name: Check formatting
         run: npm run format-check
+      - name: Check linter
+        run: npm run lint
       - name: Run tests
         run: npm test
   test_server:

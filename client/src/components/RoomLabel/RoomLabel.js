@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Tooltip } from '@mui/material';
 
 function RoomLabel({ room }) {

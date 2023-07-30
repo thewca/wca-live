@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Grid } from '@mui/material';
 import errorImage from './error.svg';
 import { apolloErrorToMessage } from '../../lib/errors';

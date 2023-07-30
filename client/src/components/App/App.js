@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ConfirmProvider } from 'material-ui-confirm';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Grid, Tab, Tabs } from '@mui/material';
 import ScheduleCard from './ScheduleCard';
 import { groupBy, uniq, orderBy } from '../../lib/utils';

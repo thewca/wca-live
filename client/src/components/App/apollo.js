@@ -14,7 +14,7 @@ import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
 // Http link
 
 const baseHttpLink = new HttpLink(
-  process.env.NODE_ENV === 'production'
+  import.meta.env.PROD
     ? { uri: '/api', credentials: 'same-origin' }
     : { uri: 'http://localhost:4000/api', credentials: 'include' }
 );
@@ -28,16 +28,15 @@ const retryLink = new RetryLink({
   },
 });
 
-const httpLink =
-  process.env.NODE_ENV === 'production'
-    ? ApolloLink.from([retryLink, baseHttpLink])
-    : ApolloLink.from([baseHttpLink]);
+const httpLink = import.meta.env.PROD
+  ? ApolloLink.from([retryLink, baseHttpLink])
+  : ApolloLink.from([baseHttpLink]);
 
 // WebSocket link
 
 // Create a standard Phoenix websocket connection.
 const phoenixSocket = new PhoenixSocket(
-  process.env.NODE_ENV === 'production'
+  import.meta.env.PROD
     ? `wss://${window.location.host}/socket`
     : 'ws://localhost:4000/socket'
 );

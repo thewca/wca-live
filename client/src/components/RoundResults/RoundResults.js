@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Button, Grid, useMediaQuery } from '@mui/material';
 import RoundResultsTable from './RoundResultsTable';
 import RoundResultDialog from './RoundResultDialog';

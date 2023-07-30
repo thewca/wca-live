@@ -1,4 +1,3 @@
-import React from 'react';
 import { AppBar, Box } from '@mui/material';
 import AdminCompetitionToolbar from './AdminCompetitionToolbar';
 

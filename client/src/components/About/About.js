@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Grid, Typography, Link } from '@mui/material';
 import aboutImage from './about.svg';
 
@@ -76,7 +75,7 @@ function About() {
           </Typography>
           <Typography>
             If you want to get a better feeling of how WCA competitions look and
-            the great community around them, there's a great documentary
+            the great community around them, there is a great documentary
             available called{' '}
             <Link href="https://youtu.be/1oZY2e25VUw" underline="hover">
               Why We Cube

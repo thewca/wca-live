@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Divider, IconButton, Toolbar } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

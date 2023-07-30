@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,

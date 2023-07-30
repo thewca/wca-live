@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PersonSelect from '../PersonSelect/PersonSelect';
 
 function ResultSelect({ results, value, onChange, TextFieldProps = {} }) {

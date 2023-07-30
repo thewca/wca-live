@@ -1,4 +1,3 @@
-import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { ListItem, ListItemText } from '@mui/material';

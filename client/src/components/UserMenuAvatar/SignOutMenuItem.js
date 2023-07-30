@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApolloClient } from '@apollo/client';
 import { MenuItem, ListItemIcon } from '@mui/material';
