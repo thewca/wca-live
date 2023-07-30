@@ -21,16 +21,11 @@ config :wca_live, WcaLiveWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    # TODO: remove the wrapper once it is resolved upstream,
-    # see https://github.com/facebook/create-react-app/issues/11255
-    # node: [
-    #   "node_modules/react-app-rewired/bin/index.js",
-    #   "start",
-    #   cd: Path.expand("../client", __DIR__)
-    # ]
+    # Start Vite with a wrapper to avoid leaving zombie processes
     "#{Path.expand("../client/wrapper.sh", __DIR__)}": [
-      "./node_modules/react-app-rewired/bin/index.js",
-      "start",
+      "npm",
+      "run",
+      "dev",
       cd: Path.expand("../client", __DIR__)
     ]
   ]

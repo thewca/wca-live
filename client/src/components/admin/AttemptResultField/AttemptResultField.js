@@ -1,5 +1,3 @@
-import React from 'react';
-
 import FmField from './FmField';
 import MbldField from './MbldField';
 import TimeField from './TimeField';

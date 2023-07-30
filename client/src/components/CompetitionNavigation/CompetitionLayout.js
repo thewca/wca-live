@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   AppBar,
   Box,
@@ -23,8 +23,10 @@ function CompetitionLayout({ competition, children }) {
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // See https://material-ui.com/components/drawers/#swipeable
-  const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  // See https://mui.com/material-ui/react-drawer/#swipeable
+  const iOS =
+    typeof navigator !== 'undefined' &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   return (
     <>

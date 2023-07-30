@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Grid, Link, Typography } from '@mui/material';
 import { appUrl, wcaUrl } from '../../lib/urls';
 

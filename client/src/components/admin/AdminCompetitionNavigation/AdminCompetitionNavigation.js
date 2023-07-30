@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import AdminCompetitionEvents from '../AdminCompetitionEvents/AdminCompetitionEvents';

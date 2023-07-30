@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import {
   Table,
   TableBody,
@@ -41,7 +41,7 @@ function sortResults(results, orderBy, order) {
   });
 }
 
-const AdminResultsTable = React.memo(
+const AdminResultsTable = memo(
   ({ results, eventId, format, onResultClick }) => {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState(null);
@@ -157,5 +157,7 @@ const AdminResultsTable = React.memo(
     );
   }
 );
+
+AdminResultsTable.displayName = 'AdminResultsTable';
 
 export default AdminResultsTable;

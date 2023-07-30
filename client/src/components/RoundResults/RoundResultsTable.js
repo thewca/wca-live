@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Link,
@@ -40,7 +40,7 @@ const styles = {
   },
 };
 
-const RoundResultsTable = React.memo(
+const RoundResultsTable = memo(
   ({ results, format, eventId, competitionId, onResultClick }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up('sm'));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up('md'));
@@ -142,5 +142,7 @@ const RoundResultsTable = React.memo(
     );
   }
 );
+
+RoundResultsTable.displayName = 'RoundResultsTable';
 
 export default RoundResultsTable;

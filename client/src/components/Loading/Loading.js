@@ -1,4 +1,3 @@
-import React from 'react';
 import { Fade, LinearProgress } from '@mui/material';
 
 /* Waits 800ms before showing LinearProgress. */

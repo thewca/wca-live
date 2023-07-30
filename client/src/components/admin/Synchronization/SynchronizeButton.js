@@ -1,4 +1,3 @@
-import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { Button } from '@mui/material';
 import useApolloErrorHandler from '../../../hooks/useApolloErrorHandler';

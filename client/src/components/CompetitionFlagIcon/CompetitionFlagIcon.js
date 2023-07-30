@@ -1,4 +1,3 @@
-import React from 'react';
 import PublicIcon from '@mui/icons-material/Public';
 import FlagIcon from '../FlagIcon/FlagIcon';
 import { competitionCountries } from '../../lib/competition';

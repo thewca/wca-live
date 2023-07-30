@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Fade, Grid, IconButton, Tooltip } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,7 +8,7 @@ import CompetitionSearch from '../CompetitionSearch/CompetitionSearch';
 import { geolocationAvailable } from '../../lib/geolocation';
 import { nearestCompetition } from '../../lib/competition';
 
-function HomeToolbar({ upcoming, inProgress, past }) {
+function HomeToolbar({ inProgress }) {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef(null);

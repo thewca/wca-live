@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Box, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';

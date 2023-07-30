@@ -1,4 +1,3 @@
-import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Box, Grid, Paper } from '@mui/material';
 import Error from '../Error/Error';

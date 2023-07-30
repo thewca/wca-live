@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Grid,
   Typography,
@@ -26,12 +26,10 @@ function CodeDialog({ oneTimeCode, open, onClose }) {
 
   useEffect(() => {
     if (open && oneTimeCode && !expired) {
-      function updateExpirationPercent() {
+      const interval = setInterval(() => {
         const percent = getExpirationPercent(oneTimeCode);
         setExpirationPercent(percent);
-      }
-
-      const interval = setInterval(updateExpirationPercent, 25);
+      }, 25);
 
       return () => clearInterval(interval);
     }

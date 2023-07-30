@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';

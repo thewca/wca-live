@@ -1,4 +1,3 @@
-import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../Home/Home';

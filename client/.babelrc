@@ -1,0 +1,7 @@
+// Used only by Jest
+{
+  "presets": [
+    "@babel/preset-env",
+    ["@babel/preset-react", { "runtime": "automatic" }]
+  ]
+}

@@ -1,4 +1,4 @@
-const production = process.env.NODE_ENV === 'production';
+const production = import.meta.env.PROD;
 
 const ORIGIN = production ? '' : 'http://localhost:4000';
 

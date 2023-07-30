@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Link,
@@ -36,7 +36,7 @@ function searchCompetitors(competitors, search) {
   });
 }
 
-const AdminCompetitorsTable = React.memo(
+const AdminCompetitorsTable = memo(
   ({ competitors, competitionEvents, competitionId }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -176,5 +176,7 @@ const AdminCompetitorsTable = React.memo(
     );
   }
 );
+
+AdminCompetitorsTable.displayName = 'AdminCompetitorsTable';
 
 export default AdminCompetitorsTable;
