@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
@@ -83,7 +83,7 @@ function Round() {
     variables: { id: roundId },
   });
 
-  const [previousData, setPreviousData] = React.useState(undefined);
+  const [previousData, setPreviousData] = useState(null);
 
   useEffect(() => {
     if (newData) setPreviousData(newData);
@@ -134,6 +134,8 @@ function Round() {
               path=""
               element={
                 <RoundResults
+                  // We use key to reset component state on round change
+                  key={data.round.id}
                   results={round.results}
                   format={round.format}
                   eventId={round.competitionEvent.event.id}

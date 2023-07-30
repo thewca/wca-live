@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Button, Grid, useMediaQuery } from '@mui/material';
 import RoundResultsTable from './RoundResultsTable';
 import RoundResultDialog from './RoundResultDialog';
@@ -12,10 +12,6 @@ function RoundResults({ results, format, eventId, competitionId }) {
   const [showAll, setShowAll] = useState(
     results.length <= DEFAULT_VISIBLE_RESULTS
   );
-
-  useEffect(() => {
-    setShowAll(results.length <= DEFAULT_VISIBLE_RESULTS);
-  }, [results]);
 
   const handleResultClick = useCallback((result) => {
     setSelectedResult(result);
