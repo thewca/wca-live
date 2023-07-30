@@ -5,10 +5,10 @@
  * parseActivityCode('333-r1'); // => { type: 'official', eventId: '333', roundNumber: 1, groupName: null, attemptNumber: null }
  */
 export function parseActivityCode(activityCode) {
-  if (activityCode.startsWith('other-')) {
+  if (activityCode.startsWith("other-")) {
     return {
-      type: 'other',
-      id: activityCode.replace(/^other-/, ''),
+      type: "other",
+      id: activityCode.replace(/^other-/, ""),
     };
   } else {
     const match = activityCode.match(
@@ -19,7 +19,7 @@ export function parseActivityCode(activityCode) {
     }
     const [, e, r, g, a] = match;
     return {
-      type: 'official',
+      type: "official",
       eventId: e,
       roundNumber: r ? parseInt(r, 10) : null,
       groupName: g ? g : null,

@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
-import { useSnackbar } from 'notistack';
-import { apolloErrorToMessage } from '../lib/errors';
+import { useCallback } from "react";
+import { useSnackbar } from "notistack";
+import { apolloErrorToMessage } from "../lib/errors";
 
 /**
  * Returns a callback that takes an Apollo error and enqueues an appropriate error snackbar.
@@ -15,7 +15,7 @@ export default function useApolloErrorHandler() {
   return useCallback(
     (error) => {
       const message = apolloErrorToMessage(error);
-      enqueueSnackbar(message, { variant: 'error' });
+      enqueueSnackbar(message, { variant: "error" });
     },
     [enqueueSnackbar]
   );

@@ -1,4 +1,4 @@
-export const geolocationAvailable = 'geolocation' in navigator;
+export const geolocationAvailable = "geolocation" in navigator;
 
 /**
  * Returns a Promise resolving to an estimated device location.

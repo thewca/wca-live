@@ -1,4 +1,4 @@
-import { padSkipped } from './attempt-result';
+import { padSkipped } from "./attempt-result";
 
 /**
  * Returns a list of objects corresponding to result statistics - best and average.
@@ -9,25 +9,25 @@ export function orderedResultStats(eventId, format) {
   const { numberOfAttempts, sortBy } = format;
 
   if (!shouldComputeAverage(eventId, numberOfAttempts)) {
-    return [{ name: 'Best', field: 'best', recordTagField: 'singleRecordTag' }];
+    return [{ name: "Best", field: "best", recordTagField: "singleRecordTag" }];
   }
 
   const stats = [
-    { name: 'Best', field: 'best', recordTagField: 'singleRecordTag' },
+    { name: "Best", field: "best", recordTagField: "singleRecordTag" },
     {
-      name: numberOfAttempts === 3 ? 'Mean' : 'Average',
-      field: 'average',
-      recordTagField: 'averageRecordTag',
+      name: numberOfAttempts === 3 ? "Mean" : "Average",
+      field: "average",
+      recordTagField: "averageRecordTag",
     },
   ];
-  return sortBy === 'best' ? stats : stats.reverse();
+  return sortBy === "best" ? stats : stats.reverse();
 }
 
 /**
  * Checks if an average should be calculated in case of the given event and format.
  */
 export function shouldComputeAverage(eventId, numberOfAttempts) {
-  if (eventId === '333mbf') return false;
+  if (eventId === "333mbf") return false;
   return [3, 5].includes(numberOfAttempts);
 }
 

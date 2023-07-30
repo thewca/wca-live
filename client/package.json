@@ -7,8 +7,8 @@
     "build": "vite build",
     "test": "jest",
     "lint": "eslint 'src/**/*.{js,jsx}' --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --single-quote --trailing-comma es5 --write 'src/**/*.{js,jsx,json,css,md}' --no-error-on-unmatched-pattern",
-    "format-check": "prettier --single-quote --trailing-comma es5 --check 'src/**/*.{js,jsx,json,css,md}' --no-error-on-unmatched-pattern"
+    "format": "prettier --trailing-comma es5 --write 'src/**/*.{js,jsx,json,css,md}' --no-error-on-unmatched-pattern",
+    "format-check": "prettier --trailing-comma es5 --check 'src/**/*.{js,jsx,json,css,md}' --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@absinthe/socket": "^0.2.1",

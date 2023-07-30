@@ -1,7 +1,7 @@
-import { parseISO, differenceInMinutes } from 'date-fns';
-import { uniq, minBy } from './utils';
-import { parseActivityCode } from './activity-code';
-import { getLocationEstimate, distanceKm } from './geolocation';
+import { parseISO, differenceInMinutes } from "date-fns";
+import { uniq, minBy } from "./utils";
+import { parseActivityCode } from "./activity-code";
+import { getLocationEstimate, distanceKm } from "./geolocation";
 
 /**
  * Checks if the competition is past, that is whether

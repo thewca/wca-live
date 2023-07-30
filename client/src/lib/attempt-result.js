@@ -1,5 +1,5 @@
-import { times } from './utils';
-import { shouldComputeAverage } from './result';
+import { times } from "./utils";
+import { shouldComputeAverage } from "./result";
 
 export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
@@ -69,14 +69,14 @@ export function average(attemptResults, eventId) {
   if (!eventId) {
     /* If eventId is omitted, the average is still calculated correctly except for FMC
        and that may be a hard to spot bug, so better enforce explicity here. */
-    throw new Error('Missing argument: eventId');
+    throw new Error("Missing argument: eventId");
   }
 
-  if (eventId === '333mbf') return SKIPPED_VALUE;
+  if (eventId === "333mbf") return SKIPPED_VALUE;
 
   if (attemptResults.some(isSkipped)) return SKIPPED_VALUE;
 
-  if (eventId === '333fm') {
+  if (eventId === "333fm") {
     const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
     switch (attemptResults.length) {
       case 3:
@@ -177,7 +177,7 @@ export function centisecondsToClockFormat(centiseconds) {
   return new Date(centiseconds * 10)
     .toISOString()
     .substr(11, 11)
-    .replace(/^[0:]*(?!\.)/g, '');
+    .replace(/^[0:]*(?!\.)/g, "");
 }
 
 /**
@@ -189,11 +189,11 @@ export function centisecondsToClockFormat(centiseconds) {
  * formatAttemptResult(900348002, '333mbf'); // => '11/13 58:00'
  */
 export function formatAttemptResult(attemptResult, eventId) {
-  if (attemptResult === SKIPPED_VALUE) return '';
-  if (attemptResult === DNF_VALUE) return 'DNF';
-  if (attemptResult === DNS_VALUE) return 'DNS';
-  if (eventId === '333mbf') return formatMbldAttemptResult(attemptResult);
-  if (eventId === '333fm') return formatFmAttemptResult(attemptResult);
+  if (attemptResult === SKIPPED_VALUE) return "";
+  if (attemptResult === DNF_VALUE) return "DNF";
+  if (attemptResult === DNS_VALUE) return "DNS";
+  if (eventId === "333mbf") return formatMbldAttemptResult(attemptResult);
+  if (eventId === "333fm") return formatFmAttemptResult(attemptResult);
   return centisecondsToClockFormat(attemptResult);
 }
 
@@ -201,7 +201,7 @@ function formatMbldAttemptResult(attemptResult) {
   const { solved, attempted, centiseconds } =
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
-  const shortClockFormat = clockFormat.replace(/\.00$/, '');
+  const shortClockFormat = clockFormat.replace(/\.00$/, "");
   return `${solved}/${attempted} ${shortClockFormat}`;
 }
 
@@ -301,7 +301,7 @@ export function attemptResultsWarning(
     const newWorldRecordSingle = isWorldRecord(
       bestSingle,
       eventId,
-      'single',
+      "single",
       officialWorldRecords
     );
     if (newWorldRecordSingle) {
@@ -316,7 +316,7 @@ export function attemptResultsWarning(
       const newWorldRecordAverage = isWorldRecord(
         average(attemptResults, eventId),
         eventId,
-        'average',
+        "average",
         officialWorldRecords
       );
 
@@ -329,7 +329,7 @@ export function attemptResultsWarning(
       }
     }
 
-    if (eventId === '333mbf') {
+    if (eventId === "333mbf") {
       const lowTimeIndex = attemptResults.findIndex((attempt) => {
         const { attempted, centiseconds } = decodeMbldAttemptResult(attempt);
         return attempt > 0 && centiseconds / attempted < 30 * 100;

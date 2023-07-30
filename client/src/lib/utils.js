@@ -28,10 +28,10 @@ export function uniq(arr) {
 }
 
 export function orderBy(arr, fns, orders = []) {
-  if (typeof fns === 'function') {
+  if (typeof fns === "function") {
     fns = [fns];
   }
-  if (typeof orders === 'string') {
+  if (typeof orders === "string") {
     orders = [orders];
   }
 
@@ -41,7 +41,7 @@ export function orderBy(arr, fns, orders = []) {
         const fnA = fn(a);
         const fnB = fn(b);
         const result = fnA > fnB ? 1 : fnA < fnB ? -1 : 0;
-        acc = orders[i] === 'desc' ? -result : result;
+        acc = orders[i] === "desc" ? -result : result;
       }
       return acc;
     }, 0)
@@ -79,7 +79,7 @@ export function clamp(x, left, right) {
 }
 
 export function formatSentence(message) {
-  return capitalize(message).replace(/\.?$/, '.');
+  return capitalize(message).replace(/\.?$/, ".");
 }
 
 function capitalize(string) {
