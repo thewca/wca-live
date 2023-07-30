@@ -3,7 +3,7 @@ import { Grid, Link, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
 import EmojiObjectsOutlinedIcon from "@mui/icons-material/EmojiObjectsOutlined";
-import { useToggleTheme } from "../ThemeProvider/ThemeProvider";
+import useToggleTheme from "../ThemeProvider/useToggleTheme";
 
 const linkStyles = {
   "&:hover": {

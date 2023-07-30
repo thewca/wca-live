@@ -1,17 +1,12 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useEffect,
-  useMemo,
-} from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   createTheme,
   ThemeProvider as MuiThemeProvider,
 } from "@mui/material/styles";
 import { useMediaQuery } from "@mui/material";
 import { blue, grey, pink } from "@mui/material/colors";
+
+import { ToggleThemeContext } from "./useToggleTheme";
 
 const themes = {
   light: createTheme({
@@ -41,8 +36,6 @@ const themeColor = {
   light: blue["700"],
   dark: grey["900"],
 };
-
-const ToggleThemeContext = createContext();
 
 function getStoredThemeType() {
   return localStorage.getItem("themeType");
@@ -82,6 +75,4 @@ export function ThemeProvider({ children }) {
   );
 }
 
-export function useToggleTheme() {
-  return useContext(ToggleThemeContext);
-}
+export default ThemeProvider;
