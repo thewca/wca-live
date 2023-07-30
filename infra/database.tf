@@ -41,7 +41,8 @@ resource "aws_db_instance" "this" {
   instance_class    = "db.t3.small"
 
   engine         = "postgres"
-  engine_version = "12.11"
+  engine_version = "12.14"
+  auto_minor_version_upgrade = true
   db_name        = var.db_name
   username       = var.db_username
   password       = var.db_password

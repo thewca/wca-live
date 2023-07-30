@@ -305,7 +305,7 @@ resource "aws_appautoscaling_target" "this" {
   resource_id        = "service/${aws_ecs_cluster.this.name}/${aws_ecs_service.web.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   min_capacity       = 1
-  max_capacity       = 4
+  max_capacity       = 25
 }
 
 resource "aws_appautoscaling_policy" "this" {
@@ -317,12 +317,10 @@ resource "aws_appautoscaling_policy" "this" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      # predefined_metric_type = "ECSServiceAverageCPUUtilization"
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    # target_value = 80
-    target_value = 65
+    target_value = 45
   }
 
   depends_on = [aws_appautoscaling_target.this]
@@ -340,7 +338,7 @@ data "aws_ami" "ecs" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-ecs-hvm-*"]
+    values = ["amzn2-ami-ecs-hvm-*-x86_64-*"]
   }
 }
 
@@ -388,7 +386,7 @@ resource "aws_launch_configuration" "this" {
 resource "aws_autoscaling_group" "this" {
   name_prefix               = "${var.name_prefix}-"
   min_size                  = 1
-  max_size                  = 4
+  max_size                  = 25
   desired_capacity          = 1
   vpc_zone_identifier       = aws_subnet.private[*].id
   launch_configuration      = aws_launch_configuration.this.name
@@ -441,7 +439,8 @@ resource "aws_ecs_capacity_provider" "this" {
     managed_termination_protection = "ENABLED"
 
     managed_scaling {
-      maximum_scaling_step_size = 1
+      # Allow ECS to spawn the desired number of EC2 instances at once
+      maximum_scaling_step_size = 100
       minimum_scaling_step_size = 1
       status                    = "ENABLED"
       target_capacity           = 100
