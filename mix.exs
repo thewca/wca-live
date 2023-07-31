@@ -38,7 +38,7 @@ defmodule WcaLive.MixProject do
       {:absinthe, "~> 1.7"},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_phoenix, "~> 2.0"},
-      {:dataloader, "~> 1.0"},
+      {:dataloader, "~> 2.0"},
       {:cors_plug, "~> 3.0"},
       {:pdf_generator, "~> 0.6"},
       {:libcluster, "~> 3.3"},
@@ -52,8 +52,7 @@ defmodule WcaLive.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      # TODO: remove --legacy-peer-deps once we can install without it
-      "client.setup": ["cmd npm install --prefix client --legacy-peer-deps"],
+      "client.setup": ["cmd npm install --prefix client"],
       "client.build": ["cmd npm run build --prefix client", "phx.digest"],
       "format.all": ["format", "cmd npm run format --prefix client"]
     ]
