@@ -1,8 +1,12 @@
 import React from "react";
-import FlagIconFactory from "react-flag-icon-css";
 
+import "flag-icons/css/flag-icons.min.css";
 import "./FlagIcon.css";
 
-const FlagIcon = FlagIconFactory(React, { useCssModules: false });
+function FlagIcon({ code, size }) {
+  return (
+    <span className={`fi fi-${code} ${size ? `fi-size-${size}` : ""}`}></span>
+  );
+}
 
 export default FlagIcon;
