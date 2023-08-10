@@ -64,14 +64,19 @@ function AdminCompetitors() {
   return (
     <>
       <Typography variant="h5" gutterBottom>
-        Competitors ({participatedCompetitors} /{" "}
-        {competition.competitors.length})
+        Competitors
       </Typography>
       <AdminCompetitorsTable
         competitors={competition.competitors}
         competitionEvents={competition.competitionEvents}
         competitionId={competition.id}
       />
+      <Typography variant="h5" gutterBottom>
+        Total: {competition.competitors.length}
+      </Typography>
+      <Typography variant="h5" gutterBottom>
+        Competed: {participatedCompetitors}
+      </Typography>
     </>
   );
 }
