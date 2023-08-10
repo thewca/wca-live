@@ -50,11 +50,22 @@ function AdminCompetitors() {
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
   const { competition } = data;
+  const participatedCompetitors = competition.competitors.filter((competitor) =>
+    competition.competitionEvents.some((competitionEvent) =>
+      competitionEvent.rounds.some((round) =>
+        round.results.some(
+          (result) =>
+            result.person.id === competitor.id && result.attempts.length > 0
+        )
+      )
+    )
+  ).length;
 
   return (
     <>
       <Typography variant="h5" gutterBottom>
-        Competitors
+        Competitors ({participatedCompetitors} /{" "}
+        {competition.competitors.length})
       </Typography>
       <AdminCompetitorsTable
         competitors={competition.competitors}
