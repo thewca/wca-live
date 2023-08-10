@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import AdminCompetitorsTable from "./AdminCompetitorsTable";
 import Loading from "../../Loading/Loading";
 import Error from "../../Error/Error";
@@ -50,6 +50,7 @@ function AdminCompetitors() {
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
   const { competition } = data;
+
   const participatedCompetitors = competition.competitors.filter((competitor) =>
     competition.competitionEvents.some((competitionEvent) =>
       competitionEvent.rounds.some((round) =>
@@ -71,12 +72,18 @@ function AdminCompetitors() {
         competitionEvents={competition.competitionEvents}
         competitionId={competition.id}
       />
-      <Typography variant="h5" gutterBottom>
-        Total: {competition.competitors.length}
-      </Typography>
-      <Typography variant="h5" gutterBottom>
-        Competed: {participatedCompetitors}
-      </Typography>
+      <Grid mt={1} container gap={2}>
+        <Grid item>
+          <Typography variant="body2">
+            Total: {competition.competitors.length}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant="body2">
+            Competed: {participatedCompetitors}
+          </Typography>
+        </Grid>
+      </Grid>
     </>
   );
 }
