@@ -5,7 +5,7 @@ import {
   IconButton,
   InputBase,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   ListItemIcon,
   Paper,
@@ -50,9 +50,8 @@ function CompetitorList({ competitors, competitionId }) {
       <Grid item sx={{ width: "100%" }}>
         <List>
           {filteredCompetitors.map((competitor) => (
-            <ListItem
+            <ListItemButton
               key={competitor.id}
-              button
               component={RouterLink}
               to={`/competitions/${competitionId}/competitors/${competitor.id}`}
             >
@@ -63,7 +62,7 @@ function CompetitorList({ competitors, competitionId }) {
                 />
               </ListItemIcon>
               <ListItemText primary={competitor.name} />
-            </ListItem>
+            </ListItemButton>
           ))}
         </List>
       </Grid>

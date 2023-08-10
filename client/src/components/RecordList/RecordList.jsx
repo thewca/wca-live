@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   Box,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
@@ -21,9 +21,8 @@ function RecordList({ title, records }) {
         }}
       >
         {records.map((record) => (
-          <ListItem
+          <ListItemButton
             key={record.id}
-            button
             component={Link}
             to={`/competitions/${record.result.round.competitionEvent.competition.id}/rounds/${record.result.round.id}`}
           >
@@ -44,7 +43,7 @@ function RecordList({ title, records }) {
               }
               secondary={`${record.result.person.name} from ${record.result.person.country.name}`}
             />
-          </ListItem>
+          </ListItemButton>
         ))}
       </Box>
     </List>

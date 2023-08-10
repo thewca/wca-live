@@ -1,5 +1,9 @@
 import { Link as RouterLink } from "react-router-dom";
-import { ListItem, ListItemSecondaryAction, ListItemText } from "@mui/material";
+import {
+  ListItemButton,
+  ListItemSecondaryAction,
+  ListItemText,
+} from "@mui/material";
 import OpenRoundButton from "./OpenRoundButton";
 import ClearRoundButton from "./ClearRoundButton";
 
@@ -19,9 +23,8 @@ function roundClearable(round, competitionEvent) {
 
 function AdminRoundListItem({ round, competitionEvent, competitionId }) {
   return (
-    <ListItem
+    <ListItemButton
       key={round.id}
-      button
       component={RouterLink}
       to={`/admin/competitions/${competitionId}/rounds/${round.id}`}
       disabled={!round.open}
@@ -35,7 +38,7 @@ function AdminRoundListItem({ round, competitionEvent, competitionId }) {
           <ClearRoundButton round={round} competitionEvent={competitionEvent} />
         )}
       </ListItemSecondaryAction>
-    </ListItem>
+    </ListItemButton>
   );
 }
 

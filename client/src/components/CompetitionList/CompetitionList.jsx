@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import {
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
@@ -20,10 +20,9 @@ function CompetitionList({ title, competitions }) {
         items={competitions}
         renderItem={(competition, { style }) => {
           return (
-            <ListItem
+            <ListItemButton
               key={competition.id}
               style={style}
-              button
               component={Link}
               to={`/competitions/${competition.id}`}
             >
@@ -39,7 +38,7 @@ function CompetitionList({ title, competitions }) {
                   competition.endDate
                 )}
               />
-            </ListItem>
+            </ListItemButton>
           );
         }}
       />
