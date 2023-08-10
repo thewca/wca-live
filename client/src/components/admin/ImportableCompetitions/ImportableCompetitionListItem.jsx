@@ -1,6 +1,6 @@
 import { gql, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { ListItem, ListItemText } from "@mui/material";
+import { ListItemButton, ListItemText } from "@mui/material";
 import { useConfirm } from "material-ui-confirm";
 import useApolloErrorHandler from "../../../hooks/useApolloErrorHandler";
 import { formatDateRange } from "../../../lib/date";
@@ -38,9 +38,8 @@ function ImportableCompetitionListItem({ competition }) {
   }
 
   return (
-    <ListItem
+    <ListItemButton
       key={competition.wcaId}
-      button
       onClick={handleClick}
       disabled={loading}
     >
@@ -48,7 +47,7 @@ function ImportableCompetitionListItem({ competition }) {
         primary={competition.name}
         secondary={formatDateRange(competition.startDate, competition.endDate)}
       />
-    </ListItem>
+    </ListItemButton>
   );
 }
 

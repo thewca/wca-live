@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import {
   Grid,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Typography,
@@ -85,8 +85,7 @@ function Synchronization() {
             <ListSubheader sx={{ backgroundColor: "inherit" }}>
               WCA website
             </ListSubheader>
-            <ListItem
-              button
+            <ListItemButton
               component="a"
               href={wcaUrl(`/competitions/${competition.wcaId}/events/edit`)}
               target="_blank"
@@ -99,9 +98,8 @@ function Synchronization() {
                 primary="Change round details"
                 secondary="Manage events and rounds on the WCA website."
               />
-            </ListItem>
-            <ListItem
-              button
+            </ListItemButton>
+            <ListItemButton
               component="a"
               href={wcaUrl(
                 `/competitions/${competition.wcaId}/registrations/add`
@@ -116,12 +114,11 @@ function Synchronization() {
                 primary="Add competitor"
                 secondary="Use a form on the WCA website to register someone during the competition (if applicable)."
               />
-            </ListItem>
+            </ListItemButton>
             <ListSubheader sx={{ backgroundColor: "inherit" }}>
               Additional tools
             </ListSubheader>
-            <ListItem
-              button
+            <ListItemButton
               component="a"
               href={groupifierUrl(`/competitions/${competition.wcaId}`)}
               target="_blank"
@@ -134,9 +131,8 @@ function Synchronization() {
                 primary="Groupifier"
                 secondary="Manage competitor groups and print scorecards."
               />
-            </ListItem>
-            <ListItem
-              button
+            </ListItemButton>
+            <ListItemButton
               component="a"
               href={scramblesMatcherUrl()}
               target="_blank"
@@ -149,7 +145,7 @@ function Synchronization() {
                 primary="Scrambles Matcher"
                 secondary="Use it after the competition to attach scrambles to rounds and proceed with results submission."
               />
-            </ListItem>
+            </ListItemButton>
           </List>
         </Paper>
       </Grid>

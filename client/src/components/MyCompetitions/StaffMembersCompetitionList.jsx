@@ -3,7 +3,7 @@ import {
   Box,
   Chip,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
@@ -25,10 +25,9 @@ function StaffMembersCompetitionList({ title, staffMembers }) {
           const competition = staffMember.competition;
 
           return (
-            <ListItem
+            <ListItemButton
               key={competition.id}
               style={style}
-              button
               component={Link}
               to={`/admin/competitions/${competition.id}`}
             >
@@ -58,7 +57,7 @@ function StaffMembersCompetitionList({ title, staffMembers }) {
                   />
                 ))}
               </Box>
-            </ListItem>
+            </ListItemButton>
           );
         }}
       />

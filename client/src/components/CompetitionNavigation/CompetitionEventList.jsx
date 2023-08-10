@@ -4,7 +4,7 @@ import {
   Chip,
   Collapse,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
@@ -27,8 +27,7 @@ function CompetitionEventList({ competitionEvents, competitionId }) {
     <List dense={true}>
       {competitionEvents.map((competitionEvent) => (
         <Fragment key={competitionEvent.id}>
-          <ListItem
-            button
+          <ListItemButton
             onClick={(event) =>
               handleCompetitionEventClick(event, competitionEvent)
             }
@@ -38,7 +37,7 @@ function CompetitionEventList({ competitionEvents, competitionId }) {
               <CubingIcon eventId={competitionEvent.event.id} />
             </ListItemIcon>
             <ListItemText primary={competitionEvent.event.name} />
-          </ListItem>
+          </ListItemButton>
           <Collapse
             in={selectedId === competitionEvent.id}
             timeout="auto"
@@ -53,9 +52,8 @@ function CompetitionEventList({ competitionEvents, competitionId }) {
           >
             <List dense={true}>
               {competitionEvent.rounds.map((round) => (
-                <ListItem
+                <ListItemButton
                   key={round.id}
-                  button
                   component={RouterLink}
                   to={`/competitions/${competitionId}/rounds/${round.id}`}
                   disabled={!round.open}
@@ -72,7 +70,7 @@ function CompetitionEventList({ competitionEvents, competitionId }) {
                       }}
                     />
                   )}
-                </ListItem>
+                </ListItemButton>
               ))}
             </List>
           </Collapse>
