@@ -180,7 +180,7 @@ resource "aws_ecs_task_definition" "web" {
     {
       name              = "web"
       image             = "${aws_ecr_repository.this.repository_url}:latest"
-      memoryReservation = 768
+      memoryReservation = 1536
       portMappings = [
         {
           # The hostPort is automatically set for awsvpc network mode,
@@ -320,7 +320,7 @@ resource "aws_appautoscaling_policy" "this" {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
 
-    target_value = 50
+    target_value = 60
   }
 
   depends_on = [aws_appautoscaling_target.this]
@@ -373,7 +373,7 @@ resource "aws_launch_configuration" "this" {
   name_prefix          = "${var.name_prefix}-"
   image_id             = data.aws_ami.ecs.id
   iam_instance_profile = aws_iam_instance_profile.ecs_instance_profile.name
-  instance_type        = "t3.micro"
+  instance_type        = "t3.small"
   security_groups      = [aws_security_group.cluster.id]
   user_data            = templatefile("templates/user_data.sh.tftpl", { ecs_cluster_name = aws_ecs_cluster.this.name })
 
