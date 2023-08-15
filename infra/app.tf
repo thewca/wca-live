@@ -317,7 +317,7 @@ resource "aws_appautoscaling_policy" "this" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
     target_value = 60

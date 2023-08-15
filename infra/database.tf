@@ -40,12 +40,12 @@ resource "aws_db_instance" "this" {
   storage_type      = "gp2"
   instance_class    = "db.t3.medium"
 
-  engine         = "postgres"
-  engine_version = "12.14"
+  engine                     = "postgres"
+  engine_version             = "12.14"
   auto_minor_version_upgrade = true
-  db_name        = var.db_name
-  username       = var.db_username
-  password       = var.db_password
+  db_name                    = var.db_name
+  username                   = var.db_username
+  password                   = var.db_password
 
   availability_zone      = var.availability_zones[0]
   db_subnet_group_name   = aws_db_subnet_group.this.name
