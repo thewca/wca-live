@@ -1,5 +1,6 @@
 import { Link as RouterLink } from "react-router-dom";
 import {
+  ListItem,
   ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
@@ -23,22 +24,34 @@ function roundClearable(round, competitionEvent) {
 
 function AdminRoundListItem({ round, competitionEvent, competitionId }) {
   return (
-    <ListItemButton
+    <ListItem
       key={round.id}
-      component={RouterLink}
-      to={`/admin/competitions/${competitionId}/rounds/${round.id}`}
-      disabled={!round.open}
+      secondaryAction={
+        <ListItemSecondaryAction>
+          {roundOpenable(round, competitionEvent) && (
+            <OpenRoundButton
+              round={round}
+              competitionEvent={competitionEvent}
+            />
+          )}
+          {roundClearable(round, competitionEvent) && (
+            <ClearRoundButton
+              round={round}
+              competitionEvent={competitionEvent}
+            />
+          )}
+        </ListItemSecondaryAction>
+      }
+      disablePadding
     >
-      <ListItemText primary={round.name} />
-      <ListItemSecondaryAction>
-        {roundOpenable(round, competitionEvent) && (
-          <OpenRoundButton round={round} competitionEvent={competitionEvent} />
-        )}
-        {roundClearable(round, competitionEvent) && (
-          <ClearRoundButton round={round} competitionEvent={competitionEvent} />
-        )}
-      </ListItemSecondaryAction>
-    </ListItemButton>
+      <ListItemButton
+        component={RouterLink}
+        to={`/admin/competitions/${competitionId}/rounds/${round.id}`}
+        disabled={!round.open}
+      >
+        <ListItemText primary={round.name} />
+      </ListItemButton>
+    </ListItem>
   );
 }
 
