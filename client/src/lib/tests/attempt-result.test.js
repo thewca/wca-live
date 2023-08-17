@@ -1,5 +1,7 @@
 import {
   best,
+  calculateBpa,
+  calculateWpa,
   average,
   formatAttemptResult,
   decodeMbldAttemptResult,
@@ -552,5 +554,29 @@ describe("applyCutoff", () => {
       attemptResult: 800,
     };
     expect(applyCutoff(attempts, cutoff)).toEqual([1000, 799, 1200, 1000, 900]);
+  });
+});
+
+describe("calculateWpa", () => {
+  it("returns DNF if any attempt result is DNF", () => {
+    const attemptResults = [1000, -1, 1200, 1300];
+    expect(calculateWpa(attemptResults)).toEqual("DNF");
+  });
+
+  it("calculate WPA correctly", () => {
+    const attemptResults = [1000, 1200, 1300, 1400];
+    expect(calculateWpa(attemptResults)).toEqual("13.00");
+  });
+});
+
+describe("calculateBpa", () => {
+  it("returns DNF if two attempts result are DNF's", () => {
+    const attemptResults = [1000, -1, 1200, -1];
+    expect(calculateBpa(attemptResults)).toEqual("DNF");
+  });
+
+  it("calculate BPA correctly", () => {
+    const attemptResults = [1000, 1200, 1300, 1400];
+    expect(calculateBpa(attemptResults)).toEqual("11.66");
   });
 });

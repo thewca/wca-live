@@ -19,7 +19,11 @@ import { green } from "@mui/material/colors";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
-import { formatAttemptResult } from "../../lib/attempt-result";
+import {
+  calculateBpa,
+  calculateWpa,
+  formatAttemptResult,
+} from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 
@@ -66,7 +70,7 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl }) {
+function ResultsProjector({ results, format, eventId, title, exitUrl, showBpaAndWpa }) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
@@ -223,7 +227,30 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                           recordTag={result[recordTagField]}
                           hidePr
                         >
-                          {formatAttemptResult(result[field], eventId)}
+                      {showBpaAndWpa &&
+                      result.average === 0 &&
+                      field === "average" &&
+                      result.attempts.length > 3 ? (
+                        <>
+                          <Typography
+                            component="span"
+                            color="green"
+                            sx={{ ...styles.cell}}
+                          >
+                            {calculateBpa(result.attempts.map(attempt => attempt.result), eventId)}
+                          </Typography>{" "}
+                          {" / "}
+                          <Typography
+                            component="span"
+                            color="error"
+                            sx={{ ...styles.cell}}
+                          >
+                            {calculateWpa(result.attempts.map(attempt => attempt.result), eventId)}
+                          </Typography>
+                        </>
+                      ) : (
+                        formatAttemptResult(result[field], eventId)
+                      )}
                         </RecordTagBadge>
                       </TableCell>
                     ))}

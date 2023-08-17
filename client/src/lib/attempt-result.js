@@ -197,6 +197,44 @@ export function formatAttemptResult(attemptResult, eventId) {
   return centisecondsToClockFormat(attemptResult);
 }
 
+/**
+ * Calcualte BPA (Best Possible Average) for the given attempts.
+ * Returns a human-friendly string.
+ * @example
+ * calculateBpa([6111, 6000, 5999, 6000], '333'); // => '1:00.00'
+ * calculateBpa([6111, -1, -1, 6000], '333'); // => 'DNF'
+ * calculateBpa([6111, -1, 6000, 5999], '333'); // => '1:00.36'
+ */
+export function calculateBpa(times, eventId) {
+  let bpa;
+  const validTimes = times.filter((attempt) => attempt > -1);
+  if (validTimes.length < 3) {
+    bpa = -1;
+  } else {
+    const sortedTimes = validTimes.slice().sort((a, b) => a - b);
+    bpa = (sortedTimes[0] + sortedTimes[1] + sortedTimes[2]) / 3;  
+  }
+  return formatAttemptResult(bpa, eventId);
+}
+/**
+ * Calcualte WPA (Worst Possible Average) for the given attempts.
+ * Returns a human-friendly string.
+ * @example
+ * calculateWpa([6111, 6000, 5999, 6000], '333'); // => '1:00.00'
+ * calculateWpa([6111, -1, -1, 6000], '333'); // => 'DNF'
+ * calculateWpa([6111, -1, 6000, 5999], '333'); // => '1:00.36'
+ */
+export function calculateWpa(times, eventId) {
+  let wpa;
+  if (times.some((time) => time === -1 || time === -2)) {
+    wpa = -1;
+  } else {
+    const sortedTimes = times.slice().sort((a, b) => a - b);
+    wpa = (sortedTimes[1] + sortedTimes[2] + sortedTimes[3]) / 3;  
+  }
+  return formatAttemptResult(wpa, eventId);
+}
+
 function formatMbldAttemptResult(attemptResult) {
   const { solved, attempted, centiseconds } =
     decodeMbldAttemptResult(attemptResult);

@@ -84,6 +84,7 @@ function Round() {
   });
 
   const [previousData, setPreviousData] = useState(null);
+  const [showBpaAndWpa, setShowBpaAndWpa] = useState(false);
 
   useEffect(() => {
     if (newData) setPreviousData(newData);
@@ -109,12 +110,19 @@ function Round() {
   if (error) return <Error error={error} />;
   const { round } = data;
 
+  const toggleWpaAndBpa = () => {
+    setShowBpaAndWpa((prev) => !prev);
+  };
   return (
     <>
       {loading && <Loading />}
       <Grid container direction="column" spacing={1}>
         <Grid item>
-          <RoundToolbar round={round} competitionId={competitionId} />
+          <RoundToolbar
+            round={round}
+            competitionId={competitionId}
+            toggleWpaAndBpa={toggleWpaAndBpa}
+          />
         </Grid>
         <Grid item>
           <Routes>
@@ -127,6 +135,7 @@ function Round() {
                   eventId={round.competitionEvent.event.id}
                   title={`${round.competitionEvent.event.name} - ${round.name}`}
                   exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
+                  showBpaAndWpa={showBpaAndWpa}
                 />
               }
             />
@@ -140,6 +149,7 @@ function Round() {
                   format={round.format}
                   eventId={round.competitionEvent.event.id}
                   competitionId={competitionId}
+                  showBpaAndWpa={showBpaAndWpa}
                 />
               }
             />
