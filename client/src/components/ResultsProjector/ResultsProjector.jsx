@@ -70,7 +70,14 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl, showBpaAndWpa }) {
+function ResultsProjector({
+  results,
+  format,
+  eventId,
+  title,
+  exitUrl,
+  showBpaAndWpa,
+}) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
@@ -227,30 +234,40 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, showBpaAnd
                           recordTag={result[recordTagField]}
                           hidePr
                         >
-                      {showBpaAndWpa &&
-                      result.average === 0 &&
-                      field === "average" &&
-                      result.attempts.length > 3 ? (
-                        <>
-                          <Typography
-                            component="span"
-                            color="green"
-                            sx={{ ...styles.cell}}
-                          >
-                            {calculateBpa(result.attempts.map(attempt => attempt.result), eventId)}
-                          </Typography>{" "}
-                          {" / "}
-                          <Typography
-                            component="span"
-                            color="error"
-                            sx={{ ...styles.cell}}
-                          >
-                            {calculateWpa(result.attempts.map(attempt => attempt.result), eventId)}
-                          </Typography>
-                        </>
-                      ) : (
-                        formatAttemptResult(result[field], eventId)
-                      )}
+                          {showBpaAndWpa &&
+                          result.average === 0 &&
+                          field === "average" &&
+                          result.attempts.length > 3 ? (
+                            <>
+                              <Typography
+                                component="span"
+                                color="green"
+                                sx={{ ...styles.cell }}
+                              >
+                                {calculateBpa(
+                                  result.attempts.map(
+                                    (attempt) => attempt.result
+                                  ),
+                                  eventId
+                                )}
+                              </Typography>{" "}
+                              {" / "}
+                              <Typography
+                                component="span"
+                                color="error"
+                                sx={{ ...styles.cell }}
+                              >
+                                {calculateWpa(
+                                  result.attempts.map(
+                                    (attempt) => attempt.result
+                                  ),
+                                  eventId
+                                )}
+                              </Typography>
+                            </>
+                          ) : (
+                            formatAttemptResult(result[field], eventId)
+                          )}
                         </RecordTagBadge>
                       </TableCell>
                     ))}

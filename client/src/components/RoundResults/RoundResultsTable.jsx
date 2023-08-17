@@ -154,7 +154,12 @@ const RoundResultsTable = memo(
                               component="span"
                               color="green"
                             >
-                              {calculateBpa(result.attempts.map(attempt => attempt.result), eventId)}
+                              {calculateBpa(
+                                result.attempts.map(
+                                  (attempt) => attempt.result
+                                ),
+                                eventId
+                              )}
                             </Typography>
                           </Tooltip>
                           {" / "}
@@ -164,7 +169,12 @@ const RoundResultsTable = memo(
                               component="span"
                               color="error"
                             >
-                              {calculateWpa(result.attempts.map(attempt => attempt.result), eventId)}
+                              {calculateWpa(
+                                result.attempts.map(
+                                  (attempt) => attempt.result
+                                ),
+                                eventId
+                              )}
                             </Typography>
                           </Tooltip>
                         </>

@@ -212,7 +212,7 @@ export function calculateBpa(times, eventId) {
     bpa = -1;
   } else {
     const sortedTimes = validTimes.slice().sort((a, b) => a - b);
-    bpa = (sortedTimes[0] + sortedTimes[1] + sortedTimes[2]) / 3;  
+    bpa = (sortedTimes[0] + sortedTimes[1] + sortedTimes[2]) / 3;
   }
   return formatAttemptResult(bpa, eventId);
 }
@@ -230,7 +230,7 @@ export function calculateWpa(times, eventId) {
     wpa = -1;
   } else {
     const sortedTimes = times.slice().sort((a, b) => a - b);
-    wpa = (sortedTimes[1] + sortedTimes[2] + sortedTimes[3]) / 3;  
+    wpa = (sortedTimes[1] + sortedTimes[2] + sortedTimes[3]) / 3;
   }
   return formatAttemptResult(wpa, eventId);
 }
