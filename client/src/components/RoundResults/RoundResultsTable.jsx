@@ -18,6 +18,7 @@ import {
   calculateBpa,
   calculateWpa,
   formatAttemptResult,
+  meanOf2,
 } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
@@ -47,14 +48,7 @@ const styles = {
 };
 
 const RoundResultsTable = memo(
-  ({
-    results,
-    format,
-    eventId,
-    competitionId,
-    onResultClick,
-    showBpaAndWpa,
-  }) => {
+  ({ results, format, eventId, competitionId, onResultClick, roundFormat }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
@@ -143,44 +137,59 @@ const RoundResultsTable = memo(
                     }}
                   >
                     <RecordTagBadge litePr recordTag={result[recordTagField]}>
-                      {showBpaAndWpa &&
-                      result.average === 0 &&
-                      field === "average" &&
-                      result.attempts.length > 3 ? (
-                        <>
-                          <Tooltip title="Best possible average">
-                            <Typography
-                              variant="body2"
-                              component="span"
-                              color="green"
-                            >
-                              {calculateBpa(
-                                result.attempts.map(
-                                  (attempt) => attempt.result
-                                ),
-                                eventId
-                              )}
-                            </Typography>
-                          </Tooltip>
-                          {" / "}
-                          <Tooltip title="Worst possible average">
-                            <Typography
-                              variant="body2"
-                              component="span"
-                              color="error"
-                            >
-                              {calculateWpa(
-                                result.attempts.map(
-                                  (attempt) => attempt.result
-                                ),
-                                eventId
-                              )}
-                            </Typography>
-                          </Tooltip>
-                        </>
-                      ) : (
-                        formatAttemptResult(result[field], eventId)
-                      )}
+                      {result.average === 0 && field === "average"
+                        ? roundFormat.id === "a"
+                          ? result.attempts.length > 3 && (
+                              <>
+                                <Tooltip title="Best possible average">
+                                  <Typography
+                                    variant="body2"
+                                    component="span"
+                                    sx={{ opacity: 0.5 }}
+                                  >
+                                    {calculateBpa(
+                                      result.attempts.map(
+                                        (attempt) => attempt.result
+                                      ),
+                                      eventId
+                                    )}
+                                  </Typography>
+                                </Tooltip>
+                                {" / "}
+                                <Tooltip title="Worst possible average">
+                                  <Typography
+                                    variant="body2"
+                                    component="span"
+                                    sx={{ opacity: 0.5 }}
+                                  >
+                                    {calculateWpa(
+                                      result.attempts.map(
+                                        (attempt) => attempt.result
+                                      ),
+                                      eventId
+                                    )}
+                                  </Typography>
+                                </Tooltip>
+                              </>
+                            )
+                          : roundFormat.id === "m" &&
+                            result.attempts.length > 1 && (
+                              <Tooltip title="Mean after 2 solves">
+                                <Typography
+                                  variant="body2"
+                                  component="span"
+                                  sx={{ opacity: 0.5 }}
+                                >
+                                  {meanOf2(
+                                    result.attempts.map(
+                                      (attempt) => attempt.result
+                                    ),
+                                    eventId
+                                  )}
+                                </Typography>
+                              </Tooltip>
+                            )
+                        : formatAttemptResult(result[field], eventId)}
                     </RecordTagBadge>
                   </TableCell>
                 ))}

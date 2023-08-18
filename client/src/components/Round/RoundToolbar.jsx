@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import {
   Grid,
   IconButton,
-  Switch,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -11,7 +10,7 @@ import TvIcon from "@mui/icons-material/Tv";
 import PrintIcon from "@mui/icons-material/Print";
 import { appUrl } from "../../lib/urls";
 
-function RoundToolbar({ round, competitionId, toggleWpaAndBpa }) {
+function RoundToolbar({ round, competitionId }) {
   const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
   return (
@@ -42,13 +41,6 @@ function RoundToolbar({ round, competitionId, toggleWpaAndBpa }) {
             >
               <TvIcon />
             </IconButton>
-          </Tooltip>
-        </Grid>
-      )}
-      {round.name === "Final" && round.format.id === "a" && (
-        <Grid item>
-          <Tooltip title="Show BPA/WPA" placement="top">
-            <Switch onChange={toggleWpaAndBpa} />
           </Tooltip>
         </Grid>
       )}

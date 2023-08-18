@@ -10,7 +10,7 @@ function RoundResults({
   format,
   eventId,
   competitionId,
-  showBpaAndWpa,
+  roundFormat,
 }) {
   const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -41,7 +41,7 @@ function RoundResults({
             eventId={eventId}
             competitionId={competitionId}
             onResultClick={handleResultClick}
-            showBpaAndWpa={showBpaAndWpa}
+            roundFormat={roundFormat}
           />
         </Grid>
         {!showAll && (

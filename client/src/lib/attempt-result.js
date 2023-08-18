@@ -235,6 +235,16 @@ export function calculateWpa(times, eventId) {
   return formatAttemptResult(wpa, eventId);
 }
 
+export function meanOf2(times, eventId) {
+  let mo2;
+  if (times.some((time) => time === -1 || time === -2)) {
+    mo2 = -1;
+  } else {
+    mo2 = (times[0] + times[1]) / 2;
+  }
+  return formatAttemptResult(mo2, eventId);
+}
+
 function formatMbldAttemptResult(attemptResult) {
   const { solved, attempted, centiseconds } =
     decodeMbldAttemptResult(attemptResult);

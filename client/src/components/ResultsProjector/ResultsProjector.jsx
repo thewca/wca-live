@@ -23,6 +23,7 @@ import {
   calculateBpa,
   calculateWpa,
   formatAttemptResult,
+  meanOf2,
 } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
@@ -76,7 +77,7 @@ function ResultsProjector({
   eventId,
   title,
   exitUrl,
-  showBpaAndWpa,
+  roundFormat,
 }) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
@@ -234,40 +235,55 @@ function ResultsProjector({
                           recordTag={result[recordTagField]}
                           hidePr
                         >
-                          {showBpaAndWpa &&
-                          result.average === 0 &&
-                          field === "average" &&
-                          result.attempts.length > 3 ? (
-                            <>
-                              <Typography
-                                component="span"
-                                color="green"
-                                sx={{ ...styles.cell }}
-                              >
-                                {calculateBpa(
-                                  result.attempts.map(
-                                    (attempt) => attempt.result
-                                  ),
-                                  eventId
-                                )}
-                              </Typography>{" "}
-                              {" / "}
-                              <Typography
-                                component="span"
-                                color="error"
-                                sx={{ ...styles.cell }}
-                              >
-                                {calculateWpa(
-                                  result.attempts.map(
-                                    (attempt) => attempt.result
-                                  ),
-                                  eventId
-                                )}
-                              </Typography>
-                            </>
-                          ) : (
-                            formatAttemptResult(result[field], eventId)
-                          )}
+                          {result.average === 0 && field === "average"
+                            ? roundFormat.id === "a"
+                              ? result.attempts.length > 3 && (
+                                  <>
+                                    <Typography
+                                      variant="body2"
+                                      component="span"
+                                      sx={{ opacity: 0.5, ...styles.cell }}
+                                    >
+                                      {calculateBpa(
+                                        result.attempts.map(
+                                          (attempt) => attempt.result
+                                        ),
+                                        eventId
+                                      )}
+                                    </Typography>
+
+                                    {" / "}
+
+                                    <Typography
+                                      variant="body2"
+                                      component="span"
+                                      sx={{ opacity: 0.5, ...styles.cell }}
+                                    >
+                                      {calculateWpa(
+                                        result.attempts.map(
+                                          (attempt) => attempt.result
+                                        ),
+                                        eventId
+                                      )}
+                                    </Typography>
+                                  </>
+                                )
+                              : roundFormat.id === "m" &&
+                                result.attempts.length > 1 && (
+                                  <Typography
+                                    variant="body2"
+                                    component="span"
+                                    sx={{ opacity: 0.5, ...styles.cell }}
+                                  >
+                                    {meanOf2(
+                                      result.attempts.map(
+                                        (attempt) => attempt.result
+                                      ),
+                                      eventId
+                                    )}
+                                  </Typography>
+                                )
+                            : formatAttemptResult(result[field], eventId)}
                         </RecordTagBadge>
                       </TableCell>
                     ))}

@@ -14,6 +14,7 @@ import {
   applyTimeLimit,
   applyCutoff,
   isWorldRecord,
+  meanOf2,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -578,5 +579,16 @@ describe("calculateBpa", () => {
   it("calculate BPA correctly", () => {
     const attemptResults = [1000, 1200, 1300, 1400];
     expect(calculateBpa(attemptResults)).toEqual("11.66");
+  });
+});
+
+describe("meanOf2", () => {
+  it("returns DNF if any attempt result is DNF", () => {
+    const attemptResults = [21, -1];
+    expect(meanOf2(attemptResults, "333fm")).toEqual("DNF");
+  });
+  it("calculate mean of 2 correctly", () => {
+    const attemptResults = [21, 23];
+    expect(meanOf2(attemptResults, "333fm")).toEqual("22");
   });
 });
