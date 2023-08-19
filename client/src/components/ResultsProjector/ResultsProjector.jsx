@@ -238,42 +238,32 @@ function ResultsProjector({
                           {result.average === 0 && field === "average"
                             ? roundFormat.id === "a"
                               ? result.attempts.length > 3 && (
-                                  <>
-                                    <Typography
-                                      variant="body2"
-                                      component="span"
-                                      sx={{ opacity: 0.5, ...styles.cell }}
-                                    >
-                                      {calculateBpa(
-                                        result.attempts.map(
-                                          (attempt) => attempt.result
-                                        ),
-                                        eventId
-                                      )}
-                                    </Typography>
-
+                                  <Typography
+                                    variant="body2"
+                                    component="span"
+                                    sx={{ opacity: 0.5, fontSize: "1.5rem" }}
+                                  >
+                                    {calculateBpa(
+                                      result.attempts.map(
+                                        (attempt) => attempt.result
+                                      ),
+                                      eventId
+                                    )}
                                     {" / "}
-
-                                    <Typography
-                                      variant="body2"
-                                      component="span"
-                                      sx={{ opacity: 0.5, ...styles.cell }}
-                                    >
-                                      {calculateWpa(
-                                        result.attempts.map(
-                                          (attempt) => attempt.result
-                                        ),
-                                        eventId
-                                      )}
-                                    </Typography>
-                                  </>
+                                    {calculateWpa(
+                                      result.attempts.map(
+                                        (attempt) => attempt.result
+                                      ),
+                                      eventId
+                                    )}
+                                  </Typography>
                                 )
                               : roundFormat.id === "m" &&
                                 result.attempts.length > 1 && (
                                   <Typography
                                     variant="body2"
                                     component="span"
-                                    sx={{ opacity: 0.5, ...styles.cell }}
+                                    sx={{ opacity: 0.5, fontSize: "1.5rem" }}
                                   >
                                     {meanOf2(
                                       result.attempts.map(
