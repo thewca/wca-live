@@ -1,7 +1,6 @@
 import {
   best,
-  calculateBpa,
-  calculateWpa,
+  bestPossibleAverage,
   average,
   formatAttemptResult,
   decodeMbldAttemptResult,
@@ -14,7 +13,8 @@ import {
   applyTimeLimit,
   applyCutoff,
   isWorldRecord,
-  meanOf2,
+  worstPossibleAverage,
+  incompleteMean,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -558,37 +558,37 @@ describe("applyCutoff", () => {
   });
 });
 
-describe("calculateWpa", () => {
-  it("returns DNF if any attempt result is DNF", () => {
+describe("worstPossibleAverage", () => {
+  it("returns -1 if any attempt result is DNF", () => {
     const attemptResults = [1000, -1, 1200, 1300];
-    expect(calculateWpa(attemptResults)).toEqual("DNF");
+    expect(worstPossibleAverage(attemptResults)).toEqual(-1);
   });
 
-  it("calculate WPA correctly", () => {
-    const attemptResults = [1000, 1200, 1300, 1400];
-    expect(calculateWpa(attemptResults)).toEqual("13.00");
+  it("calculate worst possible average correctly", () => {
+    const attemptResults = [3642, 3102, 3001, 2992];
+    expect(worstPossibleAverage(attemptResults)).toEqual(3248);
   });
 });
 
-describe("calculateBpa", () => {
-  it("returns DNF if two attempts result are DNF's", () => {
+describe("bestPossibleAverage", () => {
+  it("returns -1 if two attempts result are DNF's", () => {
     const attemptResults = [1000, -1, 1200, -1];
-    expect(calculateBpa(attemptResults)).toEqual("DNF");
+    expect(bestPossibleAverage(attemptResults)).toEqual(-1);
   });
 
   it("calculate BPA correctly", () => {
-    const attemptResults = [1000, 1200, 1300, 1400];
-    expect(calculateBpa(attemptResults)).toEqual("11.66");
+    const attemptResults = [3642, 3102, 3001, 2992];
+    expect(bestPossibleAverage(attemptResults)).toEqual(3032);
   });
 });
 
-describe("meanOf2", () => {
-  it("returns DNF if any attempt result is DNF", () => {
+describe("incompleteMean", () => {
+  it("returns -1 if any attempt result is DNF", () => {
     const attemptResults = [21, -1];
-    expect(meanOf2(attemptResults, "333fm")).toEqual("DNF");
+    expect(incompleteMean(attemptResults, "333fm")).toEqual(-1);
   });
   it("calculate mean of 2 correctly", () => {
     const attemptResults = [21, 23];
-    expect(meanOf2(attemptResults, "333fm")).toEqual("22");
+    expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
   });
 });

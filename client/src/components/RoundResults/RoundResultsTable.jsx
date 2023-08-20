@@ -7,21 +7,15 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Tooltip,
-  Typography,
   Paper,
   useMediaQuery,
 } from "@mui/material";
 import { green } from "@mui/material/colors";
 import { times } from "../../lib/utils";
-import {
-  calculateBpa,
-  calculateWpa,
-  formatAttemptResult,
-  meanOf2,
-} from "../../lib/attempt-result";
+import { formatAttemptResult } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
+import Result from "../Result/Result";
 
 const styles = {
   cell: {
@@ -137,59 +131,12 @@ const RoundResultsTable = memo(
                     }}
                   >
                     <RecordTagBadge litePr recordTag={result[recordTagField]}>
-                      {result.average === 0 && field === "average"
-                        ? roundFormat.id === "a"
-                          ? result.attempts.length > 3 && (
-                              <>
-                                <Tooltip title="Best possible average">
-                                  <Typography
-                                    variant="body2"
-                                    component="span"
-                                    sx={{ opacity: 0.5 }}
-                                  >
-                                    {calculateBpa(
-                                      result.attempts.map(
-                                        (attempt) => attempt.result
-                                      ),
-                                      eventId
-                                    )}
-                                  </Typography>
-                                </Tooltip>
-                                {" / "}
-                                <Tooltip title="Worst possible average">
-                                  <Typography
-                                    variant="body2"
-                                    component="span"
-                                    sx={{ opacity: 0.5 }}
-                                  >
-                                    {calculateWpa(
-                                      result.attempts.map(
-                                        (attempt) => attempt.result
-                                      ),
-                                      eventId
-                                    )}
-                                  </Typography>
-                                </Tooltip>
-                              </>
-                            )
-                          : roundFormat.id === "m" &&
-                            result.attempts.length > 1 && (
-                              <Tooltip title="Mean after 2 solves">
-                                <Typography
-                                  variant="body2"
-                                  component="span"
-                                  sx={{ opacity: 0.5 }}
-                                >
-                                  {meanOf2(
-                                    result.attempts.map(
-                                      (attempt) => attempt.result
-                                    ),
-                                    eventId
-                                  )}
-                                </Typography>
-                              </Tooltip>
-                            )
-                        : formatAttemptResult(result[field], eventId)}
+                      <Result
+                        result={result}
+                        field={field}
+                        eventId={eventId}
+                        roundFormat={roundFormat}
+                      />
                     </RecordTagBadge>
                   </TableCell>
                 ))}

@@ -19,14 +19,10 @@ import { green } from "@mui/material/colors";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
-import {
-  calculateBpa,
-  calculateWpa,
-  formatAttemptResult,
-  meanOf2,
-} from "../../lib/attempt-result";
+import { formatAttemptResult } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
+import Result from "../Result/Result";
 
 const styles = {
   cell: {
@@ -235,45 +231,12 @@ function ResultsProjector({
                           recordTag={result[recordTagField]}
                           hidePr
                         >
-                          {result.average === 0 && field === "average"
-                            ? roundFormat.id === "a"
-                              ? result.attempts.length > 3 && (
-                                  <Typography
-                                    variant="body2"
-                                    component="span"
-                                    sx={{ opacity: 0.5, fontSize: "1.5rem" }}
-                                  >
-                                    {calculateBpa(
-                                      result.attempts.map(
-                                        (attempt) => attempt.result
-                                      ),
-                                      eventId
-                                    )}
-                                    {" / "}
-                                    {calculateWpa(
-                                      result.attempts.map(
-                                        (attempt) => attempt.result
-                                      ),
-                                      eventId
-                                    )}
-                                  </Typography>
-                                )
-                              : roundFormat.id === "m" &&
-                                result.attempts.length > 1 && (
-                                  <Typography
-                                    variant="body2"
-                                    component="span"
-                                    sx={{ opacity: 0.5, fontSize: "1.5rem" }}
-                                  >
-                                    {meanOf2(
-                                      result.attempts.map(
-                                        (attempt) => attempt.result
-                                      ),
-                                      eventId
-                                    )}
-                                  </Typography>
-                                )
-                            : formatAttemptResult(result[field], eventId)}
+                          <Result
+                            result={result}
+                            field={field}
+                            eventId={eventId}
+                            roundFormat={roundFormat}
+                          />
                         </RecordTagBadge>
                       </TableCell>
                     ))}

@@ -198,51 +198,53 @@ export function formatAttemptResult(attemptResult, eventId) {
 }
 
 /**
- * Calcualte BPA (Best Possible Average) for the given attempts.
- * Returns a human-friendly string.
+ * Calculate BPA (Best Possible Average) for the given attempts.
  * @example
- * calculateBpa([6111, 6000, 5999, 6000], '333'); // => '1:00.00'
- * calculateBpa([6111, -1, -1, 6000], '333'); // => 'DNF'
- * calculateBpa([6111, -1, 6000, 5999], '333'); // => '1:00.36'
+ * bestPossibleAverage([3642, 3102, 3001, 2992]); // => 3032
+ * bestPossibleAverage([6111, -1, -1, 6000]); // => -1
+ * bestPossibleAverage([4822, 4523, 4233, -1]; // => 4526
  */
-export function calculateBpa(times, eventId) {
+export function bestPossibleAverage(times) {
   let bpa;
+  console.log(times);
   const validTimes = times.filter((attempt) => attempt > -1);
   if (validTimes.length < 3) {
     bpa = -1;
   } else {
     const sortedTimes = validTimes.slice().sort((a, b) => a - b);
-    bpa = (sortedTimes[0] + sortedTimes[1] + sortedTimes[2]) / 3;
+    bpa = mean(sortedTimes[0], sortedTimes[1], sortedTimes[2]);
   }
-  return formatAttemptResult(bpa, eventId);
+  return bpa;
 }
 /**
- * Calcualte WPA (Worst Possible Average) for the given attempts.
- * Returns a human-friendly string.
+ * Calculate WPA (Worst Possible Average) for the given attempts.
  * @example
- * calculateWpa([6111, 6000, 5999, 6000], '333'); // => '1:00.00'
- * calculateWpa([6111, -1, -1, 6000], '333'); // => 'DNF'
- * calculateWpa([6111, -1, 6000, 5999], '333'); // => '1:00.36'
+ * worstPossibleAverage([3642, 3102, 3001, 2992]); // => 3248
+ * worstPossibleAverage([6111, -1, -1, 6000]); // => -1
+ * worstPossibleAverage([6111, -1, 6000, 5999]); // => -1
  */
-export function calculateWpa(times, eventId) {
+export function worstPossibleAverage(times) {
   let wpa;
   if (times.some((time) => time === -1 || time === -2)) {
     wpa = -1;
   } else {
     const sortedTimes = times.slice().sort((a, b) => a - b);
-    wpa = (sortedTimes[1] + sortedTimes[2] + sortedTimes[3]) / 3;
+    wpa = mean(sortedTimes[1], sortedTimes[2], sortedTimes[3]);
   }
-  return formatAttemptResult(wpa, eventId);
+  return wpa;
 }
 
-export function meanOf2(times, eventId) {
+export function incompleteMean(times, eventId) {
   let mo2;
   if (times.some((time) => time === -1 || time === -2)) {
     mo2 = -1;
   } else {
+    if (eventId === "333fm") {
+      times = times.map((attemptResult) => attemptResult * 100);
+    }
     mo2 = (times[0] + times[1]) / 2;
   }
-  return formatAttemptResult(mo2, eventId);
+  return mo2;
 }
 
 function formatMbldAttemptResult(attemptResult) {
