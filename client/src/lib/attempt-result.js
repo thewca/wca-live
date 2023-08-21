@@ -206,7 +206,6 @@ export function formatAttemptResult(attemptResult, eventId) {
  */
 export function bestPossibleAverage(times) {
   let bpa;
-  console.log(times);
   const validTimes = times.filter((attempt) => attempt > -1);
   if (validTimes.length < 3) {
     bpa = -1;

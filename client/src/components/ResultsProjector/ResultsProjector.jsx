@@ -22,7 +22,7 @@ import { times } from "../../lib/utils";
 import { formatAttemptResult } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
-import Result from "../Result/Result";
+import ResultStat from "../ResultStat/ResultStat";
 
 const styles = {
   cell: {
@@ -231,7 +231,7 @@ function ResultsProjector({
                           recordTag={result[recordTagField]}
                           hidePr
                         >
-                          <Result
+                          <ResultStat
                             result={result}
                             field={field}
                             eventId={eventId}
