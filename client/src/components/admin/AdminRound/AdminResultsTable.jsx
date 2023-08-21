@@ -14,6 +14,7 @@ import { times } from "../../../lib/utils";
 import { formatAttemptResult } from "../../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../../lib/result";
 import RecordTagBadge from "../../RecordTagBadge/RecordTagBadge";
+import ResultStat from "../../ResultStat/ResultStat";
 
 const styles = {
   ranking: {
@@ -146,7 +147,12 @@ const AdminResultsTable = memo(
                   sx={{ fontWeight: index === 0 ? 600 : 400 }}
                 >
                   <RecordTagBadge recordTag={result[recordTagField]} hidePr>
-                    {formatAttemptResult(result[field], eventId)}
+                    <ResultStat
+                      result={result}
+                      field={field}
+                      eventId={eventId}
+                      format={format}
+                    />
                   </RecordTagBadge>
                 </TableCell>
               ))}

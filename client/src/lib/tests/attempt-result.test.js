@@ -1,5 +1,6 @@
 import {
   best,
+  bestPossibleAverage,
   average,
   formatAttemptResult,
   decodeMbldAttemptResult,
@@ -12,6 +13,8 @@ import {
   applyTimeLimit,
   applyCutoff,
   isWorldRecord,
+  worstPossibleAverage,
+  incompleteMean,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -50,7 +53,7 @@ describe("average", () => {
   it("throws an error if the number of attempt results is neither 3 nor 5", () => {
     expect(() => {
       average([1100, 900], "333");
-    }).toThrow("Invalid number of attempt results, expected 3 or 5, given 2.");
+    }).toThrow("Invalid number of attempt results, expected 3 or 5, got 2.");
   });
 
   it("returns 0 (skipped) for 3x3x3 Multi-Blind", () => {
@@ -552,5 +555,41 @@ describe("applyCutoff", () => {
       attemptResult: 800,
     };
     expect(applyCutoff(attempts, cutoff)).toEqual([1000, 799, 1200, 1000, 900]);
+  });
+});
+
+describe("worstPossibleAverage", () => {
+  it("returns -1 if any attempt result is DNF", () => {
+    const attemptResults = [1000, -1, 1200, 1300];
+    expect(worstPossibleAverage(attemptResults)).toEqual(-1);
+  });
+
+  it("calculates average of 5 assuming worst attempt result", () => {
+    const attemptResults = [3642, 3102, 3001, 2992];
+    expect(worstPossibleAverage(attemptResults)).toEqual(3248);
+  });
+});
+
+describe("bestPossibleAverage", () => {
+  it("returns -1 if two attempts result are DNFs", () => {
+    const attemptResults = [1000, -1, 1200, -1];
+    expect(bestPossibleAverage(attemptResults)).toEqual(-1);
+  });
+
+  it("calculates average of 5 assuming best attempt result", () => {
+    const attemptResults = [3642, 3102, 3001, 2992];
+    expect(bestPossibleAverage(attemptResults)).toEqual(3032);
+  });
+});
+
+describe("incompleteMean", () => {
+  it("returns -1 if any attempt result is DNF", () => {
+    const attemptResults = [21, -1];
+    expect(incompleteMean(attemptResults, "333fm")).toEqual(-1);
+  });
+
+  it("calculates mean of 2", () => {
+    const attemptResults = [21, 23];
+    expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
   });
 });
