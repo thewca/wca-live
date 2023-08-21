@@ -126,7 +126,6 @@ function Round() {
                   eventId={round.competitionEvent.event.id}
                   title={`${round.competitionEvent.event.name} - ${round.name}`}
                   exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
-                  roundFormat={round.format}
                 />
               }
             />
@@ -140,7 +139,6 @@ function Round() {
                   format={round.format}
                   eventId={round.competitionEvent.event.id}
                   competitionId={competitionId}
-                  roundFormat={round.format}
                 />
               }
             />

@@ -67,14 +67,7 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({
-  results,
-  format,
-  eventId,
-  title,
-  exitUrl,
-  roundFormat,
-}) {
+function ResultsProjector({ results, format, eventId, title, exitUrl }) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
@@ -235,7 +228,7 @@ function ResultsProjector({
                             result={result}
                             field={field}
                             eventId={eventId}
-                            roundFormat={roundFormat}
+                            format={format}
                           />
                         </RecordTagBadge>
                       </TableCell>

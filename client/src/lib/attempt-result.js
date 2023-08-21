@@ -85,7 +85,7 @@ export function average(attemptResults, eventId) {
         return averageOf5(scaled);
       default:
         throw new Error(
-          `Invalid number of attempt results, expected 3 or 5, given ${attemptResults.length}.`
+          `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
         );
     }
   }
@@ -97,7 +97,7 @@ export function average(attemptResults, eventId) {
       return roundOver10Mins(averageOf5(attemptResults));
     default:
       throw new Error(
-        `Invalid number of attempt results, expected 3 or 5, given ${attemptResults.length}.`
+        `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
       );
   }
 }
@@ -116,11 +116,76 @@ function averageOf5(attemptResults) {
 
 function meanOf3(attemptResults) {
   if (!attemptResults.every(isComplete)) return DNF_VALUE;
-  return mean(...attemptResults);
+  return mean(attemptResults);
 }
 
-function mean(x, y, z) {
-  return Math.round((x + y + z) / 3);
+function mean(values) {
+  const sum = values.reduce((x, y) => x + y, 0);
+  return Math.round(sum / values.length);
+}
+
+/**
+ * Calculates the best possible average of 5 for the given attempts.
+ *
+ * Expects exactly 4 attempt results to be given.
+ *
+ * @example
+ * bestPossibleAverage([3642, 3102, 3001, 2992]); // => 3032
+ * bestPossibleAverage([6111, -1, -1, 6000]); // => -1
+ * bestPossibleAverage([4822, 4523, 4233, -1]; // => 4526
+ */
+export function bestPossibleAverage(attemptResults) {
+  if (attemptResults.length !== 4) {
+    throw new Error(
+      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`
+    );
+  }
+
+  const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
+  const mean = meanOf3([x, y, z]);
+  return roundOver10Mins(mean);
+}
+
+/**
+ * Calculates the worst possible average of 5 for the given attempts.
+ *
+ * Expects exactly 4 attempt results to be given.
+ *
+ * @example
+ * worstPossibleAverage([3642, 3102, 3001, 2992]); // => 3248
+ * worstPossibleAverage([6111, -1, -1, 6000]); // => -1
+ * worstPossibleAverage([6111, -1, 6000, 5999]); // => -1
+ */
+export function worstPossibleAverage(attemptResults) {
+  if (attemptResults.length !== 4) {
+    throw new Error(
+      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`
+    );
+  }
+
+  const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
+  const mean = meanOf3([x, y, z]);
+  return roundOver10Mins(mean);
+}
+
+/**
+ * Calculates mean of 2 for the given attempt results.
+ */
+export function incompleteMean(attemptResults, eventId) {
+  if (attemptResults.length !== 2) {
+    throw new Error(
+      `Invalid number of attempt results, expected 2, got ${attemptResults.length}.`
+    );
+  }
+
+  if (!attemptResults.every(isComplete)) return DNF_VALUE;
+
+  if (eventId === "333fm") {
+    const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
+    return mean(scaled);
+  }
+
+  return roundOver10Mins(mean(attemptResults));
 }
 
 /**
@@ -195,55 +260,6 @@ export function formatAttemptResult(attemptResult, eventId) {
   if (eventId === "333mbf") return formatMbldAttemptResult(attemptResult);
   if (eventId === "333fm") return formatFmAttemptResult(attemptResult);
   return centisecondsToClockFormat(attemptResult);
-}
-
-/**
- * Calculate BPA (Best Possible Average) for the given attempts.
- * @example
- * bestPossibleAverage([3642, 3102, 3001, 2992]); // => 3032
- * bestPossibleAverage([6111, -1, -1, 6000]); // => -1
- * bestPossibleAverage([4822, 4523, 4233, -1]; // => 4526
- */
-export function bestPossibleAverage(times) {
-  let bpa;
-  const validTimes = times.filter((attempt) => attempt > -1);
-  if (validTimes.length < 3) {
-    bpa = -1;
-  } else {
-    const sortedTimes = validTimes.slice().sort((a, b) => a - b);
-    bpa = mean(sortedTimes[0], sortedTimes[1], sortedTimes[2]);
-  }
-  return bpa;
-}
-/**
- * Calculate WPA (Worst Possible Average) for the given attempts.
- * @example
- * worstPossibleAverage([3642, 3102, 3001, 2992]); // => 3248
- * worstPossibleAverage([6111, -1, -1, 6000]); // => -1
- * worstPossibleAverage([6111, -1, 6000, 5999]); // => -1
- */
-export function worstPossibleAverage(times) {
-  let wpa;
-  if (times.some((time) => time === -1 || time === -2)) {
-    wpa = -1;
-  } else {
-    const sortedTimes = times.slice().sort((a, b) => a - b);
-    wpa = mean(sortedTimes[1], sortedTimes[2], sortedTimes[3]);
-  }
-  return wpa;
-}
-
-export function incompleteMean(times, eventId) {
-  let mo2;
-  if (times.some((time) => time === -1 || time === -2)) {
-    mo2 = -1;
-  } else {
-    if (eventId === "333fm") {
-      times = times.map((attemptResult) => attemptResult * 100);
-    }
-    mo2 = (times[0] + times[1]) / 2;
-  }
-  return mo2;
 }
 
 function formatMbldAttemptResult(attemptResult) {

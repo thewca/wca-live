@@ -42,7 +42,7 @@ const styles = {
 };
 
 const RoundResultsTable = memo(
-  ({ results, format, eventId, competitionId, onResultClick, roundFormat }) => {
+  ({ results, format, eventId, competitionId, onResultClick }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
@@ -135,7 +135,7 @@ const RoundResultsTable = memo(
                         result={result}
                         field={field}
                         eventId={eventId}
-                        roundFormat={roundFormat}
+                        format={format}
                       />
                     </RecordTagBadge>
                   </TableCell>

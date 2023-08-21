@@ -5,18 +5,23 @@ import {
   formatAttemptResult,
   incompleteMean,
 } from "../../lib/attempt-result";
+import { shouldComputeAverage } from "../../lib/result";
 
-function ResultStat({ result, field, eventId, roundFormat }) {
-  if (field === "average" && result.average === 0) {
-    if (roundFormat.id === "a" && result.attempts.length > 3) {
+function ResultStat({ result, field, eventId, format }) {
+  if (
+    field === "average" &&
+    result.average === 0 &&
+    shouldComputeAverage(eventId, format.numberOfAttempts)
+  ) {
+    const attemptResults = result.attempts.map((attempt) => attempt.result);
+
+    if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
           <Tooltip title="Best possible average">
             <span>
               {formatAttemptResult(
-                bestPossibleAverage(
-                  result.attempts.map((attempt) => attempt.result)
-                ),
+                bestPossibleAverage(attemptResults),
                 eventId
               )}
             </span>
@@ -25,31 +30,31 @@ function ResultStat({ result, field, eventId, roundFormat }) {
           <Tooltip title="Worst possible average">
             <span>
               {formatAttemptResult(
-                worstPossibleAverage(
-                  result.attempts.map((attempt) => attempt.result)
-                ),
+                worstPossibleAverage(attemptResults),
                 eventId
               )}
             </span>
           </Tooltip>
         </Box>
       );
-    } else if (roundFormat.id === "m" && result.attempts.length > 1) {
+    }
+
+    if (format.numberOfAttempts === 3 && result.attempts.length === 2) {
       return (
-        <Tooltip title="Mean after 2 solves">
-          <Box component="span" sx={{ opacity: 0.5 }}>
-            {formatAttemptResult(
-              incompleteMean(
-                result.attempts.map((attempt) => attempt.result),
+        <Box component="span" sx={{ opacity: 0.5 }}>
+          <Tooltip title="Mean after 2 solves">
+            <span>
+              {formatAttemptResult(
+                incompleteMean(attemptResults, eventId),
                 eventId
-              ),
-              eventId
-            )}
-          </Box>
-        </Tooltip>
+              )}
+            </span>
+          </Tooltip>
+        </Box>
       );
     }
   }
+
   return formatAttemptResult(result[field], eventId);
 }
 

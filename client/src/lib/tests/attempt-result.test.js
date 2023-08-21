@@ -53,7 +53,7 @@ describe("average", () => {
   it("throws an error if the number of attempt results is neither 3 nor 5", () => {
     expect(() => {
       average([1100, 900], "333");
-    }).toThrow("Invalid number of attempt results, expected 3 or 5, given 2.");
+    }).toThrow("Invalid number of attempt results, expected 3 or 5, got 2.");
   });
 
   it("returns 0 (skipped) for 3x3x3 Multi-Blind", () => {
@@ -564,19 +564,19 @@ describe("worstPossibleAverage", () => {
     expect(worstPossibleAverage(attemptResults)).toEqual(-1);
   });
 
-  it("calculate worst possible average correctly", () => {
+  it("calculates average of 5 assuming worst attempt result", () => {
     const attemptResults = [3642, 3102, 3001, 2992];
     expect(worstPossibleAverage(attemptResults)).toEqual(3248);
   });
 });
 
 describe("bestPossibleAverage", () => {
-  it("returns -1 if two attempts result are DNF's", () => {
+  it("returns -1 if two attempts result are DNFs", () => {
     const attemptResults = [1000, -1, 1200, -1];
     expect(bestPossibleAverage(attemptResults)).toEqual(-1);
   });
 
-  it("calculate BPA correctly", () => {
+  it("calculates average of 5 assuming best attempt result", () => {
     const attemptResults = [3642, 3102, 3001, 2992];
     expect(bestPossibleAverage(attemptResults)).toEqual(3032);
   });
@@ -587,7 +587,8 @@ describe("incompleteMean", () => {
     const attemptResults = [21, -1];
     expect(incompleteMean(attemptResults, "333fm")).toEqual(-1);
   });
-  it("calculate mean of 2 correctly", () => {
+
+  it("calculates mean of 2", () => {
     const attemptResults = [21, 23];
     expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
   });
