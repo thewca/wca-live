@@ -108,6 +108,7 @@ function Round() {
   if (!data) return <Loading />;
   if (error) return <Error error={error} />;
   const { round } = data;
+
   return (
     <>
       {loading && <Loading />}
