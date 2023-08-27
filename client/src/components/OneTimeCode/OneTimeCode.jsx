@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
-import { Button, Grid, Typography } from "@mui/material";
+import { Alert, Button, Grid, Typography } from "@mui/material";
 import useApolloErrorHandler from "../../hooks/useApolloErrorHandler";
 import CodeDialog from "./CodeDialog";
 
@@ -46,6 +46,15 @@ function OneTimeCode() {
             machine, as you don't have to type any credentials on that machine,
             just the temporary code.
           </Typography>
+        </Grid>
+        <Grid item>
+          <Alert severity="warning">
+            You should never use the code to let someone else use your account
+            for scoretaking, especially if you are a privileged user
+            (organizer/delegate). Instead, the person should create a WCA
+            account and then be added as a scoretaker in the competition
+            settings.
+          </Alert>
         </Grid>
         <Grid item>
           <Button
