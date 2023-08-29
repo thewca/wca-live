@@ -1,16 +1,23 @@
-FROM hexpm/elixir:1.14.2-erlang-25.1.2-alpine-3.14.8
+ARG ELIXIR_VERSION=1.14.2
+ARG OTP_VERSION=25.2.3
+ARG DEBIAN_VERSION=bullseye-20230202-slim
 
-# Install node
-RUN apk add nodejs npm
+ARG IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 
-# Install dependencies
-RUN apk add --no-cache \
-    # build
-    build-base git python3 \
-    # runtime
-    openssl ncurses-libs \
+FROM ${IMAGE}
+
+# Install build dependencies
+RUN apt-get update -y && apt-get install -y build-essential git && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+# Install runtime dependencies
+RUN apt-get update -y && \
+  apt-get install -y libstdc++6 openssl libncurses5 locales \
     # PDF generation
-    ttf-freefont wkhtmltopdf
+    wkhtmltopdf fonts-freefont-ttf
 
 ENV HOME=/home/app
 # Create home dir explicitly, in case someone runs with `--user`
