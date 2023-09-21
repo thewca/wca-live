@@ -21,7 +21,7 @@
     "@mui/material": "^5.1.0",
     "date-fns": "^2.25.0",
     "flag-icons": "^6.9.2",
-    "graphql": "^16.7.1",
+    "graphql": "^16.8.1",
     "material-ui-confirm": "^3.0.2",
     "notistack": "^3.0.1",
     "phoenix": "^1.7.7",
