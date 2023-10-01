@@ -24,9 +24,6 @@ defmodule WcaLive.Accounts.OneTimeCode do
   # Configure OTCs to expire in 2 minutes.
   @ttl_sec 2 * 60
 
-  @required_fields [:code, :expires_at]
-  @optional_fields []
-
   schema "one_time_codes" do
     field :code, :string
     field :expires_at, :utc_datetime
@@ -34,12 +31,6 @@ defmodule WcaLive.Accounts.OneTimeCode do
     belongs_to :user, User
 
     timestamps(updated_at: false)
-  end
-
-  def changeset(otc, attrs) do
-    otc
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
   end
 
   @doc """

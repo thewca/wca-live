@@ -12,6 +12,12 @@ defmodule WcaLiveWeb.Resolvers.Accounts do
 
   def current_user(_parent, _args, _resolution), do: {:ok, nil}
 
+  def active_scoretaking_tokens(_parent, _args, %{context: %{current_user: current_user}}) do
+    {:ok, Accounts.list_active_scoretaking_tokens(current_user)}
+  end
+
+  def active_scoretaking_tokens(_parent, _args, _resolution), do: {:ok, []}
+
   def list_users(_parent, args, _resolution) do
     {:ok, Accounts.list_users(args)}
   end

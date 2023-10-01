@@ -1,11 +1,18 @@
-import { Box } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import OneTimeCode from "../OneTimeCode/OneTimeCode";
+import ScoretakingTokens from "../ScoretakingTokens/ScoretakingTokens";
 
 function Account() {
-  // It's pretty boring right now, but there's more to come.
   return (
     <Box p={{ xs: 2, sm: 3 }}>
-      <OneTimeCode />
+      <Grid container direction="column" gap={6}>
+        <Grid item>
+          <OneTimeCode />
+        </Grid>
+        <Grid item>
+          <ScoretakingTokens />
+        </Grid>
+      </Grid>
     </Box>
   );
 }

@@ -32,7 +32,7 @@ defmodule WcaLive.Scoretaking do
   end
 
   @doc """
-  Finds a specific round of the given event and competition.
+  Finds round by id.
 
   Raises an error if no round is found.
   """
@@ -40,7 +40,7 @@ defmodule WcaLive.Scoretaking do
   def fetch_round(id), do: Repo.fetch(Round, id)
 
   @doc """
-  Finds
+  Finds round given event id and number.
   """
   @spec get_round_by_event_and_number!(term(), String.t(), pos_integer()) :: %Round{}
   def get_round_by_event_and_number!(competition_id, event_id, round_number) do
@@ -94,13 +94,27 @@ defmodule WcaLive.Scoretaking do
   def fetch_result(id), do: Repo.fetch(Result, id)
 
   @doc """
+  Finds round given event id and number.
+  """
+  @spec get_result_by_registrant_id!(term(), pos_integer()) :: %Result{}
+  def get_result_by_registrant_id!(round_id, registrant_id) do
+    Repo.one!(
+      from round in Round,
+        join: result in assoc(round, :results),
+        join: person in assoc(result, :person),
+        where: round.id == ^round_id and person.registrant_id == ^registrant_id,
+        select: result
+    )
+  end
+
+  @doc """
   Updates attempts for a batch of results.
 
   Stores the timestamp and user who entered the attempts. Also updates
   ranking, records and advancing based on the new state.
   """
   @spec enter_results(
-          %Result{},
+          %Round{},
           list(%{id: term(), attempts: list(map()), entered_at: DateTime.t()}),
           %User{}
         ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t()}
@@ -136,6 +150,40 @@ defmodule WcaLive.Scoretaking do
       {:ok, _} -> {:ok, get_round!(round.id)}
       {:error, _, reason, _} -> {:error, reason}
     end
+  end
+
+  @doc """
+  Updates a single attempt of the given result.
+
+  Wraps `enter_results/3`.
+  """
+  def enter_result_attempt(round, result, attempt_number, attempt_result, user) do
+    format = Format.get_by_id!(round.format_id)
+
+    attempt_attrs = Enum.map(result.attempts, &Map.from_struct/1)
+
+    padded_attempt_attrs =
+      attempt_attrs ++
+        List.duplicate(%{result: 0}, format.number_of_attempts - length(result.attempts))
+
+    padded_attempt_attrs =
+      put_in(padded_attempt_attrs, [Access.at!(attempt_number - 1), :result], attempt_result)
+
+    attempt_attrs =
+      padded_attempt_attrs
+      |> Enum.reverse()
+      |> Enum.drop_while(&(&1.result == 0))
+      |> Enum.reverse()
+
+    results_attrs = [
+      %{
+        id: result.id,
+        attempts: attempt_attrs,
+        entered_at: DateTime.utc_now()
+      }
+    ]
+
+    enter_results(round, results_attrs, user)
   end
 
   # Updates attributes (`ranking`, `advancing` and record tags) of the given round results.

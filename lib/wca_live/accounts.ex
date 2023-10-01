@@ -6,7 +6,7 @@ defmodule WcaLive.Accounts do
   import Ecto.Query, warn: false
 
   alias WcaLive.Repo
-  alias WcaLive.Accounts.{User, AccessToken, OneTimeCode, UserToken}
+  alias WcaLive.Accounts.{User, AccessToken, OneTimeCode, UserToken, ScoretakingToken}
   alias WcaLive.Wca
 
   @doc """
@@ -151,5 +151,42 @@ defmodule WcaLive.Accounts do
           {:ok, user}
         end
     end
+  end
+
+  @doc """
+  Generates a new scoretaking token.
+  """
+  def generate_scoretaking_token(user, competition) do
+    scoretaking_token = ScoretakingToken.build_scoretaking_token(user, competition)
+    Repo.insert!(scoretaking_token)
+  end
+
+  @doc """
+  Gets the user with the given token.
+  """
+  def get_user_and_competition_by_scoretaking_token(token) do
+    Repo.one(ScoretakingToken.verify_token_query(token))
+  end
+
+  @doc """
+  Gets scoretaking token by id.
+  """
+  def get_scoretaking_token!(id) do
+    Repo.get!(ScoretakingToken, id)
+  end
+
+  @doc """
+  Deletes scoretaking token.
+  """
+  def delete_scoretaking_token(scoretaking_token) do
+    Repo.delete!(scoretaking_token)
+    :ok
+  end
+
+  @doc """
+  Lists all active scoretaking tokens for the given user.
+  """
+  def list_active_scoretaking_tokens(user) do
+    Repo.all(ScoretakingToken.active_tokens_for_user_query(user))
   end
 end
