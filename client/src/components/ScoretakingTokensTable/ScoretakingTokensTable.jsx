@@ -66,7 +66,6 @@ function ScoretakingTokensTable({
         <TableHead>
           <TableRow>
             <TableCell>Competition</TableCell>
-            <TableCell>Token</TableCell>
             <TableCell>Created</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -75,7 +74,6 @@ function ScoretakingTokensTable({
           {sortedScoretakingTokens.map((scoretakingToken) => (
             <TableRow key={scoretakingToken.id}>
               <TableCell>{scoretakingToken.competition.name}</TableCell>
-              <TableCell>{scoretakingToken.token}</TableCell>
               <TableCell>
                 <TimeAgo date={parseISO(scoretakingToken.insertedAt)} />
               </TableCell>

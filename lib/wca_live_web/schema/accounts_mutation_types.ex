@@ -36,6 +36,7 @@ defmodule WcaLiveWeb.Schema.AccountsMutationTypes do
   end
 
   object :generate_scoretaking_token_payload do
+    field :token, :string
     field :scoretaking_token, :scoretaking_token
   end
 

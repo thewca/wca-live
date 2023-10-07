@@ -7,12 +7,12 @@ import CompetitionSearch from "../CompetitionSearch/CompetitionSearch";
 import Loading from "../Loading/Loading";
 import Error from "../Error/Error";
 import ScoretakingTokensTable from "../ScoretakingTokensTable/ScoretakingTokensTable";
+import ScoretakingTokenDialog from "./ScoretakingTokenDialog";
 
 const ACTIVE_SCORETAKING_TOKENS_QUERY = gql`
   query ActiveScoretakingTokensQuery {
     activeScoretakingTokens {
       id
-      token
       insertedAt
       competition {
         id
@@ -25,9 +25,7 @@ const ACTIVE_SCORETAKING_TOKENS_QUERY = gql`
 const GENERATE_SCORETAKING_TOKEN = gql`
   mutation GenerateScoretakingToken($input: GenerateScoretakingTokenInput!) {
     generateScoretakingToken(input: $input) {
-      scoretakingToken {
-        id
-      }
+      token
     }
   }
 `;
@@ -36,29 +34,35 @@ function ScoretakingTokens() {
   const apolloErrorHandler = useApolloErrorHandler();
 
   const [competition, setCompetition] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data, loading, error } = useQuery(ACTIVE_SCORETAKING_TOKENS_QUERY);
 
-  const [generateScoretakingToken, { loading: mutationLoading }] = useMutation(
-    GENERATE_SCORETAKING_TOKEN,
-    {
-      variables: {
-        input: {
-          competitionId: competition && competition.id,
-        },
+  const [
+    generateScoretakingToken,
+    { data: generatedTokenData, loading: mutationLoading },
+  ] = useMutation(GENERATE_SCORETAKING_TOKEN, {
+    variables: {
+      input: {
+        competitionId: competition && competition.id,
       },
-      onError: apolloErrorHandler,
-      onCompleted: () => {
-        setCompetition(null);
-      },
-      refetchQueries: [ACTIVE_SCORETAKING_TOKENS_QUERY],
-    }
-  );
+    },
+    onError: apolloErrorHandler,
+    onCompleted: () => {
+      setCompetition(null);
+      setDialogOpen(true);
+    },
+    refetchQueries: [ACTIVE_SCORETAKING_TOKENS_QUERY],
+  });
 
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
 
   const { activeScoretakingTokens } = data;
+
+  const token = generatedTokenData
+    ? generatedTokenData.generateScoretakingToken.token
+    : null;
 
   return (
     <>
@@ -112,6 +116,11 @@ function ScoretakingTokens() {
           />
         </Grid>
       </Grid>
+      <ScoretakingTokenDialog
+        token={token}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      />
     </>
   );
 }

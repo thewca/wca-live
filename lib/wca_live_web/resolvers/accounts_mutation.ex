@@ -20,7 +20,7 @@ defmodule WcaLiveWeb.Resolvers.AccountsMutation do
 
     if can_scoretake? do
       scoretaking_token = Accounts.generate_scoretaking_token(current_user, competition)
-      {:ok, %{scoretaking_token: scoretaking_token}}
+      {:ok, %{token: scoretaking_token.token, scoretaking_token: scoretaking_token}}
     else
       {:error, "you do not have scoretaking access for this competition"}
     end

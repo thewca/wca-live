@@ -50,7 +50,6 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
   @desc "A competition-scoped token for scoretaking API calls from external systems."
   object :scoretaking_token do
     field :id, non_null(:id)
-    field :token, non_null(:string)
     field :inserted_at, non_null(:datetime)
 
     field :competition, non_null(:competition) do

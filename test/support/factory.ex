@@ -36,6 +36,7 @@ defmodule WcaLive.Factory do
   def scoretaking_token_factory do
     %Accounts.ScoretakingToken{
       token: "token",
+      token_hash: Accounts.ScoretakingToken.token_hash("token"),
       user: build(:user),
       competition: build(:competition)
     }
