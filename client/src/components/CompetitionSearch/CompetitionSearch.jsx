@@ -15,7 +15,7 @@ const COMPETITIONS = gql`
 
 const DEBOUNCE_MS = 250;
 
-function CompetitionSearch({ onChange, TextFieldProps = {} }) {
+function CompetitionSearch({ value = null, onChange, TextFieldProps = {} }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, DEBOUNCE_MS);
 
@@ -31,9 +31,9 @@ function CompetitionSearch({ onChange, TextFieldProps = {} }) {
     }
   }
 
-  function handleChange(event, user, reason) {
+  function handleChange(event, competition, reason) {
     if (reason === "selectOption") {
-      onChange(user);
+      onChange(competition);
     }
   }
 
@@ -45,8 +45,10 @@ function CompetitionSearch({ onChange, TextFieldProps = {} }) {
       getOptionLabel={(competition) => competition.name}
       loading={loading}
       onInputChange={handleInputChange}
-      value={null}
+      value={value}
       onChange={handleChange}
+      forcePopupIcon={false}
+      disableClearable={true}
       renderInput={(params) => <TextField {...params} {...TextFieldProps} />}
     />
   );

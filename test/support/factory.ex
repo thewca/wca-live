@@ -33,6 +33,15 @@ defmodule WcaLive.Factory do
     }
   end
 
+  def scoretaking_token_factory do
+    %Accounts.ScoretakingToken{
+      token: "token",
+      token_hash: Accounts.ScoretakingToken.token_hash("token"),
+      user: build(:user),
+      competition: build(:competition)
+    }
+  end
+
   def competition_factory do
     %Competitions.Competition{
       wca_id: sequence(:wca_id, &"Competition#{&1}2020"),

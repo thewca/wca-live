@@ -9,6 +9,10 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
       resolve &Resolvers.Accounts.current_user/3
     end
 
+    field :active_scoretaking_tokens, non_null(list_of(non_null(:scoretaking_token))) do
+      resolve &Resolvers.Accounts.active_scoretaking_tokens/3
+    end
+
     field :users, non_null(list_of(non_null(:user))) do
       arg :filter, :string
       resolve &Resolvers.Accounts.list_users/3
@@ -41,5 +45,15 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
     field :code, non_null(:string)
     field :expires_at, non_null(:datetime)
     field :inserted_at, non_null(:datetime)
+  end
+
+  @desc "A competition-scoped token for scoretaking API calls from external systems."
+  object :scoretaking_token do
+    field :id, non_null(:id)
+    field :inserted_at, non_null(:datetime)
+
+    field :competition, non_null(:competition) do
+      resolve dataloader(:db)
+    end
   end
 end

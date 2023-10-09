@@ -334,6 +334,26 @@ defmodule WcaLive.ScoretakingTest do
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
   end
 
+  test "enter_result_attempt/5 adds skipped attempts when necessary" do
+    user = insert(:user)
+    round = insert(:round, cutoff: nil, format_id: "a")
+    result = insert(:result, round: round, attempts: [])
+
+    assert {:ok, _round} = Scoretaking.enter_result_attempt(round, result, 2, 1000, user)
+    result = Repo.reload(result)
+    assert [0, 1000] == Enum.map(result.attempts, & &1.result)
+  end
+
+  test "enter_result_attempt/5 trims skipped attempts" do
+    user = insert(:user)
+    round = insert(:round, cutoff: nil, format_id: "a")
+    result = insert(:result, round: round, attempts: build_list(3, :attempt, result: 1000))
+
+    assert {:ok, _round} = Scoretaking.enter_result_attempt(round, result, 3, 0, user)
+    result = Repo.reload(result)
+    assert [1000, 1000] == Enum.map(result.attempts, & &1.result)
+  end
+
   test "open_round/1 given the first round adds everyone who registered for the event" do
     competition = insert(:competition)
     ce333 = insert(:competition_event, competition: competition, event_id: "333")
@@ -558,7 +578,9 @@ defmodule WcaLive.ScoretakingTest do
     [next_qualifying_person] = setup.get_people_by_rank.(5)
 
     assert {:ok, updated} =
-             Scoretaking.remove_person_from_round(second_person, setup.second_round, replace: true)
+             Scoretaking.remove_person_from_round(second_person, setup.second_round,
+               replace: true
+             )
 
     results = updated |> Ecto.assoc(:results) |> Repo.all()
     assert Enum.any?(results, &(&1.person_id == next_qualifying_person.id))

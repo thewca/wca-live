@@ -19,5 +19,12 @@ defmodule WcaLive.Scoretaking.Attempt do
     attempt
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> validate_change(:result, fn :result, result ->
+      if result < -2 do
+        [result: "is out of the expected value range"]
+      else
+        []
+      end
+    end)
   end
 end
