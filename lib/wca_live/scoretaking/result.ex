@@ -36,19 +36,95 @@ defmodule WcaLive.Scoretaking.Result do
     timestamps()
   end
 
-  def changeset(result, attrs, event_id, format, cutoff) do
-    result
-    |> cast(attrs, @required_fields ++ @optional_fields)
-    |> cast_embed(:attempts)
-    |> compute_best_and_average(event_id, format)
-    |> validate_required(@required_fields)
-    |> validate_length(:attempts, max: format.number_of_attempts)
-    |> validate_no_trailing_skipped()
-    |> validate_not_all_dns(format, cutoff)
+  def changeset(result, attrs, event_id, format, time_limit, cutoff) do
+    changeset =
+      result
+      |> cast(attrs, @required_fields ++ @optional_fields)
+      |> cast_embed(:attempts)
+      |> validate_required(@required_fields)
+      |> validate_length(:attempts, max: format.number_of_attempts)
+      |> validate_no_trailing_skipped()
+      |> validate_not_all_dns(format, cutoff)
+
+    # Run further computations only if attempts are valid
+    if changeset.valid? do
+      changeset
+      |> apply_time_limit_and_cutoff(time_limit, cutoff)
+      |> compute_best_and_average(event_id, format)
+    else
+      changeset
+    end
+  end
+
+  # Note that we already have the same logic on the client, but we
+  # apply it on the server to make sure the data is consistent when
+  # entering results with direct API calls
+  defp apply_time_limit_and_cutoff(changeset, time_limit, cutoff) do
+    attempts = get_field(changeset, :attempts)
+
+    attempts =
+      attempts
+      |> apply_time_limit(time_limit)
+      |> apply_cutoff(cutoff)
+
+    put_embed(changeset, :attempts, attempts)
+  end
+
+  defp apply_time_limit(attempts, nil), do: attempts
+
+  defp apply_time_limit(attempts, %{cumulative_round_wcif_ids: []} = time_limit) do
+    Enum.map(attempts, fn attempt ->
+      if attempt.result >= time_limit.centiseconds do
+        put_in(attempt.result, AttemptResult.dnf())
+      else
+        attempt
+      end
+    end)
+  end
+
+  defp apply_time_limit(attempts, time_limit) do
+    # Note: for now cross-round cumulative time limits are handled
+    # as single-round cumulative time limits for each of the rounds
+
+    {attempts, _sum} =
+      Enum.map_reduce(attempts, 0, fn attempt, sum ->
+        sum =
+          if attempt.result > 0 do
+            sum + attempt.result
+          else
+            sum
+          end
+
+        attempt =
+          if attempt.result > 0 and sum >= time_limit.centiseconds do
+            put_in(attempt.result, AttemptResult.dnf())
+          else
+            attempt
+          end
+
+        {attempt, sum}
+      end)
+
+    attempts
+  end
+
+  defp apply_cutoff(attempts, nil), do: attempts
+
+  defp apply_cutoff(attempts, cutoff) do
+    meets_cutoff? =
+      attempts
+      |> Enum.take(cutoff.number_of_attempts)
+      |> Enum.any?(&AttemptResult.better?(&1.result, cutoff.attempt_result))
+
+    if meets_cutoff? do
+      attempts
+    else
+      Enum.take(attempts, cutoff.number_of_attempts)
+    end
   end
 
   defp compute_best_and_average(changeset, event_id, format) do
-    %{attempts: attempts} = apply_changes(changeset)
+    attempts = get_field(changeset, :attempts)
 
     attempt_results =
       attempts
@@ -68,7 +144,7 @@ defmodule WcaLive.Scoretaking.Result do
   end
 
   defp validate_no_trailing_skipped(changeset) do
-    %{attempts: attempts} = apply_changes(changeset)
+    attempts = get_field(changeset, :attempts)
     last_attempt = List.last(attempts)
 
     if last_attempt && AttemptResult.skipped?(last_attempt.result) do
@@ -79,7 +155,7 @@ defmodule WcaLive.Scoretaking.Result do
   end
 
   defp validate_not_all_dns(changeset, format, cutoff) do
-    %{attempts: attempts} = apply_changes(changeset)
+    attempts = get_field(changeset, :attempts)
     attempt_results = Enum.map(attempts, & &1.result)
 
     max_incomplete_attempts =

@@ -334,6 +334,93 @@ defmodule WcaLive.ScoretakingTest do
     assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
   end
 
+  test "enter_results/3 applies non-cumulative time limit" do
+    user = insert(:user)
+
+    round =
+      insert(:round,
+        time_limit: build(:time_limit, centiseconds: 1250, cumulative_round_wcif_ids: [])
+      )
+
+    result = insert(:result, round: round, attempts: [])
+
+    attrs = [
+      %{
+        id: result.id,
+        attempts: [
+          %{result: 1000},
+          %{result: 1250},
+          %{result: 1100},
+          %{result: 1300}
+        ],
+        entered_at: DateTime.utc_now()
+      }
+    ]
+
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert [1000, -1, 1100, -1] == Enum.map(result.attempts, & &1.result)
+  end
+
+  test "enter_results/3 applies single-round cumulative time limit" do
+    user = insert(:user)
+
+    competition = insert(:competition)
+    ce333bf = insert(:competition_event, competition: competition, event_id: "333bf")
+
+    round =
+      insert(:round,
+        competition_event: ce333bf,
+        time_limit: build(:time_limit, centiseconds: 20000, cumulative_round_wcif_ids: ["333bf"])
+      )
+
+    result = insert(:result, round: round, attempts: [])
+
+    attrs = [
+      %{
+        id: result.id,
+        attempts: [
+          %{result: 3000},
+          %{result: 12000},
+          %{result: 5000}
+        ],
+        entered_at: DateTime.utc_now()
+      }
+    ]
+
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert [3000, 12000, -1] == Enum.map(result.attempts, & &1.result)
+  end
+
+  test "enter_results/3 applies cutoff" do
+    user = insert(:user)
+
+    round =
+      insert(:round,
+        cutoff: build(:cutoff, number_of_attempts: 2, attempt_result: 800),
+        format_id: "a"
+      )
+
+    result = insert(:result, round: round, attempts: [])
+
+    attrs = [
+      %{
+        id: result.id,
+        attempts: [
+          %{result: 1000},
+          %{result: 800},
+          %{result: 1200}
+        ],
+        entered_at: DateTime.utc_now()
+      }
+    ]
+
+    assert {:ok, _round} = Scoretaking.enter_results(round, attrs, user)
+    result = Repo.reload(result)
+    assert [1000, 800] == Enum.map(result.attempts, & &1.result)
+  end
+
   test "enter_result_attempt/5 adds skipped attempts when necessary" do
     user = insert(:user)
     round = insert(:round, cutoff: nil, format_id: "a")

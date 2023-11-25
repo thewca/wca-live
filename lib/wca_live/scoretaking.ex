@@ -123,6 +123,7 @@ defmodule WcaLive.Scoretaking do
 
     format = Format.get_by_id!(round.format_id)
     event_id = round.competition_event.event_id
+    time_limit = round.time_limit
     cutoff = round.cutoff
 
     results_with_attrs =
@@ -134,7 +135,7 @@ defmodule WcaLive.Scoretaking do
       Enum.reduce(results_with_attrs, Multi.new(), fn {result, attempts, entered_at}, multi ->
         Multi.update(multi, {:updated_result, result.id}, fn _changes ->
           result
-          |> Result.changeset(%{attempts: attempts}, event_id, format, cutoff)
+          |> Result.changeset(%{attempts: attempts}, event_id, format, time_limit, cutoff)
           |> Changeset.put_change(:entered_by_id, user.id)
           |> Changeset.put_change(:entered_at, DateTime.truncate(entered_at, :second))
         end)
