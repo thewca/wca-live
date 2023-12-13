@@ -50,6 +50,7 @@ defmodule WcaLiveWeb.Router do
 
     # Public scoretaking endpoints
     post "/enter-attempt", CompetitionController, :enter_attempt
+    post "/enter-results", CompetitionController, :enter_results
   end
 
   scope "/api" do
