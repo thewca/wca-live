@@ -60,6 +60,12 @@ defmodule WcaLive.Scoretaking do
   def preload_results(round), do: Repo.preload(round, :results)
 
   @doc """
+  Returns `round` with results and persons loaded.
+  """
+  @spec preload_results_with_person(%Round{}) :: %Round{}
+  def preload_results_with_person(round), do: Repo.preload(round, results: :person)
+
+  @doc """
   Finds previous round, unless the first round is given.
   """
   @spec get_previous_round(%Round{}) :: %Round{} | nil

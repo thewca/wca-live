@@ -204,8 +204,205 @@ defmodule WcaLiveWeb.CompetitionControllerTest do
         |> put_req_header("authorization", "Bearer #{scoretaking_token.token}")
         |> post("/api/enter-attempt", body)
 
-      assert %{"errors" => ["result can't be blank"]} =
-               json_response(conn, 422)
+      assert %{"errors" => ["result can't be blank"]} = json_response(conn, 422)
+    end
+  end
+
+  describe "enter_results" do
+    test "returns error when no token is given", %{conn: conn} do
+      competition = insert(:competition)
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      result = insert(:result, round: round, attempts: [])
+
+      body = %{
+        "competitionWcaId" => competition.wca_id,
+        "eventId" => "333",
+        "roundNumber" => 1,
+        "results" => [
+          %{
+            "registrantId" => result.person.registrant_id,
+            "attempts" => [%{"result" => 1000}]
+          }
+        ]
+      }
+
+      conn = post(conn, "/api/enter-results", body)
+
+      assert %{"error" => "no authorization token provided"} = json_response(conn, 401)
+    end
+
+    test "returns error when non-existent token is given", %{conn: conn} do
+      competition = insert(:competition)
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      result = insert(:result, round: round, attempts: [])
+
+      body = %{
+        "competitionWcaId" => competition.wca_id,
+        "eventId" => "333",
+        "roundNumber" => 1,
+        "results" => [
+          %{
+            "registrantId" => result.person.registrant_id,
+            "attempts" => [%{"result" => 1000}]
+          }
+        ]
+      }
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer nonexistent")
+        |> post("/api/enter-results", body)
+
+      assert %{"error" => "the provided token is not valid"} = json_response(conn, 401)
+    end
+
+    @tag :signed_in
+    test "returns error when the token is for a different competition",
+         %{conn: conn, current_user: current_user} do
+      competition = insert(:competition)
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      result = insert(:result, round: round, attempts: [])
+
+      scoretaking_token = insert(:scoretaking_token, user: current_user)
+
+      body = %{
+        "competitionWcaId" => competition.wca_id,
+        "eventId" => "333",
+        "roundNumber" => 1,
+        "results" => [
+          %{
+            "registrantId" => result.person.registrant_id,
+            "attempts" => [%{"result" => 1000}]
+          }
+        ]
+      }
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{scoretaking_token.token}")
+        |> post("/api/enter-results", body)
+
+      assert %{"error" => "the provided token does not grant access to this competition"} =
+               json_response(conn, 401)
+    end
+
+    @tag :signed_in
+    test "returns error when the user does not have access to the competition",
+         %{conn: conn, current_user: current_user} do
+      competition = insert(:competition)
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      result = insert(:result, round: round, attempts: [])
+
+      scoretaking_token = insert(:scoretaking_token, competition: competition, user: current_user)
+
+      body = %{
+        "competitionWcaId" => competition.wca_id,
+        "eventId" => "333",
+        "roundNumber" => 1,
+        "results" => [
+          %{
+            "registrantId" => result.person.registrant_id,
+            "attempts" => [%{"result" => 1000}]
+          }
+        ]
+      }
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{scoretaking_token.token}")
+        |> post("/api/enter-results", body)
+
+      assert %{"error" => "the token user no longer have access to this competition"} =
+               json_response(conn, 401)
+    end
+
+    test "returns error on incomplete payload", %{conn: conn} do
+      competition = insert(:competition)
+
+      body = %{
+        "competitionWcaId" => competition.wca_id
+      }
+
+      conn = post(conn, "/api/enter-results", body)
+
+      assert %{"error" => "invalid payload"} = json_response(conn, 400)
+    end
+
+    @tag :signed_in
+    test "updates results", %{conn: conn, current_user: current_user} do
+      competition = insert(:competition)
+      insert(:staff_member, competition: competition, user: current_user, roles: ["delegate"])
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      result1 = insert(:result, round: round, attempts: [])
+      result2 = insert(:result, round: round, attempts: [])
+
+      scoretaking_token = insert(:scoretaking_token, competition: competition, user: current_user)
+
+      body = %{
+        "competitionWcaId" => competition.wca_id,
+        "eventId" => "333",
+        "roundNumber" => 1,
+        "results" => [
+          %{
+            "registrantId" => result1.person.registrant_id,
+            "attempts" => [%{"result" => 1000}, %{"result" => 2000}, %{"result" => 3000}]
+          },
+          %{
+            "registrantId" => result2.person.registrant_id,
+            "attempts" => [%{"result" => 5000}, %{"result" => -1}, %{"result" => 6000}]
+          }
+        ]
+      }
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{scoretaking_token.token}")
+        |> post("/api/enter-results", body)
+
+      json_response(conn, 200)
+
+      result1 = Repo.reload(result1)
+      assert current_user.id == result1.entered_by_id
+      assert [1000, 2000, 3000] == Enum.map(result1.attempts, & &1.result)
+
+      result2 = Repo.reload(result2)
+      assert current_user.id == result2.entered_by_id
+      assert [5000, -1, 6000] == Enum.map(result2.attempts, & &1.result)
+    end
+
+    @tag :signed_in
+    test "returns errors on invalid update", %{conn: conn, current_user: current_user} do
+      competition = insert(:competition)
+      insert(:staff_member, competition: competition, user: current_user, roles: ["delegate"])
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      result = insert(:result, round: round, attempts: [])
+
+      scoretaking_token = insert(:scoretaking_token, competition: competition, user: current_user)
+
+      body = %{
+        "competitionWcaId" => competition.wca_id,
+        "eventId" => "333",
+        "roundNumber" => 1,
+        "results" => [
+          %{
+            "registrantId" => result.person.registrant_id,
+            "attempts" => [%{"result" => 1000}, %{"result" => nil}]
+          }
+        ]
+      }
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{scoretaking_token.token}")
+        |> post("/api/enter-results", body)
+
+      assert %{"errors" => ["result can't be blank"]} = json_response(conn, 422)
     end
   end
 end
