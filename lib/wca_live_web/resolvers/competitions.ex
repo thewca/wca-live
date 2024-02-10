@@ -17,6 +17,10 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
     {:ok, Scoretaking.list_podiums(competition)}
   end
 
+  def competition_records(competition, _args, _resolution) do
+    {:ok, Scoretaking.list_competition_records(competition)}
+  end
+
   def competition_access(competition, _args, %{
         context: %{current_user: current_user, loader: loader}
       }) do
