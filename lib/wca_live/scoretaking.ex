@@ -493,7 +493,7 @@ defmodule WcaLive.Scoretaking do
           preload: [:person, round: {round, competition_event: competition_event}]
       )
 
-      group_records(results, tags)
+    group_records(results, tags)
   end
 
   defp group_records(results, tags) do

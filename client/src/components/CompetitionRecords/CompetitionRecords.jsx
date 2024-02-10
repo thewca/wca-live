@@ -60,13 +60,13 @@ function CompetitionRecords() {
         Records broken at this competition
       </Typography>
       {competitionRecords.length > 0 ? (
-      <RecordList records={competitionRecords} />
+        <RecordList records={competitionRecords} />
       ) : (
         <Typography variant="body1" component="p">
           No records broken at this competition.
         </Typography>
       )}
-      </>
+    </>
   );
 }
 
