@@ -801,6 +801,35 @@ defmodule WcaLive.ScoretakingTest do
     assert 2 = records |> Enum.uniq_by(& &1.id) |> length()
   end
 
+  test "list_competition_records/1 returns records from the given competition" do
+    result =
+      insert_result_x_days_ago(
+        5,
+        single_record_tag: "WR",
+        average_record_tag: nil,
+        best: 300,
+        average: 550
+      )
+
+    _other_competition_result =
+      insert_result_x_days_ago(
+        5,
+        single_record_tag: nil,
+        average_record_tag: "WR",
+        best: 300,
+        average: 550
+      )
+
+    competition = result.round.competition_event.competition
+
+    assert [single_wr] = Scoretaking.list_competition_records(competition)
+
+    assert result.id == single_wr.result.id
+    assert :single = single_wr.type
+    assert "WR" = single_wr.tag
+    assert 300 = single_wr.attempt_result
+  end
+
   test "list_podiums/1 returns one podium object for each final round" do
     competition = insert(:competition)
     ce333 = insert(:competition_event, competition: competition, event_id: "333")

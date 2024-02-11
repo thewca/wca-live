@@ -76,6 +76,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
       resolve &Resolvers.Competitions.competition_access/3
     end
 
+    field :competition_records, non_null(list_of(non_null(:record))) do
+      resolve &Resolvers.Competitions.competition_records/3
+    end
+
     field :podiums, non_null(list_of(non_null(:podium))) do
       resolve &Resolvers.Competitions.competition_podiums/3
 

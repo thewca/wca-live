@@ -9,6 +9,7 @@ import RecordList from "../RecordList/RecordList";
 import { isUpcoming, isInProgress, isPast } from "../../lib/competition";
 import { orderBy } from "../../lib/utils";
 import { monthAgoDateString } from "../../lib/date";
+import { RECORD_LIST_RECORD_FRAGMENT } from "../RecordList/fragments";
 
 const COMPETITIONS_QUERY = gql`
   query Competitions($from: Date!) {
@@ -27,36 +28,10 @@ const COMPETITIONS_QUERY = gql`
       }
     }
     recentRecords {
-      id
-      tag
-      type
-      attemptResult
-      result {
-        id
-        person {
-          id
-          name
-          country {
-            iso2
-            name
-          }
-        }
-        round {
-          id
-          competitionEvent {
-            id
-            event {
-              id
-              name
-            }
-            competition {
-              id
-            }
-          }
-        }
-      }
+      ...records
     }
   }
+  ${RECORD_LIST_RECORD_FRAGMENT}
 `;
 
 function Home() {

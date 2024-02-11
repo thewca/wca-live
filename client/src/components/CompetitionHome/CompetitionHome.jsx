@@ -18,6 +18,8 @@ import { wcaUrl } from "../../lib/urls";
 import { flatMap } from "../../lib/utils";
 import { competitionCountries } from "../../lib/competition";
 import { getTimezone } from "../../lib/date";
+import RecordList from "../RecordList/RecordList";
+import { RECORD_LIST_RECORD_FRAGMENT } from "../RecordList/fragments";
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -25,6 +27,9 @@ const COMPETITION_QUERY = gql`
       id
       wcaId
       name
+      competitionRecords {
+        ...records
+      }
       competitionEvents {
         id
         event {
@@ -61,6 +66,7 @@ const COMPETITION_QUERY = gql`
       }
     }
   }
+  ${RECORD_LIST_RECORD_FRAGMENT}
 `;
 
 function CompetitionHome() {
@@ -72,6 +78,7 @@ function CompetitionHome() {
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
   const { competition } = data;
+  const { competitionRecords } = competition;
 
   const countries = competitionCountries(competition);
 
@@ -150,6 +157,14 @@ function CompetitionHome() {
           competitionId={competition.id}
         />
       </Grid>
+      {competitionRecords.length > 0 && (
+        <Grid item sx={{ width: "100%" }}>
+          <Typography variant="h5" gutterBottom>
+            Records broken at this competition
+          </Typography>
+          <RecordList records={competitionRecords} />
+        </Grid>
+      )}
     </Grid>
   );
 }

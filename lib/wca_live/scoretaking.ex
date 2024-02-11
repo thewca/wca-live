@@ -470,6 +470,33 @@ defmodule WcaLive.Scoretaking do
           preload: [:person, round: {round, competition_event: competition_event}]
       )
 
+    group_records(results, tags)
+  end
+
+  @doc """
+  Returns a list of records for the given competition.
+  """
+  @spec list_competition_records(%Competition{}) :: list(record())
+  def list_competition_records(competition) do
+    competition_id = competition.id
+    tags = ["WR", "CR", "NR"]
+
+    results =
+      Repo.all(
+        from result in Result,
+          join: round in assoc(result, :round),
+          join: competition_event in assoc(round, :competition_event),
+          where:
+            result.single_record_tag in ^tags or
+              result.average_record_tag in ^tags,
+          where: competition_event.competition_id == ^competition_id,
+          preload: [:person, round: {round, competition_event: competition_event}]
+      )
+
+    group_records(results, tags)
+  end
+
+  defp group_records(results, tags) do
     single_records =
       results
       |> Enum.filter(fn result -> result.single_record_tag in tags end)
