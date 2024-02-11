@@ -60,6 +60,11 @@ const AdminResultsTable = memo(
       }
     }
 
+    function resetSort() {
+      setOrder("asc");
+      setOrderBy(null);
+    }
+
     const stats = orderedResultStats(eventId, format);
 
     return (
@@ -67,7 +72,9 @@ const AdminResultsTable = memo(
         <TableHead>
           <TableRow>
             <TableCell align="right" sx={styles.ranking}>
-              #
+              <TableSortLabel hideSortIcon onClick={resetSort}>
+                #
+              </TableSortLabel>
             </TableCell>
             <TableCell align="right">
               <TableSortLabel
