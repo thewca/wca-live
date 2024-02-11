@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Grid, Tab, Tabs } from "@mui/material";
+import { Box, Grid, Tab, Tabs } from "@mui/material";
 import ScheduleCard from "./ScheduleCard";
 import { groupBy, uniq, orderBy } from "../../lib/utils";
 import {
@@ -46,18 +46,19 @@ function Schedule({ venues, competitionEvents, competitionId }) {
 
   return (
     <>
-      <Tabs
-        indicatorColor="secondary"
-        variant="scrollable"
-        textColor="inherit"
-        value={selectedDate}
-        onChange={(event, value) => setSelectedDate(value)}
-        sx={{ mb: 2 }}
-      >
-        {dates.map((date) => (
-          <Tab key={date} label={formatDateShort(date)} value={date} />
-        ))}
-      </Tabs>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        <Tabs
+          indicatorColor="secondary"
+          variant="scrollable"
+          textColor="inherit"
+          value={selectedDate}
+          onChange={(event, value) => setSelectedDate(value)}
+        >
+          {dates.map((date) => (
+            <Tab key={date} label={formatDateShort(date)} value={date} />
+          ))}
+        </Tabs>
+      </Box>
       <Grid container spacing={1}>
         {Object.entries(activitiesByActivityCode).map(
           ([activityCode, activities]) => (

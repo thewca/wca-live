@@ -6,6 +6,7 @@ import {
   CardHeader,
   Grid,
   Link,
+  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -89,7 +90,7 @@ function CompetitionHome() {
   );
 
   return (
-    <Grid container direction="column" spacing={2}>
+    <Grid container direction="column" spacing={4}>
       <Grid item sx={{ width: "100%" }}>
         <Typography variant="h5" gutterBottom noWrap>
           Welcome to {competition.name}!
@@ -136,7 +137,7 @@ function CompetitionHome() {
         </Grid>
       )}
       <Grid item sx={{ width: "100%" }}>
-        <Grid container alignContent="center">
+        <Grid container alignContent="center" sx={{ mb: 1 }}>
           <Grid item>
             <Typography variant="h5">Schedule</Typography>
           </Grid>
@@ -159,10 +160,12 @@ function CompetitionHome() {
       </Grid>
       {competitionRecords.length > 0 && (
         <Grid item sx={{ width: "100%" }}>
-          <Typography variant="h5" gutterBottom>
-            Records broken at this competition
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Records
           </Typography>
-          <RecordList records={competitionRecords} />
+          <Paper>
+            <RecordList records={competitionRecords} />
+          </Paper>
         </Grid>
       )}
     </Grid>
