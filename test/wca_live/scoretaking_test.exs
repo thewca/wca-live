@@ -819,7 +819,7 @@ defmodule WcaLive.ScoretakingTest do
         best: 300,
         average: 550
       )
-    
+
     competition = result.round.competition_event.competition
 
     assert [single_wr] = Scoretaking.list_competition_records(competition)

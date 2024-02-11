@@ -8,7 +8,6 @@ import Podiums from "../Podiums/Podiums";
 import Error from "../Error/Error";
 import CompetitionLayout from "./CompetitionLayout";
 import Loading from "../Loading/Loading";
-import CompetitionRecords from "../CompetitionRecords/CompetitionRecords";
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -60,7 +59,6 @@ function CompetitionNavigation() {
         <Route path="rounds/:roundId/*" element={<Round />} />
         <Route path="competitors" element={<Competitors />} />
         <Route path="competitors/:competitorId" element={<Competitor />} />
-        <Route path="records" element={<CompetitionRecords />} />
         <Route path="podiums" element={<Podiums />} />
         <Route
           path="*"
