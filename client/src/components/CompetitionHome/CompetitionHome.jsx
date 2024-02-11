@@ -19,6 +19,7 @@ import { flatMap } from "../../lib/utils";
 import { competitionCountries } from "../../lib/competition";
 import { getTimezone } from "../../lib/date";
 import RecordList from "../RecordList/RecordList";
+import { RECORD_LIST_RECORD_FRAGMENT } from "../RecordList/fragments";
 
 const COMPETITION_QUERY = gql`
   query Competition($id: ID!) {
@@ -27,34 +28,7 @@ const COMPETITION_QUERY = gql`
       wcaId
       name
       competitionRecords {
-        id
-        tag
-        type
-        attemptResult
-        result {
-          id
-          person {
-            id
-            name
-            country {
-              iso2
-              name
-            }
-          }
-          round {
-            id
-            competitionEvent {
-              id
-              event {
-                id
-                name
-              }
-              competition {
-                id
-              }
-            }
-          }
-        }
+        ...records
       }
       competitionEvents {
         id
@@ -92,6 +66,7 @@ const COMPETITION_QUERY = gql`
       }
     }
   }
+  ${RECORD_LIST_RECORD_FRAGMENT}
 `;
 
 function CompetitionHome() {
