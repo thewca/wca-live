@@ -287,6 +287,12 @@ export function autocompleteMbldDecodedValue({
   solved,
   centiseconds,
 }) {
+  // We expect the values to be entered left-to-right, so we reset to
+  // defaults otherwise
+  if ((!solved && attempted) || (!solved && !attempted && centiseconds > 0)) {
+    return { solved: 0, attempted: 0, centiseconds: 0 };
+  }
+
   if (!attempted || solved > attempted) {
     return { solved, attempted: solved, centiseconds };
   }
