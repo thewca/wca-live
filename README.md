@@ -90,7 +90,7 @@ You need to install Elixir, Node.js, PostgreSQL, as well as `wkhtmltopdf`. Then:
 
 ```sh
 # Fetch dependencies and create the database
-mix dev.setup
+mix setup
 
 # Start the app
 mix phx.server
