@@ -262,12 +262,11 @@ defmodule WcaLive.Scoretaking do
       )
       |> Enum.map(fn round -> round.results |> Enum.reject(&Result.empty?/1) |> length() end)
 
-    index = Enum.find_index(Enum.zip(round_results, min), fn {x, y} -> x < y end)
-
-    case index do
+    Enum.find_index(Enum.zip(round_results, min), fn {x, y} -> x < y end)
+    |> case do
       0 -> "rounds with less than 8 competitors cannot have a subsequent round"
       1 -> "rounds with less than 16 competitors can have at most one subsequent round"
-      2 -> "rounds with less than 100 competitors can have at most two subsequent round"
+      2 -> "rounds with less than 100 competitors can have at most two subsequent rounds"
       _ -> :nil
     end
   end
