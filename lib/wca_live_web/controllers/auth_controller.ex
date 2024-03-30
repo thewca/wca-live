@@ -10,18 +10,21 @@ defmodule WcaLiveWeb.AuthController do
     redirect(conn, external: url)
   end
 
-  def callback(conn, params) do
-    with %{"code" => code} <- params,
-         {:ok, token_attrs} <- Wca.OAuth.get_token(code),
-         {:ok, data} <- Wca.Api.impl().get_me(token_attrs.access_token),
-         user_attrs <- Accounts.User.wca_json_to_attrs(data["me"]),
-         {:ok, user} <- Accounts.import_user(user_attrs, token_attrs) do
-      conn
-      |> UserAuth.sign_in_user(user)
-      |> redirect_to_app(to: "/")
-    else
-      _ -> redirect_to_app(conn, to: "/")
-    end
+  def callback(conn, %{"code" => code}) do
+    {:ok, token_attrs} = Wca.OAuth.get_token(code)
+    {:ok, data} = Wca.Api.impl().get_me(token_attrs.access_token)
+
+    wca_user_id = data["me"]["id"]
+
+    {:ok, roles_data} =
+      Wca.Api.impl().get_active_team_roles(wca_user_id, token_attrs.access_token)
+
+    user_attrs = wca_json_to_user_attrs(data["me"], roles_data)
+    {:ok, user} = Accounts.import_user(user_attrs, token_attrs)
+
+    conn
+    |> UserAuth.sign_in_user(user)
+    |> redirect_to_app(to: "/")
   end
 
   def sign_in_by_code(conn, params) do
@@ -48,5 +51,22 @@ defmodule WcaLiveWeb.AuthController do
   else
     defp redirect_to_app(conn, to: path),
       do: redirect(conn, external: "http://localhost:3000" <> path)
+  end
+
+  defp wca_json_to_user_attrs(json, roles_json) do
+    %{
+      email: json["email"],
+      wca_user_id: json["id"],
+      name: json["name"],
+      wca_id: json["wca_id"],
+      country_iso2: json["country_iso2"],
+      avatar_url: json["avatar"]["url"],
+      avatar_thumb_url: json["avatar"]["thumb_url"],
+      wca_teams:
+        roles_json
+        |> get_in([Access.all(), "group", "metadata", "friendly_id"])
+        |> Enum.map(&String.downcase/1)
+        |> Enum.uniq()
+    }
   end
 end

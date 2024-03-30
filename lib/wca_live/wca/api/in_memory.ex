@@ -11,6 +11,9 @@ defmodule WcaLive.Wca.Api.InMemory do
   def get_me(_access_token), do: raise("not implemented")
 
   @impl true
+  def get_active_team_roles(_wca_user_id, _access_token), do: raise("not implemented")
+
+  @impl true
   def get_wcif(_competition_wca_id, _access_token), do: raise("not implemented")
 
   @impl true

@@ -9,6 +9,11 @@ defmodule WcaLive.Wca.Api do
   @callback get_me(String.t()) :: {:ok, any()} | {:error, any()}
 
   @doc """
+  Fetches active team roles for the given WCA user.
+  """
+  @callback get_active_team_roles(String.t(), String.t()) :: {:ok, any()} | {:error, any()}
+
+  @doc """
   Fetches WCIF for the given competition id.
   """
   @callback get_wcif(String.t(), String.t()) :: {:ok, any()} | {:error, any()}

@@ -19,6 +19,18 @@ defmodule WcaLive.Wca.Api.Http do
   end
 
   @impl true
+  def get_active_team_roles(wca_user_id, access_token) do
+    params = %{
+      "isActive" => true,
+      "groupType" => "teams_committees"
+    }
+
+    api_url("/user_roles/user/#{wca_user_id}", params)
+    |> HTTPoison.get(headers(access_token: access_token))
+    |> parse_response()
+  end
+
+  @impl true
   def get_wcif(competition_wca_id, access_token) do
     api_url("/competitions/#{competition_wca_id}/wcif")
     |> HTTPoison.get(headers(access_token: access_token), @long_request_options)
