@@ -9,13 +9,11 @@ defmodule WcaLive.Wca.Api.Http do
 
   @behaviour WcaLive.Wca.Api
 
-  @long_request_options [timeout: 60_000, recv_timeout: 60_000]
-
   @impl true
   def get_me(access_token) do
-    api_url("/me")
-    |> HTTPoison.get(headers(access_token: access_token))
-    |> parse_response()
+    build_req()
+    |> with_user_token(access_token)
+    |> request(url: "/me")
   end
 
   @impl true
@@ -25,26 +23,27 @@ defmodule WcaLive.Wca.Api.Http do
       "groupType" => "teams_committees"
     }
 
-    api_url("/user_roles/user/#{wca_user_id}", params)
-    |> HTTPoison.get(headers(access_token: access_token))
-    |> parse_response()
+    build_req()
+    |> with_user_token(access_token)
+    |> request(url: "/user_roles/user/#{wca_user_id}", params: params)
   end
 
   @impl true
   def get_wcif(competition_wca_id, access_token) do
-    api_url("/competitions/#{competition_wca_id}/wcif")
-    |> HTTPoison.get(headers(access_token: access_token), @long_request_options)
-    |> parse_response()
+    build_req()
+    |> with_user_token(access_token)
+    |> with_long_timeout()
+    |> request(url: "/competitions/#{competition_wca_id}/wcif")
   end
 
   @impl true
   def patch_wcif(wcif, access_token) do
     competition_wca_id = wcif["id"]
-    body = Jason.encode!(wcif)
 
-    api_url("/competitions/#{competition_wca_id}/wcif")
-    |> HTTPoison.patch(body, headers(access_token: access_token), @long_request_options)
-    |> parse_response()
+    build_req()
+    |> with_user_token(access_token)
+    |> with_long_timeout()
+    |> request(url: "/competitions/#{competition_wca_id}/wcif", method: :patch, json: wcif)
   end
 
   @impl true
@@ -56,61 +55,47 @@ defmodule WcaLive.Wca.Api.Http do
       "start" => two_days_ago
     }
 
-    api_url("/competitions", params)
-    |> HTTPoison.get(headers(access_token: access_token))
-    |> parse_response()
+    build_req()
+    |> with_user_token(access_token)
+    |> request(url: "/competitions", params: params)
   end
 
   @impl true
   def get_records() do
-    api_url("/records")
-    |> HTTPoison.get(headers())
-    |> parse_response()
+    build_req()
+    |> request(url: "/records")
+  end
+
+  defp build_req() do
+    base_url = Keyword.fetch!(config(), :api_url)
+    Req.new(base_url: base_url)
+  end
+
+  defp with_user_token(req, access_token) do
+    Req.merge(req, auth: {:bearer, access_token})
+  end
+
+  defp with_long_timeout(req) do
+    Req.merge(req, receive_timeout: 60_000)
+  end
+
+  defp request(req, opts) do
+    case Req.request(req, opts) do
+      {:ok, %{status: status, body: body}} when status in 200..299 ->
+        {:ok, body}
+
+      {:ok, %{status: status, body: %{"error" => error}}} ->
+        {:error, "the WCA server returned an error, status: #{status}, message: #{error}"}
+
+      {:ok, %{status: status}} ->
+        {:error, "the WCA server returned an error, status: #{status}"}
+
+      {:error, exception} ->
+        {:error, "request to the WCA server failed, reason: #{Exception.message(exception)}"}
+    end
   end
 
   defp config() do
     Application.get_env(:wca_live, __MODULE__)
-  end
-
-  defp api_url(path, params \\ %{}) do
-    query = URI.encode_query(params)
-    root = Keyword.fetch!(config(), :api_url)
-    root <> path <> "?" <> query
-  end
-
-  defp headers(params \\ [])
-
-  defp headers([]) do
-    [
-      {"Content-Type", "application/json"},
-      {"Accept", "application/json"}
-    ]
-  end
-
-  defp headers([{:access_token, access_token} | params]) do
-    [{"Authorization", "Bearer " <> access_token} | headers(params)]
-  end
-
-  defp parse_response({:ok, %HTTPoison.Response{status_code: 200, body: body}}) do
-    with {:ok, json} <- Jason.decode(body) do
-      {:ok, json}
-    else
-      _ ->
-        {:error, "failed to parse response"}
-    end
-  end
-
-  defp parse_response({:ok, %HTTPoison.Response{status_code: status, body: body}}) do
-    case Jason.decode(body) do
-      {:ok, %{"error" => error}} ->
-        {:error, "the WCA server returned an error, status: #{status}, message: #{error}"}
-
-      _ ->
-        {:error, "the WCA server returned an error, status: #{status}"}
-    end
-  end
-
-  defp parse_response({:error, %HTTPoison.Error{reason: reason}}) do
-    {:error, "request to the WCA server failed, reason: #{reason}"}
   end
 end

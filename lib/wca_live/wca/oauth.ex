@@ -34,17 +34,17 @@ defmodule WcaLive.Wca.OAuth do
   def get_token(code) do
     cfg = config()
 
-    body =
-      Jason.encode!(%{
-        client_id: Keyword.fetch!(cfg, :client_id),
-        client_secret: Keyword.fetch!(cfg, :client_secret),
-        redirect_uri: Keyword.fetch!(cfg, :redirect_uri),
-        code: code,
-        grant_type: "authorization_code"
-      })
+    body = %{
+      client_id: Keyword.fetch!(cfg, :client_id),
+      client_secret: Keyword.fetch!(cfg, :client_secret),
+      redirect_uri: Keyword.fetch!(cfg, :redirect_uri),
+      code: code,
+      grant_type: "authorization_code"
+    }
 
-    HTTPoison.post(Keyword.fetch!(cfg, :token_url), body, headers())
-    |> parse_token_response()
+    build_token_req()
+    |> request(json: body, method: :post)
+    |> parse_token()
   end
 
   @doc """
@@ -54,32 +54,29 @@ defmodule WcaLive.Wca.OAuth do
   def refresh_token(refresh_token) do
     cfg = config()
 
-    body =
-      Jason.encode!(%{
-        client_id: Keyword.fetch!(cfg, :client_id),
-        client_secret: Keyword.fetch!(cfg, :client_secret),
-        grant_type: "refresh_token",
-        refresh_token: refresh_token
-      })
+    body = %{
+      client_id: Keyword.fetch!(cfg, :client_id),
+      client_secret: Keyword.fetch!(cfg, :client_secret),
+      grant_type: "refresh_token",
+      refresh_token: refresh_token
+    }
 
-    HTTPoison.post(Keyword.fetch!(cfg, :token_url), body, headers())
-    |> parse_token_response()
+    build_token_req()
+    |> request(json: body, method: :post)
+    |> parse_token()
+  end
+
+  defp build_token_req() do
+    cfg = config()
+    token_url = Keyword.fetch!(cfg, :token_url)
+    Req.new(url: token_url)
   end
 
   defp config() do
     Application.get_env(:wca_live, __MODULE__)
   end
 
-  defp headers() do
-    [
-      {"Content-Type", "application/json"},
-      {"Accept", "application/json"}
-    ]
-  end
-
-  defp parse_token_response({:ok, %HTTPoison.Response{status_code: 200, body: body}}) do
-    data = Jason.decode!(body)
-
+  defp parse_token({:ok, data}) do
     {:ok,
      %{
        access_token: data["access_token"],
@@ -88,16 +85,26 @@ defmodule WcaLive.Wca.OAuth do
      }}
   end
 
-  defp parse_token_response({:ok, %HTTPoison.Response{}}) do
-    {:error, "something went wrong"}
-  end
-
-  defp parse_token_response({:error, %HTTPoison.Error{reason: reason}}) do
-    {:error, reason}
-  end
+  defp parse_token({:error, error}), do: {:error, error}
 
   defp expires_at(expires_in) do
     DateTime.utc_now()
     |> DateTime.add(expires_in, :second)
+  end
+
+  defp request(req, opts) do
+    case Req.request(req, opts) do
+      {:ok, %{status: status, body: body}} when status in 200..299 ->
+        {:ok, body}
+
+      {:ok, %{status: status, body: %{"error" => error}}} ->
+        {:error, "the WCA server returned an error, status: #{status}, message: #{error}"}
+
+      {:ok, %{status: status}} ->
+        {:error, "the WCA server returned an error, status: #{status}"}
+
+      {:error, exception} ->
+        {:error, "request to the WCA server failed, reason: #{Exception.message(exception)}"}
+    end
   end
 end
