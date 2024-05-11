@@ -61,7 +61,8 @@ defmodule WcaLive.Wca.Api do
 
     params = %{
       "managed_by_me" => true,
-      "start" => two_days_ago
+      "start" => two_days_ago,
+      "sort" => "start_date"
     }
 
     build_req()
