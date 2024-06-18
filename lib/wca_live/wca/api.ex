@@ -20,12 +20,13 @@ defmodule WcaLive.Wca.Api do
   def get_active_team_roles(wca_user_id, access_token) do
     params = %{
       "isActive" => true,
-      "groupType" => "teams_committees"
+      "groupType" => "teams_committees",
+      "userId" => wca_user_id
     }
 
     build_req()
     |> with_user_token(access_token)
-    |> request(url: "/user_roles/user/#{wca_user_id}", params: params)
+    |> request(url: "/user_roles", params: params)
   end
 
   @doc """
