@@ -267,7 +267,9 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${shortClockFormat}`;
+  return `${solved}/${attempted} ${
+    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+  }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
