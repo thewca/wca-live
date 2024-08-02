@@ -22,10 +22,15 @@ defmodule WcaLive.Scoretaking.Advancing do
   @spec compute_advancing(%Round{}) :: Ecto.Changeset.t(%Round{})
   def compute_advancing(round) do
     round = round |> Repo.preload(:results)
-    advancing = advancing_results(round)
+    {advancing, clinched_advancing} = advancing_results(round)
 
     Enum.map(round.results, fn result ->
-      Changeset.change(result, advancing: result in advancing)
+      advancing = result in advancing
+
+      Changeset.change(result,
+        advancing: advancing,
+        advancing_questionable: advancing and result not in clinched_advancing
+      )
     end)
     |> Round.put_results_in_round(round)
   end
@@ -37,11 +42,14 @@ defmodule WcaLive.Scoretaking.Advancing do
       # If the next round is open use its results to determine who advanced.
       advancing_person_ids = Enum.map(next.results, & &1.person_id)
 
-      Enum.filter(round.results, fn result ->
-        result.person_id in advancing_person_ids
-      end)
+      results =
+        Enum.filter(round.results, fn result ->
+          result.person_id in advancing_person_ids
+        end)
+
+      {results, results}
     else
-      qualifying_results(round)
+      {qualifying_results(round), clinched_qualifying_results(round)}
     end
   end
 
@@ -67,16 +75,10 @@ defmodule WcaLive.Scoretaking.Advancing do
         %{results: results, advancement_condition: advancement_condition} = round
         format = Format.get_by_id!(round.format_id)
 
-        # We ignore unranked results until they are entered. For percentage-based
-        # advancement rules this means that we qualify less results initially and
-        # start qualifying more as the missing results are entered. This way, in
-        # case the remaining missing results are quit, we don't un-qualify anyone
-        results = Enum.filter(results, & &1.ranking)
-
         # See: https://www.worldcubeassociation.org/regulations/#9p1
         max_qualifying = floor(length(results) * 0.75)
 
-        rankings = results |> Enum.map(& &1.ranking) |> Enum.sort()
+        rankings = results |> Enum.map(& &1.ranking) |> Enum.reject(&is_nil/1) |> Enum.sort()
 
         first_non_qualifying_ranking =
           if length(rankings) > max_qualifying do
@@ -207,6 +209,32 @@ defmodule WcaLive.Scoretaking.Advancing do
     qualifying_results(hypothetical_round)
     |> Enum.map(fn hypothetical_result ->
       Enum.find(round.results, &(&1.id == hypothetical_result.id))
+    end)
+  end
+
+  defp clinched_qualifying_results(round) do
+    # Assume best possible attempts for empty results and see who of
+    # the currently entered results would still qualify.
+
+    {ranked_results, unranked_results} = Enum.split_with(round.results, & &1.ranking)
+
+    hypothetical_results =
+      Enum.map(round.results, fn result ->
+        if result in unranked_results do
+          %{result | attempts: [1, 1, 1, 1, 1], best: 1, average: 1}
+        else
+          result
+        end
+      end)
+
+    hypothetical_round =
+      %{round | results: hypothetical_results}
+      |> Ranking.compute_ranking()
+      |> Ecto.Changeset.apply_changes()
+
+    qualifying_results(hypothetical_round)
+    |> Enum.map(fn hypothetical_result ->
+      Enum.find(ranked_results, &(&1.id == hypothetical_result.id))
     end)
   end
 

@@ -24,6 +24,10 @@ const styles = {
     color: (theme) => theme.palette.getContrastText(green["A400"]),
     backgroundColor: green["A400"],
   },
+  advancingQuestionable: {
+    color: (theme) => theme.palette.getContrastText(green["A100"]),
+    backgroundColor: green["A100"],
+  },
   roundName: {
     width: { xs: 150, lg: 200 },
   },
@@ -78,6 +82,9 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
                 sx={{
                   ...styles.ranking,
                   ...(result.advancing ? styles.advancing : {}),
+                  ...(result.advancingQuestionable
+                    ? styles.advancingQuestionable
+                    : {}),
                 }}
               >
                 {result.ranking}
