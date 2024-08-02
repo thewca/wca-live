@@ -109,6 +109,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, non_null(:boolean)
+    field :advancing_questionable, non_null(:boolean)
 
     field :attempts, non_null(list_of(non_null(:attempt)))
 

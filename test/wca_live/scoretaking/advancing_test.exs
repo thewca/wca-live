@@ -15,10 +15,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancement_condition: %{type: "ranking", level: 3}
       )
 
-    result1 = insert(:result, round: round1, ranking: 1, advancing: false)
-    result2 = insert(:result, round: round1, ranking: 2, advancing: false)
-    result3 = insert(:result, round: round1, ranking: 3, advancing: false)
-    result4 = insert(:result, round: round1, ranking: 4, advancing: false)
+    %{id: id1} = insert(:result, round: round1, ranking: 1, advancing: false)
+    result2 = %{id: id2} = insert(:result, round: round1, ranking: 2, advancing: false)
+    %{id: id3} = insert(:result, round: round1, ranking: 3, advancing: false)
+    result4 = %{id: id4} = insert(:result, round: round1, ranking: 4, advancing: false)
 
     round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
@@ -29,12 +29,14 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
 
     changeset = Advancing.compute_advancing(round1)
 
-    assert %{
-             result1.id => false,
-             result2.id => true,
-             result3.id => false,
-             result4.id => true
-           } == round_changeset_to_advancing_map(changeset)
+    updated_results = apply_changes(changeset).results
+
+    assert [
+             %{id: ^id1, advancing: false},
+             %{id: ^id2, advancing: true},
+             %{id: ^id3, advancing: false},
+             %{id: ^id4, advancing: true}
+           ] = updated_results
   end
 
   # Note this is a basic test of compute_advancing/1,
@@ -50,30 +52,68 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancement_condition: %{type: "ranking", level: 3}
       )
 
-    result1 = insert(:result, round: round1, ranking: 1, advancing: false)
-    result2 = insert(:result, round: round1, ranking: 2, advancing: false)
-    result3 = insert(:result, round: round1, ranking: 3, advancing: false)
-    result4 = insert(:result, round: round1, ranking: 4, advancing: false)
+    %{id: id1} = insert(:result, round: round1, ranking: 1, advancing: false)
+    %{id: id2} = insert(:result, round: round1, ranking: 2, advancing: false)
+    %{id: id3} = insert(:result, round: round1, ranking: 3, advancing: false)
+    %{id: id4} = insert(:result, round: round1, ranking: 4, advancing: false)
 
     _round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
 
     changeset = Advancing.compute_advancing(round1)
 
-    assert %{
-             result1.id => true,
-             result2.id => true,
-             result3.id => true,
-             result4.id => false
-           } == round_changeset_to_advancing_map(changeset)
+    updated_results = apply_changes(changeset).results
+
+    assert [
+             %{id: ^id1, advancing: true},
+             %{id: ^id2, advancing: true},
+             %{id: ^id3, advancing: true},
+             %{id: ^id4, advancing: false}
+           ] = updated_results
   end
 
-  defp round_changeset_to_advancing_map(changeset) do
-    updated_round = apply_changes(changeset)
+  test "compute_advancing/1 sets questionable advancing if the round has empty results" do
+    competition_event = insert(:competition_event)
 
-    Map.new(updated_round.results, fn result ->
-      {result.id, result.advancing}
-    end)
+    round1 =
+      insert(:round,
+        competition_event: competition_event,
+        number: 1,
+        advancement_condition: %{type: "ranking", level: 3}
+      )
+
+    %{id: id1} =
+      insert(:result, round: round1, ranking: 1, best: 1000, average: 1000, advancing: false)
+
+    %{id: id2} =
+      insert(:result, round: round1, ranking: 2, best: 1100, average: 1100, advancing: false)
+
+    %{id: id3} =
+      insert(:result, round: round1, ranking: 3, best: 1200, average: 1200, advancing: false)
+
+    %{id: id4} =
+      insert(:result, round: round1, ranking: nil, best: 0, average: 0, advancing: false)
+
+    _round2 =
+      insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
+
+    changeset = Advancing.compute_advancing(round1)
+
+    updated_results = apply_changes(changeset).results
+
+    assert [
+             %{id: ^id1, advancing: true},
+             %{id: ^id2, advancing: true},
+             %{id: ^id3, advancing: true},
+             %{id: ^id4, advancing: false}
+           ] = updated_results
+
+    assert [
+             %{id: ^id1, advancing_questionable: false},
+             %{id: ^id2, advancing_questionable: false},
+             %{id: ^id3, advancing_questionable: true},
+             %{id: ^id4, advancing_questionable: false}
+           ] = updated_results
   end
 
   test "qualifying_results/1 returns an empty list if the round has no results" do
@@ -100,18 +140,6 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result3 = insert(:result, round: round, ranking: 3)
     _result4 = insert(:result, round: round, ranking: 4)
     _result5 = insert(:result, round: round, ranking: 5)
-
-    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
-  end
-
-  test "qualifying_results/1 given `percent` advancement condition, ignores results that are not entered yet" do
-    round = insert(:round, number: 1, advancement_condition: %{type: "percent", level: 50})
-    result1 = insert(:result, round: round, ranking: 1, best: 1000)
-    result2 = insert(:result, round: round, ranking: 2, best: 1100)
-    _result3 = insert(:result, round: round, ranking: 3, best: 1200)
-    _result4 = insert(:result, round: round, ranking: 4, best: 1400)
-    _result5 = insert(:result, round: round, ranking: nil)
-    _result6 = insert(:result, round: round, ranking: nil)
 
     assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
   end

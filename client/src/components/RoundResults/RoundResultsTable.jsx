@@ -33,6 +33,10 @@ const styles = {
     color: (theme) => theme.palette.getContrastText(green["A400"]),
     backgroundColor: green["A400"],
   },
+  advancingQuestionable: {
+    color: (theme) => theme.palette.getContrastText(green["A100"]),
+    backgroundColor: green["A100"],
+  },
   name: {
     textOverflow: "ellipsis",
     overflow: "hidden",
@@ -91,6 +95,9 @@ const RoundResultsTable = memo(
                     ...styles.cell,
                     ...styles.ranking,
                     ...(result.advancing ? styles.advancing : {}),
+                    ...(result.advancingQuestionable
+                      ? styles.advancingQuestionable
+                      : {}),
                   }}
                 >
                   {result.ranking}

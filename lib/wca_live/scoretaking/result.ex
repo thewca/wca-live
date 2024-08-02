@@ -25,6 +25,7 @@ defmodule WcaLive.Scoretaking.Result do
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, :boolean, default: false
+    field :advancing_questionable, :boolean, default: false
     field :entered_at, :utc_datetime
 
     embeds_many :attempts, Attempt, on_replace: :delete
