@@ -78,6 +78,15 @@ const cache = new InMemoryCache({
         },
       },
     },
+    Result: {
+      fields: {
+        attempts: {
+          merge(existing, incoming) {
+            return incoming;
+          },
+        },
+      },
+    },
   },
 });
 
