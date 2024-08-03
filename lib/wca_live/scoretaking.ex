@@ -266,7 +266,7 @@ defmodule WcaLive.Scoretaking do
       person_ids_for_round(round)
       |> Enum.map(&Result.empty_result(person_id: &1))
 
-    if Enum.empty?(empty_results) do
+    if empty_results == [] do
       {:error,
        "cannot open this round as no one #{if round.number == 1, do: "registered", else: "qualified"}"}
     else

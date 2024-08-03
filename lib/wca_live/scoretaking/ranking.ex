@@ -17,8 +17,7 @@ defmodule WcaLive.Scoretaking.Ranking do
     round = round |> Repo.preload(:results)
     format = Format.get_by_id!(round.format_id)
 
-    {empty, nonempty} =
-      Enum.split_with(round.results, fn result -> Enum.empty?(result.attempts) end)
+    {empty, nonempty} = Enum.split_with(round.results, &(&1.attempts == []))
 
     empty_with_ranking = Enum.map(empty, fn result -> {result, nil} end)
 

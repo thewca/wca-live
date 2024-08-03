@@ -19,7 +19,7 @@ defmodule WcaLive.Wcif.Utils do
   def first_activity_start_time(wcif) do
     activities = top_level_activities(wcif)
 
-    if Enum.empty?(activities) do
+    if activities == [] do
       raise ArgumentError, message: "schedule has no activities"
     end
 
@@ -32,7 +32,7 @@ defmodule WcaLive.Wcif.Utils do
   def last_activity_end_time(wcif) do
     activities = top_level_activities(wcif)
 
-    if Enum.empty?(activities) do
+    if activities == [] do
       raise ArgumentError, message: "schedule has no activities"
     end
 

@@ -16,7 +16,7 @@ defmodule WcaLive.Wca.Format do
           sort_by: atom()
         }
 
-  @format_attrs [
+  format_attrs = [
     %{
       id: "1",
       name: "Best of 1",
@@ -54,6 +54,8 @@ defmodule WcaLive.Wca.Format do
     }
   ]
 
+  @format_attrs_by_id Map.new(format_attrs, &{&1.id, &1})
+
   @doc """
   Finds format with matching id.
 
@@ -61,14 +63,10 @@ defmodule WcaLive.Wca.Format do
   """
   @spec get_by_id!(String.t()) :: t()
   def get_by_id!(id) do
-    @format_attrs
-    |> Enum.find(fn format -> format.id == id end)
-    |> case do
-      nil ->
-        raise ArgumentError, message: "invalid format id '#{id}'"
-
-      attrs ->
-        struct(__MODULE__, attrs)
+    if attrs = @format_attrs_by_id[id] do
+      struct(__MODULE__, attrs)
+    else
+      raise ArgumentError, message: "invalid format id #{inspect(id)}"
     end
   end
 end

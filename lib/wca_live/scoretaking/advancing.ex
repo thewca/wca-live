@@ -1,11 +1,11 @@
 defmodule WcaLive.Scoretaking.Advancing do
   @moduledoc """
-  Functions related to determining who
-  qualifies and advances from round to round.
+  Functions related to determining who qualifies and advances from
+  round to round.
 
-  Note that **advancing** competitors mean actually being in the
-  next round (the "green" results), whereas **qualifying** competitors
-  are those satisfying advancement criteria.
+  Note that **advancing** competitors mean actually being in the next
+  round (the "green" results), whereas **qualifying** competitors are
+  those satisfying advancement criteria.
   """
 
   alias Ecto.Changeset
@@ -16,60 +16,64 @@ defmodule WcaLive.Scoretaking.Advancing do
   alias WcaLive.Competitions.Person
 
   @doc """
-  Calculates the `advancing` attribute on `round` results
-  and returns a changeset including the changes.
+  Calculates the `advancing` attribute on `round` results and returns
+  a changeset including the changes.
   """
   @spec compute_advancing(%Round{}) :: Ecto.Changeset.t(%Round{})
   def compute_advancing(round) do
     round = round |> Repo.preload(:results)
-    {advancing, clinched_advancing} = advancing_results(round)
+    {advancing_ids, clinched_advancing_ids} = advancing_result_ids(round)
 
-    Enum.map(round.results, fn result ->
-      advancing = result in advancing
+    round.results
+    |> Enum.map(fn result ->
+      advancing? = result.id in advancing_ids
+      clinched? = result.id in clinched_advancing_ids
 
       Changeset.change(result,
-        advancing: advancing,
-        advancing_questionable: advancing and result not in clinched_advancing
+        advancing: advancing?,
+        advancing_questionable: advancing? and not clinched?
       )
     end)
     |> Round.put_results_in_round(round)
   end
 
-  defp advancing_results(round) do
-    next = Scoretaking.get_next_round(round) |> Repo.preload(:results)
+  defp advancing_result_ids(round) do
+    next = round |> Scoretaking.get_next_round() |> Repo.preload(:results)
 
     if next != nil and Round.open?(next) do
       # If the next round is open use its results to determine who advanced.
-      advancing_person_ids = Enum.map(next.results, & &1.person_id)
+      advancing_person_ids = MapSet.new(next.results, & &1.person_id)
 
-      results =
-        Enum.filter(round.results, fn result ->
-          result.person_id in advancing_person_ids
-        end)
+      result_ids =
+        for result <- round.results,
+            result.person_id in advancing_person_ids,
+            into: MapSet.new(),
+            do: result.id
 
-      {results, results}
+      {result_ids, result_ids}
     else
-      {qualifying_results(round), clinched_qualifying_results(round)}
+      {qualifying_result_ids(round), clinched_qualifying_result_ids(round)}
     end
   end
 
   @doc """
-  Returns a list of results in the given round
-  that satisfy advancement criteria.
+  Returns a set of result ids in the given round that satisfy advancement
+  criteria.
   """
-  @spec qualifying_results(%Round{}) :: list(%Result{})
-  def qualifying_results(round) do
-    round = round |> Repo.preload(:results)
+  @spec qualifying_result_ids(%Round{}) :: list(%Result{})
+  def qualifying_result_ids(round) do
+    round = Repo.preload(round, :results)
 
     cond do
       not Round.open?(round) ->
-        []
+        MapSet.new()
 
       Round.final?(round) ->
         # Mark top 3 in the finals (unless DNFed).
-        Enum.filter(round.results, fn result ->
-          result.best > 0 and result.ranking != nil and result.ranking <= 3
-        end)
+        for result <- round.results,
+            result.best > 0 and result.ranking != nil and result.ranking <= 3,
+            into: MapSet.new(),
+            do: result.id
 
       true ->
         %{results: results, advancement_condition: advancement_condition} = round
@@ -84,21 +88,23 @@ defmodule WcaLive.Scoretaking.Advancing do
           if length(rankings) > max_qualifying do
             Enum.fetch!(rankings, max_qualifying)
           else
-            if Enum.empty?(rankings), do: 1, else: List.last(rankings) + 1
+            if rankings == [], do: 1, else: List.last(rankings) + 1
           end
 
-        Enum.filter(results, fn result ->
-          # Note: this ensures that people who tied either qualify together or not.
-          result.ranking != nil and
-            result.ranking < first_non_qualifying_ranking and
-            result.best > 0 and
+        total_results = length(results)
+
+        for result <- results,
+            # Note: this ensures that people who tied either qualify together or not.
+            result.ranking != nil and result.ranking < first_non_qualifying_ranking,
+            result.best > 0,
             satisfies_advancement_condition?(
               result,
               advancement_condition,
-              length(results),
+              total_results,
               format
-            )
-        end)
+            ),
+            into: MapSet.new(),
+            do: result.id
     end
   end
 
@@ -134,7 +140,7 @@ defmodule WcaLive.Scoretaking.Advancing do
   """
   @spec next_qualifying_to_round(%Round{}) :: list(%Person{})
   def next_qualifying_to_round(round) do
-    previous = Scoretaking.get_previous_round(round) |> Repo.preload(results: :person)
+    previous = round |> Scoretaking.get_previous_round() |> Repo.preload(results: :person)
 
     cond do
       previous == nil ->
@@ -153,10 +159,12 @@ defmodule WcaLive.Scoretaking.Advancing do
         first_advancing =
           previous.results |> Enum.filter(& &1.advancing) |> Enum.min_by(& &1.ranking)
 
-        candidates_to_qualify =
-          Enum.filter(previous.results, fn result ->
-            not result.advancing and result not in already_quit
-          end)
+        candidates_to_qualify_ids =
+          for result <- previous.results,
+              not result.advancing,
+              result not in already_quit,
+              into: MapSet.new(),
+              do: result.id
 
         # Take already quit results and the first advancing one,
         # then *pretend* they got the worst results and didn't qualify
@@ -165,9 +173,9 @@ defmodule WcaLive.Scoretaking.Advancing do
         ignored_results = [first_advancing | already_quit]
         hypothetically_qualifying = qualifying_results_ignoring(previous, ignored_results)
 
-        hypothetically_qualifying
-        |> Enum.filter(fn result -> result in candidates_to_qualify end)
-        |> Enum.map(& &1.person)
+        for result <- hypothetically_qualifying,
+            result.id in candidates_to_qualify_ids,
+            do: result.person
     end
   end
 
@@ -182,19 +190,20 @@ defmodule WcaLive.Scoretaking.Advancing do
       |> Enum.map(& &1.ranking)
       |> Enum.max()
 
-    results
-    # Should advance...
-    |> Enum.filter(fn result -> result.ranking <= max_advancing_ranking end)
-    # ...but didn't, because they quit the next round.
-    |> Enum.filter(fn result -> not result.advancing end)
+    Enum.filter(results, fn result ->
+      # Should advance, but didn't, because they quit the next round.
+      result.ranking <= max_advancing_ranking and not result.advancing
+    end)
   end
 
   defp qualifying_results_ignoring(round, ignored_results) do
+    ignored_result_ids = MapSet.new(ignored_results, & &1.id)
+
     # DNF attempts rank ignored people at the end (making sure they don't qualify).
     # Then recompute rankings and see who would qualify as a result.
     hypothetical_results =
       Enum.map(round.results, fn result ->
-        if result in ignored_results do
+        if result.id in ignored_result_ids do
           %{result | attempts: [-1], best: -1, average: -1}
         else
           result
@@ -206,21 +215,18 @@ defmodule WcaLive.Scoretaking.Advancing do
       |> Ranking.compute_ranking()
       |> Ecto.Changeset.apply_changes()
 
-    qualifying_results(hypothetical_round)
-    |> Enum.map(fn hypothetical_result ->
-      Enum.find(round.results, &(&1.id == hypothetical_result.id))
-    end)
+    hypothetical_qualifying_ids = qualifying_result_ids(hypothetical_round)
+
+    Enum.filter(round.results, &(&1.id in hypothetical_qualifying_ids))
   end
 
-  defp clinched_qualifying_results(round) do
+  defp clinched_qualifying_result_ids(round) do
     # Assume best possible attempts for empty results and see who of
     # the currently entered results would still qualify.
 
-    {ranked_results, unranked_results} = Enum.split_with(round.results, & &1.ranking)
-
     hypothetical_results =
       Enum.map(round.results, fn result ->
-        if result in unranked_results do
+        if result.attempts == [] do
           %{result | attempts: [1, 1, 1, 1, 1], best: 1, average: 1}
         else
           result
@@ -232,10 +238,13 @@ defmodule WcaLive.Scoretaking.Advancing do
       |> Ranking.compute_ranking()
       |> Ecto.Changeset.apply_changes()
 
-    qualifying_results(hypothetical_round)
-    |> Enum.map(fn hypothetical_result ->
-      Enum.find(ranked_results, &(&1.id == hypothetical_result.id))
-    end)
+    hypothetical_qualifying_ids = qualifying_result_ids(hypothetical_round)
+
+    for result <- round.results,
+        result.attempts != [],
+        result.id in hypothetical_qualifying_ids,
+        into: MapSet.new(),
+        do: result.id
   end
 
   @doc """
@@ -243,8 +252,12 @@ defmodule WcaLive.Scoretaking.Advancing do
 
   Returns a map with the following keys:
 
-    * `:qualifying` - People who could be added to `round`, because they qualify.
-    * `:revocable` - People who are in the round, but would no longer qualify if one of the `qualifying` people was added.
+    * `:qualifying` - people who could be added to `round`, because
+      they qualify
+
+    * `:revocable` - people who are in the round, but would no longer
+      qualify if one of the `qualifying` people was added
+
   """
   @spec advancement_candidates(%Round{}) :: %{
           qualifying: list(%Person{}),
@@ -262,39 +275,44 @@ defmodule WcaLive.Scoretaking.Advancing do
         |> Repo.all()
         |> Repo.preload(:registration)
 
+      round_person_ids = MapSet.new(round.results, & &1.person_id)
+
       qualifying =
-        people
-        |> Enum.filter(&Person.competitor?/1)
-        |> Enum.reject(fn person ->
-          Enum.any?(round.results, fn result -> result.person_id == person.id end)
+        Enum.filter(people, fn person ->
+          Person.competitor?(person) and person.id not in round_person_ids
         end)
 
       %{qualifying: qualifying, revocable: []}
     else
-      previous = Scoretaking.get_previous_round(round) |> Repo.preload(results: :person)
+      previous = round |> Scoretaking.get_previous_round() |> Repo.preload(results: :person)
 
       already_quit = already_quit_results(previous.results)
 
       could_just_advance =
-        qualifying_results_ignoring(previous, already_quit)
+        previous
+        |> qualifying_results_ignoring(already_quit)
         |> Enum.reject(& &1.advancing)
 
       cond do
-        not Enum.empty?(could_just_advance) ->
+        could_just_advance != [] ->
           qualifying = (already_quit ++ could_just_advance) |> Enum.map(& &1.person)
           %{qualifying: qualifying, revocable: []}
 
-        not Enum.empty?(already_quit) ->
+        already_quit != [] ->
           # See who wouldn't qualify if we un-quit one person.
-          new_qualifying = qualifying_results_ignoring(previous, Enum.drop(already_quit, 1))
+          new_qualifying =
+            previous
+            |> qualifying_results_ignoring(Enum.drop(already_quit, 1))
+            |> MapSet.new()
 
           revocable =
-            previous.results
-            |> Enum.filter(& &1.advancing)
-            |> Enum.filter(fn result -> result not in new_qualifying end)
-            |> Enum.map(& &1.person)
+            for result <- previous.results,
+                result.advancing,
+                result not in new_qualifying,
+                do: result.person
 
-          qualifying = already_quit |> Enum.map(& &1.person)
+          qualifying = Enum.map(already_quit, & &1.person)
+
           %{qualifying: qualifying, revocable: revocable}
 
         true ->

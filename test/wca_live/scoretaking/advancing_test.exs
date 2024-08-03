@@ -41,7 +41,7 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
 
   # Note this is a basic test of compute_advancing/1,
   # all the edge cases related to qualifying are covered by
-  # the tests of qualifying_results/1 below.
+  # the tests of qualifying_result_ids/1 below.
   test "compute_advancing/1 if the next round is not open sets advancing based on who qualifies to it" do
     competition_event = insert(:competition_event)
 
@@ -92,7 +92,14 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
       insert(:result, round: round1, ranking: 3, best: 1200, average: 1200, advancing: false)
 
     %{id: id4} =
-      insert(:result, round: round1, ranking: nil, best: 0, average: 0, advancing: false)
+      insert(:result,
+        round: round1,
+        ranking: nil,
+        best: 0,
+        average: 0,
+        attempts: [],
+        advancing: false
+      )
 
     _round2 =
       insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
@@ -102,27 +109,20 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     updated_results = apply_changes(changeset).results
 
     assert [
-             %{id: ^id1, advancing: true},
-             %{id: ^id2, advancing: true},
-             %{id: ^id3, advancing: true},
-             %{id: ^id4, advancing: false}
-           ] = updated_results
-
-    assert [
-             %{id: ^id1, advancing_questionable: false},
-             %{id: ^id2, advancing_questionable: false},
-             %{id: ^id3, advancing_questionable: true},
-             %{id: ^id4, advancing_questionable: false}
+             %{id: ^id1, advancing: true, advancing_questionable: false},
+             %{id: ^id2, advancing: true, advancing_questionable: false},
+             %{id: ^id3, advancing: true, advancing_questionable: true},
+             %{id: ^id4, advancing: false, advancing_questionable: false}
            ] = updated_results
   end
 
-  test "qualifying_results/1 returns an empty list if the round has no results" do
+  test "qualifying_result_ids/1 returns an empty list if the round has no results" do
     round = insert(:round, number: 1)
 
-    assert [] == Advancing.qualifying_results(round)
+    assert Advancing.qualifying_result_ids(round) == MapSet.new()
   end
 
-  test "qualifying_results/1 given `ranking` advancement condition, returns results with ranking better or equal to the given one" do
+  test "qualifying_result_ids/1 given `ranking` advancement condition, returns results with ranking better or equal to the given one" do
     round = insert(:round, number: 1, advancement_condition: %{type: "ranking", level: 3})
     result1 = insert(:result, round: round, ranking: 1)
     result2 = insert(:result, round: round, ranking: 2)
@@ -130,10 +130,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: 4)
     _result5 = insert(:result, round: round, ranking: 5)
 
-    assert ids([result1, result2, result3]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1, result2, result3])
   end
 
-  test "qualifying_results/1 given `percent` advancement condition, rounds the number of advancing people down" do
+  test "qualifying_result_ids/1 given `percent` advancement condition, rounds the number of advancing people down" do
     round = insert(:round, number: 1, advancement_condition: %{type: "percent", level: 50})
     result1 = insert(:result, round: round, ranking: 1)
     result2 = insert(:result, round: round, ranking: 2)
@@ -141,10 +141,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: 4)
     _result5 = insert(:result, round: round, ranking: 5)
 
-    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1, result2])
   end
 
-  test "qualifying_results/1 given `attemptResult` advancement condition and format sorting by best, returns results with best strictly better than the specified value" do
+  test "qualifying_result_ids/1 given `attemptResult` advancement condition and format sorting by best, returns results with best strictly better than the specified value" do
     round =
       insert(:round,
         number: 1,
@@ -158,10 +158,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: 4, best: 1300)
     _result5 = insert(:result, round: round, ranking: 5, best: 1400)
 
-    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1, result2])
   end
 
-  test "qualifying_results/1 given `attemptResult` advancement condition and format sorting by average, returns results with average strictly better than the specified value" do
+  test "qualifying_result_ids/1 given `attemptResult` advancement condition and format sorting by average, returns results with average strictly better than the specified value" do
     round =
       insert(:round,
         number: 1,
@@ -175,10 +175,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: 4, average: 1300)
     _result5 = insert(:result, round: round, ranking: 5, average: 1400)
 
-    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1, result2])
   end
 
-  test "qualifying_results/1 if people with the same ranking don't fit in 75%, neither qualifies" do
+  test "qualifying_result_ids/1 if people with the same ranking don't fit in 75%, neither qualifies" do
     round = insert(:round, number: 1, advancement_condition: %{type: "ranking", level: 3})
     result1 = insert(:result, round: round, ranking: 1)
     result2 = insert(:result, round: round, ranking: 2)
@@ -186,10 +186,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: 3)
     _result5 = insert(:result, round: round, ranking: 5)
 
-    assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1, result2])
   end
 
-  test "qualifying_results/1 does not return more than 75% even if more satisfy advancement condition" do
+  test "qualifying_result_ids/1 does not return more than 75% even if more satisfy advancement condition" do
     round = insert(:round, number: 1, advancement_condition: %{type: "ranking", level: 4})
     result1 = insert(:result, round: round, ranking: 1)
     result2 = insert(:result, round: round, ranking: 2)
@@ -197,10 +197,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: 4)
     _result5 = insert(:result, round: round, ranking: 5)
 
-    assert ids([result1, result2, result3]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1, result2, result3])
   end
 
-  test "qualifying_results/1 does not qualify incomplete results" do
+  test "qualifying_result_ids/1 does not qualify incomplete results" do
     round = insert(:round, number: 1, advancement_condition: %{type: "ranking", level: 3})
     result1 = insert(:result, round: round, ranking: 1)
 
@@ -211,10 +211,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result4 = insert(:result, round: round, ranking: nil)
     _result5 = insert(:result, round: round, ranking: nil)
 
-    assert ids([result1]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1])
   end
 
-  test "qualifying_results/1 does not treat DNF results as satisfying `attemptResult` advancement condition" do
+  test "qualifying_result_ids/1 does not treat DNF results as satisfying `attemptResult` advancement condition" do
     round =
       insert(:round, number: 1, advancement_condition: %{type: "attemptResult", level: 1500})
 
@@ -223,10 +223,10 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     _result3 = insert(:result, round: round, ranking: nil)
     _result4 = insert(:result, round: round, ranking: nil)
 
-    assert ids([result1]) == ids(Advancing.qualifying_results(round))
+    assert Advancing.qualifying_result_ids(round) == ids([result1])
   end
 
-  describe "qualifying_results/1 when the round has no advancement condition" do
+  describe "qualifying_result_ids/1 when the round has no advancement condition" do
     test "returns results with top 3 ranking" do
       round = insert(:round, number: 1, advancement_condition: nil)
       result1 = insert(:result, round: round, ranking: 1)
@@ -235,7 +235,7 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
       _result4 = insert(:result, round: round, ranking: 4)
       _result5 = insert(:result, round: round, ranking: 5)
 
-      assert ids([result1, result2, result3]) == ids(Advancing.qualifying_results(round))
+      assert Advancing.qualifying_result_ids(round) == ids([result1, result2, result3])
     end
 
     test "returns more than 3 people if there are ties" do
@@ -246,7 +246,7 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
       result4 = insert(:result, round: round, ranking: 3)
       _result5 = insert(:result, round: round, ranking: 5)
 
-      assert ids([result1, result2, result3, result4]) == ids(Advancing.qualifying_results(round))
+      assert Advancing.qualifying_result_ids(round) == ids([result1, result2, result3, result4])
     end
 
     test "does not return people without any successful attempt" do
@@ -255,7 +255,7 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
       result2 = insert(:result, round: round, ranking: 2)
       _result3 = insert(:result, round: round, ranking: 3, best: -1)
 
-      assert ids([result1, result2]) == ids(Advancing.qualifying_results(round))
+      assert Advancing.qualifying_result_ids(round) == ids([result1, result2])
     end
   end
 
@@ -438,6 +438,6 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
   end
 
   defp ids(list) do
-    list |> Enum.map(& &1.id) |> Enum.sort()
+    MapSet.new(list, & &1.id)
   end
 end

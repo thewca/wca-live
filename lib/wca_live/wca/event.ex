@@ -12,7 +12,7 @@ defmodule WcaLive.Wca.Event do
           rank: pos_integer()
         }
 
-  @event_attrs [
+  event_attrs = [
     %{
       id: "333",
       name: "3x3x3 Cube",
@@ -121,6 +121,8 @@ defmodule WcaLive.Wca.Event do
     }
   ]
 
+  @event_attrs_by_id Map.new(event_attrs, &{&1.id, &1})
+
   @doc """
   Finds an event with matching WCA id.
 
@@ -128,14 +130,10 @@ defmodule WcaLive.Wca.Event do
   """
   @spec get_by_id!(String.t()) :: t()
   def get_by_id!(id) do
-    @event_attrs
-    |> Enum.find(fn event -> event.id == id end)
-    |> case do
-      nil ->
-        raise ArgumentError, message: "invalid event id '#{id}'"
-
-      attrs ->
-        struct(__MODULE__, attrs)
+    if attrs = @event_attrs_by_id[id] do
+      struct(__MODULE__, attrs)
+    else
+      raise ArgumentError, message: "invalid event id #{inspect(id)}"
     end
   end
 
