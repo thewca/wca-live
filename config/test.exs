@@ -19,7 +19,7 @@ config :wca_live, WcaLiveWeb.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
 config :wca_live, :wca_api,
   url: "https://staging.worldcubeassociation.org/api/v0",

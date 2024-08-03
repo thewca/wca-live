@@ -56,8 +56,8 @@ jobs:
       - name: Install Erlang & Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '26.0.2'
-          elixir-version: '1.15.2'
+          otp-version: '27.0.1'
+          elixir-version: '1.17.2'
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install wkhtmltopdf
       - name: Cache Mix
