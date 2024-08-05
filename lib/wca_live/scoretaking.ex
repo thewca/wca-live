@@ -580,7 +580,9 @@ defmodule WcaLive.Scoretaking do
       |> Repo.all()
       |> Repo.preload(rounds: :results)
 
-    Enum.map(competition_events, fn competition_event ->
+    competition_events
+    |> Enum.sort_by(&Event.get_rank_by_id!(&1.event_id))
+    |> Enum.map(fn competition_event ->
       final_round = Enum.max_by(competition_event.rounds, & &1.number)
 
       podium_results =
