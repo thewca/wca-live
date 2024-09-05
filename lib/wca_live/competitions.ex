@@ -77,6 +77,28 @@ defmodule WcaLive.Competitions do
   def fetch_person(id), do: Repo.fetch(Person, id)
 
   @doc """
+  Finds person by competition-scoped registrant id.
+  """
+  @spec get_person_by_registrant_id!(term(), pos_integer()) :: %Person{}
+  def get_person_by_registrant_id!(competition_id, registrant_id) do
+    Repo.one!(
+      from person in Person,
+        where: person.competition_id == ^competition_id and person.registrant_id == ^registrant_id
+    )
+  end
+
+  @doc """
+  Finds person by WCA ID.
+  """
+  @spec get_person_by_wca_id!(term(), String.t()) :: %Person{}
+  def get_person_by_wca_id!(competition_id, wca_id) do
+    Repo.one!(
+      from person in Person,
+        where: person.competition_id == ^competition_id and person.wca_id == ^wca_id
+    )
+  end
+
+  @doc """
   Updates `competition` with `attrs`.
 
   Attributes may include nested `staff_members`.
