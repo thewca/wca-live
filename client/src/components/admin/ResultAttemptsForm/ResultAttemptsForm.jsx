@@ -186,7 +186,7 @@ function ResultAttemptsForm({
             title={
               <div>
                 Key bindings:
-                <div>{`/ or d - DNF`}</div>
+                <div>{`/ or d or # - DNF`}</div>
                 <div>{`* or s - DNS`}</div>
                 <div>{`Up, Down, Enter - navigation`}</div>
                 <div>{`Space - jump to competitor field`}</div>
