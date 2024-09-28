@@ -211,6 +211,25 @@ defmodule WcaLive.Scoretaking.Result do
   end
 
   @doc """
+  Returns the maximum number of attempts expected for the given result.
+
+  If the result is incomplete, we assume the best-case scenario.
+  """
+  @spec max_expected_attempts(%Result{}, pos_integer(), %Cutoff{}) :: pos_integer()
+  def max_expected_attempts(result, max_attempts, cutoff) do
+    if meets_cutoff?(result, cutoff) do
+      max_attempts
+    else
+      if length(result.attempts) == cutoff.number_of_attempts do
+        cutoff.number_of_attempts
+      else
+        # They can still satisfy the cutoff and get all attempts
+        max_attempts
+      end
+    end
+  end
+
+  @doc """
   Returns `true` if `result` has no attempts.
   """
   @spec empty?(%Result{}) :: boolean()

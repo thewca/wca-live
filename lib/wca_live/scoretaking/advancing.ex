@@ -52,6 +52,7 @@ defmodule WcaLive.Scoretaking.Advancing do
 
       {result_ids, result_ids}
     else
+      round = Repo.preload(round, [:results, :competition_event])
       {qualifying_result_ids(round), clinched_qualifying_result_ids(round)}
     end
   end
@@ -204,7 +205,7 @@ defmodule WcaLive.Scoretaking.Advancing do
     hypothetical_results =
       Enum.map(round.results, fn result ->
         if result.id in ignored_result_ids do
-          %{result | attempts: [-1], best: -1, average: -1}
+          %{result | attempts: [%Scoretaking.Attempt{result: -1}], best: -1, average: -1}
         else
           result
         end
@@ -221,15 +222,30 @@ defmodule WcaLive.Scoretaking.Advancing do
   end
 
   defp clinched_qualifying_result_ids(round) do
-    # Assume best possible attempts for empty results and see who of
-    # the currently entered results would still qualify.
+    # Assume best possible attempts for empty (or incomplete) results
+    # and see who of the currently entered results would still qualify.
+
+    format = Format.get_by_id!(round.format_id)
 
     hypothetical_results =
       Enum.map(round.results, fn result ->
-        if result.attempts == [] do
-          %{result | attempts: [1, 1, 1, 1, 1], best: 1, average: 1}
-        else
+        max_expected_attempts =
+          Result.max_expected_attempts(result, format.number_of_attempts, round.cutoff)
+
+        max_missing_attempts = max_expected_attempts - length(result.attempts)
+
+        if max_missing_attempts == 0 do
           result
+        else
+          attempts =
+            Enum.map(result.attempts, &Map.from_struct/1) ++
+              List.duplicate(%{result: 1}, max_missing_attempts)
+
+          attrs = %{attempts: attempts}
+          event_id = round.competition_event.event_id
+
+          Result.changeset(result, attrs, event_id, format, round.time_limit, round.cutoff)
+          |> Ecto.Changeset.apply_changes()
         end
       end)
 

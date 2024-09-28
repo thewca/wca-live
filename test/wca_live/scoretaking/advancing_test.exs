@@ -116,6 +116,74 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
            ] = updated_results
   end
 
+  test "compute_advancing/1 sets questionable advancing if the round has incomplete results" do
+    competition_event = insert(:competition_event)
+
+    round1 =
+      insert(:round,
+        competition_event: competition_event,
+        number: 1,
+        advancement_condition: %{type: "ranking", level: 3}
+      )
+
+    %{id: id1} =
+      insert(:result, round: round1, ranking: 1, best: 1000, average: 1000, advancing: false)
+
+    %{id: id2} =
+      insert(:result, round: round1, ranking: 2, best: 1100, average: 1100, advancing: false)
+
+    %{id: id3} =
+      insert(:result, round: round1, ranking: 3, best: 1200, average: 1200, advancing: false)
+
+    # We have two incomplete results, both with BPA 1150, so id2 is
+    # already guaranteed to advance either way, but id3 is questionable
+
+    %{id: id4} =
+      insert(:result,
+        round: round1,
+        ranking: 4,
+        best: 1100,
+        average: 1250,
+        attempts: [
+          build(:attempt, result: 1400),
+          build(:attempt, result: 1200),
+          build(:attempt, result: 1150),
+          build(:attempt, result: 1100)
+        ],
+        advancing: false
+      )
+
+    %{id: id5} =
+      insert(:result,
+        round: round1,
+        ranking: 4,
+        best: 1100,
+        average: 1250,
+        attempts: [
+          build(:attempt, result: 1400),
+          build(:attempt, result: 1200),
+          build(:attempt, result: 1150),
+          build(:attempt, result: 1100)
+        ],
+        advancing: false
+      )
+
+    _round2 =
+      insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
+
+    changeset = Advancing.compute_advancing(round1)
+
+    updated_results = apply_changes(changeset).results
+
+    assert [
+             %{id: ^id1, advancing: true, advancing_questionable: false},
+             %{id: ^id2, advancing: true, advancing_questionable: false},
+             %{id: ^id3, advancing: true, advancing_questionable: true},
+             %{id: ^id4, advancing: false, advancing_questionable: false},
+             %{id: ^id5, advancing: false, advancing_questionable: false}
+           ] = updated_results
+  end
+
   test "qualifying_result_ids/1 returns an empty list if the round has no results" do
     round = insert(:round, number: 1)
 
