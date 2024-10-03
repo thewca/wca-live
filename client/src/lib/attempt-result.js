@@ -402,6 +402,12 @@ export function attemptResultsWarning(
       }
     }
 
+    if (checkForDnsFollowedByValidResult(attemptResults)) {
+      return `
+        There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.
+      `;
+    }
+
     if (eventId === "333mbf") {
       const lowTimeIndex = attemptResults.findIndex((attempt) => {
         const { attempted, centiseconds } = decodeMbldAttemptResult(attempt);
@@ -482,4 +488,16 @@ export function meetsCutoff(attemptResults, cutoff) {
   return attemptResults
     .slice(0, numberOfAttempts)
     .some((attempt) => attempt > 0 && attempt < attemptResult);
+}
+
+/**
+ * Checks if the given attempt results contain a DNS followed by a valid result.
+ */
+export function checkForDnsFollowedByValidResult(attemptResults) {
+  const dnsIndex = attemptResults.findIndex((attempt) => attempt === DNS_VALUE);
+  if (dnsIndex === -1) return false;
+  const validResultIndex = attemptResults.findIndex(
+    (attempt, index) => (attempt > 0 || attempt === -1) && index > dnsIndex
+  );
+  return validResultIndex !== -1;
 }

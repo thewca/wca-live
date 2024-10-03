@@ -2,6 +2,7 @@ import {
   best,
   bestPossibleAverage,
   average,
+  checkForDnsFollowedByValidResult,
   formatAttemptResult,
   decodeMbldAttemptResult,
   encodeMbldAttemptResult,
@@ -15,6 +16,8 @@ import {
   isWorldRecord,
   worstPossibleAverage,
   incompleteMean,
+  DNF_VALUE,
+  DNS_VALUE,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -422,6 +425,13 @@ describe("attemptResultsWarning", () => {
     expect(attemptResultsWarning(attemptResults, "333", [])).toEqual(null);
   });
 
+  it("warns about DNS followed by a valid attempt result", () => {
+    const attemptResults = [2000, DNS_VALUE, 2500, DNF_VALUE, 2000];
+    expect(attemptResultsWarning(attemptResults, "333", [])).toMatch(
+      "There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF."
+    );
+  });
+
   it("returns a warning if an attempt result is omitted", () => {
     const attemptResults = [1000, 0, 900];
     expect(attemptResultsWarning(attemptResults, "333")).toMatch(
@@ -535,6 +545,23 @@ describe("applyTimeLimit", () => {
         3000, 12000, -1,
       ]);
     });
+  });
+});
+
+describe("checkForDnsFollowedByValidResult", () => {
+  it("returns true if there is a DNS followed by a valid result", () => {
+    const attemptResults = [1000, DNS_VALUE, 2500, DNF_VALUE, 2000];
+    expect(checkForDnsFollowedByValidResult(attemptResults)).toEqual(true);
+  });
+
+  it("returns false if there is no DNS", () => {
+    const attemptResults = [1000, DNF_VALUE, 2500, DNF_VALUE, 2000];
+    expect(checkForDnsFollowedByValidResult(attemptResults)).toEqual(false);
+  });
+
+  it("returns false if there is no valid result after DNS", () => {
+    const attemptResults = [1000, DNF_VALUE, DNF_VALUE, DNS_VALUE, DNS_VALUE];
+    expect(checkForDnsFollowedByValidResult(attemptResults)).toEqual(false);
   });
 });
 
