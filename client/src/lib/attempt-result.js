@@ -496,8 +496,7 @@ export function meetsCutoff(attemptResults, cutoff) {
 export function checkForDnsFollowedByValidResult(attemptResults) {
   const dnsIndex = attemptResults.findIndex((attempt) => attempt === DNS_VALUE);
   if (dnsIndex === -1) return false;
-  const validResultIndex = attemptResults.findIndex(
-    (attempt, index) => (attempt > 0 || attempt === -1) && index > dnsIndex
+  return attemptResults.some(
+    (attempt, index) => index > dnsIndex && (attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE)
   );
-  return validResultIndex !== -1;
 }
