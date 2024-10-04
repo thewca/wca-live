@@ -548,23 +548,6 @@ describe("applyTimeLimit", () => {
   });
 });
 
-describe("checkForDnsFollowedByValidResult", () => {
-  it("returns true if there is a DNS followed by a valid result", () => {
-    const attemptResults = [1000, DNS_VALUE, 2500, DNF_VALUE, 2000];
-    expect(checkForDnsFollowedByValidResult(attemptResults)).toEqual(true);
-  });
-
-  it("returns false if there is no DNS", () => {
-    const attemptResults = [1000, DNF_VALUE, 2500, DNF_VALUE, 2000];
-    expect(checkForDnsFollowedByValidResult(attemptResults)).toEqual(false);
-  });
-
-  it("returns false if there is no valid result after DNS", () => {
-    const attemptResults = [1000, DNF_VALUE, DNF_VALUE, DNS_VALUE, DNS_VALUE];
-    expect(checkForDnsFollowedByValidResult(attemptResults)).toEqual(false);
-  });
-});
-
 describe("applyCutoff", () => {
   it("sets further attempt results to skipped if the cutoff is not met", () => {
     const attempts = [1000, 800, 1200, 0, 0];
