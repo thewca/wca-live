@@ -15,6 +15,8 @@ import {
   isWorldRecord,
   worstPossibleAverage,
   incompleteMean,
+  DNF_VALUE,
+  DNS_VALUE,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -420,6 +422,13 @@ describe("attemptResultsWarning", () => {
   it("does not treat DNF as being far apart from other attempt results", () => {
     const attemptResults = [-1, 1000, 2500];
     expect(attemptResultsWarning(attemptResults, "333", [])).toEqual(null);
+  });
+
+  it("warns about DNS followed by a valid attempt result", () => {
+    const attemptResults = [2000, DNS_VALUE, 2500, DNF_VALUE, 2000];
+    expect(attemptResultsWarning(attemptResults, "333", [])).toMatch(
+      "There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF."
+    );
   });
 
   it("returns a warning if an attempt result is omitted", () => {
