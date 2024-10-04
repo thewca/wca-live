@@ -490,10 +490,7 @@ export function meetsCutoff(attemptResults, cutoff) {
     .some((attempt) => attempt > 0 && attempt < attemptResult);
 }
 
-/**
- * Checks if the given attempt results contain a DNS followed by a valid result.
- */
-export function checkForDnsFollowedByValidResult(attemptResults) {
+function checkForDnsFollowedByValidResult(attemptResults) {
   const dnsIndex = attemptResults.findIndex((attempt) => attempt === DNS_VALUE);
   if (dnsIndex === -1) return false;
   return attemptResults.some(
