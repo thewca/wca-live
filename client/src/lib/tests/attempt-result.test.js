@@ -2,7 +2,6 @@ import {
   best,
   bestPossibleAverage,
   average,
-  checkForDnsFollowedByValidResult,
   formatAttemptResult,
   decodeMbldAttemptResult,
   encodeMbldAttemptResult,

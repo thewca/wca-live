@@ -494,6 +494,7 @@ function checkForDnsFollowedByValidResult(attemptResults) {
   const dnsIndex = attemptResults.findIndex((attempt) => attempt === DNS_VALUE);
   if (dnsIndex === -1) return false;
   return attemptResults.some(
-    (attempt, index) => index > dnsIndex && (attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE)
+    (attempt, index) =>
+      index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE
   );
 }
