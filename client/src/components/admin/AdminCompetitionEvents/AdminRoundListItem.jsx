@@ -4,6 +4,7 @@ import {
   ListItemButton,
   ListItemSecondaryAction,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import OpenRoundButton from "./OpenRoundButton";
 import ClearRoundButton from "./ClearRoundButton";
@@ -50,14 +51,20 @@ function AdminRoundListItem({ round, competitionEvent, competitionId }) {
         disabled={!round.open}
       >
         <ListItemText
-          primary={round.name}
-          sx={{
-            display: "flex",
-            gap: "1em",
-          }}
-          secondary={
-            roundClearable(round, competitionEvent) &&
-            `${round.enteredResults}/${round.totalResults} results`
+          primary={
+            <>
+              {round.name}
+              {roundClearable(round, competitionEvent) && (
+                <Typography
+                  component="span"
+                  variant="body2"
+                  sx={{ color: "text.secondary", display: "inline" }}
+                >
+                  {" "}
+                  ({round.enteredResults} of {round.totalResults} entered)
+                </Typography>
+              )}
+            </>
           }
         />
       </ListItemButton>
