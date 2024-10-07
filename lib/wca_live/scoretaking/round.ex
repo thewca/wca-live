@@ -135,6 +135,19 @@ defmodule WcaLive.Scoretaking.Round do
   end
 
   @doc """
+  Returns the number of results that have all the expected attempts entered.
+  """
+  @spec num_entered_results(%Round{}) :: non_neg_integer()
+  def num_entered_results(round) do
+    format = Format.get_by_id!(round.format_id)
+
+    Enum.count(
+      round.results,
+      &Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff)
+    )
+  end
+
+  @doc """
   Checks if the given round is active.
 
   A round is considered active if there were at least 3 results entered in the past 15 minutes.
