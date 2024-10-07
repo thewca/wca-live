@@ -24,12 +24,12 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
     {:ok, Scoretaking.Round.finished?(round)}
   end
 
-  def round_entered_results(round, _args, _resolution) do
-    {:ok, Scoretaking.Round.entered_results(round)}
+  def round_num_entered_results(round, _args, _resolution) do
+    {:ok, Scoretaking.Round.num_entered_results(round)}
   end
 
-  def round_total_results(round, _args, _resolution) do
-    {:ok, Scoretaking.Round.total_results(round)}
+  def round_num_results(round, _args, _resolution) do
+    {:ok, length(round.results)}
   end
 
   def round_active(round, _args, _resolution) do

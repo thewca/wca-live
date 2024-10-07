@@ -41,12 +41,12 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
       resolve with_round_results(&Resolvers.Scoretaking.round_finished/3)
     end
 
-    field :entered_results, :integer do
-      resolve with_round_results(&Resolvers.Scoretaking.round_entered_results/3)
+    field :num_entered_results, :integer do
+      resolve with_round_results(&Resolvers.Scoretaking.round_num_entered_results/3)
     end
 
-    field :total_results, non_null(:integer) do
-      resolve with_round_results(&Resolvers.Scoretaking.round_total_results/3)
+    field :num_results, non_null(:integer) do
+      resolve with_round_results(&Resolvers.Scoretaking.round_num_results/3)
     end
 
     field :active, non_null(:boolean) do

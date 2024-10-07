@@ -61,7 +61,7 @@ function AdminRoundListItem({ round, competitionEvent, competitionId }) {
                   sx={{ color: "text.secondary", display: "inline" }}
                 >
                   {" "}
-                  ({round.enteredResults} of {round.totalResults} entered)
+                  ({round.numEnteredResults} of {round.numResults} entered)
                 </Typography>
               )}
             </>
