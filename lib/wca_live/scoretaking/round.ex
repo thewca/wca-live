@@ -134,6 +134,23 @@ defmodule WcaLive.Scoretaking.Round do
       (unfinished_results / total_results < 0.1 and not active?(round))
   end
 
+  def entered_results(%Round{results: []}), do: 0
+
+  def entered_results(round) do
+    format = Format.get_by_id!(round.format_id)
+
+    entered_results =
+      round.results
+      |> Enum.filter(&Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff))
+      |> length()
+
+    entered_results
+  end
+
+  def total_results(round) do
+    length(round.results)
+  end
+
   @doc """
   Checks if the given round is active.
 

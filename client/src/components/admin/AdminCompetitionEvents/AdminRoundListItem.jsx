@@ -49,7 +49,17 @@ function AdminRoundListItem({ round, competitionEvent, competitionId }) {
         to={`/admin/competitions/${competitionId}/rounds/${round.id}`}
         disabled={!round.open}
       >
-        <ListItemText primary={round.name} />
+        <ListItemText
+          primary={round.name}
+          sx={{
+            display: "flex",
+            gap: "1em",
+          }}
+          secondary={
+            roundClearable(round, competitionEvent) &&
+            `${round.enteredResults}/${round.totalResults} results`
+          }
+        />
       </ListItemButton>
     </ListItem>
   );
