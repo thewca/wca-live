@@ -134,8 +134,10 @@ defmodule WcaLive.Scoretaking.Round do
       (unfinished_results / total_results < 0.1 and not active?(round))
   end
 
-  def num_entered_results(%Round{results: []}), do: 0
-
+  @doc """
+  Returns the number of results that have all the expected attempts entered.
+  """
+  @spec num_entered_results(%Round{}) :: non_neg_integer()
   def num_entered_results(round) do
     format = Format.get_by_id!(round.format_id)
 
