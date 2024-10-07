@@ -54,7 +54,7 @@ function AdminRoundListItem({ round, competitionEvent, competitionId }) {
           primary={
             <>
               {round.name}
-              {roundClearable(round, competitionEvent) && (
+              {round.numResults > 0 && (
                 <Typography
                   component="span"
                   variant="body2"
