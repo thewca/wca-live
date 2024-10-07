@@ -123,7 +123,8 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
       insert(:round,
         competition_event: competition_event,
         number: 1,
-        advancement_condition: %{type: "ranking", level: 3}
+        # Final round
+        advancement_condition: nil
       )
 
     %{id: id1} =
@@ -168,9 +169,6 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
         advancing: false
       )
 
-    _round2 =
-      insert(:round, competition_event: competition_event, number: 2, advancement_condition: nil)
-
     changeset = Advancing.compute_advancing(round1)
 
     updated_results = apply_changes(changeset).results
@@ -181,6 +179,53 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
              %{id: ^id3, advancing: true, advancing_questionable: true},
              %{id: ^id4, advancing: false, advancing_questionable: false},
              %{id: ^id5, advancing: false, advancing_questionable: false}
+           ] = updated_results
+  end
+
+  test "compute_advancing/1 sets questionable advancing if result attempts are not complete" do
+    competition_event = insert(:competition_event)
+
+    round1 =
+      insert(:round,
+        competition_event: competition_event,
+        number: 1,
+        # Final round
+        advancement_condition: nil
+      )
+
+    # The result has only one attempt entered, so it may very well
+    # be DNF and should be marked as questionable
+
+    %{id: id1} =
+      insert(:result,
+        round: round1,
+        ranking: 1,
+        best: 1400,
+        average: 0,
+        attempts: [
+          build(:attempt, result: 1400)
+        ],
+        advancing: false
+      )
+
+    insert_list(3, :result,
+      round: round1,
+      ranking: nil,
+      best: 0,
+      average: 0,
+      attempts: [],
+      advancing: false
+    )
+
+    changeset = Advancing.compute_advancing(round1)
+
+    updated_results = apply_changes(changeset).results
+
+    assert [
+             %{id: ^id1, advancing: true, advancing_questionable: true},
+             %{advancing: false, advancing_questionable: false},
+             %{advancing: false, advancing_questionable: false},
+             %{advancing: false, advancing_questionable: false}
            ] = updated_results
   end
 

@@ -257,7 +257,8 @@ defmodule WcaLive.Scoretaking.Advancing do
     hypothetical_qualifying_ids = qualifying_result_ids(hypothetical_round)
 
     for result <- round.results,
-        result.attempts != [],
+        # Always mark incomplete results as questionable
+        Result.has_expected_attempts?(result, format.number_of_attempts, round.cutoff),
         result.id in hypothetical_qualifying_ids,
         into: MapSet.new(),
         do: result.id
