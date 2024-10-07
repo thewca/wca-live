@@ -139,12 +139,8 @@ defmodule WcaLive.Scoretaking.Round do
   def entered_results(round) do
     format = Format.get_by_id!(round.format_id)
 
-    entered_results =
-      round.results
-      |> Enum.filter(&Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff))
-      |> length()
-
-    entered_results
+    
+    Enum.count(round.results, &Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff))
   end
 
   def total_results(round) do
