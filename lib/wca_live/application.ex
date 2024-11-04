@@ -8,10 +8,8 @@ defmodule WcaLive.Application do
   def start(_type, _args) do
     WcaLive.Telemetry.attach()
 
-    cluster_topologies = Application.get_env(:libcluster, :topologies, [])
-
     children = [
-      {Cluster.Supervisor, [cluster_topologies, [name: WcaLive.ClusterSupervisor]]},
+      {DNSCluster, query: Application.get_env(:wca_live, :dns_cluster_query) || :ignore},
       # Start the Ecto repository
       WcaLive.Repo,
       # Start the Telemetry supervisor
