@@ -96,7 +96,7 @@ function ResultAttemptsForm({
   }
 
   function confirmSubmission() {
-    const submissionWarning = attemptResultsWarning(
+    const [submissionWarning, confirmationKeyword] = attemptResultsWarning(
       attemptResults,
       eventId,
       officialWorldRecords
@@ -106,6 +106,7 @@ function ResultAttemptsForm({
       return confirm({
         description: submissionWarning,
         confirmationText: "Submit",
+        confirmationKeyword,
       });
     } else {
       return Promise.resolve();
