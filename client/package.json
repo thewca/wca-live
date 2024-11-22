@@ -17,6 +17,7 @@
     "@cubing/icons": "^1.0.6",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
+    "@mui/base": "^5.0.0-beta.62",
     "@mui/icons-material": "^5.1.0",
     "@mui/material": "^5.1.0",
     "date-fns": "^2.25.0",

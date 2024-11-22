@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, createRef } from "react";
 import { gql, useMutation } from "@apollo/client";
 import {
   Button,
-  Checkbox,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,15 +10,14 @@ import {
   DialogTitle,
   Grid,
   List,
-  ListItem,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
-  Typography,
+  TextField
 } from "@mui/material";
 import { ADMIN_ROUND_RESULT_FRAGMENT } from "./fragments";
 import useApolloErrorHandler from "../../../hooks/useApolloErrorHandler";
-import { orderBy, toggleElement } from "../../../lib/utils";
+import { orderBy } from "../../../lib/utils";
+import { useAutocomplete } from "@mui/base/useAutocomplete";
 
 const REMOVE_NO_SHOWS_FROM_ROUND_MUTATION = gql`
   mutation RemoveNoShowsFromRound($input: RemoveNoShowsFromRoundInput!) {
@@ -37,8 +36,19 @@ const REMOVE_NO_SHOWS_FROM_ROUND_MUTATION = gql`
 
 function QuitNoShowsDialog({ open, onClose, roundId, results }) {
   const apolloErrorHandler = useApolloErrorHandler();
+  const [selectedPersons, setSelectedPersons] = useState([]);
+  const [focusedIndex, setFocusedIndex] = useState(null);
+  const [inputValue, setInputValue] = useState("");
 
-  const [selectedPersonIds, setSelectedPersonIds] = useState([]);
+  const noShowPersons = orderBy(
+    results
+      .filter((result) => result.attempts.length === 0)
+      .map((result) => result.person),
+    (person) => person.name
+  );
+
+  const textFieldRef = useRef(null);
+  const personRefs = useRef(noShowPersons.map(createRef));
 
   const [removeNoShowsFromRound, { loading: mutationLoading }] = useMutation(
     REMOVE_NO_SHOWS_FROM_ROUND_MUTATION,
@@ -46,7 +56,7 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
       variables: {
         input: {
           roundId,
-          personIds: selectedPersonIds,
+          personIds: selectedPersons.map(person => person.registrantId),
         },
       },
       onCompleted: handleClose,
@@ -54,25 +64,84 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
     }
   );
 
-  const noShowResults = orderBy(
-    results.filter((result) => result.attempts.length === 0),
-    (result) => result.person.name
-  );
+  const {
+    getInputProps,
+    getListboxProps,
+    getOptionProps,
+    setAnchorEl,
+  } = useAutocomplete({
+    options: noShowPersons,
+    getOptionLabel: labelPerson, 
+    onInputChange: (event, newInputValue) => setInputValue(newInputValue),
+  });
 
-  function onResultClick(result) {
-    setSelectedPersonIds(toggleElement(selectedPersonIds, result.person.id));
-  }
+  useEffect(() => {
+    if (focusedIndex !== null && personRefs.current[focusedIndex]) {
+      personRefs.current[focusedIndex].current?.focus();
+    }
+    if (focusedIndex === null) {
+      setAnchorEl.current?.focus();
+    }
+  }, [focusedIndex]);
+
+  useEffect(() => {
+    const selectedIndex = noShowPersons.findIndex(
+      (person) => inputValue === person.registrantId.toString()
+    );
+    
+    if (selectedIndex !== -1 && personRefs.current[selectedIndex]) {
+      personRefs.current[selectedIndex].current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [inputValue, noShowPersons]);
+
+  function onListItemClick(newPerson) {
+    setSelectedPersons((prevSelectedPersonIds) => [
+      ...prevSelectedPersonIds,
+      newPerson,
+    ]);
+    setInputValue("");
+    setFocusedIndex(null);
+    textFieldRef.current?.focus();
+  };
+
+  function handleDelete(personToDelete) {
+    setSelectedPersons((prev) => prev.filter((person) => person !== personToDelete));
+  };
+
+  function handleSearch() {
+    const matchIndex = noShowPersons
+      .filter((person) => !selectedPersons.includes(person))
+      .findIndex((person) => person.registrantId.toString() === inputValue);
+
+    if (matchIndex !== -1) {
+      setFocusedIndex(matchIndex);
+    }
+  };
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
 
   function handleClose() {
-    setSelectedPersonIds([]);
+    setSelectedPersons([]);
     onClose();
+  }
+
+  function labelPerson(person) {
+    return person ? `${person.name} (${person.registrantId})` : '';
   }
 
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Quit no-shows</DialogTitle>
       <DialogContent>
-        {noShowResults.length > 0 ? (
+        {noShowPersons.length > 0 ? (
           <Grid container direction="column" spacing={2}>
             <Grid item>
               <DialogContentText>
@@ -81,34 +150,47 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
               </DialogContentText>
             </Grid>
             <Grid item>
-              <List
-                dense
-                sx={{
-                  overflowY: "auto",
-                  maxHeight: 600,
+              <TextField
+                {...getInputProps()}
+                placeholder="Search..."
+                variant="outlined"
+                inputRef={(ref) => {
+                  textFieldRef.current = ref;
+                  setAnchorEl(ref);
                 }}
-              >
-                {noShowResults.map((result) => (
-                  <ListItem key={result.id}>
-                    <ListItemButton dense onClick={() => onResultClick(result)}>
-                      <ListItemIcon>
-                        <Checkbox
-                          edge="start"
-                          checked={selectedPersonIds.includes(result.person.id)}
-                          tabIndex={-1}
-                          disableRipple
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={`${result.person.name} (${result.person.registrantId})`}
-                      />
-                    </ListItemButton>
-                  </ListItem>
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                fullWidth
+              />
+
+              <div style={{ marginBottom: "10px" }}>
+                {selectedPersons.map((person, index) => (
+                  <Chip
+                    key={index}
+                    label={labelPerson(person)}
+                    onDelete={() => handleDelete(person)}
+                    style={{ margin: "4px" }}
+                  />
                 ))}
+              </div>
+
+              <List {...getListboxProps()} style={{ maxHeight: 200, overflowY: "auto" }}>
+                {noShowPersons
+                  .filter((person) => !selectedPersons.includes(person))
+                  .map((person, index) => (
+                    <ListItemButton 
+                      {...getOptionProps({ person, index })} 
+                      key={index} 
+                      onClick={() => onListItemClick(person)} 
+                      selected={inputValue === person.registrantId.toString()}             
+                      ref={personRefs.current[index]}
+                      tabIndex={focusedIndex === index ? 0 : -1}
+                    >
+                      <ListItemText primary={labelPerson(person)} />
+                    </ListItemButton>
+                  ))}
               </List>
-              <Typography variant="caption">
-                {selectedPersonIds.length} of {noShowResults.length} selected
-              </Typography>
             </Grid>
           </Grid>
         ) : (
@@ -120,7 +202,7 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
         <Button
           onClick={() => removeNoShowsFromRound()}
           color="primary"
-          disabled={selectedPersonIds.length === 0 || mutationLoading}
+          disabled={selectedPersons.length === 0 || mutationLoading}
         >
           Quit
         </Button>
