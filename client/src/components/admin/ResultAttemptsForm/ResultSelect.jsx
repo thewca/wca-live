@@ -1,7 +1,13 @@
 import { useMemo } from "react";
 import PersonSelect from "../PersonSelect/PersonSelect";
 
-function ResultSelect({ results, value, onChange, TextFieldProps = {} }) {
+function ResultSelect({
+  results,
+  value,
+  onChange,
+  multiple = false,
+  TextFieldProps = {},
+}) {
   const persons = useMemo(() => {
     return results
       .map((result) => result.person)
@@ -10,15 +16,24 @@ function ResultSelect({ results, value, onChange, TextFieldProps = {} }) {
 
   return (
     <PersonSelect
+      multiple={multiple}
       persons={persons}
       value={
-        value ? persons.find((person) => person.id === value.person.id) : null
-      }
-      onChange={(person) => {
-        onChange(
-          person
-            ? results.find((result) => result.person.id === person.id)
+        multiple
+          ? value.map((result) => result.person)
+          : value
+            ? value.person
             : null
+      }
+      onChange={(value) => {
+        onChange(
+          multiple
+            ? value.map((person) =>
+                results.find((result) => result.person.id === person.id)
+              )
+            : value
+              ? results.find((result) => result.person.id === value.id)
+              : null
         );
       }}
       TextFieldProps={TextFieldProps}
