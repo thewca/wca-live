@@ -22,15 +22,23 @@ function searchPersons(persons, search) {
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
 }
 
-function PersonSelect({ persons, value, onChange, TextFieldProps = {} }) {
+function PersonSelect({
+  persons,
+  value,
+  onChange,
+  multiple = false,
+  TextFieldProps = {},
+}) {
   function handleChange(event, value, reason) {
-    if (reason === "selectOption") {
+    if (reason === "selectOption" || reason === "removeOption") {
       onChange(value);
     }
   }
 
   return (
     <Autocomplete
+      multiple={multiple}
+      disableCloseOnSelect={multiple}
       options={persons}
       getOptionLabel={personToLabel}
       value={value}
