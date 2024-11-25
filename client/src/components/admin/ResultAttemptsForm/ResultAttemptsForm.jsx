@@ -96,15 +96,15 @@ function ResultAttemptsForm({
   }
 
   function confirmSubmission() {
-    const [submissionWarning, confirmationKeyword] = attemptResultsWarning(
+    const { description, confirmationKeyword } = attemptResultsWarning(
       attemptResults,
       eventId,
       officialWorldRecords
     );
 
-    if (submissionWarning) {
+    if (description) {
       return confirm({
-        description: submissionWarning,
+        description,
         confirmationText: "Submit",
         confirmationKeyword,
       });
