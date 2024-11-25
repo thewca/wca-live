@@ -26,6 +26,30 @@ defmodule WcaLiveWeb.CompetitionController do
     end
   end
 
+  def show_results(conn, params) do
+    case Competitions.fetch_competition(params["id"]) do
+      {:ok, competition} ->
+
+        results = WcaLive.Synchronization.Export.export_results(competition)
+
+        conn
+        |> put_status(200)
+        |> json(results)
+      {:error, _} ->
+        conn
+        |> put_status(404)
+        |> json(%{error: "not found"})
+    end
+  end
+
+  @spec show_competition_id(Plug.Conn.t(), nil | maybe_improper_list() | map()) :: Plug.Conn.t()
+  def show_competition_id(conn, params) do
+    case Competitions.find_competition_by_wca_id!(params["wca_id"]) do
+      nil -> conn |> put_status(404) |> json(%{error: "not found"})
+      competition -> conn |> put_status(200) |> json(%{id: competition.id})
+    end
+  end
+
   def enter_attempt(conn, params) do
     case params do
       %{
