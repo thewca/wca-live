@@ -412,8 +412,7 @@ describe("attemptResultsWarning", () => {
       expect(
         normalize(attemptResultsWarning(attemptResults, "333mbf", worldRecords))
       ).toMatchObject({
-        description:
-          "The result you're trying to submit includes a new world record single (3/4 1:00). Please check that the results are accurate and you are entering for the correct event. Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.",
+        description: `The result you're trying to submit includes a new world record single (3/4 1:00). Please check that you are entering results for the right event and that all the entered attempts are accurate. Type "world record" below to confirm that you are confident that it is indeed a world record result.`,
         confirmationKeyword: "world record",
       });
     });
@@ -473,8 +472,7 @@ describe("attemptResultsWarning", () => {
     expect(
       normalize(attemptResultsWarning(attemptResults, "333", worldRecords))
     ).toMatchObject({
-      description:
-        "The result you're trying to submit includes a new world record single (3.98). Please check that the results are accurate and you are entering for the correct event. Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.",
+      description: `The result you're trying to submit includes a new world record single (3.98). Please check that you are entering results for the right event and that all the entered attempts are accurate. Type "world record" below to confirm that you are confident that it is indeed a world record result.`,
       confirmationKeyword: "world record",
     });
   });
@@ -493,8 +491,7 @@ describe("attemptResultsWarning", () => {
     expect(
       normalize(attemptResultsWarning(attemptResults, "333", worldRecords))
     ).toMatchObject({
-      description:
-        "The result you're trying to submit is a new world record average (5.00). Please check that the results are accurate and you are entering for the correct event. Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.",
+      description: `The result you're trying to submit is a new world record average (5.00). Please check that you are entering results for the right event and that all the entered attempts are accurate. Type "world record" below to confirm that you are confident that it is indeed a world record result.`,
       confirmationKeyword: "world record",
     });
   });

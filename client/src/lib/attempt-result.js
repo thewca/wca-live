@@ -383,8 +383,9 @@ export function attemptResultsWarning(
       return {
         description: `The result you're trying to submit includes a new world record single
           (${formatAttemptResult(bestSingle, eventId)}).
-          Please check that the results are accurate and you are entering for the correct event.
-          Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.`,
+          Please check that you are entering results for the right event and that all
+          the entered attempts are accurate. Type "world record" below to confirm that
+          you are confident that it is indeed a world record result.`,
         confirmationKeyword: "world record",
       };
     }
@@ -401,8 +402,9 @@ export function attemptResultsWarning(
         return {
           description: `The result you're trying to submit is a new world record average
             (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
-            Please check that the results are accurate and you are entering for the correct event.
-            Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.`,
+            Please check that you are entering results for the right event and that all
+            the entered attempts are accurate. Type "world record" below to confirm that
+            you are confident that it is indeed a world record result.`,
           confirmationKeyword: "world record",
         };
       }
