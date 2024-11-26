@@ -365,8 +365,9 @@ export function attemptResultsWarning(
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return {
-      description: `You've omitted attempt ${skippedGapIndex + 1
-        }. Make sure it's intentional.`
+      description: `You've omitted attempt ${
+        skippedGapIndex + 1
+      }. Make sure it's intentional.`,
     };
   }
   const completeAttempts = attemptResults.filter(isComplete);
@@ -384,9 +385,8 @@ export function attemptResultsWarning(
           (${formatAttemptResult(bestSingle, eventId)}).
           Please check that the results are accurate and you are entering for the correct event.
           Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.`,
-        confirmationKeyword: 'world record'
+        confirmationKeyword: "world record",
       };
-
     }
 
     if (shouldComputeAverage(eventId, attemptResults.length)) {
@@ -403,14 +403,14 @@ export function attemptResultsWarning(
             (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
             Please check that the results are accurate and you are entering for the correct event.
             Please type 'world record' below to confirm that you have checked and are confident that it is a world record result.`,
-          confirmationKeyword: 'world record'
+          confirmationKeyword: "world record",
         };
       }
     }
 
     if (checkForDnsFollowedByValidResult(attemptResults)) {
       return {
-        description: `There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.`
+        description: `There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.`,
       };
     }
 
@@ -425,7 +425,7 @@ export function attemptResultsWarning(
             attempt ${lowTimeIndex + 1} is done in
             less than 30 seconds per cube tried.
             If you want to enter minutes, don't forget to add two zeros
-            for centiseconds at the end of the score.`
+            for centiseconds at the end of the score.`,
         };
       }
     } else {
@@ -437,7 +437,7 @@ export function attemptResultsWarning(
             There's a big difference between the best single
             (${formatAttemptResult(bestSingle, eventId)}) and the worst single
             (${formatAttemptResult(worstSingle, eventId)}).
-            Please check that the results are accurate.`
+            Please check that the results are accurate.`,
         };
       }
     }
