@@ -104,8 +104,12 @@ function ResultAttemptsForm({
 
     if (submissionWarning) {
       return confirm({
-        description: submissionWarning,
+        ...submissionWarning,
         confirmationText: "Submit",
+        confirmationKeywordTextFieldProps: {
+          sx: { mt: 2 },
+          autoComplete: "off",
+        },
       });
     } else {
       return Promise.resolve();
