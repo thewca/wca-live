@@ -244,7 +244,7 @@ defmodule WcaLive.Synchronization.Export do
       "ranking" => result.ranking,
       "best" => result.best,
       "average" => result.average,
-      "attempts" => result.attempts |> Enum.map(&attempt_to_wcif/1),
+      "attempts" => result.attempts |> Enum.map(&attempt_to_wcif/1)
     }
   end
 

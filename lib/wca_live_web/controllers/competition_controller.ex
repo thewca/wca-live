@@ -29,7 +29,6 @@ defmodule WcaLiveWeb.CompetitionController do
   def show_results(conn, params) do
     case Competitions.fetch_competition(params["id"]) do
       {:ok, competition} ->
-
         results = WcaLive.Synchronization.Export.export_results(competition)
 
         conn
