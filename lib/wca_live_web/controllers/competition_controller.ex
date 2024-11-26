@@ -34,6 +34,7 @@ defmodule WcaLiveWeb.CompetitionController do
         conn
         |> put_status(200)
         |> json(results)
+
       {:error, _} ->
         conn
         |> put_status(404)

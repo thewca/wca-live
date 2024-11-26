@@ -247,5 +247,4 @@ defmodule WcaLive.Synchronization.Export do
       "attempts" => result.attempts |> Enum.map(&attempt_to_wcif/1)
     }
   end
-
 end
