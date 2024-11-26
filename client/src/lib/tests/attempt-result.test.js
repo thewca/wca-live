@@ -421,14 +421,14 @@ describe("attemptResultsWarning", () => {
     });
   });
 
-  it("returns empty object if attempt results do not look suspicious", () => {
+  it("returns null if attempt results do not look suspicious", () => {
     const attemptResults = [900, 1000, 800];
-    expect(attemptResultsWarning(attemptResults, "333", [])).toEqual({});
+    expect(attemptResultsWarning(attemptResults, "333", [])).toEqual(null);
   });
 
   it("does not treat DNF as being far apart from other attempt results", () => {
     const attemptResults = [-1, 1000, 2500];
-    expect(attemptResultsWarning(attemptResults, "333", [])).toEqual({});
+    expect(attemptResultsWarning(attemptResults, "333", [])).toEqual(null);
   });
 
   it("warns about DNS followed by a valid attempt result", () => {
@@ -447,7 +447,7 @@ describe("attemptResultsWarning", () => {
 
   it("does not treat trailing skipped attempt results as omitted", () => {
     const attemptResults = [1000, 0, 0];
-    expect(attemptResultsWarning(attemptResults, "333", [])).toEqual({});
+    expect(attemptResultsWarning(attemptResults, "333", [])).toEqual(null);
   });
 
   it("returns a warning if an attempt breaks a world record single", () => {
@@ -499,7 +499,7 @@ describe("attemptResultsWarning", () => {
         attemptResult: 501,
       },
     ];
-    expect(attemptResultsWarning(attemptResults, "333", worldRecords)).toEqual({});
+    expect(attemptResultsWarning(attemptResults, "333", worldRecords)).toEqual(null);
   });
 
   it("does not check for world record average if there are not enough attempts", () => {
@@ -522,7 +522,7 @@ describe("attemptResultsWarning", () => {
     ];
     expect(
       attemptResultsWarning(attemptResults, "333fm", worldRecords)
-    ).toEqual({});
+    ).toEqual(null);
   });
 });
 

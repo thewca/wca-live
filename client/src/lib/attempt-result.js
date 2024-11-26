@@ -442,7 +442,7 @@ export function attemptResultsWarning(
       }
     }
   }
-  return {};
+  return null;
 }
 
 /**

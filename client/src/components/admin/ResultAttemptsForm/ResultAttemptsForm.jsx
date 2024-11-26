@@ -96,17 +96,16 @@ function ResultAttemptsForm({
   }
 
   function confirmSubmission() {
-    const { description, confirmationKeyword } = attemptResultsWarning(
+    const submissionWarning = attemptResultsWarning(
       attemptResults,
       eventId,
       officialWorldRecords
     );
 
-    if (description) {
+    if (submissionWarning) {
       return confirm({
-        description,
+        ...submissionWarning,
         confirmationText: "Submit",
-        confirmationKeyword,
       });
     } else {
       return Promise.resolve();
