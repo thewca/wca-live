@@ -13,12 +13,6 @@ defmodule WcaLive.Synchronization.Export do
     |> competition_to_wcif()
   end
 
-  def export_results(competition) do
-    competition
-    |> preload_all()
-    |> competition_to_results()
-  end
-
   # Preloads all the associations necessary for building the whole WCIF.
   defp preload_all(competition) do
     competition
@@ -212,39 +206,6 @@ defmodule WcaLive.Synchronization.Export do
       "endTime" => activity.end_time |> DateTime.to_iso8601(),
       "childActivities" => activity.child_activities |> Enum.map(&activity_to_wcif/1)
       # "scrambleSetId" => nil # ignored for now
-    }
-  end
-
-  defp competition_to_results(competition) do
-    competition.competition_events |> Enum.map(&competition_event_for_results/1)
-  end
-
-  defp competition_event_for_results(competition_event) do
-    %{
-      "id" => competition_event.event_id,
-      "rounds" => competition_event.rounds |> Enum.map(&round_for_results/1)
-    }
-  end
-
-  defp round_for_results(round) do
-    %{
-      "id" => round_wcif_id(round),
-      "roundNumber" => round.number,
-      "cutoff" => round.cutoff && round.cutoff |> cutoff_to_wcif(),
-      "timeLimit" => round.time_limit && round.time_limit |> time_limit_to_wcif(),
-      "results" => round.results |> Enum.map(&format_result/1)
-    }
-  end
-
-  defp format_result(result) do
-    %{
-      "registrantId" => result.person.registrant_id,
-      "personName" => result.person.name,
-      "personId" => result.person.wca_id,
-      "ranking" => result.ranking,
-      "best" => result.best,
-      "average" => result.average,
-      "attempts" => result.attempts |> Enum.map(&attempt_to_wcif/1)
     }
   end
 end
