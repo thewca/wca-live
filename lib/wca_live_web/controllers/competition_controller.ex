@@ -211,7 +211,10 @@ defmodule WcaLiveWeb.CompetitionController do
         competition.competition_events
         |> Enum.map(&format_competition_event/1)
         |> Enum.filter(&(&1["rounds"] != [])),
-      persons: competition.people |> Enum.map(&format_person/1)
+      persons:
+        competition.people
+        |> Enum.map(&format_person/1)
+        |> Enum.filter(&(&1["id"] != nil))
     }
   end
 
