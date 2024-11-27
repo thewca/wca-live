@@ -17,6 +17,48 @@ defmodule WcaLiveWeb.CompetitionControllerTest do
       assert %{"formatVersion" => "1.0", "id" => "WC2019"} = body
     end
 
+    test "returns results for a competition", %{conn: conn} do
+      competition = insert(:competition, wca_id: "WC2019")
+      competition_event = insert(:competition_event, competition: competition)
+      round = insert(:round, competition_event: competition_event)
+      person = insert(:person, competition: competition)
+      result = insert(:result, round: round, person: person)
+
+      conn = get(conn, "/api/competitions/#{competition.id}/results")
+
+      body = json_response(conn, 200)
+
+      assert body == %{
+               "events" => [
+                 %{
+                   "eventId" => "333",
+                   "rounds" => [
+                     %{
+                       "number" => 1,
+                       "results" => [
+                         %{
+                           "attempts" => [900, 900, 900, 900, 900],
+                           "average" => 900,
+                           "best" => 900,
+                           "personId" => result.person.registrant_id,
+                           "ranking" => 1
+                         }
+                       ]
+                     }
+                   ]
+                 }
+               ],
+               "persons" => [
+                 %{
+                   "country" => result.person.country_iso2,
+                   "id" => result.person.registrant_id,
+                   "name" => result.person.name,
+                   "wcaId" => result.person.wca_id
+                 }
+               ]
+             }
+    end
+
     test "returns error when not signed in", %{conn: conn} do
       competition = insert(:competition, wca_id: "WC2019")
 

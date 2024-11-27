@@ -2,7 +2,6 @@ defmodule WcaLiveWeb.CompetitionController do
   use WcaLiveWeb, :controller
 
   alias WcaLive.{Competitions, Scoretaking, Repo}
-  alias WcaLive.Wcif
   alias WcaLive.Competitions.Competition
 
   def show_wcif(conn, params) do
@@ -31,7 +30,8 @@ defmodule WcaLiveWeb.CompetitionController do
   @spec show_results(Plug.Conn.t(), nil | maybe_improper_list() | map()) :: Plug.Conn.t()
   def show_results(conn, params) do
     IO.inspect(params)
-    case Competitions.fetch_competition(params["id_or_wca_id"]) do
+
+    case Competitions.fetch_competition_by_id_or_wca_id(params["id_or_wca_id"]) do
       {:ok, competition} ->
         results = format_results(competition)
 
@@ -207,8 +207,10 @@ defmodule WcaLiveWeb.CompetitionController do
 
   defp competition_to_results(competition) do
     %{
-
-      events: competition.competition_events |> Enum.map(&format_competition_event/1) |> Enum.filter(&(&1["rounds"] != [])),
+      events:
+        competition.competition_events
+        |> Enum.map(&format_competition_event/1)
+        |> Enum.filter(&(&1["rounds"] != [])),
       persons: competition.people |> Enum.map(&format_person/1)
     }
   end
@@ -216,14 +218,18 @@ defmodule WcaLiveWeb.CompetitionController do
   defp format_competition_event(competition_event) do
     %{
       "eventId" => competition_event.event_id,
-      "rounds" => competition_event.rounds |> Enum.map(&format_round/1) |> Enum.filter(&(&1["results"] != []))
+      "rounds" =>
+        competition_event.rounds
+        |> Enum.map(&format_round/1)
+        |> Enum.filter(&(&1["results"] != []))
     }
   end
 
   defp format_round(round) do
     %{
       "number" => round.number,
-      "results" => round.results |> Enum.map(&format_result/1) |> Enum.filter(&(&1["attempts"] != []))
+      "results" =>
+        round.results |> Enum.map(&format_result/1) |> Enum.filter(&(&1["attempts"] != []))
     }
   end
 
