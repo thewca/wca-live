@@ -48,8 +48,9 @@ defmodule WcaLiveWeb.Router do
     pipe_through :api
 
     get "/competitions/:id/wcif", CompetitionController, :show_wcif
-    get "/competitions/:id/results", CompetitionController, :show_results
-    get "/competitions/:wca_id/id", CompetitionController, :show_competition_id
+
+    # Public results endpoint
+    get "/competitions/:id_or_wca_id/results", CompetitionController, :show_results
 
     # Public scoretaking endpoints
     post "/enter-attempt", CompetitionController, :enter_attempt
