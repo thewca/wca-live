@@ -60,11 +60,9 @@ defmodule WcaLive.Competitions do
 
   @doc """
   Gets a single competition by human-readable WCA id.
-
-  Does not raise an error if no competition is found.
   """
-  @spec find_competition_by_wca_id(String.t()) :: %Competition{}
-  def find_competition_by_wca_id(wca_id), do: Repo.get_by(Competition, wca_id: wca_id)
+  @spec get_competition_by_wca_id(String.t()) :: %Competition{}
+  def get_competition_by_wca_id(wca_id), do: Repo.get_by(Competition, wca_id: wca_id)
 
   @doc """
   Gets a single competition.
