@@ -8,6 +8,8 @@ defmodule WcaLive.Competitions do
   alias WcaLive.Repo
   alias WcaLive.Competitions.{Competition, Person}
 
+  @competition_deletable_after_days 180
+
   @doc """
   Returns a list of competitions.
 
@@ -111,5 +113,24 @@ defmodule WcaLive.Competitions do
     |> Competition.changeset(attrs)
     |> Ecto.Changeset.cast_assoc(:staff_members)
     |> Repo.update()
+  end
+
+  @doc """
+  Deletes all competitions from before #{@competition_deletable_after_days}
+  days ago.
+
+  Returns the number of deleted competitions.
+  """
+  @spec delete_old_competitions() :: non_neg_integer()
+  def delete_old_competitions() do
+    date = Date.utc_today() |> Date.add(-@competition_deletable_after_days)
+
+    {count, _} =
+      Repo.delete_all(
+        from competition in Competition,
+          where: competition.end_date < ^date
+      )
+
+    count
   end
 end

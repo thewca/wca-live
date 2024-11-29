@@ -21,7 +21,9 @@ defmodule WcaLive.Application do
       # Start the Endpoint (http/https)
       WcaLiveWeb.Endpoint,
       # Start the Absinthe Subscription supervisor
-      {Absinthe.Subscription, WcaLiveWeb.Endpoint}
+      {Absinthe.Subscription, WcaLiveWeb.Endpoint},
+      # Start worker to periodically remove old data
+      {WcaLive.DataDeletionWorker, every: [day: 1]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
