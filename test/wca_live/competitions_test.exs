@@ -98,6 +98,29 @@ defmodule WcaLive.CompetitionsTest do
     assert ["delegate"] == staff_member.roles
   end
 
+  test "delete_old_competitions/0 deletes competitions from before 180 days ago" do
+    today = Date.utc_today()
+
+    competition_before =
+      insert(:competition, start_date: Date.add(today, -191), end_date: Date.add(today, -190))
+
+    competition_at =
+      insert(:competition, start_date: Date.add(today, -181), end_date: Date.add(today, -180))
+
+    competition_after =
+      insert(:competition, start_date: Date.add(today, -171), end_date: Date.add(today, -170))
+
+    competition_future =
+      insert(:competition, start_date: Date.add(today, 1), end_date: Date.add(today, 1))
+
+    assert Competitions.delete_old_competitions() == 1
+
+    refute Repo.reload(competition_before)
+    assert Repo.reload(competition_at)
+    assert Repo.reload(competition_after)
+    assert Repo.reload(competition_future)
+  end
+
   defp ids(list) do
     list |> Enum.map(& &1.id) |> Enum.sort()
   end
