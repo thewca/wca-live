@@ -47,7 +47,7 @@ defmodule WcaLive.Competitions do
   end
 
   @doc """
-  Gets a single competition.
+  Gets a single competition by numeric id.
   """
   @spec get_competition(term()) :: %Competition{} | nil
   def get_competition(id), do: Repo.get(Competition, id)
@@ -60,11 +60,21 @@ defmodule WcaLive.Competitions do
   @spec get_competition_by_wca_id!(String.t()) :: %Competition{}
   def get_competition_by_wca_id!(wca_id), do: Repo.get_by!(Competition, wca_id: wca_id)
 
+  @spec fetch_competition(any()) :: {:error, any()} | {:ok, %{optional(atom()) => any()}}
   @doc """
-  Gets a single competition.
+  Gets a single competition
   """
   @spec fetch_competition(term()) :: {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
   def fetch_competition(id), do: Repo.fetch(Competition, id)
+
+  @doc """
+  Gets a single competition by WCA id.
+  """
+  @spec fetch_competition_by_wca_id(String.t()) ::
+          {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
+  def fetch_competition_by_wca_id(id) do
+    Repo.fetch(where(Competition, wca_id: ^id))
+  end
 
   @doc """
   Gets a single person.
