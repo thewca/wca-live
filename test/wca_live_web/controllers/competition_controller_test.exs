@@ -44,6 +44,8 @@ defmodule WcaLiveWeb.CompetitionControllerTest do
       round = insert(:round, competition_event: competition_event)
       person = insert(:person, competition: competition)
       result = insert(:result, round: round, person: person)
+      person_with_empty_result = insert(:person, competition: competition)
+      insert(:result, round: round, person: person_with_empty_result, attempts: [])
       _person_without_result = insert(:person, competition: competition)
 
       conn = get(conn, "/api/competitions/#{competition.id}/results")

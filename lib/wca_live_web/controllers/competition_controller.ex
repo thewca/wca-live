@@ -212,6 +212,7 @@ defmodule WcaLiveWeb.CompetitionController do
       for competition_event <- competition.competition_events,
           round <- competition_event.rounds,
           result <- round.results,
+          result.attempts != [],
           do: result.person.registrant_id,
           into: MapSet.new()
 
