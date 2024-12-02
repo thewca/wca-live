@@ -23,40 +23,41 @@ defmodule WcaLiveWeb.CompetitionControllerTest do
       round = insert(:round, competition_event: competition_event)
       person = insert(:person, competition: competition)
       result = insert(:result, round: round, person: person)
+      _person_without_result = insert(:person, competition: competition)
 
       conn = get(conn, "/api/competitions/#{competition.id}/results")
 
       body = json_response(conn, 200)
 
       assert body == %{
-               "events" => [
-                 %{
-                   "eventId" => "333",
-                   "rounds" => [
-                     %{
-                       "number" => 1,
-                       "results" => [
-                         %{
-                           "attempts" => [900, 900, 900, 900, 900],
-                           "average" => 900,
-                           "best" => 900,
-                           "personId" => result.person.registrant_id,
-                           "ranking" => 1
-                         }
-                       ]
-                     }
-                   ]
-                 }
-               ],
-               "persons" => [
-                 %{
-                   "country" => result.person.country_iso2,
-                   "id" => result.person.registrant_id,
-                   "name" => result.person.name,
-                   "wcaId" => result.person.wca_id
-                 }
-               ]
-             }
+        "events" => [
+          %{
+            "eventId" => "333",
+            "rounds" => [
+              %{
+                "number" => 1,
+                "results" => [
+                  %{
+                    "attempts" => [900, 900, 900, 900, 900],
+                    "average" => 900,
+                    "best" => 900,
+                    "personId" => result.person.registrant_id,
+                    "ranking" => 1
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "persons" => [
+          %{
+            "country" => result.person.country_iso2,
+            "id" => result.person.registrant_id,
+            "name" => result.person.name,
+            "wcaId" => result.person.wca_id
+          }
+        ]
+      }
     end
 
     test "returns error when not signed in", %{conn: conn} do

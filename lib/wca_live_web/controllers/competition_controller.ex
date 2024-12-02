@@ -202,13 +202,20 @@ defmodule WcaLiveWeb.CompetitionController do
   end
 
   defp competition_to_results(competition) do
+    result_registrant_ids =
+      for competition_event <- competition.competition_events,
+          round <- competition_event.rounds,
+          result <- round.results,
+          do: result.registrant_id,
+          into: MapSet.new()
+
     %{
       events:
         competition.competition_events
-        |> Enum.map(&format_competition_event/1)
-        |> Enum.filter(&(&1["rounds"] != [])),
+        |> Enum.map(&format_competition_event/1),
       persons:
         competition.people
+        |> Enum.filter(& &1.registrant_id in result_registrant_ids)
         |> Enum.map(&format_person/1)
         |> Enum.filter(&(&1["id"] != nil))
     }
@@ -220,7 +227,6 @@ defmodule WcaLiveWeb.CompetitionController do
       "rounds" =>
         competition_event.rounds
         |> Enum.map(&format_round/1)
-        |> Enum.filter(&(&1["results"] != []))
     }
   end
 
