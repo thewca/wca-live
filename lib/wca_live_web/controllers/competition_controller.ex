@@ -28,8 +28,6 @@ defmodule WcaLiveWeb.CompetitionController do
   end
 
   def show_results(conn, params) do
-    IO.inspect(params)
-
     case Competitions.fetch_competition_by_id_or_wca_id(params["id_or_wca_id"]) do
       {:ok, competition} ->
         results = format_results(competition)
