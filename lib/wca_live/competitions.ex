@@ -66,15 +66,12 @@ defmodule WcaLive.Competitions do
   def fetch_competition(id), do: Repo.fetch(Competition, id)
 
   @doc """
-  Gets a single competition by numeric id or wca id
+  Gets a single competition by WCA id.
   """
-  @spec fetch_competition_by_id_or_wca_id(term()) ::
+  @spec fetch_competition_by_wca_id(String.t()) ::
           {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
-  def fetch_competition_by_id_or_wca_id(id) do
-    case parse_competition_id_or_wca_id(id) do
-      {:competition_id, competition_id} -> Repo.fetch(Competition, competition_id)
-      {:wca_id, wca_id} -> Repo.fetch(Ecto.Query.where(Competition, wca_id: ^wca_id))
-    end
+  def fetch_competition_by_wca_id(id) do
+    Repo.fetch(where(Competition, wca_id: ^wca_id))
   end
 
   defp parse_competition_id_or_wca_id(id) do
