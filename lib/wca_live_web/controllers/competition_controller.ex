@@ -27,7 +27,6 @@ defmodule WcaLiveWeb.CompetitionController do
     end
   end
 
-  @spec show_results(Plug.Conn.t(), nil | maybe_improper_list() | map()) :: Plug.Conn.t()
   def show_results(conn, params) do
     IO.inspect(params)
 
