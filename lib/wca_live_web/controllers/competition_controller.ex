@@ -192,8 +192,7 @@ defmodule WcaLiveWeb.CompetitionController do
     end
   end
 
-  @spec format_results(%Competition{}) :: map()
-  def format_results(competition) do
+  defp format_results(competition) do
     competition
     |> Repo.preload(
       competition_events: [rounds: [:competition_event, results: [:person]]],
