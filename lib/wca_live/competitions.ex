@@ -71,14 +71,7 @@ defmodule WcaLive.Competitions do
   @spec fetch_competition_by_wca_id(String.t()) ::
           {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
   def fetch_competition_by_wca_id(id) do
-    Repo.fetch(where(Competition, wca_id: ^wca_id))
-  end
-
-  defp parse_competition_id_or_wca_id(id) do
-    case Integer.parse(id, 10) do
-      {competition_id, ""} -> {:competition_id, competition_id}
-      _ -> {:wca_id, id}
-    end
+    Repo.fetch(where(Competition, wca_id: ^id))
   end
 
   @doc """

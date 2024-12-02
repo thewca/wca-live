@@ -2,7 +2,6 @@ defmodule WcaLiveWeb.CompetitionController do
   use WcaLiveWeb, :controller
 
   alias WcaLive.{Competitions, Scoretaking, Repo}
-  alias WcaLive.Competitions.Competition
 
   def show_wcif(conn, params) do
     case Competitions.fetch_competition(params["id"]) do
@@ -28,7 +27,7 @@ defmodule WcaLiveWeb.CompetitionController do
   end
 
   def show_results(conn, params) do
-    case Competitions.fetch_competition_by_id_or_wca_id(params["id_or_wca_id"]) do
+    case fetch_competition_by_id_or_wca_id(params["id_or_wca_id"]) do
       {:ok, competition} ->
         results = format_results(competition)
 
@@ -192,6 +191,13 @@ defmodule WcaLiveWeb.CompetitionController do
     end
   end
 
+  defp fetch_competition_by_id_or_wca_id(id_or_wca_id) do
+    case Integer.parse(id_or_wca_id) do
+      {id, _} -> Competitions.fetch_competition(id)
+      _ -> Competitions.fetch_competition_by_wca_id(id_or_wca_id)
+    end
+  end
+
   defp format_results(competition) do
     competition
     |> Repo.preload(
@@ -206,7 +212,7 @@ defmodule WcaLiveWeb.CompetitionController do
       for competition_event <- competition.competition_events,
           round <- competition_event.rounds,
           result <- round.results,
-          do: result.registrant_id,
+          do: result.person.registrant_id,
           into: MapSet.new()
 
     %{
@@ -215,7 +221,7 @@ defmodule WcaLiveWeb.CompetitionController do
         |> Enum.map(&format_competition_event/1),
       persons:
         competition.people
-        |> Enum.filter(& &1.registrant_id in result_registrant_ids)
+        |> Enum.filter(&(&1.registrant_id in result_registrant_ids))
         |> Enum.map(&format_person/1)
         |> Enum.filter(&(&1["id"] != nil))
     }
