@@ -7,6 +7,7 @@ import About from "../About/About";
 import Error from "../Error/Error";
 import Loading from "../Loading/Loading";
 import Account from "../Account/Account";
+import Anonymize from "../Anonymize/Anonymize";
 import MyCompetitions from "../MyCompetitions/MyCompetitions";
 
 const CURRENT_USER_QUERY = gql`
@@ -17,6 +18,7 @@ const CURRENT_USER_QUERY = gql`
       avatar {
         thumbUrl
       }
+      isAdmin
     }
   }
 `;
@@ -40,6 +42,9 @@ function DefaultNavigation() {
           <Route path="my-competitions" element={<MyCompetitions />} />
         )}
         {currentUser && <Route path="account" element={<Account />} />}
+        {currentUser && currentUser.isAdmin && (
+          <Route path="anonymize" element={<Anonymize />} />
+        )}
         {/* Wait for data before redirecting as the user routes are rendered conditionally. */}
         {loaded && <Route path="*" element={<Navigate to="/" />} />}
       </Routes>

@@ -8,6 +8,11 @@ defmodule WcaLiveWeb.Schema.CompetitionsMutationTypes do
       arg :input, non_null(:update_competition_access_input)
       resolve &Resolvers.CompetitionsMutation.update_competition_access/3
     end
+
+    field :anonymize_person, non_null(:anonymize_person_payload) do
+      arg :input, non_null(:anonymize_person_input)
+      resolve &Resolvers.CompetitionsMutation.anonymize_person/3
+    end
   end
 
   # Inputs
@@ -23,9 +28,17 @@ defmodule WcaLiveWeb.Schema.CompetitionsMutationTypes do
     field :roles, non_null(list_of(non_null(:string)))
   end
 
+  input_object :anonymize_person_input do
+    field :wca_id, non_null(:string)
+  end
+
   # Payloads
 
   object :update_competition_access_payload do
     field :competition, :competition
+  end
+
+  object :anonymize_person_payload do
+    field :competition_count, non_null(:integer)
   end
 end

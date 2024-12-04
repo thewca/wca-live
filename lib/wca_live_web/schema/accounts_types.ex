@@ -37,6 +37,10 @@ defmodule WcaLiveWeb.Schema.AccountsTypes do
     field :competitors, non_null(list_of(non_null(:person))) do
       resolve dataloader(:db, :people, args: %{competitor: true})
     end
+
+    field :is_admin, non_null(:boolean) do
+      resolve &Resolvers.Accounts.is_admin/3
+    end
   end
 
   @desc "A temporary code generated for quick sign in."
