@@ -6,6 +6,10 @@ defmodule WcaLiveWeb.Resolvers.Accounts do
     {:ok, avatar}
   end
 
+  def is_admin(user, _args, _resolution) do
+    {:ok, Accounts.User.admin?(user)}
+  end
+
   def current_user(_parent, _args, %{context: %{current_user: current_user}}) do
     {:ok, current_user}
   end

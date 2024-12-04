@@ -143,4 +143,28 @@ defmodule WcaLive.Competitions do
 
     count
   end
+
+  @doc """
+  Anonymizes personal data corresponding to the given WCA ID across
+  all competitions.
+
+  Returns the number of anonymized competitions.
+  """
+  @spec anonymize_person(String.t()) :: {:ok, non_neg_integer()}
+  def anonymize_person(wca_id) do
+    {count, _} =
+      from(Person, where: [wca_id: ^wca_id])
+      |> Repo.update_all(
+        set: [
+          name: "Anonymous",
+          wca_id: "2000ANON01",
+          country_iso2: "US",
+          gender: "o",
+          email: "anonymous@worldcubeassociation.org",
+          avatar_url: nil
+        ]
+      )
+
+    {:ok, count}
+  end
 end
