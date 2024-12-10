@@ -8,7 +8,7 @@ defmodule WcaLive.Competitions do
   alias WcaLive.Repo
   alias WcaLive.Competitions.{Competition, Person}
 
-  @competition_deletable_after_days 180
+  @competition_deletable_after_days 90
 
   @doc """
   Returns a list of competitions.
