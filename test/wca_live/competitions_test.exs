@@ -102,13 +102,13 @@ defmodule WcaLive.CompetitionsTest do
     today = Date.utc_today()
 
     competition_before =
-      insert(:competition, start_date: Date.add(today, -191), end_date: Date.add(today, -190))
+      insert(:competition, start_date: Date.add(today, -101), end_date: Date.add(today, -100))
 
     competition_at =
-      insert(:competition, start_date: Date.add(today, -181), end_date: Date.add(today, -180))
+      insert(:competition, start_date: Date.add(today, -91), end_date: Date.add(today, -90))
 
     competition_after =
-      insert(:competition, start_date: Date.add(today, -171), end_date: Date.add(today, -170))
+      insert(:competition, start_date: Date.add(today, -81), end_date: Date.add(today, -80))
 
     competition_future =
       insert(:competition, start_date: Date.add(today, 1), end_date: Date.add(today, 1))
