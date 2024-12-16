@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
+import { Helmet } from "react-helmet-async";
 import CompetitionHome from "../CompetitionHome/CompetitionHome";
 import Round from "../Round/Round";
 import Competitors from "../Competitors/Competitors";
@@ -54,6 +55,11 @@ function CompetitionNavigation() {
   return (
     <CompetitionLayout competition={competition}>
       {loading && <Loading />}
+      {competition && (
+        <Helmet>
+          <title>{competition.shortName} - WCA Live</title>
+        </Helmet>
+      )}
       <Routes>
         <Route path="" element={<CompetitionHome />} />
         <Route path="rounds/:roundId/*" element={<Round />} />
