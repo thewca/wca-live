@@ -24,7 +24,7 @@ defmodule WcaLive.Scoretaking.RecordTags do
       competition_event
       |> Repo.preload(rounds: [:competition_event, results: [person: [:personal_bests]]])
 
-    rounds = competition_event.rounds
+    rounds = Enum.sort_by(competition_event.rounds, & &1.number)
     event_id = competition_event.event_id
 
     regional_records = Wca.RecordsStore.get_regional_records_map()
