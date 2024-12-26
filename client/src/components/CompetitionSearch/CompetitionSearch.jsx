@@ -27,8 +27,7 @@ function CompetitionSearch({ value = null, onChange, TextFieldProps = {} }) {
 
   function handleInputChange(event, value, reason) {
     if (reason === "input") {
-      const sanitizedValue = value.replace(/^\s+/, "").replace(/\s{2,}/g, " ");
-      setSearch(sanitizedValue);
+      setSearch(value);
     }
   }
 
@@ -50,8 +49,8 @@ function CompetitionSearch({ value = null, onChange, TextFieldProps = {} }) {
       onChange={handleChange}
       forcePopupIcon={false}
       disableClearable={true}
-      inputValue={search}
       renderInput={(params) => <TextField {...params} {...TextFieldProps} />}
+      filterOptions={(options) => options}
     />
   );
 }
