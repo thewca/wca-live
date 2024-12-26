@@ -29,7 +29,7 @@ defmodule WcaLive.CompetitionsTest do
     assert open.id not in ids(list)
     assert euro.id in ids(list)
 
-    list = Competitions.list_competitions(%{filter: " championship  2022  "})
+    list = Competitions.list_competitions(%{filter: " championship  2020  "})
 
     assert worlds.id in ids(list)
     assert open.id not in ids(list)
