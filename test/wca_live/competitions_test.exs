@@ -28,26 +28,7 @@ defmodule WcaLive.CompetitionsTest do
     assert worlds.id in ids(list)
     assert open.id not in ids(list)
     assert euro.id in ids(list)
-  end
-
-  test "list_competitions/1 given :filter with leading space matches competitions by name" do
-    worlds = insert(:competition, name: "World Championship 2020")
-    open = insert(:competition, name: "WHAT Open 2020")
-    euro = insert(:competition, name: "Euro Championship 2020")
-
-    list = Competitions.list_competitions(%{filter: " World"})
-
-    assert worlds.id in ids(list)
-    assert open.id not in ids(list)
-    assert euro.id not in ids(list)
-  end
-
-  test "list_competitions/1 given :filter with trailing space matches competitions by name" do
-    worlds = insert(:competition, name: "World Championship 2020")
-    open = insert(:competition, name: "WHAT Open 2020")
-    euro = insert(:competition, name: "Euro Championship 2020")
-
-    list = Competitions.list_competitions(%{filter: "Championship  "})
+    list = Competitions.list_competitions(%{filter: " championship  2022  "})
 
     assert worlds.id in ids(list)
     assert open.id not in ids(list)
