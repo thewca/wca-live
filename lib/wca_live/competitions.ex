@@ -37,6 +37,7 @@ defmodule WcaLive.Competitions do
   defp filter_by_text(query, nil), do: query
 
   defp filter_by_text(query, filter) do
+    filter = filter |> String.trim() |> String.replace(~r/\s+/, " ")
     from c in query, where: ilike(c.name, ^"%#{filter}%")
   end
 

@@ -28,6 +28,12 @@ defmodule WcaLive.CompetitionsTest do
     assert worlds.id in ids(list)
     assert open.id not in ids(list)
     assert euro.id in ids(list)
+
+    list = Competitions.list_competitions(%{filter: " championship  2020  "})
+
+    assert worlds.id in ids(list)
+    assert open.id not in ids(list)
+    assert euro.id in ids(list)
   end
 
   test "list_competitions/1 given :from returns competitions from that date inclusive" do
