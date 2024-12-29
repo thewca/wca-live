@@ -53,6 +53,9 @@ const RoundResultsTable = memo(
 
     const stats = orderedResultStats(eventId, format);
 
+    const projectedFirst = results[0]["projected"]
+    const projectedPodium = results[2]["projected"]
+
     return (
       <Paper>
         <Table size="small">
@@ -144,6 +147,8 @@ const RoundResultsTable = memo(
                         field={field}
                         eventId={eventId}
                         format={format}
+                        projectedFirst={projectedFirst}
+                        projectedPodium={projectedPodium}
                       />
                     </RecordTagBadge>
                   </TableCell>

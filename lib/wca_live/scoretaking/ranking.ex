@@ -49,7 +49,7 @@ defmodule WcaLive.Scoretaking.Ranking do
   end
 
   defp result_to_monotnic(result, :average = _sort_by) do
-    {AttemptResult.to_monotonic(result.average), AttemptResult.to_monotonic(result.best)}
+    {AttemptResult.to_monotonic(result.projected), AttemptResult.to_monotonic(result.best)}
   end
 
   defp results_equal?(result1, result2, sort_by) do

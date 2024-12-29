@@ -22,6 +22,7 @@ defmodule WcaLive.Scoretaking.Result do
     field :ranking, :integer
     field :best, :integer, default: 0
     field :average, :integer, default: 0
+    field :projected, :integer, default: 0
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, :boolean, default: false
@@ -142,6 +143,7 @@ defmodule WcaLive.Scoretaking.Result do
         AttemptResult.skipped()
       end
     )
+    |> put_change(:projected, AttemptResult.projected(attempt_results, event_id))
   end
 
   defp validate_no_trailing_skipped(changeset) do

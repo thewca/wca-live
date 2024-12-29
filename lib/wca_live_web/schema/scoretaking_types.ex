@@ -114,6 +114,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :ranking, :integer
     field :best, :integer
     field :average, :integer
+    field :projected, :integer
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, non_null(:boolean)

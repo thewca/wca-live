@@ -124,6 +124,40 @@ function mean(values) {
   return Math.round(sum / values.length);
 }
 
+// rename this
+export function timeNeededToWin(result, projectedFirst, format) {
+  const attemptResults = result.attempts.map((attempt) => attempt.result);
+  if (format.numberOfAttempts === 3 ||
+      (format.numberOfAttempts === 5 &&
+        attemptResults.length === 1)
+  ) {
+    if (!attemptResults.every(isComplete)) return DNF_VALUE;
+    const totalNeeded = projectedFirst * (1 + attemptResults.length);
+    const needed = totalNeeded - attemptResults.reduce((x, y) => x + y, 0);
+    if (needed <= 0)
+    {
+      return DNF_VALUE;
+    }
+    return needed;
+  }
+  
+  if (attemptResults.length === 2) {
+    if (result.best <= projectedFirst && isComplete(result.best)) {
+      return projectedFirst;
+    }
+    else {
+      return DNF_VALUE;
+    } 
+  }
+  if (!isComplete(result.projected)) {
+    return DNF_VALUE;
+  }
+  // handle rounding for this
+  const neededTotal = projectedFirst * (result.attempts.length + 1);
+  const needed = neededTotal - (result.attempts.length * result.projected);
+  return needed >= result.best ? needed : DNF_VALUE;
+}
+
 /**
  * Calculates the best possible average of 5 for the given attempts.
  *
