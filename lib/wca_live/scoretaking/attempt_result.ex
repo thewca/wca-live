@@ -133,14 +133,6 @@ defmodule WcaLive.Scoretaking.AttemptResult do
     end
   end
 
-  def projected(attempt_results, _event_id) do
-    case length(attempt_results) do
-      3 -> mean_of_x(attempt_results)
-      5 -> average_of_x(attempt_results)
-    end
-    |> round_over_10_minutes()
-  end
-
   # See: https://www.worldcubeassociation.org/regulations/#9f2
   defp round_over_10_minutes(average) when average <= 10 * 6000, do: average
   defp round_over_10_minutes(average), do: round(average / 100) * 100
@@ -155,39 +147,6 @@ defmodule WcaLive.Scoretaking.AttemptResult do
       mean(attempt_results)
     else
       @dnf_value
-    end
-  end
-
-  # handle dnf/dns results
-  defp average_of_x(attempt_results) do
-    filtered = Enum.filter(attempt_results, fn x -> x != @skipped_value end)
-    # improve this
-    if length(filtered) < 3 do
-      # gives advantage at 2 solves to ppl with DNF
-      # mean_of_x(Enum.filter(filtered, &complete?/1))
-      mean_of_x(filtered)
-    else
-      if length(filtered) === 3 do
-        [_, x, _] = Enum.sort_by(filtered, &to_monotonic/1)
-        x
-      else
-        if length(filtered) === 4 do
-          
-          [_, x, y, _] = Enum.sort_by(filtered, &to_monotonic/1)
-          round((x + y) / 2)
-        else
-          average_of_5(filtered)
-        end
-      end
-    end
-  end
-
-  defp mean_of_x(attempt_results) do
-    if Enum.any?(attempt_results, &dnf?/1) or Enum.any?(attempt_results, &dns?/1) do
-      @dnf_value
-    else
-      filtered = Enum.filter(attempt_results, &complete?/1)
-      round(Enum.sum(filtered) / length(filtered))
     end
   end
 
