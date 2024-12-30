@@ -3,11 +3,13 @@ import {
   bestPossibleAverage,
   worstPossibleAverage,
   formatAttemptResult,
-  timeNeededToWin,
+  // timeNeededToWin,
 } from "../../lib/attempt-result";
 import { shouldComputeAverage } from "../../lib/result";
 
-function ResultStat({ result, field, eventId, format, projectedFirst, projectedPodium}) {
+function ResultStat({ result, field, eventId, format
+  //, projectedFirst, projectedPodium
+  }) {
   if (
     field === "average" &&
     result.average === 0 &&
@@ -18,14 +20,14 @@ function ResultStat({ result, field, eventId, format, projectedFirst, projectedP
     if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Projected average">
+          {/* <Tooltip title="Projected average">
             <span>
               {formatAttemptResult(
                 result.projected,
                 eventId
               )}
             </span>
-          </Tooltip>
+          </Tooltip> */}
           {" ("}
           <Tooltip title="Best possible average">
             <span>
@@ -49,76 +51,76 @@ function ResultStat({ result, field, eventId, format, projectedFirst, projectedP
       );
     }
 
-    if (format.numberOfAttempts === 5 && result.attempts.length < 4) {
-      return (
-        <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Projected average">
-            <span>
-              {formatAttemptResult(
-                result.projected,
-                eventId
-              )}
-            </span>
-          </Tooltip>
-        </Box>
-      );
-    }
+    // if (format.numberOfAttempts === 5 && result.attempts.length < 4) {
+    //   return (
+    //     <Box component="span" sx={{ opacity: 0.5 }}>
+    //       <Tooltip title="Projected average">
+    //         <span>
+    //           {formatAttemptResult(
+    //             result.projected,
+    //             eventId
+    //           )}
+    //         </span>
+    //       </Tooltip>
+    //     </Box>
+    //   );
+    // }
 
-    if (format.numberOfAttempts === 3 && result.attempts.length < 3) {
-      return (
-        <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Projected mean">
-            <span>
-              {formatAttemptResult(
-                result.projected,
-                eventId
-              )}
-            </span>
-          </Tooltip>
-        </Box>
-      );
-    }
+    // if (format.numberOfAttempts === 3 && result.attempts.length < 3) {
+    //   return (
+    //     <Box component="span" sx={{ opacity: 0.5 }}>
+    //       <Tooltip title="Projected mean">
+    //         <span>
+    //           {formatAttemptResult(
+    //             result.projected,
+    //             eventId
+    //           )}
+    //         </span>
+    //       </Tooltip>
+    //     </Box>
+    //   );
+    // }
   }
 
-  if (field === "xtowin") {    
-    if (!projectedFirst || result.ranking < 2 || result.attempts.length === format.numberOfAttempts) {
-      return;
-    }
-    return (
-      <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Time needed to win">
-            <span>
-            {formatAttemptResult(
-                timeNeededToWin(result, projectedFirst, format), 
-                eventId 
-              )}
-            </span>
-          </Tooltip>
-        </Box>
+  // if (field === "xtowin") {    
+  //   if (!projectedFirst || result.ranking < 2 || result.attempts.length === format.numberOfAttempts) {
+  //     return;
+  //   }
+  //   return (
+  //     <Box component="span" sx={{ opacity: 0.5 }}>
+  //         <Tooltip title="Time needed to win">
+  //           <span>
+  //           {formatAttemptResult(
+  //               timeNeededToWin(result, projectedFirst, format), 
+  //               eventId 
+  //             )}
+  //           </span>
+  //         </Tooltip>
+  //       </Box>
 
-    )
+  //   )
 
-  }
+  // }
 
-  if (field === "xtopodium") {    
-    if (!projectedPodium || result.ranking < 4 || result.attempts.length === format.numberOfAttempts) {
-      return;
-    }
-    return (
-      <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Time needed to podium">
-            <span>
-            {formatAttemptResult(
-                timeNeededToWin(result, projectedPodium, format), 
-                eventId 
-              )}
-            </span>
-          </Tooltip>
-        </Box>
+  // if (field === "xtopodium") {    
+  //   if (!projectedPodium || result.ranking < 4 || result.attempts.length === format.numberOfAttempts) {
+  //     return;
+  //   }
+  //   return (
+  //     <Box component="span" sx={{ opacity: 0.5 }}>
+  //         <Tooltip title="Time needed to podium">
+  //           <span>
+  //           {formatAttemptResult(
+  //               timeNeededToWin(result, projectedPodium, format), 
+  //               eventId 
+  //             )}
+  //           </span>
+  //         </Tooltip>
+  //       </Box>
 
-    )
+  //   )
 
-  }
+  // }
 
   return formatAttemptResult(result[field], eventId);
 }

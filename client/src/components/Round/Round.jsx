@@ -18,7 +18,6 @@ const ROUND_RESULT_FRAGMENT = gql`
     }
     best
     average
-    projected
     person {
       id
       name

@@ -12,7 +12,6 @@ export const ADMIN_ROUND_RESULT_FRAGMENT = gql`
     }
     best
     average
-    projected
     person {
       id
       registrantId
