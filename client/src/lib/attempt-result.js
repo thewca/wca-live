@@ -4,6 +4,7 @@ import { shouldComputeAverage } from "./result";
 export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
+export const NA_VALUE = -3;
 
 
 function isComplete(attemptResult) {
@@ -19,6 +20,18 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
   if (!isComplete(attemptResult1) && isComplete(attemptResult2)) return 1;
   if (isComplete(attemptResult1) && !isComplete(attemptResult2)) return -1;
   return attemptResult1 - attemptResult2;
+}
+
+function compareProjectedResults(result1, result2) {
+  if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) {
+    compareAttemptResults(result1.best, result2.best);
+  }
+  if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) return 1;
+  if (isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) return -1;
+
+  const compare = result1.projectedAverage - result2.projectedAverage;
+  if (compare != 0) return compare;
+  compareAttemptResults(result1.best, result2.best);
 }
 
 /**
@@ -125,69 +138,114 @@ function mean(values) {
   return Math.round(sum / values.length);
 }
 
-// rename this + handle single
-export function timeNeededToWin(result, projectedFirst, format) {
+function allowedBuffer(attemptResults, format) {
+  return nextCountingSolves(attemptResults, format) === 3 ? 1 : 0;
+}
+
+function nextCountingSolves(attemptResults, format) {
+  if (format.numberOfAttempts === 3) {
+    return attemptResults.length === 2 ? 3 : 2;
+  }
+  return attemptResults.length === 4 ? 3 : 2;
+}
+
+export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
   const attemptResults = result.attempts.map((attempt) => attempt.result);
-  if (format.numberOfAttempts === 3 || attemptResults.length === 1
-  ) {
-    if (!attemptResults.every(isComplete)) return DNF_VALUE;
-    const totalNeeded = projectedFirst * (1 + attemptResults.length);
-    const needed = totalNeeded - attemptResults.reduce((x, y) => x + y, 0);
+  var needed;
+  const buffer = allowedBuffer(attemptResults, format);
+  const counting = nextCountingSolves(attemptResults, format);
+  if (format.numberOfAttempts === 3 || attemptResults.length === 1) {
+    const totalNeeded = overtakeAverage * (1 + attemptResults.length);
+    needed = totalNeeded - result.countingSum + buffer;
+
+    const newBest = Math.min(needed, result.best);
+    if (newBest >= overtakeBest) {
+      needed = Math.max(needed - counting, overtakeBest - 1);
+    }
     if (needed <= 0)
     {
-      return DNF_VALUE;
+      return NA_VALUE;
     }
     return needed;
   }
-  
+
   if (attemptResults.length === 2) {
-    if (result.best <= projectedFirst && isComplete(result.best)) {
-      return projectedFirst;
+    if (result.best <= overtakeAverage) {
+      return overtakeAverage - 1;
     }
     else {
-      return DNF_VALUE;
+      return NA_VALUE;
     } 
   }
-  if (!isComplete(result.projectedAverage)) {
-    return DNF_VALUE;
+  const neededTotal = overtakeAverage * (result.attempts.length - 1);
+  needed = neededTotal - result.countingSum + buffer;
+  const newBest = Math.min(needed, result.best);
+  if (newBest >= overtakeBest) {
+    needed = Math.max(needed - counting, overtakeBest - 1);
   }
-  // handle rounding for this
-  const neededTotal = projectedFirst * (result.attempts.length - 1);
-  const needed = neededTotal - ((result.attempts.length - 2) * result.projectedAverage);
-  return needed >= result.best ? needed : DNF_VALUE;
+  return needed >= result.best ? needed : NA_VALUE;
 }
 
 export function getExpandedResults(results, format) {
+  if (results.length == 0) return;
   var expandedResults = results.map((result) => {
-    return { ...result, projectedAverage: computeProjectedAverage(result, format),
+    return { ...result, projectedAverage: SKIPPED_VALUE,
+                        countingSum: 0,
                         forFirst: SKIPPED_VALUE,
                         forThird: SKIPPED_VALUE,
      };
   });
-  expandedResults = expandedResults.sort((a, b) => b.projectedAverage - a.projectedAverage);
+  const advancing = results.filter((result) => result.advancing || result.advancingQuestionable).length;
+  // handle advancing
+  for (let result of expandedResults) {
+    computeProjectedAverage(result, format); 
+    result.advancing = false;
+    result.advancingQuestionable = false;
+  }
 
-  // handle rank by single for ties
-  // add sorting by name
-  expandedResults = expandedResults.sort((a, b) => compareAttemptResults(a.projectedAverage, b.projectedAverage));
-  for (var i = 0; i < expandedResults.length; i++) {
-    if (isSkipped(expandedResults[i].projectedAverage)){
+  var roundIncomplete = results.some((result) => isSkipped(result.average));
+
+  expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
+  expandedResults[0].ranking = 1;
+  if (roundIncomplete) {
+    expandedResults[0].advancingQuestionable = true;
+  } else {
+    expandedResults[0].advancing = true;
+  }
+  var prevResult = expandedResults[0];
+  for (let i = 1; i < expandedResults.length; i++) {
+    let currentResult = expandedResults[i];
+    if (isSkipped(currentResult.projectedAverage)){
       break;
     }
-    expandedResults[i].ranking = i + 1;
+    if (currentResult.projectedAverage === prevResult.projectedAverage &&
+      currentResult.best === prevResult.best) {
+        currentResult.ranking = prevResult.ranking;
+    } else {
+      currentResult.ranking = i + 1;
+    }
+    if (i < advancing) {
+      if (roundIncomplete) {
+        currentResult.advancingQuestionable = true;
+      } else {
+        currentResult.advancing = true;
+      }
+    }
+    prevResult = currentResult;
   }
 
   const projectedFirstAverage = expandedResults[0].projectedAverage;
   const projectedFirstBest = expandedResults[0].best;
-  const projectedThirdAverage = expandedResults[2].projectedAverage;
-  const projectedThirdBest = expandedResults[2].best;
+  const projectedThirdAverage = expandedResults.length > 2 ? expandedResults[2].projectedAverage : SKIPPED_VALUE;
+  const projectedThirdBest = expandedResults.length > 2 ? expandedResults[2].best : SKIPPED_VALUE;
 
-  for (var i = 1; i < expandedResults.length; i++) {
+  for (let i = 1; i < expandedResults.length; i++) {
     var result = expandedResults[i];
     if (result.attempts.length != format.numberOfAttempts) {
       if (isComplete(result.projectedAverage)) {
-        result.forFirst = timeNeededToWin(result, projectedFirstAverage, format);
-        if (i > 2) {
-          result.forThird = timeNeededToWin(result, projectedThirdAverage, format);
+        result.forFirst = timeNeededToOvertake(result, format, projectedFirstAverage, projectedFirstBest);
+        if (i > 2 && projectedThirdAverage != SKIPPED_VALUE) {
+          result.forThird = timeNeededToOvertake(result, format, projectedThirdAverage, projectedThirdBest);
         }
       }
     }
@@ -201,30 +259,41 @@ function meanOfX(attemptResults) {
   return mean(attemptResults);
 }
 
+function sumOfX(attemptResults) {
+  if (!attemptResults.every(isComplete)) return DNF_VALUE;
+  return attemptResults.reduce((x, y) => x + y, 0);
+}
+
 export function computeProjectedAverage(result, format) {
   const attemptResults = result.attempts.map((attempt) => attempt.result);
   if (result.average) {
-    return result.average;
+    result.projectedAverage = result.average;
+    return;
   }
   if (attemptResults.length > 0) {
     if (format.numberOfAttempts === 3) {
-      return meanOfX(attemptResults);
+      result.projectedAverage = meanOfX(attemptResults);
+      result.countingSum = sumOfX(attemptResults);
+      return;
     }
     if (format.numberOfAttempts === 5) {
       if (attemptResults.length < 3) {
-        return meanOfX(attemptResults);
+        result.projectedAverage = meanOfX(attemptResults);
+        result.countingSum = sumOfX(attemptResults);
+        return;
       }
       if (attemptResults.length === 3) {
         const [, x,] = attemptResults.slice().sort(compareAttemptResults);
-        return x;
+        result.projectedAverage = x;
+        result.countingSum = x;
+        return;
       }
       const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
-      return meanOfX([x, y]);
+      result.projectedAverage = meanOfX([x, y]);
+      result.countingSum = x + y;
+      return;
     }
-      
-    return 1000;
   }
-  return SKIPPED_VALUE;
 }
 
 /**
@@ -360,6 +429,7 @@ export function formatAttemptResult(attemptResult, eventId) {
   if (attemptResult === SKIPPED_VALUE) return "";
   if (attemptResult === DNF_VALUE) return "DNF";
   if (attemptResult === DNS_VALUE) return "DNS";
+  if (attemptResult === NA_VALUE) return "N/A";
   if (eventId === "333mbf") return formatMbldAttemptResult(attemptResult);
   if (eventId === "333fm") return formatFmAttemptResult(attemptResult);
   return centisecondsToClockFormat(attemptResult);
