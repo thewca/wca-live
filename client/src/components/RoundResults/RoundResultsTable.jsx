@@ -13,7 +13,7 @@ import {
 import { green } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
 import { times } from "../../lib/utils";
-import { formatAttemptResult } from "../../lib/attempt-result";
+import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
@@ -56,6 +56,8 @@ const RoundResultsTable = memo(
     // const projectedFirst = results[0]["projected"]
     // const projectedPodium = results[2]["projected"]
 
+    const expandedResults = getExpandedResults(results, format);
+
     return (
       <Paper>
         <Table size="small">
@@ -83,7 +85,7 @@ const RoundResultsTable = memo(
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.map((result) => (
+            {expandedResults.map((result) => (
               <TableRow
                 key={result.id}
                 hover

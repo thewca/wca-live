@@ -13,14 +13,14 @@ export function orderedResultStats(eventId, format) {
   }
 
   const stats = [
-    // {
-    //   name: "X for podium",
-    //   field: "xtopodium",
-    // },
-    // {
-    //   name: "X for Win",
-    //   field: "xtowin",
-    // },
+    {
+      name: "For 3rd",
+      field: "forThird",
+    },
+    {
+      name: "For 1st",
+      field: "forFirst",
+    },
     { name: "Best", field: "best", recordTagField: "singleRecordTag" },
     {
       name: numberOfAttempts === 3 ? "Mean" : "Average",
