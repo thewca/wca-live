@@ -72,6 +72,10 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
   ${ROUND_RESULT_FRAGMENT}
 `;
 
+export function forecastViewDisabled(format, eventId) {
+  return format.sortBy === "best" || eventId === "333fm";
+}
+
 function Round() {
   const { competitionId, roundId } = useParams();
 

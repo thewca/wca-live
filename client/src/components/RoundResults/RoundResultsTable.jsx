@@ -17,6 +17,7 @@ import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-resul
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
+import { forecastViewDisabled } from "../Round/Round";
 
 const styles = {
   cell: {
@@ -51,6 +52,9 @@ const RoundResultsTable = memo(
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
+    if (forecastViewDisabled(format, eventId)) {
+      forecastView = false;
+    }
     const stats = orderedResultStats(eventId, format, forecastView);
 
     const expandedResults = getExpandedResults(results, format, forecastView);

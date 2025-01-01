@@ -24,6 +24,7 @@ import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-resul
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
+import forecastViewDisabled from "../Round/Round";
 
 const styles = {
   cell: {
@@ -76,6 +77,9 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, forecastVi
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
+  if (forecastViewDisabled(format, eventId)) {
+    forecastView = false;
+  }
   const stats = orderedResultStats(eventId, format, forecastView);
   const expandedResults = getExpandedResults(results, format, forecastView);
   const nonemptyResults = expandedResults.filter(
