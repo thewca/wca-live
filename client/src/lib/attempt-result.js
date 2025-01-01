@@ -241,6 +241,10 @@ export function getExpandedResults(results, format, forecastView) {
     result.advancingQuestionable = false;
   }
 
+  if (expandedResults[0].projectedAverage == SKIPPED_VALUE) {
+    return expandedResults;
+  }
+
   // Sort based on projection with tiebreakers on single
   expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
   expandedResults[0].ranking = 1;
