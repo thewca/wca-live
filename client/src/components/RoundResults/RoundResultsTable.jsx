@@ -56,7 +56,7 @@ const RoundResultsTable = memo(
       forecastView = false;
     }
     const stats = orderedResultStats(eventId, format, forecastView);
-    "test cahnges"
+
     const expandedResults = getExpandedResults(results, format, forecastView, advancementCondition);
     return (
       <Paper>
