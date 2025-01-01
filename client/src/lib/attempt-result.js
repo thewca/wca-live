@@ -186,8 +186,8 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
   return needed >= result.best ? needed : NA_VALUE;
 }
 
-export function getExpandedResults(results, format) {
-  if (results.length == 0) return;
+export function getExpandedResults(results, format, forecastView) {  
+  if (results.length == 0 || !forecastView) return results;
   var expandedResults = results.map((result) => {
     return { ...result, projectedAverage: SKIPPED_VALUE,
                         countingSum: 0,

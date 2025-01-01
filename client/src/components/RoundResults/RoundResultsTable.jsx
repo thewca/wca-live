@@ -47,17 +47,13 @@ const styles = {
 };
 
 const RoundResultsTable = memo(
-  ({ results, format, eventId, competitionId, onResultClick }) => {
+  ({ results, format, eventId, competitionId, onResultClick, forecastView }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
-    const stats = orderedResultStats(eventId, format);
+    const stats = orderedResultStats(eventId, format, forecastView);
 
-    // const projectedFirst = results[0]["projected"]
-    // const projectedPodium = results[2]["projected"]
-
-    const expandedResults = getExpandedResults(results, format);
-
+    const expandedResults = getExpandedResults(results, format, forecastView);
     return (
       <Paper>
         <Table size="small">
@@ -149,8 +145,7 @@ const RoundResultsTable = memo(
                         field={field}
                         eventId={eventId}
                         format={format}
-                        // projectedFirst={projectedFirst}
-                        // projectedPodium={projectedPodium}
+                        forecastView={forecastView}
                       />
                     </RecordTagBadge>
                   </TableCell>

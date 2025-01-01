@@ -85,6 +85,7 @@ function Round() {
   });
 
   const [previousData, setPreviousData] = useState(null);
+  const [forecastView, setForecastView] = useState(false);
 
   useEffect(() => {
     if (newData) setPreviousData(newData);
@@ -115,7 +116,7 @@ function Round() {
       {loading && <Loading />}
       <Grid container direction="column" spacing={1}>
         <Grid item>
-          <RoundToolbar round={round} competitionId={competitionId} />
+          <RoundToolbar round={round} competitionId={competitionId} forecastView={forecastView} setForecastView={setForecastView} />
         </Grid>
         <Grid item>
           <Routes>
@@ -128,6 +129,7 @@ function Round() {
                   eventId={round.competitionEvent.event.id}
                   title={`${round.competitionEvent.event.name} - ${round.name}`}
                   exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
+                  forecastView={forecastView}
                 />
               }
             />
@@ -141,6 +143,7 @@ function Round() {
                   format={round.format}
                   eventId={round.competitionEvent.event.id}
                   competitionId={competitionId}
+                  forecastView={forecastView}
                 />
               }
             />
