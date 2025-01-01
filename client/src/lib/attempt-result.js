@@ -217,13 +217,26 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
 }
 
 /**
+ * return the number of competitors that should be marked as advancing.
+ * When no competitors advance, return 3 for the podium placements.
+ * Might not be accurate for percentage based advancement but that is acceptable
+ */
+function getAdvancingCount(results, advancementCondition) {
+  if (!advancementCondition) return 3;
+  if (advancementCondition.type === "ranking") {
+    return advancementCondition.level;
+  }
+  return results.filter((result) => result.advancing || result.advancingQuestionable).length;
+}
+
+/**
  * return the results object with additional properties:
  * projectedAverage: projected final average based on current results
  * countingSum: sum of the counting solves
  * forFirst: time needed to overtake first place
  * forThird: time needed to overtake third place
  */
-export function getExpandedResults(results, format, forecastView) {  
+export function getExpandedResults(results, format, forecastView, advancementCondition) {  
   if (results.length == 0 || !forecastView) return results;
   var expandedResults = results.map((result) => {
     return { ...result, projectedAverage: SKIPPED_VALUE,
@@ -232,7 +245,7 @@ export function getExpandedResults(results, format, forecastView) {
                         forThird: SKIPPED_VALUE,
      };
   });
-  const advancingCount = results.filter((result) => result.advancing || result.advancingQuestionable).length;
+  const advancingCount = getAdvancingCount(results, advancementCondition);
   const roundIncomplete = results.some((result) => isSkipped(result.average));
 
   for (let result of expandedResults) {
@@ -263,7 +276,7 @@ export function getExpandedResults(results, format, forecastView) {
     }
     // Using simple advancing logic.
     // TODO: Implement questionable/clinched logic
-    if (i < advancingCount) {
+    if (currentResult.ranking <= advancingCount) {
       if (roundIncomplete) {
         currentResult.advancingQuestionable = true;
       } else {

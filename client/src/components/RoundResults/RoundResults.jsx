@@ -5,7 +5,7 @@ import RoundResultDialog from "./RoundResultDialog";
 
 const DEFAULT_VISIBLE_RESULTS = 100;
 
-function RoundResults({ results, format, eventId, competitionId, forecastView}) {
+function RoundResults({ results, format, eventId, competitionId, forecastView, advancementCondition}) {
   const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   const [selectedResult, setSelectedResult] = useState(null);
@@ -36,6 +36,7 @@ function RoundResults({ results, format, eventId, competitionId, forecastView}) 
             competitionId={competitionId}
             onResultClick={handleResultClick}
             forecastView={forecastView}
+            advancementCondition={advancementCondition}
           />
         </Grid>
         {!showAll && (

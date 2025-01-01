@@ -73,7 +73,7 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl, forecastView }) {
+function ResultsProjector({ results, format, eventId, title, exitUrl, forecastView, advancementCondition }) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
@@ -81,7 +81,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, forecastVi
     forecastView = false;
   }
   const stats = orderedResultStats(eventId, format, forecastView);
-  const nonemptyResults = getExpandedResults(results, format, forecastView).filter(
+  const nonemptyResults = getExpandedResults(results, format, forecastView, advancementCondition).filter(
     (result) => result.attempts.length > 0
   );
 
