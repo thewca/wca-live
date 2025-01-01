@@ -22,6 +22,9 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
   return attemptResult1 - attemptResult2;
 }
 
+/**
+ * Compares two results based on projected average, single
+ */
 function compareProjectedResults(result1, result2) {
   if (!isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) {
     compareAttemptResults(result1.best, result2.best);
@@ -146,6 +149,9 @@ function sum(values) {
   return values.reduce((x, y) => x + y, 0);
 }
 
+/**
+ * returns the current number of counting solves + 1
+ */
 function nextNumberOfCountingSolves(result, format) {
   if (format.numberOfAttempts === 3) {
     return result.attempts.length === 2 ? 3 : 2;
@@ -153,22 +159,37 @@ function nextNumberOfCountingSolves(result, format) {
   return result.attempts.length === 4 ? 3 : 2;
 }
 
+/**
+ * returns the number of milliseconds that can be added to the total counting time
+ * while still achieving the same average 
+ */
 function roundingBuffer(result, format) {
   return nextNumberOfCountingSolves(result, format) === 3 ? 1 : 0;
 }
 
+/**
+ * returns the time required to overtake a target average while also taking into account single.
+ * @param {*} needed - worst possible time required to tie the target average
+ */
 function getAdjustedNeeded(needed, currentBest, overtakeBest, countingSolves) {
   const newBest = Math.min(needed, currentBest);
   if (newBest >= overtakeBest) {
+    // Win by decreasing average by .01 or by overtaking on single
     return Math.max(needed - countingSolves, overtakeBest - 1);
   }
+  // Wins tiebreaker on single. No modification needed
   return needed;
 }
 
+/**
+ * returns the time needed to overtake a target result (average & best). This function returns
+ * the slowest possible time.
+ */
 export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
   var needed;
   const buffer = roundingBuffer(result, format);
   const countingSolves = nextNumberOfCountingSolves(result, format);
+  // After adding a time, projection is still a mean
   if (format.numberOfAttempts === 3 || result.attempts.length === 1) {
     const totalNeeded = overtakeAverage * (1 + result.attempts.length);
     needed = totalNeeded - result.countingSum + buffer;
@@ -179,6 +200,7 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
     return needed;
   }
 
+  // After adding a time, projection is a median
   if (result.attempts.length === 2) {
     if (result.best < overtakeAverage) {
       return overtakeAverage - 1;
@@ -187,12 +209,20 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
       return NA_VALUE;
     } 
   }
+  // After adding a time, projection is an average
   const neededTotal = overtakeAverage * (result.attempts.length - 1);
   needed = neededTotal - result.countingSum + buffer;
   needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
   return needed >= result.best ? needed : NA_VALUE;
 }
 
+/**
+ * return the results object with additional properties:
+ * projectedAverage: projected final average based on current results
+ * countingSum: sum of the counting solves
+ * forFirst: time needed to overtake first place
+ * forThird: time needed to overtake third place
+ */
 export function getExpandedResults(results, format, forecastView) {  
   if (results.length == 0 || !forecastView) return results;
   var expandedResults = results.map((result) => {
@@ -211,6 +241,7 @@ export function getExpandedResults(results, format, forecastView) {
     result.advancingQuestionable = false;
   }
 
+  // Sort based on projection with tiebreakers on single
   expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
   expandedResults[0].ranking = 1;
   var prevResult = expandedResults[0];
@@ -221,10 +252,13 @@ export function getExpandedResults(results, format, forecastView) {
     }
     if (currentResult.projectedAverage === prevResult.projectedAverage &&
       currentResult.best === prevResult.best) {
+        // Rankings tie
         currentResult.ranking = prevResult.ranking;
     } else {
       currentResult.ranking = i + 1;
     }
+    // Using simple advancing logic.
+    // TODO: Implement questionable/clinched logic
     if (i < advancingCount) {
       if (roundIncomplete) {
         currentResult.advancingQuestionable = true;
@@ -239,7 +273,7 @@ export function getExpandedResults(results, format, forecastView) {
   const projectedFirstBest = expandedResults[0].best;
   const projectedThirdAverage = expandedResults.length > 2 ? expandedResults[2].projectedAverage : SKIPPED_VALUE;
   const projectedThirdBest = expandedResults.length > 2 ? expandedResults[2].best : SKIPPED_VALUE;
-
+  // Generate times needed to overtake first / third
   for (let i = 1; i < expandedResults.length; i++) {
     var result = expandedResults[i];
     if (result.attempts.length != format.numberOfAttempts) {
@@ -254,6 +288,14 @@ export function getExpandedResults(results, format, forecastView) {
   return expandedResults;
 }
 
+/**
+ * return projection for the final average based on current results
+ * projections are defined as follows:
+ *   - MO3 events: mean of current solves
+ *   - AVG5 events:
+ *     - 1-2 solves: mean of current solves
+ *     - 3-4 solves: median of current solves
+ */
 export function computeProjectedAverage(result, format) {
   const attemptResults = result.attempts.map((attempt) => attempt.result);
   if (result.average) {

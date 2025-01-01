@@ -15,7 +15,7 @@ function ResultStat({ result, field, eventId, format, forecastView
     shouldComputeAverage(eventId, format.numberOfAttempts)
   ) {
     const attemptResults = result.attempts.map((attempt) => attempt.result);
-  
+
     if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
