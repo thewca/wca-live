@@ -173,8 +173,7 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
     const totalNeeded = overtakeAverage * (1 + result.attempts.length);
     needed = totalNeeded - result.countingSum + buffer;
     needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
-    if (needed <= 0)
-    {
+    if (needed <= 0) {
       return NA_VALUE;
     }
     return needed;

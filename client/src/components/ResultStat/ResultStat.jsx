@@ -52,6 +52,7 @@ function ResultStat({ result, field, eventId, format, forecastView
         </Box>
       );
     }
+
     if (forecastView) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
@@ -66,6 +67,7 @@ function ResultStat({ result, field, eventId, format, forecastView
         </Box>
       );
     }
+
     if (format.numberOfAttempts === 3 && result.attempts.length === 2) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
@@ -81,6 +83,7 @@ function ResultStat({ result, field, eventId, format, forecastView
       );
     }
   }
+
   return formatAttemptResult(result[field], eventId);
 }
 
