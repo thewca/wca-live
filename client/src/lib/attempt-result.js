@@ -23,7 +23,7 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
 }
 
 function compareProjectedResults(result1, result2) {
-  if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) {
+  if (!isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) {
     compareAttemptResults(result1.best, result2.best);
   }
   if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) return 1;
@@ -94,7 +94,7 @@ export function average(attemptResults, eventId) {
     const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
     switch (attemptResults.length) {
       case 3:
-        return meanOf3(scaled);
+        return meanOfX(scaled);
       case 5:
         return averageOf5(scaled);
       default:
@@ -106,7 +106,7 @@ export function average(attemptResults, eventId) {
 
   switch (attemptResults.length) {
     case 3:
-      return roundOver10Mins(meanOf3(attemptResults));
+      return roundOver10Mins(meanOfX(attemptResults));
     case 5:
       return roundOver10Mins(averageOf5(attemptResults));
     default:
@@ -125,43 +125,54 @@ function roundOver10Mins(value) {
 
 function averageOf5(attemptResults) {
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  return meanOf3([x, y, z]);
+  return meanOfX([x, y, z]);
 }
 
-function meanOf3(attemptResults) {
+function meanOfX(attemptResults) {
   if (!attemptResults.every(isComplete)) return DNF_VALUE;
   return mean(attemptResults);
 }
 
+function sumOfX(attemptResults) {
+  if (!attemptResults.every(isComplete)) return DNF_VALUE;
+  return attemptResults.reduce((x, y) => x + y, 0);
+}
+
 function mean(values) {
-  const sum = values.reduce((x, y) => x + y, 0);
-  return Math.round(sum / values.length);
+  return Math.round(sum(values) / values.length);
 }
 
-function allowedBuffer(attemptResults, format) {
-  return nextCountingSolves(attemptResults, format) === 3 ? 1 : 0;
+function sum(values) {
+  return values.reduce((x, y) => x + y, 0);
 }
 
-function nextCountingSolves(attemptResults, format) {
+function nextNumberOfCountingSolves(result, format) {
   if (format.numberOfAttempts === 3) {
-    return attemptResults.length === 2 ? 3 : 2;
+    return result.attempts.length === 2 ? 3 : 2;
   }
-  return attemptResults.length === 4 ? 3 : 2;
+  return result.attempts.length === 4 ? 3 : 2;
+}
+
+function roundingBuffer(result, format) {
+  return nextNumberOfCountingSolves(result, format) === 3 ? 1 : 0;
+}
+
+function getAdjustedNeeded(needed, currentBest, overtakeBest, countingSolves) {
+  const newBest = Math.min(needed, currentBest);
+  if (newBest >= overtakeBest) {
+    return Math.max(needed - countingSolves, overtakeBest - 1);
+  }
+  return needed;
 }
 
 export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
-  const attemptResults = result.attempts.map((attempt) => attempt.result);
   var needed;
-  const buffer = allowedBuffer(attemptResults, format);
-  const counting = nextCountingSolves(attemptResults, format);
-  if (format.numberOfAttempts === 3 || attemptResults.length === 1) {
-    const totalNeeded = overtakeAverage * (1 + attemptResults.length);
+  const buffer = roundingBuffer(result, format);
+  const countingSolves = nextNumberOfCountingSolves(result, format);
+  if (format.numberOfAttempts === 3 || result.attempts.length === 1) {
+    const totalNeeded = overtakeAverage * (1 + result.attempts.length);
     needed = totalNeeded - result.countingSum + buffer;
-
-    const newBest = Math.min(needed, result.best);
-    if (newBest >= overtakeBest) {
-      needed = Math.max(needed - counting, overtakeBest - 1);
-    }
+    needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
     if (needed <= 0)
     {
       return NA_VALUE;
@@ -169,8 +180,8 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
     return needed;
   }
 
-  if (attemptResults.length === 2) {
-    if (result.best <= overtakeAverage) {
+  if (result.attempts.length === 2) {
+    if (result.best < overtakeAverage) {
       return overtakeAverage - 1;
     }
     else {
@@ -179,10 +190,7 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
   }
   const neededTotal = overtakeAverage * (result.attempts.length - 1);
   needed = neededTotal - result.countingSum + buffer;
-  const newBest = Math.min(needed, result.best);
-  if (newBest >= overtakeBest) {
-    needed = Math.max(needed - counting, overtakeBest - 1);
-  }
+  needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
   return needed >= result.best ? needed : NA_VALUE;
 }
 
@@ -195,25 +203,19 @@ export function getExpandedResults(results, format, forecastView) {
                         forThird: SKIPPED_VALUE,
      };
   });
-  const advancing = results.filter((result) => result.advancing || result.advancingQuestionable).length;
-  // handle advancing
+  const advancingCount = results.filter((result) => result.advancing || result.advancingQuestionable).length;
+  const roundIncomplete = results.some((result) => isSkipped(result.average));
+
   for (let result of expandedResults) {
     computeProjectedAverage(result, format); 
     result.advancing = false;
     result.advancingQuestionable = false;
   }
 
-  var roundIncomplete = results.some((result) => isSkipped(result.average));
-
   expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
   expandedResults[0].ranking = 1;
-  if (roundIncomplete) {
-    expandedResults[0].advancingQuestionable = true;
-  } else {
-    expandedResults[0].advancing = true;
-  }
   var prevResult = expandedResults[0];
-  for (let i = 1; i < expandedResults.length; i++) {
+  for (let i = 0; i < expandedResults.length; i++) {
     let currentResult = expandedResults[i];
     if (isSkipped(currentResult.projectedAverage)){
       break;
@@ -224,7 +226,7 @@ export function getExpandedResults(results, format, forecastView) {
     } else {
       currentResult.ranking = i + 1;
     }
-    if (i < advancing) {
+    if (i < advancingCount) {
       if (roundIncomplete) {
         currentResult.advancingQuestionable = true;
       } else {
@@ -244,24 +246,13 @@ export function getExpandedResults(results, format, forecastView) {
     if (result.attempts.length != format.numberOfAttempts) {
       if (isComplete(result.projectedAverage)) {
         result.forFirst = timeNeededToOvertake(result, format, projectedFirstAverage, projectedFirstBest);
-        if (i > 2 && projectedThirdAverage != SKIPPED_VALUE) {
+        if (i > 2) {
           result.forThird = timeNeededToOvertake(result, format, projectedThirdAverage, projectedThirdBest);
         }
       }
     }
   }
-
   return expandedResults;
-}
-
-function meanOfX(attemptResults) {
-  if (!attemptResults.every(isComplete)) return DNF_VALUE;
-  return mean(attemptResults);
-}
-
-function sumOfX(attemptResults) {
-  if (!attemptResults.every(isComplete)) return DNF_VALUE;
-  return attemptResults.reduce((x, y) => x + y, 0);
 }
 
 export function computeProjectedAverage(result, format) {
@@ -314,7 +305,7 @@ export function bestPossibleAverage(attemptResults) {
   }
 
   const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return roundOver10Mins(mean);
 }
 
@@ -336,7 +327,7 @@ export function worstPossibleAverage(attemptResults) {
   }
 
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return roundOver10Mins(mean);
 }
 

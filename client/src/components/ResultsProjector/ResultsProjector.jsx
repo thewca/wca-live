@@ -22,9 +22,9 @@ import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
 import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import { forecastViewDisabled } from "../Round/Round";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
-import forecastViewDisabled from "../Round/Round";
 
 const styles = {
   cell: {
@@ -81,8 +81,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, forecastVi
     forecastView = false;
   }
   const stats = orderedResultStats(eventId, format, forecastView);
-  const expandedResults = getExpandedResults(results, format, forecastView);
-  const nonemptyResults = expandedResults.filter(
+  const nonemptyResults = getExpandedResults(results, format, forecastView).filter(
     (result) => result.attempts.length > 0
   );
 

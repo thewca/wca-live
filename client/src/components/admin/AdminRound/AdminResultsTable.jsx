@@ -12,7 +12,7 @@ import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 import { green } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
 import { times } from "../../../lib/utils";
-import { formatAttemptResult, getExpandedResults } from "../../../lib/attempt-result";
+import { formatAttemptResult } from "../../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../../lib/result";
 import RecordTagBadge from "../../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../../ResultStat/ResultStat";
@@ -72,8 +72,6 @@ const AdminResultsTable = memo(
 
     const stats = orderedResultStats(eventId, format);
 
-    const expandedResults = getExpandedResults(results, format);
-
     return (
       <Table size="small">
         <TableHead>
@@ -114,7 +112,7 @@ const AdminResultsTable = memo(
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortResults(expandedResults, orderBy, order).map((result) => (
+          {sortResults(results, orderBy, order).map((result) => (
             <TableRow
               key={result.person.id}
               hover
@@ -169,6 +167,7 @@ const AdminResultsTable = memo(
                       field={field}
                       eventId={eventId}
                       format={format}
+                      forecastView={false}
                     />
                   </RecordTagBadge>
                 </TableCell>

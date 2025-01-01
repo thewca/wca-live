@@ -12,37 +12,27 @@ export function orderedResultStats(eventId, format, forecastView) {
     return [{ name: "Best", field: "best", recordTagField: "singleRecordTag" }];
   }
 
-  // clean this up
-  var stats;
-  if (forecastView) {
-    stats = [
-      {
-        name: "For 3rd",
-        field: "forThird",
-      },
-      {
-        name: "For 1st",
-        field: "forFirst",
-      },
-      { name: "Best", field: "best", recordTagField: "singleRecordTag" },
-      {
-        name: numberOfAttempts === 3 ? "Mean" : "Average",
-        field: "average",
-        recordTagField: "averageRecordTag",
-      },
-    ];
-  } else {
-    stats = [
-      { name: "Best", field: "best", recordTagField: "singleRecordTag" },
-      {
-        name: numberOfAttempts === 3 ? "Mean" : "Average",
-        field: "average",
-        recordTagField: "averageRecordTag",
-      },
-    ];
-  }
+  var stats = stats = [
+    { name: "Best", field: "best", recordTagField: "singleRecordTag" },
+    {
+      name: numberOfAttempts === 3 ? "Mean" : "Average",
+      field: "average",
+      recordTagField: "averageRecordTag",
+    },
+  ];
+  stats = sortBy === "best" ? stats : stats.reverse();
 
-  return sortBy === "best" ? stats : stats.reverse();
+  if (forecastView) {
+    stats.push({
+      name: "For 1st",
+      field: "forFirst",
+    })
+    stats.push({
+      name: "For 3rd",
+      field: "forThird",
+    })
+  }
+  return stats;
 }
 
 /**
