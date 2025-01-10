@@ -38,7 +38,9 @@ defmodule WcaLive.Competitions do
 
   defp filter_by_text(query, filter) do
     filter = filter |> String.trim() |> String.replace(~r/\s+/, " ")
-    from c in query, where: ilike(c.name, ^"%#{filter}%")
+
+    from c in query,
+      where: ilike(c.name, ^"%#{filter}%") or ilike(c.short_name, ^"%#{filter}%")
   end
 
   defp where_start_date_gte(query, nil), do: query
