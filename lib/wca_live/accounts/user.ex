@@ -40,24 +40,6 @@ defmodule WcaLive.Accounts.User do
   end
 
   @doc """
-  Converts the given JSON data received from
-  the WCA website into `User` attributes map.
-  """
-  @spec wca_json_to_attrs(map()) :: map()
-  def wca_json_to_attrs(json) do
-    %{
-      email: json["email"],
-      wca_user_id: json["id"],
-      name: json["name"],
-      wca_id: json["wca_id"],
-      country_iso2: json["country_iso2"],
-      avatar_url: json["avatar"]["url"],
-      avatar_thumb_url: json["avatar"]["thumb_url"],
-      wca_teams: json["teams"] |> Enum.map(& &1["friendly_id"]) |> Enum.map(&String.downcase/1)
-    }
-  end
-
-  @doc """
   Returns `true` if `user` has admin rights based
   on the WCA teams they belong to.
   """

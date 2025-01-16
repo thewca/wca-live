@@ -71,22 +71,9 @@ if config_env() == :prod do
     client_id: wca_oauth_client_id,
     client_secret: wca_oauth_client_secret
 
-  # Use a real version of the WCA API, talking to an actual server.
-  config :wca_live, :wca_api, WcaLive.Wca.Api.Http
-  config :wca_live, WcaLive.Wca.Api.Http, api_url: "https://#{wca_host}/api/v0"
+  config :wca_live, :wca_api, url: "https://#{wca_host}/api/v0"
 
   if dns_query = System.get_env("CLUSTER_DNS_QUERY") do
-    config :libcluster,
-      topologies: [
-        dns_poll: [
-          strategy: Cluster.Strategy.DNSPoll,
-          config: [
-            polling_interval: 10_000,
-            query: dns_query,
-            # We name the nodes {release_name}@{ip}
-            node_basename: "wca_live"
-          ]
-        ]
-      ]
+    config :wca_live, :dns_cluster_query, dns_query
   end
 end

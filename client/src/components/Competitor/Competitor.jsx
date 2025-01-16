@@ -21,6 +21,7 @@ const COMPETITOR_QUERY = gql`
         id
         ranking
         advancing
+        advancingQuestionable
         attempts {
           result
         }

@@ -267,7 +267,9 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${shortClockFormat}`;
+  return `${solved}/${attempted} ${
+    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+  }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
@@ -362,9 +364,11 @@ export function attemptResultsWarning(
   const skippedGapIndex =
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
-    return `You've omitted attempt ${
-      skippedGapIndex + 1
-    }. Make sure it's intentional.`;
+    return {
+      description: `You've omitted attempt ${
+        skippedGapIndex + 1
+      }. Make sure it's intentional.`,
+    };
   }
   const completeAttempts = attemptResults.filter(isComplete);
   if (completeAttempts.length > 0) {
@@ -376,11 +380,14 @@ export function attemptResultsWarning(
       officialWorldRecords
     );
     if (newWorldRecordSingle) {
-      return `
-          The result you're trying to submit includes a new world record single
+      return {
+        description: `The result you're trying to submit includes a new world record single
           (${formatAttemptResult(bestSingle, eventId)}).
-          Please check that the results are accurate.
-        `;
+          Please check that you are entering results for the right event and that all
+          the entered attempts are accurate. Type "world record" below to confirm that
+          you are confident that it is indeed a world record result.`,
+        confirmationKeyword: "world record",
+      };
     }
 
     if (shouldComputeAverage(eventId, attemptResults.length)) {
@@ -392,12 +399,21 @@ export function attemptResultsWarning(
       );
 
       if (newWorldRecordAverage) {
-        return `
-          The result you're trying to submit is a new world record average
-          (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
-          Please check that the results are accurate.
-        `;
+        return {
+          description: `The result you're trying to submit is a new world record average
+            (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
+            Please check that you are entering results for the right event and that all
+            the entered attempts are accurate. Type "world record" below to confirm that
+            you are confident that it is indeed a world record result.`,
+          confirmationKeyword: "world record",
+        };
       }
+    }
+
+    if (checkForDnsFollowedByValidResult(attemptResults)) {
+      return {
+        description: `There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.`,
+      };
     }
 
     if (eventId === "333mbf") {
@@ -406,25 +422,25 @@ export function attemptResultsWarning(
         return attempt > 0 && centiseconds / attempted < 30 * 100;
       });
       if (lowTimeIndex !== -1) {
-        return `
-        The result you're trying to submit seems to be impossible:
-        attempt ${lowTimeIndex + 1} is done in
-        less than 30 seconds per cube tried.
-        If you want to enter minutes, don't forget to add two zeros
-        for centiseconds at the end of the score.
-      `;
+        return {
+          description: `The result you're trying to submit seems to be impossible:
+            attempt ${lowTimeIndex + 1} is done in
+            less than 30 seconds per cube tried.
+            If you want to enter minutes, don't forget to add two zeros
+            for centiseconds at the end of the score.`,
+        };
       }
     } else {
       const worstSingle = Math.max(...completeAttempts);
       const inconsistent = worstSingle > bestSingle * 4;
       if (inconsistent) {
-        return `
-          The result you're trying to submit seem to be inconsistent.
-          There's a big difference between the best single
-          (${formatAttemptResult(bestSingle, eventId)}) and the worst single
-          (${formatAttemptResult(worstSingle, eventId)}).
-          Please check that the results are accurate.
-        `;
+        return {
+          description: `The result you're trying to submit seem to be inconsistent.
+            There's a big difference between the best single
+            (${formatAttemptResult(bestSingle, eventId)}) and the worst single
+            (${formatAttemptResult(worstSingle, eventId)}).
+            Please check that the results are accurate.`,
+        };
       }
     }
   }
@@ -480,4 +496,13 @@ export function meetsCutoff(attemptResults, cutoff) {
   return attemptResults
     .slice(0, numberOfAttempts)
     .some((attempt) => attempt > 0 && attempt < attemptResult);
+}
+
+function checkForDnsFollowedByValidResult(attemptResults) {
+  const dnsIndex = attemptResults.findIndex((attempt) => attempt === DNS_VALUE);
+  if (dnsIndex === -1) return false;
+  return attemptResults.some(
+    (attempt, index) =>
+      index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE
+  );
 }

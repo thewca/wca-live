@@ -8,7 +8,8 @@ export default function useKeyNavigation(containerRef) {
       if (
         !["ArrowUp", "ArrowDown", "Enter", "Tab", "Escape", " "].includes(
           event.key
-        )
+        ) &&
+        !["NumpadAdd", "NumpadSubtract"].includes(event.code)
       ) {
         return;
       }
@@ -29,7 +30,10 @@ export default function useKeyNavigation(containerRef) {
         return;
       }
 
-      if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+      if (
+        ["ArrowUp", "ArrowDown"].includes(event.key) ||
+        ["NumpadAdd", "NumpadSubtract"].includes(event.code)
+      ) {
         // Prevent page scrolling.
         event.preventDefault();
         // Prevent from opening autocomplete popup.
@@ -81,11 +85,12 @@ export default function useKeyNavigation(containerRef) {
         const index = inputs.findIndex((input) => event.target === input);
         if (index === -1) return;
         const mod = (n) => (n + inputs.length) % inputs.length;
-        if (event.key === "ArrowUp") {
+        if (event.key === "ArrowUp" || event.code === "NumpadSubtract") {
           const previousElement = inputs[mod(index - 1)];
           focusAndSelect(previousElement);
         } else if (
           event.key === "ArrowDown" ||
+          event.code === "NumpadAdd" ||
           (event.target.tagName === "INPUT" && event.key === "Enter")
         ) {
           const nextElement = inputs[mod(index + 1)];
@@ -103,7 +108,8 @@ export default function useKeyNavigation(containerRef) {
 
     function handleKeyDown(event) {
       if (
-        ["ArrowUp", "ArrowDown", "Enter", " "].includes(event.key) &&
+        (["ArrowUp", "ArrowDown", "Enter", " "].includes(event.key) ||
+          ["NumpadAdd", "NumpadSubtract"].includes(event.code)) &&
         event.target === document.body
       ) {
         // Focus the form if no input is focused and one of the above keys gets pressed.

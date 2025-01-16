@@ -21,8 +21,13 @@ config :wca_live, WcaLiveWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    # Start Vite with a wrapper to avoid leaving zombie processes
-    "#{Path.expand("../client/wrapper.sh", __DIR__)}": [
+    # Start Vite with a wrapper to avoid leaving zombie processes.
+    # Note that when developing with Docker we the script is mounted
+    # in the container, and invoking it directly doesn't work on
+    # Windows (the mounted file does not appear as executable). To
+    # work around that, we invoke sh explicitly.
+    sh: [
+      Path.expand("../client/wrapper.sh", __DIR__),
       "npm",
       "run",
       "dev",
@@ -48,6 +53,4 @@ config :wca_live, WcaLive.Wca.OAuth,
   authorize_url: "https://staging.worldcubeassociation.org/oauth/authorize",
   token_url: "https://staging.worldcubeassociation.org/oauth/token"
 
-# Use a real version of the WCA API, talking to the staging server.
-config :wca_live, :wca_api, WcaLive.Wca.Api.Http
-config :wca_live, WcaLive.Wca.Api.Http, api_url: "https://staging.worldcubeassociation.org/api/v0"
+config :wca_live, :wca_api, url: "https://staging.worldcubeassociation.org/api/v0"

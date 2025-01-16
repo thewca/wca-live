@@ -6,6 +6,7 @@ export const ADMIN_ROUND_RESULT_FRAGMENT = gql`
   fragment adminRoundResult on Result {
     ranking
     advancing
+    advancingQuestionable
     attempts {
       result
     }

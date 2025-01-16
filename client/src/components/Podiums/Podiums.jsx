@@ -32,6 +32,7 @@ const PODIUMS_QUERY = gql`
           id
           ranking
           advancing
+          advancingQuestionable
           attempts {
             result
           }

@@ -25,8 +25,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install npm dependencies
-        # TODO: remove --legacy-peer-deps once we can install without it
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: Check formatting
         run: npm run format-check
       - name: Check linter
@@ -40,7 +39,7 @@ jobs:
       MIX_ENV: test
     services:
       postgres:
-        image: postgres:12.4
+        image: postgres:16.6
         ports: ['5432:5432']
         env:
           POSTGRES_USER: postgres
@@ -56,8 +55,8 @@ jobs:
       - name: Install Erlang & Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '26.0.2'
-          elixir-version: '1.15.2'
+          otp-version: '27.0.1'
+          elixir-version: '1.17.2'
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install wkhtmltopdf
       - name: Cache Mix

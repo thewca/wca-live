@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { green } from "@mui/material/colors";
+import { alpha } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
@@ -39,6 +40,10 @@ const styles = {
   advancing: {
     color: (theme) => theme.palette.getContrastText(green["A400"]),
     backgroundColor: green["A400"],
+  },
+  advancingQuestionable: {
+    color: (theme) => theme.palette.getContrastText(alpha(green["A400"], 0.5)),
+    backgroundColor: alpha(green["A400"], 0.5),
   },
   name: {
     width: "22%",
@@ -192,6 +197,9 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                         ...styles.cell,
                         ...styles.ranking,
                         ...(result.advancing ? styles.advancing : {}),
+                        ...(result.advancingQuestionable
+                          ? styles.advancingQuestionable
+                          : {}),
                       }}
                     >
                       {result.ranking}

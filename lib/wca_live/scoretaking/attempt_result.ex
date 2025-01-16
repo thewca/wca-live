@@ -93,8 +93,8 @@ defmodule WcaLive.Scoretaking.AttemptResult do
     complete = Enum.filter(attempt_results, &complete?/1)
 
     cond do
-      Enum.empty?(non_skipped) -> @skipped_value
-      not Enum.empty?(complete) -> Enum.min(complete)
+      non_skipped == [] -> @skipped_value
+      complete != [] -> Enum.min(complete)
       true -> Enum.max(non_skipped)
     end
   end

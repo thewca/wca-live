@@ -12,6 +12,7 @@ const ROUND_RESULT_FRAGMENT = gql`
   fragment roundResult on Result {
     ranking
     advancing
+    advancingQuestionable
     attempts {
       result
     }

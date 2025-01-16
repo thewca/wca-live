@@ -41,12 +41,16 @@ defmodule WcaLiveWeb.Router do
   scope "/link", WcaLiveWeb do
     get "/competitions/:wca_id", LinkController, :competition
     get "/competitions/:wca_id/rounds/:event_id/:round_number", LinkController, :round
+    get "/competitions/:wca_id/competitors/:registrant_id_or_wca_id", LinkController, :competitor
   end
 
   scope "/api", WcaLiveWeb do
     pipe_through :api
 
     get "/competitions/:id/wcif", CompetitionController, :show_wcif
+
+    # Public results endpoint
+    get "/competitions/:id_or_wca_id/results", CompetitionController, :show_results
 
     # Public scoretaking endpoints
     post "/enter-attempt", CompetitionController, :enter_attempt

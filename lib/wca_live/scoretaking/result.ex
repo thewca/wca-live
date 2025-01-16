@@ -25,6 +25,7 @@ defmodule WcaLive.Scoretaking.Result do
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, :boolean, default: false
+    field :advancing_questionable, :boolean, default: false
     field :entered_at, :utc_datetime
 
     embeds_many :attempts, Attempt, on_replace: :delete
@@ -206,6 +207,25 @@ defmodule WcaLive.Scoretaking.Result do
       length(result.attempts) == max_attempts
     else
       length(result.attempts) == cutoff.number_of_attempts
+    end
+  end
+
+  @doc """
+  Returns the maximum number of attempts expected for the given result.
+
+  If the result is incomplete, we assume the best-case scenario.
+  """
+  @spec max_expected_attempts(%Result{}, pos_integer(), %Cutoff{}) :: pos_integer()
+  def max_expected_attempts(result, max_attempts, cutoff) do
+    if meets_cutoff?(result, cutoff) do
+      max_attempts
+    else
+      if length(result.attempts) == cutoff.number_of_attempts do
+        cutoff.number_of_attempts
+      else
+        # They can still satisfy the cutoff and get all attempts
+        max_attempts
+      end
     end
   end
 

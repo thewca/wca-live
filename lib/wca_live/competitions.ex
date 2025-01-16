@@ -8,6 +8,8 @@ defmodule WcaLive.Competitions do
   alias WcaLive.Repo
   alias WcaLive.Competitions.{Competition, Person}
 
+  @competition_deletable_after_days 90
+
   @doc """
   Returns a list of competitions.
 
@@ -35,7 +37,10 @@ defmodule WcaLive.Competitions do
   defp filter_by_text(query, nil), do: query
 
   defp filter_by_text(query, filter) do
-    from c in query, where: ilike(c.name, ^"%#{filter}%")
+    filter = filter |> String.trim() |> String.replace(~r/\s+/, " ")
+
+    from c in query,
+      where: ilike(c.name, ^"%#{filter}%") or ilike(c.short_name, ^"%#{filter}%")
   end
 
   defp where_start_date_gte(query, nil), do: query
@@ -45,7 +50,7 @@ defmodule WcaLive.Competitions do
   end
 
   @doc """
-  Gets a single competition.
+  Gets a single competition by numeric id.
   """
   @spec get_competition(term()) :: %Competition{} | nil
   def get_competition(id), do: Repo.get(Competition, id)
@@ -58,11 +63,21 @@ defmodule WcaLive.Competitions do
   @spec get_competition_by_wca_id!(String.t()) :: %Competition{}
   def get_competition_by_wca_id!(wca_id), do: Repo.get_by!(Competition, wca_id: wca_id)
 
+  @spec fetch_competition(any()) :: {:error, any()} | {:ok, %{optional(atom()) => any()}}
   @doc """
-  Gets a single competition.
+  Gets a single competition
   """
   @spec fetch_competition(term()) :: {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
   def fetch_competition(id), do: Repo.fetch(Competition, id)
+
+  @doc """
+  Gets a single competition by WCA id.
+  """
+  @spec fetch_competition_by_wca_id(String.t()) ::
+          {:ok, %Competition{}} | {:error, Ecto.Queryable.t()}
+  def fetch_competition_by_wca_id(id) do
+    Repo.fetch(where(Competition, wca_id: ^id))
+  end
 
   @doc """
   Gets a single person.
@@ -77,6 +92,28 @@ defmodule WcaLive.Competitions do
   def fetch_person(id), do: Repo.fetch(Person, id)
 
   @doc """
+  Finds person by competition-scoped registrant id.
+  """
+  @spec get_person_by_registrant_id!(term(), pos_integer()) :: %Person{}
+  def get_person_by_registrant_id!(competition_id, registrant_id) do
+    Repo.one!(
+      from person in Person,
+        where: person.competition_id == ^competition_id and person.registrant_id == ^registrant_id
+    )
+  end
+
+  @doc """
+  Finds person by WCA ID.
+  """
+  @spec get_person_by_wca_id!(term(), String.t()) :: %Person{}
+  def get_person_by_wca_id!(competition_id, wca_id) do
+    Repo.one!(
+      from person in Person,
+        where: person.competition_id == ^competition_id and person.wca_id == ^wca_id
+    )
+  end
+
+  @doc """
   Updates `competition` with `attrs`.
 
   Attributes may include nested `staff_members`.
@@ -89,5 +126,24 @@ defmodule WcaLive.Competitions do
     |> Competition.changeset(attrs)
     |> Ecto.Changeset.cast_assoc(:staff_members)
     |> Repo.update()
+  end
+
+  @doc """
+  Deletes all competitions from before #{@competition_deletable_after_days}
+  days ago.
+
+  Returns the number of deleted competitions.
+  """
+  @spec delete_old_competitions() :: non_neg_integer()
+  def delete_old_competitions() do
+    date = Date.utc_today() |> Date.add(-@competition_deletable_after_days)
+
+    {count, _} =
+      Repo.delete_all(
+        from competition in Competition,
+          where: competition.end_date < ^date
+      )
+
+    count
   end
 end

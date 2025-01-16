@@ -9,6 +9,8 @@ const OPEN_ROUND_MUTATION = gql`
       round {
         id
         open
+        numEnteredResults
+        numResults
       }
     }
   }

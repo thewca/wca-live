@@ -41,6 +41,14 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
       resolve with_round_results(&Resolvers.Scoretaking.round_finished/3)
     end
 
+    field :num_entered_results, :integer do
+      resolve with_round_results(&Resolvers.Scoretaking.round_num_entered_results/3)
+    end
+
+    field :num_results, non_null(:integer) do
+      resolve with_round_results(&Resolvers.Scoretaking.round_num_results/3)
+    end
+
     field :active, non_null(:boolean) do
       resolve with_round_results(&Resolvers.Scoretaking.round_active/3)
     end
@@ -109,6 +117,7 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     field :average_record_tag, :string
     field :single_record_tag, :string
     field :advancing, non_null(:boolean)
+    field :advancing_questionable, non_null(:boolean)
 
     field :attempts, non_null(list_of(non_null(:attempt)))
 

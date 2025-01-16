@@ -19,7 +19,10 @@ config :wca_live, WcaLiveWeb.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
-# Use a mock version of the WCA API.
-config :wca_live, :wca_api, WcaLive.Wca.Api.InMemory
+config :wca_live, :wca_api,
+  url: "https://staging.worldcubeassociation.org/api/v0",
+  # In tests, we use a global stub for the records request, because
+  # the RecordsStore fetches records in the background
+  records_req_options: [plug: WcaLive.RecordsStub]

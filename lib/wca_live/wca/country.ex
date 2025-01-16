@@ -15,7 +15,7 @@ defmodule WcaLive.Wca.Country do
         }
 
   # See: https://github.com/thewca/worldcubeassociation.org/blob/7b4cb36a82f8be8459f78976243383afce1ea06d/WcaOnRails/config/wca-states.json
-  @country_attrs [
+  country_attrs = [
     %{
       iso2: "AF",
       name: "Afghanistan",
@@ -1212,6 +1212,10 @@ defmodule WcaLive.Wca.Country do
     }
   ]
 
+  @country_attrs_by_iso2 Map.new(country_attrs, &{&1.iso2, &1})
+
+  @country_attrs_by_wca_id Map.new(country_attrs, &{&1.wca_id, &1})
+
   @doc """
   Finds a country with matching ISO2 code.
 
@@ -1219,14 +1223,10 @@ defmodule WcaLive.Wca.Country do
   """
   @spec get_by_iso2!(String.t()) :: t()
   def get_by_iso2!(iso2) do
-    @country_attrs
-    |> Enum.find(fn country -> country.iso2 == iso2 end)
-    |> case do
-      nil ->
-        raise ArgumentError, message: "invalid country iso2 code '#{iso2}'"
-
-      attrs ->
-        struct(__MODULE__, attrs)
+    if attrs = @country_attrs_by_iso2[iso2] do
+      struct(__MODULE__, attrs)
+    else
+      raise ArgumentError, message: "invalid country iso2 code #{inspect(iso2)}"
     end
   end
 
@@ -1237,14 +1237,10 @@ defmodule WcaLive.Wca.Country do
   """
   @spec get_by_wca_id!(String.t()) :: t()
   def get_by_wca_id!(wca_id) do
-    @country_attrs
-    |> Enum.find(fn country -> country.wca_id == wca_id end)
-    |> case do
-      nil ->
-        raise ArgumentError, message: "invalid country WCA id '#{wca_id}'"
-
-      attrs ->
-        struct(__MODULE__, attrs)
+    if attrs = @country_attrs_by_wca_id[wca_id] do
+      struct(__MODULE__, attrs)
+    else
+      raise ArgumentError, message: "invalid country WCA id #{inspect(wca_id)}"
     end
   end
 end

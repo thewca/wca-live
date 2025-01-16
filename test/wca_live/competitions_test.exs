@@ -28,6 +28,12 @@ defmodule WcaLive.CompetitionsTest do
     assert worlds.id in ids(list)
     assert open.id not in ids(list)
     assert euro.id in ids(list)
+
+    list = Competitions.list_competitions(%{filter: " championship  2020  "})
+
+    assert worlds.id in ids(list)
+    assert open.id not in ids(list)
+    assert euro.id in ids(list)
   end
 
   test "list_competitions/1 given :from returns competitions from that date inclusive" do
@@ -96,6 +102,29 @@ defmodule WcaLive.CompetitionsTest do
     assert [staff_member] = updated.staff_members
     assert staff_member1.id == staff_member.id
     assert ["delegate"] == staff_member.roles
+  end
+
+  test "delete_old_competitions/0 deletes competitions from before 180 days ago" do
+    today = Date.utc_today()
+
+    competition_before =
+      insert(:competition, start_date: Date.add(today, -101), end_date: Date.add(today, -100))
+
+    competition_at =
+      insert(:competition, start_date: Date.add(today, -91), end_date: Date.add(today, -90))
+
+    competition_after =
+      insert(:competition, start_date: Date.add(today, -81), end_date: Date.add(today, -80))
+
+    competition_future =
+      insert(:competition, start_date: Date.add(today, 1), end_date: Date.add(today, 1))
+
+    assert Competitions.delete_old_competitions() == 1
+
+    refute Repo.reload(competition_before)
+    assert Repo.reload(competition_at)
+    assert Repo.reload(competition_after)
+    assert Repo.reload(competition_future)
   end
 
   defp ids(list) do

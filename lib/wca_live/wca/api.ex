@@ -1,42 +1,119 @@
 defmodule WcaLive.Wca.Api do
   @moduledoc """
-  A behaviour module for implementing interaction with the WCA API.
+  Requests to the WCA API.
   """
 
   @doc """
   Fetches the user related to the given access token.
   """
-  @callback get_me(String.t()) :: {:ok, any()} | {:error, any()}
+  @spec get_me(String.t()) :: {:ok, term()} | {:error, String.t()}
+  def get_me(access_token) do
+    build_req()
+    |> with_user_token(access_token)
+    |> request(url: "/me")
+  end
+
+  @doc """
+  Fetches active team roles for the given WCA user.
+  """
+  @spec get_active_team_roles(String.t(), String.t()) :: {:ok, term()} | {:error, String.t()}
+  def get_active_team_roles(wca_user_id, access_token) do
+    params = %{
+      "isActive" => true,
+      "groupType" => "teams_committees",
+      "userId" => wca_user_id
+    }
+
+    build_req()
+    |> with_user_token(access_token)
+    |> request(url: "/user_roles", params: params)
+  end
 
   @doc """
   Fetches WCIF for the given competition id.
   """
-  @callback get_wcif(String.t(), String.t()) :: {:ok, any()} | {:error, any()}
+  @spec get_wcif(String.t(), String.t()) :: {:ok, any()} | {:error, String.t()}
+  def get_wcif(competition_wca_id, access_token) do
+    build_req()
+    |> with_user_token(access_token)
+    |> with_long_timeout()
+    |> request(url: "/competitions/#{competition_wca_id}/wcif")
+  end
 
   @doc """
   Saves the given WCIF.
   """
-  @callback patch_wcif(any(), String.t()) :: {:ok, any()} | {:error, any()}
+  @spec patch_wcif(any(), String.t()) :: {:ok, any()} | {:error, String.t()}
+  def patch_wcif(wcif, access_token) do
+    competition_wca_id = wcif["id"]
+
+    build_req()
+    |> with_user_token(access_token)
+    |> with_long_timeout()
+    |> request(url: "/competitions/#{competition_wca_id}/wcif", method: :patch, json: wcif)
+  end
 
   @doc """
   Fetches upcoming competitions manageable by the authorized user.
   """
-  @callback get_upcoming_manageable_competitions(String.t()) :: {:ok, any()} | {:error, any()}
+  @spec get_upcoming_manageable_competitions(String.t()) :: {:ok, any()} | {:error, String.t()}
+  def get_upcoming_manageable_competitions(access_token) do
+    two_days_ago = Date.utc_today() |> Date.add(-2)
+
+    params = %{
+      "managed_by_me" => true,
+      "start" => two_days_ago,
+      "sort" => "start_date"
+    }
+
+    build_req()
+    |> with_user_token(access_token)
+    |> request(url: "/competitions", params: params)
+  end
 
   @doc """
   Fetches official regional records.
   """
-  @callback get_records() :: {:ok, any()} | {:error, any()}
+  @spec get_records() :: {:ok, any()} | {:error, String.t()}
+  def get_records() do
+    # We increase the timeout, because this request may take a while
+    # if not cached (in particular on staging).
 
-  @doc """
-  Returns a module implementing this behaviour
-  as configured for the current environment.
+    build_req()
+    |> Req.merge(Keyword.get(config(), :records_req_options, []))
+    |> request(url: "/records", receive_timeout: 40_000)
+  end
 
-  Make sure to specify the module in configuration like this:
+  defp build_req() do
+    base_url = Keyword.fetch!(config(), :url)
+    Req.new(base_url: base_url)
+  end
 
-      config :wca_live, :wca_api, WcaLive.Wca.Api.Http
-  """
-  def impl() do
-    Application.fetch_env!(:wca_live, :wca_api)
+  defp with_user_token(req, access_token) do
+    Req.merge(req, auth: {:bearer, access_token})
+  end
+
+  defp with_long_timeout(req) do
+    Req.merge(req, receive_timeout: 120_000)
+  end
+
+  defp request(req, opts) do
+    case Req.request(req, opts) do
+      {:ok, %{status: status, body: body}} when status in 200..299 ->
+        {:ok, body}
+
+      {:ok, %{status: status, body: %{"error" => error}}} ->
+        {:error, "the WCA server returned an error, status: #{status}, message: #{error}"}
+
+      {:ok, %{status: status}} ->
+        {:error, "the WCA server returned an error, status: #{status}"}
+
+      {:error, exception} ->
+        {:error, "request to the WCA server failed, reason: #{Exception.message(exception)}"}
+    end
+  end
+
+  defp config() do
+    Application.get_env(:wca_live, :wca_api, [])
   end
 end

@@ -21,6 +21,8 @@ const COMPETITION_EVENTS_QUERY = gql`
           name
           open
           finished
+          numEnteredResults
+          numResults
         }
       }
     }

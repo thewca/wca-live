@@ -26,7 +26,7 @@ defmodule WcaLive.Synchronization do
   @spec import_competition(String.t(), %User{}) :: {:ok, %Competition{}} | {:error, any()}
   def import_competition(wca_id, user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
-         {:ok, wcif} <- Wca.Api.impl().get_wcif(wca_id, access_token.access_token) do
+         {:ok, wcif} <- Wca.Api.get_wcif(wca_id, access_token.access_token) do
       %Competition{}
       |> Changeset.change()
       |> Changeset.put_assoc(:imported_by, user)
@@ -52,11 +52,11 @@ defmodule WcaLive.Synchronization do
           {:ok, %Competition{}} | {:error, any()}
   def synchronize_competition(competition, user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
-         {:ok, wcif} <- Wca.Api.impl().get_wcif(competition.wca_id, access_token.access_token),
+         {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token),
          {:ok, updated_competition} <-
            Synchronization.Import.import_competition(competition, wcif),
          wcif <- Synchronization.Export.export_competition(updated_competition),
-         {:ok, _} <- Wca.Api.impl().patch_wcif(wcif, access_token.access_token) do
+         {:ok, _} <- Wca.Api.patch_wcif(wcif, access_token.access_token) do
       {:ok, updated_competition}
     end
   end
@@ -70,7 +70,7 @@ defmodule WcaLive.Synchronization do
   def get_importable_competition_briefs(user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, data} <-
-           Wca.Api.impl().get_upcoming_manageable_competitions(access_token.access_token) do
+           Wca.Api.get_upcoming_manageable_competitions(access_token.access_token) do
       competition_briefs =
         data
         |> Enum.filter(fn data -> data["announced_at"] != nil end)

@@ -28,7 +28,7 @@ defmodule WcaLive.Competitions.Activity do
     has_many :child_activities, Activity, foreign_key: :parent_activity_id, on_replace: :delete
     has_many :assignments, Assignment
 
-    belongs_to :round, Round
+    belongs_to :round, Round, on_replace: :nilify
   end
 
   def changeset(activity, attrs) do
