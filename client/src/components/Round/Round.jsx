@@ -76,7 +76,7 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
   ${ROUND_RESULT_FRAGMENT}
 `;
 
-// Events supported by best don't need forecast view.
+// Events sorted by best don't need forecast view.
 // Fewest moves is currently unsupported
 export function forecastViewDisabled(format, eventId) {
   return format.sortBy === "best" || eventId === "333fm";

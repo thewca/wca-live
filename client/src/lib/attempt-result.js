@@ -150,25 +150,15 @@ function sum(values) {
 }
 
 /**
- * returns the current number of counting solves + 1
- */
-function nextNumberOfCountingSolves(result, format) {
-  if (format.numberOfAttempts === 3) {
-    return result.attempts.length === 2 ? 3 : 2;
-  }
-  return result.attempts.length === 4 ? 3 : 2;
-}
-
-/**
  * returns the number of milliseconds that can be added to the total counting time
- * while still achieving the same average 
+ * while still achieving the same average. Assumes input is in range [1, 3]
  */
-function roundingBuffer(result, format) {
-  return nextNumberOfCountingSolves(result, format) === 3 ? 1 : 0;
+function roundingBuffer(nextNumberOfCountingSolves) {
+  return nextNumberOfCountingSolves === 3 ? 1 : 0;
 }
 
 /**
- * returns the time required to overtake a target average while also taking into account single.
+ * returns the time required to overtake a target average while also taking into account best.
  * @param {*} needed - worst possible time required to tie the target average
  */
 function getAdjustedNeeded(needed, currentBest, overtakeBest, countingSolves) {
@@ -186,34 +176,24 @@ function getAdjustedNeeded(needed, currentBest, overtakeBest, countingSolves) {
  * the slowest possible time.
  */
 export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
-  var needed;
-  const buffer = roundingBuffer(result, format);
-  const countingSolves = nextNumberOfCountingSolves(result, format);
-  // After adding a time, projection is still a mean
-  if (format.numberOfAttempts === 3 || result.attempts.length === 1) {
-    const totalNeeded = overtakeAverage * (1 + result.attempts.length);
-    needed = totalNeeded - result.countingSum + buffer;
-    needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
-    if (needed <= 0) {
-      return NA_VALUE;
-    }
-    return needed;
-  }
-
   // After adding a time, projection is a median
-  if (result.attempts.length === 2) {
+  if (result.attempts.length === 2 && format.numberOfAttempts === 5) {
     if (result.best < overtakeAverage) {
       return overtakeAverage - 1;
     }
     else {
       return NA_VALUE;
-    } 
+    }
   }
-  // After adding a time, projection is an average
-  const neededTotal = overtakeAverage * (result.attempts.length - 1);
-  needed = neededTotal - result.countingSum + buffer;
-  needed = getAdjustedNeeded(needed, result.best, overtakeBest, countingSolves);
-  return needed >= result.best ? needed : NA_VALUE;
+
+  // isMean(bool): after the next solve, the projected result will be a mean
+  const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
+  const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
+  const totalNeeded = overtakeAverage * nextCountingSolves;
+  var needed = totalNeeded - result.countingSum + roundingBuffer(nextCountingSolves);
+  needed = getAdjustedNeeded(needed, result.best, overtakeBest, nextCountingSolves);
+  var bestPossibleSolve = isMean ? 1 : result.best;
+  return needed >= bestPossibleSolve ? needed : NA_VALUE;
 }
 
 /**
@@ -230,26 +210,61 @@ function getAdvancingCount(results, advancementCondition) {
 }
 
 /**
+ * set projectedAverage and countingSum based on current results
+ * projections are defined as follows:
+ *   - MO3 events: mean of current solves
+ *   - AVG5 events:
+ *     - 1-2 solves: mean of current solves
+ *     - 3-4 solves: median of current solves
+ */
+export function computeProjectedAverage(result, format) {
+  const attemptResults = result.attempts.map((attempt) => attempt.result);
+  if (result.average) {
+    result.projectedAverage = result.average;
+    return;
+  }
+  if (attemptResults.length > 0) {
+    if (format.numberOfAttempts === 3 || attemptResults.length < 3) {
+      result.projectedAverage = meanOfX(attemptResults);
+      result.countingSum = sumOfX(attemptResults);
+      return;
+    }
+    if (attemptResults.length === 3) {
+      const [, x,] = attemptResults.slice().sort(compareAttemptResults);
+      result.projectedAverage = x;
+      result.countingSum = x;
+      return;
+    }
+    const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
+    result.projectedAverage = meanOfX([x, y]);
+    result.countingSum = x + y;
+    return;
+  }
+}
+
+/**
  * return the results object with additional properties:
  * projectedAverage: projected final average based on current results
  * countingSum: sum of the counting solves
  * forFirst: time needed to overtake first place
  * forThird: time needed to overtake third place
  */
-export function getExpandedResults(results, format, forecastView, advancementCondition) {  
+export function getExpandedResults(results, format, forecastView, advancementCondition) {
   if (results.length == 0 || !forecastView) return results;
   var expandedResults = results.map((result) => {
-    return { ...result, projectedAverage: SKIPPED_VALUE,
-                        countingSum: 0,
-                        forFirst: SKIPPED_VALUE,
-                        forThird: SKIPPED_VALUE,
-     };
+    return {
+      ...result,
+      projectedAverage: SKIPPED_VALUE,
+      countingSum: 0,
+      forFirst: SKIPPED_VALUE,
+      forThird: SKIPPED_VALUE,
+    };
   });
   const advancingCount = getAdvancingCount(results, advancementCondition);
   const roundIncomplete = results.some((result) => isSkipped(result.average));
 
   for (let result of expandedResults) {
-    computeProjectedAverage(result, format); 
+    computeProjectedAverage(result, format);
     result.advancing = false;
     result.advancingQuestionable = false;
   }
@@ -264,13 +279,13 @@ export function getExpandedResults(results, format, forecastView, advancementCon
   var prevResult = expandedResults[0];
   for (let i = 0; i < expandedResults.length; i++) {
     let currentResult = expandedResults[i];
-    if (isSkipped(currentResult.projectedAverage)){
+    if (isSkipped(currentResult.projectedAverage)) {
       break;
     }
     if (currentResult.projectedAverage === prevResult.projectedAverage &&
       currentResult.best === prevResult.best) {
-        // Rankings tie
-        currentResult.ranking = prevResult.ranking;
+      // Rankings tie
+      currentResult.ranking = prevResult.ranking;
     } else {
       currentResult.ranking = i + 1;
     }
@@ -303,46 +318,6 @@ export function getExpandedResults(results, format, forecastView, advancementCon
     }
   }
   return expandedResults;
-}
-
-/**
- * return projection for the final average based on current results
- * projections are defined as follows:
- *   - MO3 events: mean of current solves
- *   - AVG5 events:
- *     - 1-2 solves: mean of current solves
- *     - 3-4 solves: median of current solves
- */
-export function computeProjectedAverage(result, format) {
-  const attemptResults = result.attempts.map((attempt) => attempt.result);
-  if (result.average) {
-    result.projectedAverage = result.average;
-    return;
-  }
-  if (attemptResults.length > 0) {
-    if (format.numberOfAttempts === 3) {
-      result.projectedAverage = meanOfX(attemptResults);
-      result.countingSum = sumOfX(attemptResults);
-      return;
-    }
-    if (format.numberOfAttempts === 5) {
-      if (attemptResults.length < 3) {
-        result.projectedAverage = meanOfX(attemptResults);
-        result.countingSum = sumOfX(attemptResults);
-        return;
-      }
-      if (attemptResults.length === 3) {
-        const [, x,] = attemptResults.slice().sort(compareAttemptResults);
-        result.projectedAverage = x;
-        result.countingSum = x;
-        return;
-      }
-      const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
-      result.projectedAverage = meanOfX([x, y]);
-      result.countingSum = x + y;
-      return;
-    }
-  }
 }
 
 /**
@@ -489,9 +464,8 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${
-    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
-  }`;
+  return `${solved}/${attempted} ${centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+    }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
@@ -587,9 +561,8 @@ export function attemptResultsWarning(
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return {
-      description: `You've omitted attempt ${
-        skippedGapIndex + 1
-      }. Make sure it's intentional.`,
+      description: `You've omitted attempt ${skippedGapIndex + 1
+        }. Make sure it's intentional.`,
     };
   }
   const completeAttempts = attemptResults.filter(isComplete);

@@ -7,8 +7,7 @@ import {
 } from "../../lib/attempt-result";
 import { shouldComputeAverage } from "../../lib/result";
 
-function ResultStat({ result, field, eventId, format, forecastView
-}) {
+function ResultStat({ result, field, eventId, format, forecastView }) {
   if (
     field === "average" &&
     result.average === 0 &&
