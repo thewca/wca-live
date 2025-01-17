@@ -80,7 +80,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, forecastVi
   if (forecastViewDisabled(format, eventId)) {
     forecastView = false;
   }
-  const stats = orderedResultStats(eventId, format, forecastView);
+  const stats = orderedResultStats(eventId, format);
   const nonemptyResults = getExpandedResults(results, format, forecastView, advancementCondition).filter(
     (result) => result.attempts.length > 0
   );

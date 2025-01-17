@@ -55,7 +55,7 @@ const RoundResultsTable = memo(
     if (forecastViewDisabled(format, eventId)) {
       forecastView = false;
     }
-    const stats = orderedResultStats(eventId, format, forecastView);
+    const stats = orderedResultStats(eventId, format);
 
     const expandedResults = getExpandedResults(results, format, forecastView, advancementCondition);
     return (
