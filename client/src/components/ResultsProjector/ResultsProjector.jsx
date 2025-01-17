@@ -20,8 +20,9 @@ import { alpha } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
-import { formatAttemptResult } from "../../lib/attempt-result";
+import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import { forecastViewDisabled } from "../Round/Round";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -72,13 +73,15 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl }) {
+function ResultsProjector({ results, format, eventId, title, exitUrl, forecastView, advancementCondition }) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
+  if (forecastViewDisabled(format, eventId)) {
+    forecastView = false;
+  }
   const stats = orderedResultStats(eventId, format);
-
-  const nonemptyResults = results.filter(
+  const nonemptyResults = getExpandedResults(results, format, forecastView, advancementCondition).filter(
     (result) => result.attempts.length > 0
   );
 
@@ -237,6 +240,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                             field={field}
                             eventId={eventId}
                             format={format}
+                            forecastView={forecastView}
                           />
                         </RecordTagBadge>
                       </TableCell>

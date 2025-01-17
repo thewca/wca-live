@@ -7,7 +7,7 @@ import {
 } from "../../lib/attempt-result";
 import { shouldComputeAverage } from "../../lib/result";
 
-function ResultStat({ result, field, eventId, format }) {
+function ResultStat({ result, field, eventId, format, forecastView }) {
   if (
     field === "average" &&
     result.average === 0 &&
@@ -18,6 +18,18 @@ function ResultStat({ result, field, eventId, format }) {
     if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
+          {forecastView &&
+            (<>
+              <Tooltip title="Projected average">
+                <span>
+                  {formatAttemptResult(
+                    result.projectedAverage,
+                    eventId
+                  )}
+                </span>
+              </Tooltip>
+              {" ("}
+            </>)}
           <Tooltip title="Best possible average">
             <span>
               {formatAttemptResult(
@@ -31,6 +43,22 @@ function ResultStat({ result, field, eventId, format }) {
             <span>
               {formatAttemptResult(
                 worstPossibleAverage(attemptResults),
+                eventId
+              )}
+            </span>
+          </Tooltip>
+          {forecastView && (<>{")"}</>)}
+        </Box>
+      );
+    }
+
+    if (forecastView) {
+      return (
+        <Box component="span" sx={{ opacity: 0.5 }}>
+          <Tooltip title="Projected average">
+            <span>
+              {formatAttemptResult(
+                result.projectedAverage,
                 eventId
               )}
             </span>

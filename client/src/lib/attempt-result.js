@@ -21,6 +21,21 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
 }
 
 /**
+ * Compares two results based on projected average, single
+ */
+function compareProjectedResults(result1, result2) {
+  if (!isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) {
+    compareAttemptResults(result1.best, result2.best);
+  }
+  if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) return 1;
+  if (isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) return -1;
+
+  const compare = result1.projectedAverage - result2.projectedAverage;
+  if (compare != 0) return compare;
+  compareAttemptResults(result1.best, result2.best);
+}
+
+/**
  * Returns the specified number of attempt results filling missing ones with 0.
  */
 export function padSkipped(attemptResults, numberOfAttempts) {
@@ -80,7 +95,7 @@ export function average(attemptResults, eventId) {
     const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
     switch (attemptResults.length) {
       case 3:
-        return meanOf3(scaled);
+        return meanOfX(scaled);
       case 5:
         return averageOf5(scaled);
       default:
@@ -92,7 +107,7 @@ export function average(attemptResults, eventId) {
 
   switch (attemptResults.length) {
     case 3:
-      return roundOver10Mins(meanOf3(attemptResults));
+      return roundOver10Mins(meanOfX(attemptResults));
     case 5:
       return roundOver10Mins(averageOf5(attemptResults));
     default:
@@ -111,10 +126,10 @@ function roundOver10Mins(value) {
 
 function averageOf5(attemptResults) {
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  return meanOf3([x, y, z]);
+  return meanOfX([x, y, z]);
 }
 
-function meanOf3(attemptResults) {
+function meanOfX(attemptResults) {
   if (!attemptResults.every(isComplete)) return DNF_VALUE;
   return mean(attemptResults);
 }
@@ -122,6 +137,107 @@ function meanOf3(attemptResults) {
 function mean(values) {
   const sum = values.reduce((x, y) => x + y, 0);
   return Math.round(sum / values.length);
+}
+
+/**
+ * return the number of competitors that should be marked as advancing.
+ * When no competitors advance, return 3 for the podium placements.
+ * Might not be accurate for percentage based advancement but that is acceptable
+ */
+function getAdvancingCount(results, advancementCondition) {
+  if (!advancementCondition) return 3;
+  if (advancementCondition.type === "ranking") {
+    return advancementCondition.level;
+  }
+  return results.filter((result) => result.advancing || result.advancingQuestionable).length;
+}
+
+/**
+ * return projectedAverage based on current results.
+ * projections are defined as follows:
+ *   - MO3 events: mean of current solves
+ *   - AVG5 events:
+ *     - 1-2 solves: mean of current solves
+ *     - 3-4 solves: median of current solves
+ */
+export function computeProjectedAverage(result, format) {
+  const attemptResults = result.attempts.map((attempt) => attempt.result);
+  if (result.average) {
+    return result.average;
+  }
+  if (attemptResults.length > 0) {
+    if (format.numberOfAttempts === 3 || attemptResults.length < 3) {
+      return meanOfX(attemptResults);
+    }
+    if (attemptResults.length === 3) {
+      const [, x,] = attemptResults.slice().sort(compareAttemptResults);
+      return x;
+    }
+    const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
+    return meanOfX([x, y]);
+  }
+  return SKIPPED_VALUE;
+}
+
+/**
+ * return the results object with additional properties:
+ * projectedAverage: projected final average based on current results
+ * forFirst: time needed to overtake first place
+ * forThird: time needed to overtake third place
+ */
+export function getExpandedResults(results, format, forecastView, advancementCondition) {
+  if (results.length == 0 || !forecastView) return results;
+  var expandedResults = results.map((result) => {
+    return {
+      ...result,
+      projectedAverage: computeProjectedAverage(result, format),
+      forFirst: SKIPPED_VALUE,
+      forThird: SKIPPED_VALUE,
+    };
+  });
+  
+  if (expandedResults[0].projectedAverage == SKIPPED_VALUE) {
+    // First place has no results. Do nothing.
+    return expandedResults;
+  }
+
+  for (let result of expandedResults) {
+    result.advancing = false;
+    result.advancingQuestionable = false;
+  }
+
+  const advancingCount = getAdvancingCount(results, advancementCondition);
+  const roundIncomplete = results.some((result) => isSkipped(result.average));
+
+  // Sort based on projection with tiebreakers on single
+  expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
+  expandedResults[0].ranking = 1;
+  var prevResult = expandedResults[0];
+  for (let i = 0; i < expandedResults.length; i++) {
+    let currentResult = expandedResults[i];
+    if (isSkipped(currentResult.projectedAverage)) {
+      break;
+    }
+    if (currentResult.projectedAverage === prevResult.projectedAverage &&
+      currentResult.best === prevResult.best) {
+      // Rankings tie
+      currentResult.ranking = prevResult.ranking;
+    } else {
+      currentResult.ranking = i + 1;
+    }
+    // Using simple advancing logic.
+    // TODO: Implement questionable/clinched logic
+    if (currentResult.ranking <= advancingCount) {
+      if (roundIncomplete) {
+        currentResult.advancingQuestionable = true;
+      } else {
+        currentResult.advancing = true;
+      }
+    }
+    prevResult = currentResult;
+  }
+
+  return expandedResults;
 }
 
 /**
@@ -142,7 +258,7 @@ export function bestPossibleAverage(attemptResults) {
   }
 
   const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return roundOver10Mins(mean);
 }
 
@@ -164,7 +280,7 @@ export function worstPossibleAverage(attemptResults) {
   }
 
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return roundOver10Mins(mean);
 }
 

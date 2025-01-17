@@ -50,6 +50,10 @@ const ROUND_QUERY = gql`
         numberOfAttempts
         sortBy
       }
+      advancementCondition {
+        level
+        type
+      }
       results {
         id
         ...roundResult
@@ -72,6 +76,12 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
   ${ROUND_RESULT_FRAGMENT}
 `;
 
+// Events sorted by best don't need forecast view.
+// Fewest moves is currently unsupported
+export function forecastViewDisabled(format, eventId) {
+  return format.sortBy === "best" || eventId === "333fm";
+}
+
 function Round() {
   const { competitionId, roundId } = useParams();
 
@@ -85,6 +95,7 @@ function Round() {
   });
 
   const [previousData, setPreviousData] = useState(null);
+  const [forecastView, setForecastView] = useState(false);
 
   useEffect(() => {
     if (newData) setPreviousData(newData);
@@ -110,12 +121,13 @@ function Round() {
   if (error) return <Error error={error} />;
   const { round } = data;
 
+
   return (
     <>
       {loading && <Loading />}
       <Grid container direction="column" spacing={1}>
         <Grid item>
-          <RoundToolbar round={round} competitionId={competitionId} />
+          <RoundToolbar round={round} competitionId={competitionId} forecastView={forecastView} setForecastView={setForecastView} />
         </Grid>
         <Grid item>
           <Routes>
@@ -128,6 +140,8 @@ function Round() {
                   eventId={round.competitionEvent.event.id}
                   title={`${round.competitionEvent.event.name} - ${round.name}`}
                   exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
+                  forecastView={forecastView}
+                  advancementCondition={round.advancementCondition}
                 />
               }
             />
@@ -141,6 +155,8 @@ function Round() {
                   format={round.format}
                   eventId={round.competitionEvent.event.id}
                   competitionId={competitionId}
+                  forecastView={forecastView}
+                  advancementCondition={round.advancementCondition}
                 />
               }
             />

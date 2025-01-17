@@ -8,9 +8,11 @@ import {
 } from "@mui/material";
 import TvIcon from "@mui/icons-material/Tv";
 import PrintIcon from "@mui/icons-material/Print";
+import ForecastIcon from "@mui/icons-material/ViewList";
 import { appUrl } from "../../lib/urls";
+import { forecastViewDisabled } from "./Round";
 
-function RoundToolbar({ round, competitionId }) {
+function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
   const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
   return (
@@ -23,6 +25,16 @@ function RoundToolbar({ round, competitionId }) {
       <Grid item style={{ flexGrow: 1 }} />
       {mdScreen && (
         <Grid item>
+          {!forecastViewDisabled(round.format, round.competitionEvent.event.id) &&
+            (<Tooltip title="Forecast view" placement="top">
+              <IconButton
+                component="a"
+                target="_blank"
+                onClick={() => setForecastView(!forecastView)}
+              >
+                <ForecastIcon />
+              </IconButton>
+            </Tooltip>)}
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"
