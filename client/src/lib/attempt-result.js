@@ -171,7 +171,7 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
   const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
   var needed = totalNeeded - result.countingSum + roundingBuffer;
 
-  const newBest = Math.min(needed, currentBest);
+  const newBest = Math.min(needed, result.best);
   // If best is not better, adjust needed to overtake
   if (newBest >= overtakeBest) {
     // Win by decreasing average by .01 or by overtaking on single
