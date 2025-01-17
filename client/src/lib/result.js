@@ -5,14 +5,14 @@ import { padSkipped } from "./attempt-result";
  * The first statistic is the one that determines the ranking.
  * This is a common logic used in all result tables/dialogs.
  */
-export function orderedResultStats(eventId, format, forecastView) {
+export function orderedResultStats(eventId, format) {
   const { numberOfAttempts, sortBy } = format;
 
   if (!shouldComputeAverage(eventId, numberOfAttempts)) {
     return [{ name: "Best", field: "best", recordTagField: "singleRecordTag" }];
   }
 
-  var stats = stats = [
+  const stats = [
     { name: "Best", field: "best", recordTagField: "singleRecordTag" },
     {
       name: numberOfAttempts === 3 ? "Mean" : "Average",
@@ -20,19 +20,7 @@ export function orderedResultStats(eventId, format, forecastView) {
       recordTagField: "averageRecordTag",
     },
   ];
-  stats = sortBy === "best" ? stats : stats.reverse();
-
-  if (forecastView) {
-    stats.push({
-      name: "For 1st",
-      field: "forFirst",
-    })
-    stats.push({
-      name: "For 3rd",
-      field: "forThird",
-    })
-  }
-  return stats;
+  return sortBy === "best" ? stats : stats.reverse();
 }
 
 /**

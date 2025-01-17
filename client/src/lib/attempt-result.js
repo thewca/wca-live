@@ -150,39 +150,6 @@ function sum(values) {
 }
 
 /**
- * returns the time needed to overtake a target result (average & best). This function returns
- * the slowest possible time.
- */
-export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
-  // After adding a time, projection is a median
-  if (result.attempts.length === 2 && format.numberOfAttempts === 5) {
-    if (result.best < overtakeAverage) {
-      return overtakeAverage - 1;
-    }
-    else {
-      return NA_VALUE;
-    }
-  }
-
-  // isMean(bool): after the next solve, the projected result will be a mean
-  const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
-  const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
-  const totalNeeded = overtakeAverage * nextCountingSolves;
-  const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
-  var needed = totalNeeded - result.countingSum + roundingBuffer;
-
-  const newBest = Math.min(needed, result.best);
-  // If best is not better, adjust needed to overtake
-  if (newBest >= overtakeBest) {
-    // Win by decreasing average by .01 or by overtaking on single
-    needed = Math.max(needed - nextCountingSolves, overtakeBest - 1);
-  }
-
-  var bestPossibleSolve = isMean ? 1 : result.best;
-  return needed >= bestPossibleSolve ? needed : NA_VALUE;
-}
-
-/**
  * return the number of competitors that should be marked as advancing.
  * When no competitors advance, return 3 for the podium placements.
  * Might not be accurate for percentage based advancement but that is acceptable
@@ -287,22 +254,6 @@ export function getExpandedResults(results, format, forecastView, advancementCon
     prevResult = currentResult;
   }
 
-  const projectedFirstAverage = expandedResults[0].projectedAverage;
-  const projectedFirstBest = expandedResults[0].best;
-  const projectedThirdAverage = expandedResults.length > 2 ? expandedResults[2].projectedAverage : SKIPPED_VALUE;
-  const projectedThirdBest = expandedResults.length > 2 ? expandedResults[2].best : SKIPPED_VALUE;
-  // Generate times needed to overtake first / third
-  for (let i = 1; i < expandedResults.length; i++) {
-    var result = expandedResults[i];
-    if (result.attempts.length != format.numberOfAttempts) {
-      if (isComplete(result.projectedAverage)) {
-        result.forFirst = timeNeededToOvertake(result, format, projectedFirstAverage, projectedFirstBest);
-        if (i > 2) {
-          result.forThird = timeNeededToOvertake(result, format, projectedThirdAverage, projectedThirdBest);
-        }
-      }
-    }
-  }
   return expandedResults;
 }
 
