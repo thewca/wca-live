@@ -619,15 +619,3 @@ describe("incompleteMean", () => {
     expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
   });
 });
-
-describe("incompleteMean", () => {
-  it("returns -1 if any attempt result is DNF", () => {
-    const attemptResults = [21, -1];
-    expect(incompleteMean(attemptResults, "333fm")).toEqual(-1);
-  });
-
-  it("calculates mean of 2", () => {
-    const attemptResults = [21, 23];
-    expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
-  });
-});
