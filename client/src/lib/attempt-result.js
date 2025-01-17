@@ -4,7 +4,6 @@ import { shouldComputeAverage } from "./result";
 export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
-export const NA_VALUE = -3;
 
 
 function isComplete(attemptResult) {
@@ -136,17 +135,9 @@ function meanOfX(attemptResults) {
   return mean(attemptResults);
 }
 
-function sumOfX(attemptResults) {
-  if (!attemptResults.every(isComplete)) return DNF_VALUE;
-  return attemptResults.reduce((x, y) => x + y, 0);
-}
-
 function mean(values) {
-  return Math.round(sum(values) / values.length);
-}
-
-function sum(values) {
-  return values.reduce((x, y) => x + y, 0);
+  const sum = values.reduce((x, y) => x + y, 0);
+  return Math.round(sum / values.length);
 }
 
 /**
@@ -163,7 +154,7 @@ function getAdvancingCount(results, advancementCondition) {
 }
 
 /**
- * set projectedAverage and countingSum based on current results
+ * return projectedAverage based on current results.
  * projections are defined as follows:
  *   - MO3 events: mean of current solves
  *   - AVG5 events:
@@ -173,32 +164,25 @@ function getAdvancingCount(results, advancementCondition) {
 export function computeProjectedAverage(result, format) {
   const attemptResults = result.attempts.map((attempt) => attempt.result);
   if (result.average) {
-    result.projectedAverage = result.average;
-    return;
+    return result.average;
   }
   if (attemptResults.length > 0) {
     if (format.numberOfAttempts === 3 || attemptResults.length < 3) {
-      result.projectedAverage = meanOfX(attemptResults);
-      result.countingSum = sumOfX(attemptResults);
-      return;
+      return meanOfX(attemptResults);
     }
     if (attemptResults.length === 3) {
       const [, x,] = attemptResults.slice().sort(compareAttemptResults);
-      result.projectedAverage = x;
-      result.countingSum = x;
-      return;
+      return x;
     }
     const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
-    result.projectedAverage = meanOfX([x, y]);
-    result.countingSum = x + y;
-    return;
+    return meanOfX([x, y]);
   }
+  return SKIPPED_VALUE;
 }
 
 /**
  * return the results object with additional properties:
  * projectedAverage: projected final average based on current results
- * countingSum: sum of the counting solves
  * forFirst: time needed to overtake first place
  * forThird: time needed to overtake third place
  */
@@ -207,24 +191,24 @@ export function getExpandedResults(results, format, forecastView, advancementCon
   var expandedResults = results.map((result) => {
     return {
       ...result,
-      projectedAverage: SKIPPED_VALUE,
-      countingSum: 0,
+      projectedAverage: computeProjectedAverage(result, format),
       forFirst: SKIPPED_VALUE,
       forThird: SKIPPED_VALUE,
     };
   });
-  const advancingCount = getAdvancingCount(results, advancementCondition);
-  const roundIncomplete = results.some((result) => isSkipped(result.average));
+  
+  if (expandedResults[0].projectedAverage == SKIPPED_VALUE) {
+    // First place has no results. Do nothing.
+    return expandedResults;
+  }
 
   for (let result of expandedResults) {
-    computeProjectedAverage(result, format);
     result.advancing = false;
     result.advancingQuestionable = false;
   }
 
-  if (expandedResults[0].projectedAverage == SKIPPED_VALUE) {
-    return expandedResults;
-  }
+  const advancingCount = getAdvancingCount(results, advancementCondition);
+  const roundIncomplete = results.some((result) => isSkipped(result.average));
 
   // Sort based on projection with tiebreakers on single
   expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
@@ -390,7 +374,6 @@ export function formatAttemptResult(attemptResult, eventId) {
   if (attemptResult === SKIPPED_VALUE) return "";
   if (attemptResult === DNF_VALUE) return "DNF";
   if (attemptResult === DNS_VALUE) return "DNS";
-  if (attemptResult === NA_VALUE) return "N/A";
   if (eventId === "333mbf") return formatMbldAttemptResult(attemptResult);
   if (eventId === "333fm") return formatFmAttemptResult(attemptResult);
   return centisecondsToClockFormat(attemptResult);
@@ -401,8 +384,9 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
-    }`;
+  return `${solved}/${attempted} ${
+    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+  }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
@@ -498,8 +482,9 @@ export function attemptResultsWarning(
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return {
-      description: `You've omitted attempt ${skippedGapIndex + 1
-        }. Make sure it's intentional.`,
+      description: `You've omitted attempt ${
+        skippedGapIndex + 1
+      }. Make sure it's intentional.`,
     };
   }
   const completeAttempts = attemptResults.filter(isComplete);
