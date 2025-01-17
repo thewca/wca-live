@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import {
+  Checkbox,
+  FormControlLabel,
   Grid,
   IconButton,
   Tooltip,
@@ -26,15 +28,16 @@ function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
       {mdScreen && (
         <Grid item>
           {!forecastViewDisabled(round) &&
-            (<Tooltip title="Forecast view" placement="top">
-              <IconButton
-                component="a"
-                target="_blank"
-                onClick={() => setForecastView(!forecastView)}
-              >
-                <ForecastIcon />
-              </IconButton>
-            </Tooltip>)}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={forecastView}
+                  onChange={(event) => setForecastView(event.target.checked)}
+                />
+              }
+              label="Forecast View"
+              labelPlacement='start' />
+          }
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"
