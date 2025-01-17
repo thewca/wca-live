@@ -78,8 +78,8 @@ const ROUND_UPDATED_SUBSCRIPTION = gql`
 
 // Events sorted by best don't need forecast view.
 // Fewest moves is currently unsupported
-export function forecastViewDisabled(format, eventId) {
-  return format.sortBy === "best" || eventId === "333fm";
+export function forecastViewDisabled(round) {
+  return round.format.sortBy === "best" || round.competitionEvent.event.id === "333fm";
 }
 
 function Round() {
@@ -121,6 +121,9 @@ function Round() {
   if (error) return <Error error={error} />;
   const { round } = data;
 
+  if (forecastView && forecastViewDisabled(round)) {
+    setForecastView(false);
+  }
 
   return (
     <>

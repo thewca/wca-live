@@ -22,7 +22,6 @@ import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
 import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
-import { forecastViewDisabled } from "../Round/Round";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -77,9 +76,6 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, forecastVi
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
-  if (forecastViewDisabled(format, eventId)) {
-    forecastView = false;
-  }
   const stats = orderedResultStats(eventId, format);
   const nonemptyResults = getExpandedResults(results, format, forecastView, advancementCondition).filter(
     (result) => result.attempts.length > 0

@@ -25,7 +25,7 @@ function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
       <Grid item style={{ flexGrow: 1 }} />
       {mdScreen && (
         <Grid item>
-          {!forecastViewDisabled(round.format, round.competitionEvent.event.id) &&
+          {!forecastViewDisabled(round) &&
             (<Tooltip title="Forecast view" placement="top">
               <IconButton
                 component="a"
