@@ -150,28 +150,6 @@ function sum(values) {
 }
 
 /**
- * returns the number of milliseconds that can be added to the total counting time
- * while still achieving the same average. Assumes input is in range [1, 3]
- */
-function roundingBuffer(nextNumberOfCountingSolves) {
-  return nextNumberOfCountingSolves === 3 ? 1 : 0;
-}
-
-/**
- * returns the time required to overtake a target average while also taking into account best.
- * @param {*} needed - worst possible time required to tie the target average
- */
-function getAdjustedNeeded(needed, currentBest, overtakeBest, countingSolves) {
-  const newBest = Math.min(needed, currentBest);
-  if (newBest >= overtakeBest) {
-    // Win by decreasing average by .01 or by overtaking on single
-    return Math.max(needed - countingSolves, overtakeBest - 1);
-  }
-  // Wins tiebreaker on single. No modification needed
-  return needed;
-}
-
-/**
  * returns the time needed to overtake a target result (average & best). This function returns
  * the slowest possible time.
  */
@@ -190,8 +168,16 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
   const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
   const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
   const totalNeeded = overtakeAverage * nextCountingSolves;
-  var needed = totalNeeded - result.countingSum + roundingBuffer(nextCountingSolves);
-  needed = getAdjustedNeeded(needed, result.best, overtakeBest, nextCountingSolves);
+  const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
+  var needed = totalNeeded - result.countingSum + roundingBuffer;
+
+  const newBest = Math.min(needed, currentBest);
+  // If best is not better, adjust needed to overtake
+  if (newBest >= overtakeBest) {
+    // Win by decreasing average by .01 or by overtaking on single
+    needed = Math.max(needed - nextCountingSolves, overtakeBest - 1);
+  }
+
   var bestPossibleSolve = isMean ? 1 : result.best;
   return needed >= bestPossibleSolve ? needed : NA_VALUE;
 }
