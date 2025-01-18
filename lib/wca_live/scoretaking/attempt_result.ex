@@ -129,13 +129,13 @@ defmodule WcaLive.Scoretaking.AttemptResult do
         3 -> mean_of_3(attempt_results)
         5 -> average_of_5(attempt_results)
       end
-      |> round_over_10_minutes()
+      |> truncate_over_10_minutes()
     end
   end
 
   # See: https://www.worldcubeassociation.org/regulations/#9f2
-  defp round_over_10_minutes(average) when average <= 10 * 6000, do: average
-  defp round_over_10_minutes(average), do: round(average / 100) * 100
+  defp truncate_over_10_minutes(average) when average <= 10 * 6000, do: average
+  defp truncate_over_10_minutes(average), do: floor(average / 100) * 100
 
   defp average_of_5(attempt_results) when length(attempt_results) == 5 do
     [_, x, y, z, _] = Enum.sort_by(attempt_results, &to_monotonic/1)

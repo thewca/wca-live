@@ -89,9 +89,9 @@ defmodule WcaLive.Scoretaking.AttemptResultTest do
     assert 600 == AttemptResult.average([400, 500, 900], "333")
   end
 
-  test "average/2 rounds averages over 10 minutes to nearest second" do
+  test "average/2 truncates averages over 10 minutes to nearest second" do
     assert 60000 == AttemptResult.average([60041, 60041, 60041], "333")
-    assert 60100 == AttemptResult.average([60051, 60051, 60051], "333")
+    assert 60000 == AttemptResult.average([60051, 60051, 60051], "333")
   end
 
   test "average/2 returns correct average for 3x3x3 Fewest Moves" do
