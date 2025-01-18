@@ -83,7 +83,7 @@ describe("average", () => {
     expect(average([400, 500, 900], "333")).toEqual(600);
   });
 
-  it("truncates averages over 10 minutes to nearest second", () => {
+  it("truncates averages over 10 minutes to seconds", () => {
     expect(average([60041, 60041, 60041], "333")).toEqual(60000);
     expect(average([60051, 60051, 60051], "333")).toEqual(60000);
   });
@@ -265,7 +265,7 @@ describe("autocompleteFmAttemptResult", () => {
 });
 
 describe("autocompleteTimeAttemptResult", () => {
-  test("truncates averages over 10 minutes to nearest second", () => {
+  test("truncates averages over 10 minutes to seconds", () => {
     expect(autocompleteTimeAttemptResult(60041)).toEqual(60000);
     expect(autocompleteTimeAttemptResult(60051)).toEqual(60000);
   });
