@@ -215,7 +215,7 @@ export function encodeMbldAttemptResult({ solved, attempted, centiseconds }) {
   if (centiseconds <= 0) return centiseconds;
   const missed = attempted - solved;
   const points = solved - missed;
-  const seconds = Math.round(
+  const seconds = Math.floor(
     (centiseconds || 9999900) / 100
   ); /* 99999 seconds is used for unknown time. */
   return (99 - points) * 1e7 + seconds * 1e2 + missed;

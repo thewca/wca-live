@@ -174,13 +174,13 @@ describe("encodeMbldAttemptResult", () => {
     expect(encodeMbldAttemptResult(decoded)).toEqual(900348002);
   });
 
-  test("rounds centiseconds to seconds", () => {
+  test("truncates centiseconds to seconds", () => {
     const decoded = {
       solved: 11,
       attempted: 13,
       centiseconds: 3480 * 100 + 50,
     };
-    expect(encodeMbldAttemptResult(decoded)).toEqual(900348102);
+    expect(encodeMbldAttemptResult(decoded)).toEqual(900348002);
   });
 });
 
