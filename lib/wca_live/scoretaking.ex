@@ -224,41 +224,61 @@ defmodule WcaLive.Scoretaking do
     if Round.open?(round) do
       {:error, "cannot open this round as it is already open"}
     else
-      Multi.new()
-      |> Multi.run(:finish_previous, fn _repo, _changes ->
-        if round.number > 1 do
-          previous = get_previous_round(round) |> Repo.preload(:results)
-          finish_round(previous)
-        else
-          {:ok, nil}
+      message = validate_previous_rounds(round)
+      if message do
+        {:error, message}
+      else
+        Multi.new()
+        |> Multi.run(:finish_previous, fn _repo, _changes ->
+          if round.number > 1 do
+            previous = get_previous_round(round) |> Repo.preload(:results)
+            finish_round(previous)
+          else
+            {:ok, nil}
+          end
+        end)
+        |> Multi.run(:create_results, fn _repo, _changes ->
+          create_empty_results(round)
+        end)
+        |> Repo.transaction()
+        |> case do
+          {:ok, %{create_results: round}} -> {:ok, round}
+          {:error, _, reason, _} -> {:error, reason}
         end
-      end)
-      |> Multi.run(:create_results, fn _repo, _changes ->
-        create_empty_results(round)
-      end)
-      |> Repo.transaction()
-      |> case do
-        {:ok, %{create_results: round}} -> {:ok, round}
-        {:error, _, reason, _} -> {:error, reason}
       end
+    end
+  end
+
+  # Check that enough people have competed in the previous round in order to open the next round
+  # See https://www.worldcubeassociation.org/regulations/#9m
+  defp validate_previous_rounds(round) do
+    min = [8, 16, 100]
+    round_results =
+      Enum.to_list(1..round.number - 1 // 1)
+      |> Enum.map(
+        fn round_offset ->
+          Round |> Round.where_sibling(round, -round_offset) |> Repo.one() |> Repo.preload(:results)
+        end
+      )
+      |> Enum.map(fn round -> round.results |> Enum.reject(&Result.empty?/1) |> length() end)
+
+    Enum.find_index(Enum.zip(round_results, min), fn {x, y} -> x < y end)
+    |> case do
+      0 -> "Rounds with 7 or fewer competitors must not have subsequent rounds"
+      1 -> "Rounds with 15 or fewer competitors must have at most one subsequent round"
+      2 -> "Rounds with 99 or fewer competitors must have at most two subsequent rounds"
+      _ -> :nil
     end
   end
 
   # Finishes `round` by removing empty results, so that the next round may be opened.
   defp finish_round(round) do
-    actual_results = Enum.reject(round.results, &Result.empty?/1)
+    # Note: we remove empty results, so we need to recompute advancing results,
+    # because an advancement condition may depend on the total number of results (i.e. "percent" type).
 
-    if length(actual_results) < 8 do
-      # See: https://www.worldcubeassociation.org/regulations/#9m3
-      {:error, "rounds with less than 8 competitors cannot have a subsequent round"}
-    else
-      # Note: we remove empty results, so we need to recompute advancing results,
-      # because an advancement condition may depend on the total number of results (i.e. "percent" type).
-
-      actual_results
-      |> Round.put_results_in_round(round)
-      |> update_round_and_advancing()
-    end
+    Enum.reject(round.results, &Result.empty?/1)
+    |> Round.put_results_in_round(round)
+    |> update_round_and_advancing()
   end
 
   defp create_empty_results(round) do
