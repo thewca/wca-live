@@ -83,9 +83,9 @@ describe("average", () => {
     expect(average([400, 500, 900], "333")).toEqual(600);
   });
 
-  it("rounds averages over 10 minutes to nearest second", () => {
+  it("truncates averages over 10 minutes to seconds", () => {
     expect(average([60041, 60041, 60041], "333")).toEqual(60000);
-    expect(average([60051, 60051, 60051], "333")).toEqual(60100);
+    expect(average([60051, 60051, 60051], "333")).toEqual(60000);
   });
 
   it("returns correct average for 3x3x3 Fewest Moves", () => {
@@ -174,13 +174,13 @@ describe("encodeMbldAttemptResult", () => {
     expect(encodeMbldAttemptResult(decoded)).toEqual(900348002);
   });
 
-  test("rounds centiseconds to seconds", () => {
+  test("truncates centiseconds to seconds", () => {
     const decoded = {
       solved: 11,
       attempted: 13,
       centiseconds: 3480 * 100 + 50,
     };
-    expect(encodeMbldAttemptResult(decoded)).toEqual(900348102);
+    expect(encodeMbldAttemptResult(decoded)).toEqual(900348002);
   });
 });
 
@@ -265,9 +265,9 @@ describe("autocompleteFmAttemptResult", () => {
 });
 
 describe("autocompleteTimeAttemptResult", () => {
-  test("rounds averages over 10 minutes to nearest second", () => {
+  test("truncates averages over 10 minutes to seconds", () => {
     expect(autocompleteTimeAttemptResult(60041)).toEqual(60000);
-    expect(autocompleteTimeAttemptResult(60051)).toEqual(60100);
+    expect(autocompleteTimeAttemptResult(60051)).toEqual(60000);
   });
 
   test("returns the same value if everything is ok", () => {

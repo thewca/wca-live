@@ -100,9 +100,9 @@ export function average(attemptResults, eventId) {
 
   switch (attemptResults.length) {
     case 3:
-      return roundOver10Mins(meanOfX(attemptResults));
+      return truncateOver10Mins(meanOfX(attemptResults));
     case 5:
-      return roundOver10Mins(averageOf5(attemptResults));
+      return truncateOver10Mins(averageOf5(attemptResults));
     default:
       throw new Error(
         `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
@@ -111,10 +111,10 @@ export function average(attemptResults, eventId) {
 }
 
 /* See: https://www.worldcubeassociation.org/regulations/#9f2 */
-function roundOver10Mins(value) {
+function truncateOver10Mins(value) {
   if (!isComplete(value)) return value;
   if (value <= 10 * 6000) return value;
-  return Math.round(value / 100) * 100;
+  return Math.floor(value / 100) * 100;
 }
 
 function averageOf5(attemptResults) {
@@ -178,7 +178,7 @@ export function bestPossibleAverage(attemptResults) {
 
   const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
   const mean = meanOfX([x, y, z]);
-  return roundOver10Mins(mean);
+  return truncateOver10Mins(mean);
 }
 
 /**
@@ -200,7 +200,7 @@ export function worstPossibleAverage(attemptResults) {
 
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
   const mean = meanOfX([x, y, z]);
-  return roundOver10Mins(mean);
+  return truncateOver10Mins(mean);
 }
 
 /**
@@ -220,7 +220,7 @@ export function incompleteMean(attemptResults, eventId) {
     return mean(scaled);
   }
 
-  return roundOver10Mins(mean(attemptResults));
+  return truncateOver10Mins(mean(attemptResults));
 }
 
 /**
@@ -250,7 +250,7 @@ export function encodeMbldAttemptResult({ solved, attempted, centiseconds }) {
   if (centiseconds <= 0) return centiseconds;
   const missed = attempted - solved;
   const points = solved - missed;
-  const seconds = Math.round(
+  const seconds = Math.floor(
     (centiseconds || 9999900) / 100
   ); /* 99999 seconds is used for unknown time. */
   return (99 - points) * 1e7 + seconds * 1e2 + missed;
@@ -362,7 +362,7 @@ export function autocompleteFmAttemptResult(moves) {
  */
 export function autocompleteTimeAttemptResult(time) {
   // See https://www.worldcubeassociation.org/regulations/#9f2
-  return roundOver10Mins(time);
+  return truncateOver10Mins(time);
 }
 
 /**
