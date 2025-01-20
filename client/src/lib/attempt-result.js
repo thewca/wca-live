@@ -302,8 +302,9 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
-    }`;
+  return `${solved}/${attempted} ${
+    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+  }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
@@ -399,8 +400,9 @@ export function attemptResultsWarning(
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return {
-      description: `You've omitted attempt ${skippedGapIndex + 1
-        }. Make sure it's intentional.`,
+      description: `You've omitted attempt ${
+        skippedGapIndex + 1
+      }. Make sure it's intentional.`,
     };
   }
   const completeAttempts = attemptResults.filter(isComplete);
