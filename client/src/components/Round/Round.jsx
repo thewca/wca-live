@@ -50,10 +50,6 @@ const ROUND_QUERY = gql`
         numberOfAttempts
         sortBy
       }
-      advancementCondition {
-        level
-        type
-      }
       results {
         id
         ...roundResult
@@ -139,7 +135,6 @@ function Round() {
                   title={`${round.competitionEvent.event.name} - ${round.name}`}
                   exitUrl={`/competitions/${competitionId}/rounds/${roundId}`}
                   forecastView={forecastView}
-                  advancementCondition={round.advancementCondition}
                 />
               }
             />
@@ -154,7 +149,6 @@ function Round() {
                   eventId={round.competitionEvent.event.id}
                   competitionId={competitionId}
                   forecastView={forecastView}
-                  advancementCondition={round.advancementCondition}
                 />
               }
             />

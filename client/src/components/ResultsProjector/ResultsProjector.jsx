@@ -72,12 +72,12 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl, forecastView, advancementCondition }) {
+function ResultsProjector({ results, format, eventId, title, exitUrl, forecastView }) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
   const stats = orderedResultStats(eventId, format);
-  const nonemptyResults = resultsForView(results, format, forecastView, advancementCondition).filter(
+  const nonemptyResults = resultsForView(results, format, forecastView).filter(
     (result) => result.attempts.length > 0
   );
 

@@ -63,7 +63,7 @@ export function forecastViewEnabled(round) {
  * forFirst: time needed to overtake first place
  * forThird: time needed to overtake third place
  */
-export function resultsForView(results, format, forecastView, advancementCondition) {
+export function resultsForView(results, format, forecastView) {
   if (results.length == 0 || !forecastView) return results;
   var resultsForView = results.map((result) => {
     return {
