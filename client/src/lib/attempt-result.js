@@ -14,11 +14,7 @@ export function isSkipped(attemptResult) {
 }
 
 export function toMonotonic(attemptResult) {
-  if (isComplete(attemptResult)) {
-    return attemptResult;
-  } else {
-    return Infinity;
-  }
+  return isComplete(attemptResult) ? attemptResult : Infinity;
 }
 
 function compareAttemptResults(attemptResult1, attemptResult2) {
@@ -141,10 +137,10 @@ function mean(values) {
  *     - 3-4 solves: median of current solves
  */
 export function computeProjectedAverage(result, format) {
-  const attemptResults = result.attempts.map((attempt) => attempt.result);
-  if (result.average) {
+  if (isComplete(result.average)) {
     return result.average;
   }
+  const attemptResults = result.attempts.map((attempt) => attempt.result);
   if (attemptResults.length > 0) {
     if (format.numberOfAttempts === 3 || attemptResults.length < 3) {
       return meanOfX(attemptResults);

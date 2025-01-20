@@ -83,7 +83,6 @@ export function resultsForView(results, format, forecastView) {
 
   // Forecast view only supported for final rounds - advancing count hardcoded as 3
   const advancingCount = 3;
-  const roundIncomplete = results.some((result) => isSkipped(result.average));
 
   // Sort based on projection with tiebreakers on single
   resultsForView = orderBy(resultsForView, [
@@ -105,11 +104,8 @@ export function resultsForView(results, format, forecastView) {
       currentResult.ranking = i + 1;
     }
     if (currentResult.ranking <= advancingCount) {
-      if (roundIncomplete) {
-        currentResult.advancingQuestionable = true;
-      } else {
-        currentResult.advancing = true;
-      }
+      // "advancing" field is handled correctly by default results query
+      currentResult.advancingQuestionable = true;
     }
     prevResult = currentResult;
   }
