@@ -13,8 +13,8 @@ import {
 import { green } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
 import { times } from "../../lib/utils";
-import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
-import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import { formatAttemptResult } from "../../lib/attempt-result";
+import { resultsForView, orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -53,7 +53,7 @@ const RoundResultsTable = memo(
 
     const stats = orderedResultStats(eventId, format);
 
-    const expandedResults = getExpandedResults(results, format, forecastView, advancementCondition);
+    const expandedResults = resultsForView(results, format, forecastView, advancementCondition);
     return (
       <Paper>
         <Table size="small">

@@ -9,8 +9,16 @@ function isComplete(attemptResult) {
   return attemptResult > 0;
 }
 
-function isSkipped(attemptResult) {
+export function isSkipped(attemptResult) {
   return attemptResult === SKIPPED_VALUE;
+}
+
+export function toMonotonic(attemptResult) {
+  if (isComplete(attemptResult)) {
+    return attemptResult;
+  } else {
+    return Infinity;
+  }
 }
 
 function compareAttemptResults(attemptResult1, attemptResult2) {
@@ -18,21 +26,6 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
   if (!isComplete(attemptResult1) && isComplete(attemptResult2)) return 1;
   if (isComplete(attemptResult1) && !isComplete(attemptResult2)) return -1;
   return attemptResult1 - attemptResult2;
-}
-
-/**
- * Compares two results based on projected average, single
- */
-function compareProjectedResults(result1, result2) {
-  if (!isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) {
-    compareAttemptResults(result1.best, result2.best);
-  }
-  if (!isComplete(result1.projectedAverage) && isComplete(result2.projectedAverage)) return 1;
-  if (isComplete(result1.projectedAverage) && !isComplete(result2.projectedAverage)) return -1;
-
-  const compare = result1.projectedAverage - result2.projectedAverage;
-  if (compare != 0) return compare;
-  compareAttemptResults(result1.best, result2.best);
 }
 
 /**
@@ -140,19 +133,6 @@ function mean(values) {
 }
 
 /**
- * return the number of competitors that should be marked as advancing.
- * When no competitors advance, return 3 for the podium placements.
- * Might not be accurate for percentage based advancement but that is acceptable
- */
-function getAdvancingCount(results, advancementCondition) {
-  if (!advancementCondition) return 3;
-  if (advancementCondition.type === "ranking") {
-    return advancementCondition.level;
-  }
-  return results.filter((result) => result.advancing || result.advancingQuestionable).length;
-}
-
-/**
  * return projectedAverage based on current results.
  * projections are defined as follows:
  *   - MO3 events: mean of current solves
@@ -177,67 +157,6 @@ export function computeProjectedAverage(result, format) {
     return meanOfX([x, y]);
   }
   return SKIPPED_VALUE;
-}
-
-/**
- * return the results object with additional properties:
- * projectedAverage: projected final average based on current results
- * forFirst: time needed to overtake first place
- * forThird: time needed to overtake third place
- */
-export function getExpandedResults(results, format, forecastView, advancementCondition) {
-  if (results.length == 0 || !forecastView) return results;
-  var expandedResults = results.map((result) => {
-    return {
-      ...result,
-      projectedAverage: computeProjectedAverage(result, format),
-      forFirst: SKIPPED_VALUE,
-      forThird: SKIPPED_VALUE,
-    };
-  });
-  
-  if (expandedResults[0].projectedAverage == SKIPPED_VALUE) {
-    // First place has no results. Do nothing.
-    return expandedResults;
-  }
-
-  for (let result of expandedResults) {
-    result.advancing = false;
-    result.advancingQuestionable = false;
-  }
-
-  const advancingCount = getAdvancingCount(results, advancementCondition);
-  const roundIncomplete = results.some((result) => isSkipped(result.average));
-
-  // Sort based on projection with tiebreakers on single
-  expandedResults = expandedResults.sort((a, b) => compareProjectedResults(a, b));
-  expandedResults[0].ranking = 1;
-  var prevResult = expandedResults[0];
-  for (let i = 0; i < expandedResults.length; i++) {
-    let currentResult = expandedResults[i];
-    if (isSkipped(currentResult.projectedAverage)) {
-      break;
-    }
-    if (currentResult.projectedAverage === prevResult.projectedAverage &&
-      currentResult.best === prevResult.best) {
-      // Rankings tie
-      currentResult.ranking = prevResult.ranking;
-    } else {
-      currentResult.ranking = i + 1;
-    }
-    // Using simple advancing logic.
-    // TODO: Implement questionable/clinched logic
-    if (currentResult.ranking <= advancingCount) {
-      if (roundIncomplete) {
-        currentResult.advancingQuestionable = true;
-      } else {
-        currentResult.advancing = true;
-      }
-    }
-    prevResult = currentResult;
-  }
-
-  return expandedResults;
 }
 
 /**
@@ -383,9 +302,8 @@ function formatMbldAttemptResult(attemptResult) {
     decodeMbldAttemptResult(attemptResult);
   const clockFormat = centisecondsToClockFormat(centiseconds);
   const shortClockFormat = clockFormat.replace(/\.00$/, "");
-  return `${solved}/${attempted} ${
-    centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
-  }`;
+  return `${solved}/${attempted} ${centiseconds < 6000 ? `0:${shortClockFormat}` : shortClockFormat
+    }`;
 }
 
 function formatFmAttemptResult(attemptResult) {
@@ -481,9 +399,8 @@ export function attemptResultsWarning(
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
     return {
-      description: `You've omitted attempt ${
-        skippedGapIndex + 1
-      }. Make sure it's intentional.`,
+      description: `You've omitted attempt ${skippedGapIndex + 1
+        }. Make sure it's intentional.`,
     };
   }
   const completeAttempts = attemptResults.filter(isComplete);

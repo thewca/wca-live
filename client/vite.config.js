@@ -15,7 +15,9 @@ export default defineConfig({
     proxy: {
       "/auth": "http://127.0.0.1:4000",
     },
-    watch: {usePolling: true},
+    // Uncomment when running using Docker on Windows.
+    // See https://github.com/vitejs/vite/issues/1153#issuecomment-785467271
+    watch: { usePolling: true },
   },
 });
 

@@ -10,9 +10,8 @@ import {
 } from "@mui/material";
 import TvIcon from "@mui/icons-material/Tv";
 import PrintIcon from "@mui/icons-material/Print";
-import ForecastIcon from "@mui/icons-material/ViewList";
 import { appUrl } from "../../lib/urls";
-import { forecastViewDisabled } from "./Round";
+import { forecastViewEnabled } from "../../lib/result";
 
 function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
   const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
@@ -27,17 +26,16 @@ function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
       <Grid item style={{ flexGrow: 1 }} />
       {mdScreen && (
         <Grid item>
-          {!forecastViewDisabled(round) &&
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={forecastView}
-                  onChange={(event) => setForecastView(event.target.checked)}
-                />
-              }
-              label="Forecast View"
-              labelPlacement='start' />
-          }
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={forecastView}
+                onChange={(event) => setForecastView(event.target.checked)}
+              />
+            }
+            label="Forecast View"
+            labelPlacement='start'
+            disabled={!forecastViewEnabled(round)} />
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"

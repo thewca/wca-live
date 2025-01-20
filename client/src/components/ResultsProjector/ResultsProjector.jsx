@@ -20,8 +20,8 @@ import { alpha } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
-import { formatAttemptResult, getExpandedResults } from "../../lib/attempt-result";
-import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import { formatAttemptResult } from "../../lib/attempt-result";
+import { resultsForView, orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -77,7 +77,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl, forecastVi
   const [topResultIndex, setTopResultIndex] = useState(0);
 
   const stats = orderedResultStats(eventId, format);
-  const nonemptyResults = getExpandedResults(results, format, forecastView, advancementCondition).filter(
+  const nonemptyResults = resultsForView(results, format, forecastView, advancementCondition).filter(
     (result) => result.attempts.length > 0
   );
 
