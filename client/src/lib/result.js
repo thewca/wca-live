@@ -52,7 +52,6 @@ export function paddedAttemptResults(result, numberOfAttempts) {
 // Fewest moves is currently unsupported
 // Only final rounds are supported
 export function forecastViewEnabled(round) {
-  return true;
   return round.format.sortBy != "best" &&
     round.competitionEvent.event.id != "333fm" &&
     round.advancementCondition === null;
