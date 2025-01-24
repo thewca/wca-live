@@ -136,7 +136,7 @@ function mean(values) {
  *     - 1-2 solves: mean of current solves
  *     - 3-4 solves: median of current solves
  */
-export function computeProjectedAverage(result, format) {
+export function projectedAverage(result, format) {
   if (isComplete(result.average)) {
     return result.average;
   }

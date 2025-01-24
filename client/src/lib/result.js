@@ -1,9 +1,8 @@
 import { orderBy } from "./utils";
 import {
-  computeProjectedAverage,
+  projectedAverage,
   isSkipped,
   padSkipped,
-  SKIPPED_VALUE,
   toMonotonic
 } from "./attempt-result";
 
@@ -54,7 +53,7 @@ export function paddedAttemptResults(result, numberOfAttempts) {
 export function forecastViewEnabled(round) {
   return round.format.sortBy != "best" &&
     round.competitionEvent.event.id != "333fm" &&
-    round.name === "Final";
+    round.advancementCondition === null;
 }
 
 /**
@@ -68,36 +67,36 @@ export function resultsForView(results, format, forecastView) {
   var resultsForView = results.map((result) => {
     return {
       ...result,
-      projectedAverage: computeProjectedAverage(result, format),
+      projectedAverage: projectedAverage(result, format),
     };
   });
-
-  if (resultsForView[0].projectedAverage == SKIPPED_VALUE) {
-    // First place has no results. Do nothing.
-    return resultsForView;
-  }
 
   for (let result of resultsForView) {
     result.advancingQuestionable = false;
   }
-
-  // Forecast view only supported for final rounds - advancing count hardcoded as 3
-  const advancingCount = 3;
 
   // Sort based on projection with tiebreakers on single
   resultsForView = orderBy(resultsForView, [
     (result) => toMonotonic(result.projectedAverage),
     (result) => toMonotonic(result.best),
   ]);
+
+  if (isSkipped(resultsForView[0].projectedAverage)) {
+    // First place has no results. Do nothing.
+    return resultsForView;
+  }
+
   resultsForView[0].ranking = 1;
   var prevResult = resultsForView[0];
+  // Forecast view only supported for final rounds - advancing count hardcoded as 3
+  const advancingCount = 3;
   for (let i = 0; i < resultsForView.length; i++) {
     let currentResult = resultsForView[i];
-    if (isSkipped(currentResult.projectedAverage)) {
+    if (currentResult.attempts.length === 0) {
       break;
     }
-    if (currentResult.projectedAverage === prevResult.projectedAverage &&
-      currentResult.best === prevResult.best) {
+    if (toMonotonic(currentResult.projectedAverage) === toMonotonic(prevResult.projectedAverage) &&
+      toMonotonic(currentResult.best) === toMonotonic(prevResult.best)) {
       // Rankings tie
       currentResult.ranking = prevResult.ranking;
     } else {

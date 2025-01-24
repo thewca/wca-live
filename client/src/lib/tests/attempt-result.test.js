@@ -629,9 +629,13 @@ describe("computeProjectedAverage", () => {
   var result;
   it("Returns mean when format is mean of 3", () => {
     const format = { numberOfAttempts: 3};
+    result = {attempts: []};
+    expect(computeProjectedAverage(result, format)).toEqual(0);
     result = {attempts: [{result: 100}]};
     expect(computeProjectedAverage(result, format)).toEqual(100);
     result = {attempts: [{result: 100}, {result: 102}]};
+    expect(computeProjectedAverage(result, format)).toEqual(101);
+    result = {attempts: [{result: 100}, {result: 101}, {result: 102}]};
     expect(computeProjectedAverage(result, format)).toEqual(101);
   });
 
