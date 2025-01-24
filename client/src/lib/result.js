@@ -1,6 +1,7 @@
 import { orderBy } from "./utils";
 import {
   projectedAverage,
+  isComplete,
   isSkipped,
   padSkipped,
   toMonotonic
@@ -51,9 +52,17 @@ export function paddedAttemptResults(result, numberOfAttempts) {
 // Fewest moves is currently unsupported
 // Only final rounds are supported
 export function forecastViewEnabled(round) {
+  return true;
   return round.format.sortBy != "best" &&
     round.competitionEvent.event.id != "333fm" &&
     round.advancementCondition === null;
+}
+
+export function resultProjectedAverage(result, format) {
+  if (isComplete(result.average)) {
+    return result.average;
+  }
+  return projectedAverage(result.attempts.map((attempt) => attempt.result), format);
 }
 
 /**
@@ -63,17 +72,14 @@ export function forecastViewEnabled(round) {
  * forThird: time needed to overtake third place
  */
 export function resultsForView(results, format, forecastView) {
+  console.log(results);
   if (results.length == 0 || !forecastView) return results;
   var resultsForView = results.map((result) => {
     return {
       ...result,
-      projectedAverage: projectedAverage(result, format),
+      projectedAverage: resultProjectedAverage(result, format),
     };
   });
-
-  for (let result of resultsForView) {
-    result.advancingQuestionable = false;
-  }
 
   // Sort based on projection with tiebreakers on single
   resultsForView = orderBy(resultsForView, [
@@ -92,19 +98,30 @@ export function resultsForView(results, format, forecastView) {
   const advancingCount = 3;
   for (let i = 0; i < resultsForView.length; i++) {
     let currentResult = resultsForView[i];
-    if (currentResult.attempts.length === 0) {
-      break;
+    if (currentResult.attempts.length > 0) {
+      if (toMonotonic(currentResult.projectedAverage) === toMonotonic(prevResult.projectedAverage) &&
+        toMonotonic(currentResult.best) === toMonotonic(prevResult.best)) {
+        // Rankings tie
+        currentResult.ranking = prevResult.ranking;
+      } else {
+        currentResult.ranking = i + 1;
+      }
+      const isClinched = currentResult.advancing && !currentResult.advancingQuestionable;
+      // A clinched result must still be clinched in the projected ranking,
+      // so we keep advancing state as is
+      if (!isClinched) {
+        if (currentResult.ranking <= advancingCount) {
+          currentResult.advancing = true;
+          currentResult.advancingQuestionable = true;
+        } else {
+          currentResult.advancing = false;
+          currentResult.advancingQuestionable = false;
+        }
+      }
     }
-    if (toMonotonic(currentResult.projectedAverage) === toMonotonic(prevResult.projectedAverage) &&
-      toMonotonic(currentResult.best) === toMonotonic(prevResult.best)) {
-      // Rankings tie
-      currentResult.ranking = prevResult.ranking;
-    } else {
-      currentResult.ranking = i + 1;
-    }
-    if (currentResult.ranking <= advancingCount) {
-      // "advancing" field is handled correctly by default results query
-      currentResult.advancingQuestionable = true;
+    else {
+      currentResult.advancing = false;
+      currentResult.advancingQuestionable = false;
     }
     prevResult = currentResult;
   }

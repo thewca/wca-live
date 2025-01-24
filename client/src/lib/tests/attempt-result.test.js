@@ -17,7 +17,7 @@ import {
   incompleteMean,
   DNF_VALUE,
   DNS_VALUE,
-  computeProjectedAverage,
+  projectedAverage,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -621,37 +621,25 @@ describe("incompleteMean", () => {
   });
 });
 
-describe("computeProjectedAverage", () => {
-  it("Returns average if it is populated", () => {
-    expect(computeProjectedAverage({average: 100}, null)).toEqual(100);
-  });
-
+describe("projectedAverage", () => {
   var result;
   it("Returns mean when format is mean of 3", () => {
     const format = { numberOfAttempts: 3};
-    result = {attempts: []};
-    expect(computeProjectedAverage(result, format)).toEqual(0);
-    result = {attempts: [{result: 100}]};
-    expect(computeProjectedAverage(result, format)).toEqual(100);
-    result = {attempts: [{result: 100}, {result: 102}]};
-    expect(computeProjectedAverage(result, format)).toEqual(101);
-    result = {attempts: [{result: 100}, {result: 101}, {result: 102}]};
-    expect(computeProjectedAverage(result, format)).toEqual(101);
+    expect(projectedAverage([], format)).toEqual(0);
+    expect(projectedAverage([100], format)).toEqual(100);
+    expect(projectedAverage([100, 102], format)).toEqual(101);
+    expect(projectedAverage([100, 101, 102], format)).toEqual(101);
   });
 
   it("Returns mean when format is average of 5 and there are less than 3 attempts", () => {
     const format = { numberOfAttempts: 5};
-    result = {attempts: [{result: 100}]};
-    expect(computeProjectedAverage(result, format)).toEqual(100);
-    result = {attempts: [{result: 100}, {result: 102}]};
-    expect(computeProjectedAverage(result, format)).toEqual(101);
+    expect(projectedAverage([100], format)).toEqual(100);
+    expect(projectedAverage([100, 102], format)).toEqual(101);
   });
 
   it("Returns median when format is average of 5 and there are 3 or 4 attempts", () => {
     const format = { numberOfAttempts: 5};
-    result = {attempts: [{result: 100}, {result: 101}, {result: 102}]};
-    expect(computeProjectedAverage(result, format)).toEqual(101);
-    result = {attempts: [{result: 100}, {result: 101}, {result: 103}, {result: 104}]};
-    expect(computeProjectedAverage(result, format)).toEqual(102);
+    expect(projectedAverage([100, 101, 102], format)).toEqual(101);
+    expect(projectedAverage([100, 101, 103, 104], format)).toEqual(102);
   });
 });

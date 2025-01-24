@@ -5,7 +5,7 @@ export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
 
-function isComplete(attemptResult) {
+export function isComplete(attemptResult) {
   return attemptResult > 0;
 }
 
@@ -129,30 +129,44 @@ function mean(values) {
 }
 
 /**
- * return projectedAverage based on current results.
- * projections are defined as follows:
- *   - MO3 events: mean of current solves
- *   - AVG5 events:
+ * Returns projected average.
+ *
+ * Note that contrarily to other functions in this module, this
+ * function expects a non-padded and incomplete list of attempt
+ * results (without trailing skipped values).
+ *
+ * Projections are defined as follows:
+ *
+ *   - mo3 events: mean of current solves
+ *   - ao5 events:
  *     - 1-2 solves: mean of current solves
  *     - 3-4 solves: median of current solves
+ *
+ * When all result attempts are present, the return value is the same
+ * as the usual average.
  */
-export function projectedAverage(result, format) {
-  if (isComplete(result.average)) {
-    return result.average;
+export function projectedAverage(attemptResults, format) {
+  if (attemptResults.length === 0) return SKIPPED_VALUE;
+  
+  if (format.numberOfAttempts === 3) {
+    return meanOfX(attemptResults);
   }
-  const attemptResults = result.attempts.map((attempt) => attempt.result);
-  if (attemptResults.length > 0) {
-    if (format.numberOfAttempts === 3 || attemptResults.length < 3) {
+  
+  if (format.numberOfAttempts === 5) {
+    if (attemptResults.length < 3) {
       return meanOfX(attemptResults);
     }
     if (attemptResults.length === 3) {
       const [, x,] = attemptResults.slice().sort(compareAttemptResults);
       return x;
     }
-    const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
-    return meanOfX([x, y]);
+    if (attemptResults.length === 4) {
+      const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
+      return meanOfX([x, y]);
+    }
   }
-  return SKIPPED_VALUE;
+  
+  throw new Error("Unexpected format");
 }
 
 /**

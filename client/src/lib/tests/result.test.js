@@ -1,5 +1,6 @@
 import {
-    resultsForView
+    resultsForView,
+    resultProjectedAverage
 } from "../result";
 
 describe("resultsForView", () => {
@@ -44,4 +45,14 @@ describe("resultsForView", () => {
             expect(expandedResults[4].ranking).toEqual(5);
             expect(expandedResults[4].advancingQuestionable).toEqual(false);
     });
+});
+
+describe("resultProjectedAverage", () => {
+    it("Returns average if it is populated", () => {
+        const format = { numberOfAttempts: 3};
+        var result = {average: 50, attempts: [{result: 100}]};
+        expect(resultProjectedAverage(result, format)).toEqual(50);
+        result = {attempts: [{result: 100}]};
+        expect(resultProjectedAverage(result, format)).toEqual(100);
+      });
 });
