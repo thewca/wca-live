@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import {
+  Checkbox,
+  FormControlLabel,
   Grid,
   IconButton,
   Tooltip,
@@ -9,8 +11,9 @@ import {
 import TvIcon from "@mui/icons-material/Tv";
 import PrintIcon from "@mui/icons-material/Print";
 import { appUrl } from "../../lib/urls";
+import { forecastViewEnabled } from "../../lib/result";
 
-function RoundToolbar({ round, competitionId }) {
+function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
   const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
   return (
@@ -23,6 +26,16 @@ function RoundToolbar({ round, competitionId }) {
       <Grid item style={{ flexGrow: 1 }} />
       {mdScreen && (
         <Grid item>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={forecastView}
+                onChange={(event) => setForecastView(event.target.checked)}
+              />
+            }
+            label="Forecast View"
+            labelPlacement='start'
+            disabled={!forecastViewEnabled(round)} />
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"

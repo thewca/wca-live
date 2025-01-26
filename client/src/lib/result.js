@@ -1,4 +1,10 @@
-import { padSkipped } from "./attempt-result";
+import { orderBy } from "./utils";
+import {
+  projectedAverage,
+  padSkipped,
+  toMonotonic,
+  isSkipped
+} from "./attempt-result";
 
 /**
  * Returns a list of objects corresponding to result statistics - best and average.
@@ -39,4 +45,79 @@ export function shouldComputeAverage(eventId, numberOfAttempts) {
 export function paddedAttemptResults(result, numberOfAttempts) {
   const attemptResults = result.attempts.map((attempt) => attempt.result);
   return padSkipped(attemptResults, numberOfAttempts);
+}
+
+// Events sorted by best don't need forecast view.
+// Fewest moves is currently unsupported
+// Only final rounds are supported
+export function forecastViewEnabled(round) {
+  return round.format.sortBy != "best" &&
+    round.competitionEvent.event.id != "333fm" &&
+    round.advancementCondition === null;
+}
+
+export function resultProjectedAverage(result, format) {
+  if (!isSkipped(result.average)) {
+    return result.average;
+  }
+  return projectedAverage(result.attempts.map((attempt) => attempt.result), format);
+}
+
+/**
+ * return the results object with additional properties:
+ * projectedAverage: projected final average based on current results
+ * forFirst: time needed to overtake first place
+ * forThird: time needed to overtake third place
+ */
+export function resultsForView(results, format, forecastView) {
+  if (results.length == 0 || !forecastView) return results;
+  var resultsForView = results.map((result) => {
+    return {
+      ...result,
+      projectedAverage: resultProjectedAverage(result, format),
+    };
+  });
+
+  // Sort based on projection with tiebreakers on single
+  resultsForView = orderBy(resultsForView, [
+    (result) => toMonotonic(result.projectedAverage),
+    (result) => toMonotonic(result.best),
+  ]);
+
+  if (resultsForView[0].attempts.length === 0) {
+    return resultsForView;
+  }
+
+  resultsForView[0].ranking = 1;
+  var prevResult = resultsForView[0];
+  // Forecast view only supported for final rounds - advancing count hardcoded as 3
+  const advancingCount = 3;
+  for (let i = 0; i < resultsForView.length; i++) {
+    let currentResult = resultsForView[i];
+    if (currentResult.attempts.length === 0) {
+      break;
+    }
+    if (toMonotonic(currentResult.projectedAverage) === toMonotonic(prevResult.projectedAverage) &&
+      toMonotonic(currentResult.best) === toMonotonic(prevResult.best)) {
+      // Rankings tie
+      currentResult.ranking = prevResult.ranking;
+    } else {
+      currentResult.ranking = i + 1;
+    }
+    const isClinched = currentResult.advancing && !currentResult.advancingQuestionable;
+    // A clinched result must still be clinched in the projected ranking,
+    // so we keep advancing state as is
+    if (!isClinched) {
+      if (currentResult.ranking <= advancingCount) {
+        currentResult.advancing = true;
+        currentResult.advancingQuestionable = true;
+      } else {
+        currentResult.advancing = false;
+        currentResult.advancingQuestionable = false;
+      }
+    }
+    prevResult = currentResult;
+  }
+
+  return resultsForView;
 }
