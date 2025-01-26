@@ -164,6 +164,7 @@ export function projectedAverage(attemptResults, format) {
       const [, x, y,] = attemptResults.slice().sort(compareAttemptResults);
       return meanOfX([x, y]);
     }
+    return averageOf5(attemptResults);
   }
   
   throw new Error("Unexpected format");

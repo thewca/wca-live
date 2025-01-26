@@ -622,7 +622,6 @@ describe("incompleteMean", () => {
 });
 
 describe("projectedAverage", () => {
-  var result;
   it("Returns mean when format is mean of 3", () => {
     const format = { numberOfAttempts: 3};
     expect(projectedAverage([], format)).toEqual(0);
@@ -641,5 +640,10 @@ describe("projectedAverage", () => {
     const format = { numberOfAttempts: 5};
     expect(projectedAverage([100, 101, 102], format)).toEqual(101);
     expect(projectedAverage([100, 101, 103, 104], format)).toEqual(102);
+  });
+
+  it("Returns average of 5 when format is average of 5 and there are 5 attempts", () => {
+    const format = { numberOfAttempts: 5};
+    expect(projectedAverage([100, 101, 102, 103, 200], format)).toEqual(102);
   });
 });

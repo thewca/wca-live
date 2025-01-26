@@ -1,10 +1,9 @@
 import { orderBy } from "./utils";
 import {
   projectedAverage,
-  isComplete,
-  isSkipped,
   padSkipped,
-  toMonotonic
+  toMonotonic,
+  isSkipped
 } from "./attempt-result";
 
 /**
@@ -58,7 +57,7 @@ export function forecastViewEnabled(round) {
 }
 
 export function resultProjectedAverage(result, format) {
-  if (isComplete(result.average)) {
+  if (!isSkipped(result.average)) {
     return result.average;
   }
   return projectedAverage(result.attempts.map((attempt) => attempt.result), format);
@@ -71,7 +70,6 @@ export function resultProjectedAverage(result, format) {
  * forThird: time needed to overtake third place
  */
 export function resultsForView(results, format, forecastView) {
-  console.log(results);
   if (results.length == 0 || !forecastView) return results;
   var resultsForView = results.map((result) => {
     return {
@@ -86,8 +84,7 @@ export function resultsForView(results, format, forecastView) {
     (result) => toMonotonic(result.best),
   ]);
 
-  if (isSkipped(resultsForView[0].projectedAverage)) {
-    // First place has no results. Do nothing.
+  if (resultsForView[0].attempts.length === 0) {
     return resultsForView;
   }
 
@@ -97,30 +94,27 @@ export function resultsForView(results, format, forecastView) {
   const advancingCount = 3;
   for (let i = 0; i < resultsForView.length; i++) {
     let currentResult = resultsForView[i];
-    if (currentResult.attempts.length > 0) {
-      if (toMonotonic(currentResult.projectedAverage) === toMonotonic(prevResult.projectedAverage) &&
-        toMonotonic(currentResult.best) === toMonotonic(prevResult.best)) {
-        // Rankings tie
-        currentResult.ranking = prevResult.ranking;
-      } else {
-        currentResult.ranking = i + 1;
-      }
-      const isClinched = currentResult.advancing && !currentResult.advancingQuestionable;
-      // A clinched result must still be clinched in the projected ranking,
-      // so we keep advancing state as is
-      if (!isClinched) {
-        if (currentResult.ranking <= advancingCount) {
-          currentResult.advancing = true;
-          currentResult.advancingQuestionable = true;
-        } else {
-          currentResult.advancing = false;
-          currentResult.advancingQuestionable = false;
-        }
-      }
+    if (currentResult.attempts.length === 0) {
+      break;
     }
-    else {
-      currentResult.advancing = false;
-      currentResult.advancingQuestionable = false;
+    if (toMonotonic(currentResult.projectedAverage) === toMonotonic(prevResult.projectedAverage) &&
+      toMonotonic(currentResult.best) === toMonotonic(prevResult.best)) {
+      // Rankings tie
+      currentResult.ranking = prevResult.ranking;
+    } else {
+      currentResult.ranking = i + 1;
+    }
+    const isClinched = currentResult.advancing && !currentResult.advancingQuestionable;
+    // A clinched result must still be clinched in the projected ranking,
+    // so we keep advancing state as is
+    if (!isClinched) {
+      if (currentResult.ranking <= advancingCount) {
+        currentResult.advancing = true;
+        currentResult.advancingQuestionable = true;
+      } else {
+        currentResult.advancing = false;
+        currentResult.advancingQuestionable = false;
+      }
     }
     prevResult = currentResult;
   }
