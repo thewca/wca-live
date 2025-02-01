@@ -21,7 +21,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
 import { formatAttemptResult } from "../../lib/attempt-result";
-import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import {
+  resultsForView,
+  orderedResultStats,
+  paddedAttemptResults,
+} from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -72,13 +76,19 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl }) {
+function ResultsProjector({
+  results,
+  format,
+  eventId,
+  title,
+  exitUrl,
+  forecastView,
+}) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
   const stats = orderedResultStats(eventId, format);
-
-  const nonemptyResults = results.filter(
+  const nonemptyResults = resultsForView(results, format, forecastView).filter(
     (result) => result.attempts.length > 0
   );
 
@@ -237,6 +247,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                             field={field}
                             eventId={eventId}
                             format={format}
+                            forecastView={forecastView}
                           />
                         </RecordTagBadge>
                       </TableCell>

@@ -17,6 +17,7 @@ import {
   incompleteMean,
   DNF_VALUE,
   DNS_VALUE,
+  projectedAverage,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -617,5 +618,32 @@ describe("incompleteMean", () => {
   it("calculates mean of 2", () => {
     const attemptResults = [21, 23];
     expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
+  });
+});
+
+describe("projectedAverage", () => {
+  it("returns mean when format is mean of 3", () => {
+    const format = { numberOfAttempts: 3 };
+    expect(projectedAverage([], format)).toEqual(0);
+    expect(projectedAverage([100], format)).toEqual(100);
+    expect(projectedAverage([100, 102], format)).toEqual(101);
+    expect(projectedAverage([100, 101, 102], format)).toEqual(101);
+  });
+
+  it("returns mean when format is average of 5 and there are less than 3 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    expect(projectedAverage([100], format)).toEqual(100);
+    expect(projectedAverage([100, 102], format)).toEqual(101);
+  });
+
+  it("returns median when format is average of 5 and there are 3 or 4 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    expect(projectedAverage([100, 101, 102], format)).toEqual(101);
+    expect(projectedAverage([100, 101, 103, 104], format)).toEqual(102);
+  });
+
+  it("returns average of 5 when format is average of 5 and there are 5 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    expect(projectedAverage([100, 101, 102, 103, 200], format)).toEqual(102);
   });
 });

@@ -8,9 +8,12 @@ import {
 } from "@mui/material";
 import TvIcon from "@mui/icons-material/Tv";
 import PrintIcon from "@mui/icons-material/Print";
+import InsightsIcon from "@mui/icons-material/Insights";
+import TimelineIcon from "@mui/icons-material/Timeline";
 import { appUrl } from "../../lib/urls";
+import { forecastViewSupported } from "../../lib/result";
 
-function RoundToolbar({ round, competitionId }) {
+function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
   const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
   return (
@@ -23,6 +26,31 @@ function RoundToolbar({ round, competitionId }) {
       <Grid item style={{ flexGrow: 1 }} />
       {mdScreen && (
         <Grid item>
+          {forecastView ? (
+            <Tooltip title="Default view" placement="top">
+              <IconButton onClick={() => setForecastView(false)} size="large">
+                <TimelineIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip
+              title={
+                <div>
+                  Forecast view:
+                  <div>- shows projected average for incomplete results</div>
+                </div>
+              }
+              placement="top"
+            >
+              <IconButton
+                onClick={() => setForecastView(true)}
+                size="large"
+                disabled={!forecastViewSupported(round)}
+              >
+                <InsightsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"

@@ -5,12 +5,16 @@ export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
 
-function isComplete(attemptResult) {
+export function isComplete(attemptResult) {
   return attemptResult > 0;
 }
 
-function isSkipped(attemptResult) {
+export function isSkipped(attemptResult) {
   return attemptResult === SKIPPED_VALUE;
+}
+
+export function toMonotonic(attemptResult) {
+  return isComplete(attemptResult) ? attemptResult : Infinity;
 }
 
 function compareAttemptResults(attemptResult1, attemptResult2) {
@@ -80,7 +84,7 @@ export function average(attemptResults, eventId) {
     const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
     switch (attemptResults.length) {
       case 3:
-        return meanOf3(scaled);
+        return meanOfX(scaled);
       case 5:
         return averageOf5(scaled);
       default:
@@ -92,7 +96,7 @@ export function average(attemptResults, eventId) {
 
   switch (attemptResults.length) {
     case 3:
-      return truncateOver10Mins(meanOf3(attemptResults));
+      return truncateOver10Mins(meanOfX(attemptResults));
     case 5:
       return truncateOver10Mins(averageOf5(attemptResults));
     default:
@@ -111,10 +115,10 @@ function truncateOver10Mins(value) {
 
 function averageOf5(attemptResults) {
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  return meanOf3([x, y, z]);
+  return meanOfX([x, y, z]);
 }
 
-function meanOf3(attemptResults) {
+function meanOfX(attemptResults) {
   if (!attemptResults.every(isComplete)) return DNF_VALUE;
   return mean(attemptResults);
 }
@@ -122,6 +126,48 @@ function meanOf3(attemptResults) {
 function mean(values) {
   const sum = values.reduce((x, y) => x + y, 0);
   return Math.round(sum / values.length);
+}
+
+/**
+ * Returns projected average.
+ *
+ * Note that contrarily to other functions in this module, this
+ * function expects a non-padded and incomplete list of attempt
+ * results (without trailing skipped values).
+ *
+ * Projections are defined as follows:
+ *
+ *   - mo3 events: mean of current solves
+ *   - ao5 events:
+ *     - 1-2 solves: mean of current solves
+ *     - 3-4 solves: median of current solves
+ *
+ * When all result attempts are present, the return value is the same
+ * as the usual average.
+ */
+export function projectedAverage(attemptResults, format) {
+  if (attemptResults.length === 0) return SKIPPED_VALUE;
+
+  if (format.numberOfAttempts === 3) {
+    return meanOfX(attemptResults);
+  }
+
+  if (format.numberOfAttempts === 5) {
+    if (attemptResults.length < 3) {
+      return meanOfX(attemptResults);
+    }
+    if (attemptResults.length === 3) {
+      const [, x] = attemptResults.slice().sort(compareAttemptResults);
+      return x;
+    }
+    if (attemptResults.length === 4) {
+      const [, x, y] = attemptResults.slice().sort(compareAttemptResults);
+      return meanOfX([x, y]);
+    }
+    return averageOf5(attemptResults);
+  }
+
+  throw new Error("Unexpected format");
 }
 
 /**
@@ -142,7 +188,7 @@ export function bestPossibleAverage(attemptResults) {
   }
 
   const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return truncateOver10Mins(mean);
 }
 
@@ -164,7 +210,7 @@ export function worstPossibleAverage(attemptResults) {
   }
 
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return truncateOver10Mins(mean);
 }
 

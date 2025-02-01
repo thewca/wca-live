@@ -14,7 +14,11 @@ import { green } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
 import { times } from "../../lib/utils";
 import { formatAttemptResult } from "../../lib/attempt-result";
-import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import {
+  resultsForView,
+  orderedResultStats,
+  paddedAttemptResults,
+} from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -47,12 +51,20 @@ const styles = {
 };
 
 const RoundResultsTable = memo(
-  ({ results, format, eventId, competitionId, onResultClick }) => {
+  ({
+    results,
+    format,
+    eventId,
+    competitionId,
+    onResultClick,
+    forecastView,
+  }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
     const stats = orderedResultStats(eventId, format);
 
+    const viewResults = resultsForView(results, format, forecastView);
     return (
       <Paper>
         <Table size="small">
@@ -80,7 +92,7 @@ const RoundResultsTable = memo(
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.map((result) => (
+            {viewResults.map((result) => (
               <TableRow
                 key={result.id}
                 hover
@@ -144,6 +156,7 @@ const RoundResultsTable = memo(
                         field={field}
                         eventId={eventId}
                         format={format}
+                        forecastView={forecastView}
                       />
                     </RecordTagBadge>
                   </TableCell>
