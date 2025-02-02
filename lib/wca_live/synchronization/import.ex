@@ -3,7 +3,6 @@ defmodule WcaLive.Synchronization.Import do
   import Ecto.Changeset
 
   alias WcaLive.Repo
-  alias Ecto.Multi
   alias WcaLive.Wcif
 
   alias WcaLive.Competitions.{
@@ -34,31 +33,22 @@ defmodule WcaLive.Synchronization.Import do
   @spec import_competition(%Competition{} | Changeset.t(), map()) ::
           {:ok, %Competition{}} | {:error, any()}
   def import_competition(competition, wcif) do
-    Multi.new()
-    |> Multi.insert_or_update(:competition, competition_changeset(competition, wcif))
-    |> Multi.merge(fn _changes ->
-      new_users_multi(wcif)
-    end)
-    |> Multi.update(:update_staff_members, fn %{competition: competition} ->
-      competition_staff_members_changeset(competition, wcif)
-    end)
-    |> Multi.update(:update_events, fn %{competition: competition} ->
-      competition_events_changeset(competition, wcif)
-    end)
-    |> Multi.update(:update_schedule, fn %{update_events: competition} ->
-      competition_schedule_changeset(competition, wcif)
-    end)
-    |> Multi.update(:update_people, fn %{update_schedule: competition} ->
-      competition_people_changeset(competition, wcif)
-    end)
-    |> Repo.transaction(timeout: @import_transaction_timeout)
-    |> case do
-      {:ok, %{update_people: competition}} -> {:ok, competition}
-      {:error, _, reason, _} -> {:error, reason}
-    end
+    Repo.transaction_with(
+      fn ->
+        with {:ok, competition} <- insert_or_update_competition(competition, wcif),
+             :ok <- insert_new_users(wcif),
+             {:ok, competition} <- update_competition_staff_members(competition, wcif),
+             {:ok, competition} <- update_competition_events(competition, wcif),
+             {:ok, competition} <- update_competition_schedule(competition, wcif),
+             {:ok, competition} <- update_competition_people(competition, wcif) do
+          {:ok, competition}
+        end
+      end,
+      timeout: @import_transaction_timeout
+    )
   end
 
-  defp new_users_multi(wcif) do
+  defp insert_new_users(wcif) do
     wcif_wuids = Enum.map(wcif["persons"], & &1["wcaUserId"])
 
     existing_wuids =
@@ -69,9 +59,11 @@ defmodule WcaLive.Synchronization.Import do
     wcif["persons"]
     |> Enum.filter(fn person -> person["wcaUserId"] in new_wuids end)
     |> Enum.map(&wcif_person_to_user_changeset/1)
-    |> Enum.with_index()
-    |> Enum.reduce(Multi.new(), fn {user_changeset, index}, multi ->
-      Multi.insert(multi, {:user, index}, user_changeset)
+    |> Enum.reduce_while(:ok, fn changesets, :ok ->
+      case Repo.insert(changesets) do
+        {:ok, _user} -> {:cont, :ok}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
     end)
   end
 
@@ -90,7 +82,7 @@ defmodule WcaLive.Synchronization.Import do
     })
   end
 
-  defp competition_changeset(competition, wcif) do
+  defp insert_or_update_competition(competition, wcif) do
     competition
     |> Competition.changeset(%{
       wca_id: wcif["id"],
@@ -103,6 +95,7 @@ defmodule WcaLive.Synchronization.Import do
       end_time: Wcif.Utils.last_activity_end_time(wcif)
     })
     |> put_change(:synchronized_at, DateTime.utc_now() |> DateTime.truncate(:second))
+    |> Repo.insert_or_update()
   end
 
   # Builds a changeset with updated competition staff members.
@@ -130,7 +123,7 @@ defmodule WcaLive.Synchronization.Import do
   #
   # In the first step we use this approach to determine the new group of staff members
   # and then for each of them we use the same approach to determine roles of the given staff member.
-  defp competition_staff_members_changeset(competition, wcif) do
+  defp update_competition_staff_members(competition, wcif) do
     competition = Repo.preload(competition, [:people, staff_members: :user])
 
     wcif_staff_members = Enum.filter(wcif["persons"], &any_staff_role?(&1["roles"]))
@@ -212,6 +205,7 @@ defmodule WcaLive.Synchronization.Import do
     competition
     |> change()
     |> put_assoc(:staff_members, staff_members)
+    |> Repo.update()
   end
 
   defp any_staff_role?(roles) do
@@ -230,7 +224,7 @@ defmodule WcaLive.Synchronization.Import do
   # doesn't trigger any queries if the data is already preloaded
   # and that's why we preload everything in the top-level functions.
 
-  defp competition_events_changeset(competition, wcif) do
+  defp update_competition_events(competition, wcif) do
     competition = Repo.preload(competition, competition_events: [:rounds])
 
     competition
@@ -241,9 +235,10 @@ defmodule WcaLive.Synchronization.Import do
         competition_event.event_id == wcif_event["id"]
       end
     )
+    |> Repo.update()
   end
 
-  defp competition_schedule_changeset(competition, wcif) do
+  defp update_competition_schedule(competition, wcif) do
     competition =
       Repo.preload(competition,
         competition_events: [:rounds],
@@ -258,9 +253,10 @@ defmodule WcaLive.Synchronization.Import do
       with: &venue_changeset(&1, &2, competition),
       equality: fn venue, wcif_venue -> venue.wcif_id == wcif_venue["id"] end
     )
+    |> Repo.update()
   end
 
-  defp competition_people_changeset(competition, wcif) do
+  defp update_competition_people(competition, wcif) do
     competition =
       Repo.preload(competition,
         competition_events: [rounds: [:results]],
@@ -282,6 +278,7 @@ defmodule WcaLive.Synchronization.Import do
         person.wca_user_id == wcif_person["wcaUserId"]
       end
     )
+    |> Repo.update()
   end
 
   defp competition_event_changeset(competition_event, wcif_event, competition) do

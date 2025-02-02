@@ -8,7 +8,7 @@ defmodule WcaLive.Scoretaking do
 
   import Ecto.Query, warn: false
 
-  alias Ecto.{Changeset, Multi}
+  alias Ecto.Changeset
   alias WcaLive.Repo
   alias WcaLive.Wca.{Event, Format}
   alias WcaLive.Competitions.{Person, Registration, Competition}
@@ -125,38 +125,38 @@ defmodule WcaLive.Scoretaking do
           %User{}
         ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t()}
   def enter_results(round, results_attrs, user) do
-    round = Repo.preload(round, [:competition_event, :results])
+    Repo.transaction_with(fn ->
+      round = Repo.preload(round, [:competition_event, :results])
 
-    format = Format.get_by_id!(round.format_id)
-    event_id = round.competition_event.event_id
-    time_limit = round.time_limit
-    cutoff = round.cutoff
+      format = Format.get_by_id!(round.format_id)
+      event_id = round.competition_event.event_id
+      time_limit = round.time_limit
+      cutoff = round.cutoff
 
-    results_with_attrs =
-      for attrs <- results_attrs,
-          result = Enum.find(round.results, &(&1.id == attrs.id)),
-          do: {result, attrs.attempts, attrs.entered_at}
+      results_with_attrs =
+        for attrs <- results_attrs,
+            result = Enum.find(round.results, &(&1.id == attrs.id)),
+            do: {result, attrs.attempts, attrs.entered_at}
 
-    results_multi =
-      Enum.reduce(results_with_attrs, Multi.new(), fn {result, attempts, entered_at}, multi ->
-        Multi.update(multi, {:updated_result, result.id}, fn _changes ->
+      result_update_result =
+        Enum.reduce_while(results_with_attrs, :ok, fn {result, attempts, entered_at}, :ok ->
           result
           |> Result.changeset(%{attempts: attempts}, event_id, format, time_limit, cutoff)
           |> Changeset.put_change(:entered_by_id, user.id)
           |> Changeset.put_change(:entered_at, DateTime.truncate(entered_at, :second))
+          |> Repo.update()
+          |> case do
+            {:ok, _result} -> {:cont, :ok}
+            {:error, reason} -> {:halt, {:error, reason}}
+          end
         end)
-      end)
 
-    results_multi
-    |> Multi.merge(fn _ ->
-      round = Repo.preload(round, :results, force: true)
-      process_round_after_results_change(round)
+      with :ok <- result_update_result,
+           round <- Repo.preload(round, :results, force: true),
+           {:ok, round} <- process_round_after_results_change(round) do
+        {:ok, round}
+      end
     end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, _} -> {:ok, get_round!(round.id)}
-      {:error, _, reason, _} -> {:error, reason}
-    end
   end
 
   @doc """
@@ -194,19 +194,17 @@ defmodule WcaLive.Scoretaking do
   end
 
   # Updates attributes (`ranking`, `advancing` and record tags) of the given round results.
-  @spec process_round_after_results_change(%Round{}) :: Ecto.Multi.t()
   defp process_round_after_results_change(round) do
-    Multi.new()
-    |> Multi.run(:compute_ranking, fn _repo, _changes ->
-      bulk_update_ranking(round)
-    end)
-    |> Multi.update(:compute_advancing, fn %{compute_ranking: round} ->
-      # Note: advancement usually depends on ranking, that's why we compute it first.
-      Advancing.compute_advancing(round)
-    end)
-    |> Multi.update(:compute_record_tags, fn %{compute_advancing: round} ->
+    Repo.transaction_with(fn ->
       competition_event = round |> Ecto.assoc(:competition_event) |> Repo.one!()
-      RecordTags.compute_record_tags(competition_event)
+
+      with {:ok, round} <- bulk_update_ranking(round),
+           {:ok, round} <- Repo.update(Advancing.compute_advancing(round)),
+           {:ok, competition_event} <-
+             Repo.update(RecordTags.compute_record_tags(competition_event)) do
+        %Round{} = round = Enum.find(competition_event.rounds, &(&1.id == round.id))
+        {:ok, round}
+      end
     end)
   end
 
@@ -265,36 +263,38 @@ defmodule WcaLive.Scoretaking do
     if Round.open?(round) do
       {:error, "cannot open this round as it is already open"}
     else
-      Multi.new()
-      |> Multi.run(:finish_previous, fn _repo, _changes ->
-        if round.number > 1 do
-          previous = get_previous_round(round) |> Repo.preload(:results)
-          finish_round(previous)
-        else
-          {:ok, nil}
+      Repo.transaction_with(fn ->
+        with :ok <- finish_previous_round(round),
+             {:ok, round} <- create_empty_results(round) do
+          {:ok, round}
         end
       end)
-      |> Multi.run(:create_results, fn _repo, _changes ->
-        create_empty_results(round)
-      end)
-      |> Repo.transaction()
-      |> case do
-        {:ok, %{create_results: round}} -> {:ok, round}
-        {:error, _, reason, _} -> {:error, reason}
-      end
+    end
+  end
+
+  defp finish_previous_round(%{number: 1}), do: :ok
+
+  defp finish_previous_round(round) do
+    previous = get_previous_round(round)
+
+    with {:ok, _round} <- finish_round(previous) do
+      :ok
     end
   end
 
   # Finishes `round` by removing empty results, so that the next round may be opened.
   defp finish_round(round) do
+    round = Repo.preload(round, :results)
+
     actual_results = Enum.reject(round.results, &Result.empty?/1)
 
     if length(actual_results) < 8 do
       # See: https://www.worldcubeassociation.org/regulations/#9m3
       {:error, "rounds with less than 8 competitors cannot have a subsequent round"}
     else
-      # Note: we remove empty results, so we need to recompute advancing results,
-      # because an advancement condition may depend on the total number of results (i.e. "percent" type).
+      # Note: we remove empty results, so we need to recompute advancing
+      # results, because an advancement condition may depend on the total
+      # number of results (i.e. "percent" type).
 
       actual_results
       |> Round.put_results_in_round(round)
@@ -449,24 +449,25 @@ defmodule WcaLive.Scoretaking do
   @spec update_round_and_advancing(Ecto.Changeset.t(%Round{})) ::
           {:ok, %Round{}} | {:error, any()}
   defp update_round_and_advancing(round_changeset) do
-    Multi.new()
-    |> Multi.update(:round, round_changeset)
-    |> Multi.update(:compute_advancing, fn %{round: round} ->
-      Advancing.compute_advancing(round)
-    end)
-    |> Multi.run(:compute_previous_advancing, fn _, %{compute_advancing: round} ->
-      previous = get_previous_round(round) |> Repo.preload(:results)
-
-      if previous == nil do
-        {:ok, nil}
-      else
-        previous |> Advancing.compute_advancing() |> Repo.update()
+    Repo.transaction_with(fn ->
+      with {:ok, round} <- Repo.update(round_changeset),
+           {:ok, round} <- Repo.update(Advancing.compute_advancing(round)),
+           :ok <- compute_previous_round_advancing(round) do
+        {:ok, round}
       end
     end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{compute_advancing: round}} -> {:ok, round}
-      {:error, _, reason, _} -> {:error, reason}
+  end
+
+  defp compute_previous_round_advancing(%{number: 1}), do: :ok
+
+  defp compute_previous_round_advancing(round) do
+    previous =
+      round
+      |> get_previous_round()
+      |> Repo.preload(:results)
+
+    with {:ok, _round} <- Repo.update(Advancing.compute_advancing(previous)) do
+      :ok
     end
   end
 
