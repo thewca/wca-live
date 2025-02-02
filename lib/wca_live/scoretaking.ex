@@ -125,7 +125,7 @@ defmodule WcaLive.Scoretaking do
           %Round{},
           list(%{id: term(), attempts: list(map()), entered_at: DateTime.t()}),
           %Accounts.User{}
-        ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t()}
+        ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t() | String.t()}
   def enter_results(round, results_attrs, user) do
     Repo.transaction_with(fn ->
       round = Repo.preload(round, [:competition_event, :results])
