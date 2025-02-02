@@ -143,9 +143,15 @@ docker compose -f docker-compose.dev.yml exec database psql -U postgres wca_live
 
 In the development environment, instead of interacting with the real WCA server we
 talk to the [staging server](https://staging.worldcubeassociation.org). It's similar
-to the production one, but used for testing purposes. Inparticular there is no sensitive
-data and every user has the password of `wca`, so you can sign in as whoever you want.
+to the production one, but used for testing purposes. You can sign into staging via
+your actual WCA account and you sign as the matching staging user.
 
-To have a competition to work on, find an upcoming one with some registered competitors,
-then sign in as one of the delegates/organizers and import the competition under
-*My competitions*.
+If you have access to any future competition on staging, you can import it.
+
+In the dev environment, there is also a test competition with pre-filled results.
+In order to to edit it, you need admin privilages. You can make yourself an admin,
+by running the following command, right after you sign in:
+
+```elixir
+mix run -e 'import Ecto.Query; from(u in WcaLive.Accounts.User, order_by: [desc: u.updated_at], limit: 1) |> WcaLive.Repo.one!() |> Ecto.Changeset.change(wca_teams: ["wst"]) |> WcaLive.Repo.update!()'
+```
