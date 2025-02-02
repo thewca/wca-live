@@ -197,8 +197,8 @@ defmodule WcaLive.Scoretaking do
   @spec process_round_after_results_change(%Round{}) :: Ecto.Multi.t()
   defp process_round_after_results_change(round) do
     Multi.new()
-    |> Multi.update(:compute_ranking, fn _ ->
-      Ranking.compute_ranking(round)
+    |> Multi.run(:compute_ranking, fn _repo, _changes ->
+      bulk_update_ranking(round)
     end)
     |> Multi.update(:compute_advancing, fn %{compute_ranking: round} ->
       # Note: advancement usually depends on ranking, that's why we compute it first.
@@ -208,6 +208,47 @@ defmodule WcaLive.Scoretaking do
       competition_event = round |> Ecto.assoc(:competition_event) |> Repo.one!()
       RecordTags.compute_record_tags(competition_event)
     end)
+  end
+
+  defp bulk_update_ranking(round) do
+    # Entering a single result can alter the ranking of many results
+    # (in the worst case, all from the same round), so we perform the
+    # update as a single query, to avoid a bunch of trips to the db.
+
+    round_changeset = Ranking.compute_ranking(round)
+    result_changesets = Changeset.get_assoc(round_changeset, :results)
+
+    {result_ids, rankings} =
+      Enum.unzip(
+        for changeset <- result_changesets,
+            Changeset.changed?(changeset, :ranking),
+            do: {Changeset.get_field(changeset, :id), Changeset.get_field(changeset, :ranking)}
+      )
+
+    num_changed = length(result_ids)
+    changed_round = Changeset.apply_changes(round_changeset)
+
+    if num_changed == 0 do
+      {:ok, changed_round}
+    else
+      Repo.update_all(
+        from(result in Result,
+          join:
+            rankings in fragment(
+              "SELECT * FROM unnest(?::bigint[], ?::integer[]) AS rankings(result_id, ranking)",
+              ^result_ids,
+              ^rankings
+            ),
+          on: result.id == rankings.result_id,
+          update: [set: [ranking: rankings.ranking, updated_at: ^DateTime.utc_now(:second)]]
+        ),
+        []
+      )
+      |> case do
+        {^num_changed, nil} -> {:ok, changed_round}
+        _other -> {:error, "failed to bulk update rankings"}
+      end
+    end
   end
 
   @doc """
