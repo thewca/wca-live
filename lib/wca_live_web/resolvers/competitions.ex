@@ -1,7 +1,7 @@
 defmodule WcaLiveWeb.Resolvers.Competitions do
   alias WcaLive.Competitions
   alias WcaLive.Scoretaking
-  alias WcaLive.Wca.{Country, Event}
+  alias WcaLive.Wca
 
   # Competitions
 
@@ -52,7 +52,7 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
   # Competition events
 
   def competition_event_event(%{event_id: event_id}, _args, _resolution) do
-    {:ok, Event.get_by_id!(event_id)}
+    {:ok, Wca.Event.get_by_id!(event_id)}
   end
 
   # People
@@ -63,7 +63,7 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
   end
 
   def person_country(%{country_iso2: iso2}, _args, _resolution) do
-    {:ok, Country.get_by_iso2!(iso2)}
+    {:ok, Wca.Country.get_by_iso2!(iso2)}
   end
 
   def get_person(_parent, %{id: id}, _resolution) do
@@ -81,6 +81,6 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
   end
 
   def venue_country(%{country_iso2: iso2}, _args, _resolution) do
-    {:ok, Country.get_by_iso2!(iso2)}
+    {:ok, Wca.Country.get_by_iso2!(iso2)}
   end
 end

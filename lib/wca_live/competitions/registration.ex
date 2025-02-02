@@ -6,7 +6,8 @@ defmodule WcaLive.Competitions.Registration do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Person, CompetitionEvent, Registration}
+  alias WcaLive.Competitions
+  alias WcaLive.Competitions.Registration
 
   @required_fields [:wca_registration_id, :status, :guests]
   @optional_fields [:comments]
@@ -17,9 +18,9 @@ defmodule WcaLive.Competitions.Registration do
     field :guests, :integer
     field :comments, :string, default: ""
 
-    belongs_to :person, Person
+    belongs_to :person, Competitions.Person
 
-    many_to_many :competition_events, CompetitionEvent,
+    many_to_many :competition_events, Competitions.CompetitionEvent,
       join_through: "registration_competition_events",
       on_replace: :delete
   end

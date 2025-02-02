@@ -10,8 +10,8 @@ defmodule WcaLiveWeb.Loader do
 
   require Ecto.Query
 
-  alias WcaLive.Competitions.Person
-  alias WcaLive.Scoretaking.{Round, Result}
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
 
   @doc """
   Returns a new dataloader with `:db` data source
@@ -25,16 +25,16 @@ defmodule WcaLiveWeb.Loader do
     |> Dataloader.add_source(:db, source)
   end
 
-  defp query(Person, %{competitor: true}) do
-    Person |> Person.where_competitor()
+  defp query(Competitions.Person, %{competitor: true}) do
+    Competitions.Person |> Competitions.Person.where_competitor()
   end
 
-  defp query(Round, _args) do
-    Round |> Round.order_by_number()
+  defp query(Scoretaking.Round, _args) do
+    Scoretaking.Round |> Scoretaking.Round.order_by_number()
   end
 
-  defp query(Result, _args) do
-    Result |> Result.order_by_ranking()
+  defp query(Scoretaking.Result, _args) do
+    Scoretaking.Result |> Scoretaking.Result.order_by_ranking()
   end
 
   defp query(querable, _args), do: querable

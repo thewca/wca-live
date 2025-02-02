@@ -6,8 +6,9 @@ defmodule WcaLive.Competitions.StaffMember do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Accounts.User
-  alias WcaLive.Competitions.{Competition, StaffMember}
+  alias WcaLive.Accounts
+  alias WcaLive.Competitions
+  alias WcaLive.Competitions.StaffMember
 
   @allowed_roles ["delegate", "trainee-delegate", "organizer", "staff-dataentry"]
   @min_roles 1
@@ -18,8 +19,8 @@ defmodule WcaLive.Competitions.StaffMember do
   schema "staff_members" do
     field :roles, {:array, :string}, default: []
 
-    belongs_to :user, User
-    belongs_to :competition, Competition
+    belongs_to :user, Accounts.User
+    belongs_to :competition, Competitions.Competition
   end
 
   def changeset(staff_member, attrs) do

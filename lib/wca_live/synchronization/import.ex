@@ -4,21 +4,9 @@ defmodule WcaLive.Synchronization.Import do
 
   alias WcaLive.Repo
   alias WcaLive.Wcif
-
-  alias WcaLive.Competitions.{
-    Activity,
-    Assignment,
-    Competition,
-    CompetitionEvent,
-    Person,
-    PersonalBest,
-    Registration,
-    Room,
-    StaffMember,
-    Venue
-  }
-
-  alias WcaLive.Scoretaking.{Round, Result}
+  alias WcaLive.Competitions
+  alias WcaLive.Competitions.Competition
+  alias WcaLive.Scoretaking
   alias WcaLive.Accounts.User
 
   # When importing a competition, all inserts happen within a single
@@ -170,7 +158,7 @@ defmodule WcaLive.Synchronization.Import do
         staff_member =
           Enum.find(
             competition.staff_members,
-            %StaffMember{},
+            %Competitions.StaffMember{},
             &(&1.user.wca_user_id == staff_wca_user_id)
           )
 
@@ -198,7 +186,7 @@ defmodule WcaLive.Synchronization.Import do
         roles = MapSet.union(unchanged_roles, added_roles) |> MapSet.to_list()
 
         staff_member
-        |> StaffMember.changeset(%{roles: roles})
+        |> Competitions.StaffMember.changeset(%{roles: roles})
         |> put_assoc(:user, user)
       end)
 
@@ -209,11 +197,11 @@ defmodule WcaLive.Synchronization.Import do
   end
 
   defp any_staff_role?(roles) do
-    Enum.any?(roles, &StaffMember.valid_staff_role?/1)
+    Enum.any?(roles, &Competitions.StaffMember.valid_staff_role?/1)
   end
 
   defp staff_roles(new_wcif_roles) do
-    Enum.filter(new_wcif_roles, &StaffMember.valid_staff_role?/1)
+    Enum.filter(new_wcif_roles, &Competitions.StaffMember.valid_staff_role?/1)
   end
 
   # Note: the top-level functions preload associations for efficiency reasons,
@@ -285,7 +273,7 @@ defmodule WcaLive.Synchronization.Import do
     competition_event = Repo.preload(competition_event, :rounds)
 
     competition_event
-    |> CompetitionEvent.changeset(%{
+    |> Competitions.CompetitionEvent.changeset(%{
       event_id: wcif_event["id"],
       competitor_limit: wcif_event["competitorLimit"],
       qualification: wcif_event["qualification"] |> wcif_qualification_to_attrs()
@@ -312,7 +300,7 @@ defmodule WcaLive.Synchronization.Import do
 
   defp round_changeset(round, wcif_round, _competition) do
     round
-    |> Round.changeset(%{
+    |> Scoretaking.Round.changeset(%{
       number: wcif_round["id"] |> Wcif.ActivityCode.parse!() |> Map.fetch!(:round_number),
       format_id: wcif_round["format"],
       time_limit: wcif_round["timeLimit"] |> wcif_time_limit_to_attrs(),
@@ -354,7 +342,7 @@ defmodule WcaLive.Synchronization.Import do
     venue = Repo.preload(venue, :rooms)
 
     venue
-    |> Venue.changeset(%{
+    |> Competitions.Venue.changeset(%{
       wcif_id: wcif_venue["id"],
       name: wcif_venue["name"],
       latitude_microdegrees: wcif_venue["latitudeMicrodegrees"],
@@ -372,7 +360,7 @@ defmodule WcaLive.Synchronization.Import do
     room = Repo.preload(room, :activities)
 
     room
-    |> Room.changeset(%{
+    |> Competitions.Room.changeset(%{
       wcif_id: wcif_room["id"],
       name: wcif_room["name"],
       color: wcif_room["color"]
@@ -395,7 +383,7 @@ defmodule WcaLive.Synchronization.Import do
       end
 
     activity
-    |> Activity.changeset(%{
+    |> Competitions.Activity.changeset(%{
       wcif_id: wcif_activity["id"],
       name: wcif_activity["name"],
       activity_code: wcif_activity["activityCode"],
@@ -414,7 +402,7 @@ defmodule WcaLive.Synchronization.Import do
 
     changeset =
       person
-      |> Person.changeset(%{
+      |> Competitions.Person.changeset(%{
         registrant_id: wcif_person["registrantId"],
         name: wcif_person["name"],
         wca_user_id: wcif_person["wcaUserId"],
@@ -465,7 +453,8 @@ defmodule WcaLive.Synchronization.Import do
       end)
 
     # Copy any other roles that we don't store in staff members.
-    other_wcif_roles = Enum.reject(wcif_person["roles"], &StaffMember.valid_staff_role?/1)
+    other_wcif_roles =
+      Enum.reject(wcif_person["roles"], &Competitions.StaffMember.valid_staff_role?/1)
 
     staff_member_roles ++ other_wcif_roles
   end
@@ -479,7 +468,7 @@ defmodule WcaLive.Synchronization.Import do
       Enum.filter(competition.competition_events, &(&1.event_id in wcif_registration["eventIds"]))
 
     registration
-    |> Registration.changeset(%{
+    |> Competitions.Registration.changeset(%{
       wca_registration_id: wcif_registration["wcaRegistrationId"],
       status: wcif_registration["status"],
       guests: wcif_registration["guests"],
@@ -490,7 +479,7 @@ defmodule WcaLive.Synchronization.Import do
 
   defp personal_best_changeset(personal_best, wcif_personal_best, _competition) do
     personal_best
-    |> PersonalBest.changeset(%{
+    |> Competitions.PersonalBest.changeset(%{
       event_id: wcif_personal_best["eventId"],
       type: wcif_personal_best["type"],
       best: wcif_personal_best["best"],
@@ -504,7 +493,7 @@ defmodule WcaLive.Synchronization.Import do
     activity = Competition.find_activity_by_wcif_id!(competition, wcif_assignment["activityId"])
 
     assignment
-    |> Assignment.changeset(%{
+    |> Competitions.Assignment.changeset(%{
       assignment_code: wcif_assignment["assignmentCode"],
       station_number: wcif_assignment["stationNumber"]
     })
@@ -526,21 +515,23 @@ defmodule WcaLive.Synchronization.Import do
         Enum.find(competition_event.rounds, &(&1.number == 1))
       end)
       |> Enum.filter(fn round ->
-        round != nil and Round.open?(round) and not Round.finished?(round)
+        round != nil and Scoretaking.Round.open?(round) and not Scoretaking.Round.finished?(round)
       end)
       |> Enum.filter(fn round ->
         not Enum.any?(person.results, fn result -> result.round_id == round.id end)
       end)
-      |> Enum.map(&Result.empty_result(round: &1))
+      |> Enum.map(&Scoretaking.Result.empty_result(round: &1))
 
     new_results ++ person.results
   end
 
-  defp accepted_person_event_ids(%Person{registration: %{status: "accepted"}} = person) do
+  defp accepted_person_event_ids(
+         %Competitions.Person{registration: %{status: "accepted"}} = person
+       ) do
     Enum.map(person.registration.competition_events, & &1.event_id)
   end
 
-  defp accepted_person_event_ids(%Person{}), do: []
+  defp accepted_person_event_ids(%Competitions.Person{}), do: []
 
   defp accepted_wcif_person_event_ids(
          %{"registration" => %{"status" => "accepted"}} = wcif_person

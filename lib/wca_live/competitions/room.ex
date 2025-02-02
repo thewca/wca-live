@@ -6,7 +6,7 @@ defmodule WcaLive.Competitions.Room do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Venue, Activity}
+  alias WcaLive.Competitions
 
   @required_fields [:wcif_id, :name, :color]
   @optional_fields []
@@ -16,8 +16,8 @@ defmodule WcaLive.Competitions.Room do
     field :name, :string
     field :color, :string
 
-    belongs_to :venue, Venue
-    has_many :activities, Activity, on_replace: :delete
+    belongs_to :venue, Competitions.Venue
+    has_many :activities, Competitions.Activity, on_replace: :delete
   end
 
   def changeset(room, attrs) do

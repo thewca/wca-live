@@ -6,7 +6,8 @@ defmodule WcaLive.Accounts do
   import Ecto.Query, warn: false
 
   alias WcaLive.Repo
-  alias WcaLive.Accounts.{User, AccessToken, OneTimeCode, UserToken, ScoretakingToken}
+  alias WcaLive.Accounts
+  alias WcaLive.Accounts.User
   alias WcaLive.Wca
 
   @doc """
@@ -61,7 +62,7 @@ defmodule WcaLive.Accounts do
   Generates a session token.
   """
   def generate_user_session_token(user) do
-    user_token = UserToken.build_session_token(user)
+    user_token = Accounts.UserToken.build_session_token(user)
     Repo.insert!(user_token)
     user_token.token
   end
@@ -70,26 +71,26 @@ defmodule WcaLive.Accounts do
   Gets the user with the given token.
   """
   def get_user_by_session_token(token) do
-    Repo.one(UserToken.verify_session_token_query(token))
+    Repo.one(Accounts.UserToken.verify_session_token_query(token))
   end
 
   @doc """
   Deletes session token by value.
   """
   def delete_user_session_token(token) do
-    Repo.delete_all(UserToken.token_and_context_query(token, "session"))
+    Repo.delete_all(Accounts.UserToken.token_and_context_query(token, "session"))
     :ok
   end
 
   @doc """
   Gets user's access token and refreshes it if it's expired.
   """
-  @spec get_valid_access_token(%User{}) :: {:ok, %AccessToken{}} | {:error, String.t()}
+  @spec get_valid_access_token(%User{}) :: {:ok, %Accounts.AccessToken{}} | {:error, String.t()}
   def get_valid_access_token(user) do
     access_token = Ecto.assoc(user, :access_token) |> Repo.one!()
 
     # Refresh the token if it expires soon.
-    if AccessToken.expires_soon?(access_token) do
+    if Accounts.AccessToken.expires_soon?(access_token) do
       with {:ok, token_attrs} <- Wca.OAuth.refresh_token(access_token.refresh_token),
            {:ok, new_access_token} <- update_access_token(access_token, token_attrs) do
         {:ok, new_access_token}
@@ -104,7 +105,7 @@ defmodule WcaLive.Accounts do
 
   defp update_access_token(access_token, attrs) do
     access_token
-    |> AccessToken.changeset(attrs)
+    |> Accounts.AccessToken.changeset(attrs)
     |> Repo.update()
   end
 
@@ -113,9 +114,10 @@ defmodule WcaLive.Accounts do
 
   If the user already has an OTC, it gets removed.
   """
-  @spec generate_one_time_code(%User{}) :: {:ok, %OneTimeCode{}} | {:error, Ecto.Changeset.t()}
+  @spec generate_one_time_code(%User{}) ::
+          {:ok, %Accounts.OneTimeCode{}} | {:error, Ecto.Changeset.t()}
   def generate_one_time_code(user) do
-    otc = OneTimeCode.new_for_user(user)
+    otc = Accounts.OneTimeCode.new_for_user(user)
 
     user
     |> Repo.preload(:one_time_code)
@@ -135,14 +137,14 @@ defmodule WcaLive.Accounts do
   """
   @spec authenticate_by_code(String.t()) :: {:ok, %User{}} | {:error, String.t()}
   def authenticate_by_code(code) do
-    OneTimeCode
+    Accounts.OneTimeCode
     |> Repo.get_by(code: code)
     |> case do
       nil ->
         {:error, "invalid code"}
 
       otc ->
-        if OneTimeCode.expired?(otc) do
+        if Accounts.OneTimeCode.expired?(otc) do
           {:error, "code expired"}
         else
           user = Ecto.assoc(otc, :user) |> Repo.one!()
@@ -157,7 +159,7 @@ defmodule WcaLive.Accounts do
   Generates a new scoretaking token.
   """
   def generate_scoretaking_token(user, competition) do
-    scoretaking_token = ScoretakingToken.build_scoretaking_token(user, competition)
+    scoretaking_token = Accounts.ScoretakingToken.build_scoretaking_token(user, competition)
     Repo.insert!(scoretaking_token)
   end
 
@@ -165,14 +167,14 @@ defmodule WcaLive.Accounts do
   Gets the user with the given token.
   """
   def get_user_and_competition_by_scoretaking_token(token) do
-    Repo.one(ScoretakingToken.verify_token_query(token))
+    Repo.one(Accounts.ScoretakingToken.verify_token_query(token))
   end
 
   @doc """
   Gets scoretaking token by id.
   """
   def get_scoretaking_token!(id) do
-    Repo.get!(ScoretakingToken, id)
+    Repo.get!(Accounts.ScoretakingToken, id)
   end
 
   @doc """
@@ -187,6 +189,6 @@ defmodule WcaLive.Accounts do
   Lists all active scoretaking tokens for the given user.
   """
   def list_active_scoretaking_tokens(user) do
-    Repo.all(ScoretakingToken.active_tokens_for_user_query(user))
+    Repo.all(Accounts.ScoretakingToken.active_tokens_for_user_query(user))
   end
 end

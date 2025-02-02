@@ -6,8 +6,8 @@ defmodule WcaLive.Competitions.CompetitionEvent do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Competition, Qualification, Registration}
-  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
 
   @required_fields [:event_id]
   @optional_fields [:competitor_limit]
@@ -16,11 +16,13 @@ defmodule WcaLive.Competitions.CompetitionEvent do
     field :competitor_limit, :integer
     field :event_id, :string
 
-    embeds_one :qualification, Qualification, on_replace: :update
+    embeds_one :qualification, Competitions.Qualification, on_replace: :update
 
-    belongs_to :competition, Competition
-    has_many :rounds, Round, on_replace: :delete
-    many_to_many :registrations, Registration, join_through: "registration_competition_events"
+    belongs_to :competition, Competitions.Competition
+    has_many :rounds, Scoretaking.Round, on_replace: :delete
+
+    many_to_many :registrations, Competitions.Registration,
+      join_through: "registration_competition_events"
   end
 
   def changeset(competition_event, attrs) do

@@ -12,8 +12,9 @@ defmodule WcaLive.Competitions.Person do
   import Ecto.Changeset
   import Ecto.Query, warn: false
 
-  alias WcaLive.Competitions.{Competition, Registration, PersonalBest, Assignment, Person}
-  alias WcaLive.Scoretaking.Result
+  alias WcaLive.Competitions
+  alias WcaLive.Competitions.Person
+  alias WcaLive.Scoretaking
 
   @required_fields [
     :wca_user_id,
@@ -41,11 +42,11 @@ defmodule WcaLive.Competitions.Person do
     field :avatar_thumb_url, :string
     field :roles, {:array, :string}
 
-    belongs_to :competition, Competition
-    has_one :registration, Registration, on_replace: :update
-    has_many :personal_bests, PersonalBest, on_replace: :delete
-    has_many :assignments, Assignment, on_replace: :delete
-    has_many :results, Result, on_replace: :delete
+    belongs_to :competition, Competitions.Competition
+    has_one :registration, Competitions.Registration, on_replace: :update
+    has_many :personal_bests, Competitions.PersonalBest, on_replace: :delete
+    has_many :assignments, Competitions.Assignment, on_replace: :delete
+    has_many :results, Scoretaking.Result, on_replace: :delete
   end
 
   def changeset(person, attrs) do

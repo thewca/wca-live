@@ -7,9 +7,10 @@ defmodule WcaLive.Scoretaking.Round do
   import Ecto.Query, warn: false
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.CompetitionEvent
-  alias WcaLive.Scoretaking.{AdvancementCondition, Cutoff, Result, Round, TimeLimit}
-  alias WcaLive.Wca.Format
+  alias WcaLive.Scoretaking
+  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Competitions
+  alias WcaLive.Wca
 
   @required_fields [:number, :format_id, :scramble_set_count]
   @optional_fields []
@@ -19,13 +20,13 @@ defmodule WcaLive.Scoretaking.Round do
     field :format_id, :string
     field :scramble_set_count, :integer
 
-    embeds_one :advancement_condition, AdvancementCondition, on_replace: :update
-    embeds_one :cutoff, Cutoff, on_replace: :update
-    embeds_one :time_limit, TimeLimit, on_replace: :update
+    embeds_one :advancement_condition, Scoretaking.AdvancementCondition, on_replace: :update
+    embeds_one :cutoff, Scoretaking.Cutoff, on_replace: :update
+    embeds_one :time_limit, Scoretaking.TimeLimit, on_replace: :update
 
-    belongs_to :competition_event, CompetitionEvent
+    belongs_to :competition_event, Competitions.CompetitionEvent
     has_one :competition, through: [:competition_event, :competition]
-    has_many :results, Result, on_replace: :delete
+    has_many :results, Scoretaking.Result, on_replace: :delete
   end
 
   def changeset(round, attrs) do
@@ -40,7 +41,8 @@ defmodule WcaLive.Scoretaking.Round do
   @doc """
   Returns a new changeset placing `results` association in `round`.
   """
-  @spec put_results_in_round(list(%Result{} | Ecto.Changeset.t()), %Round{}) :: Ecto.Changeset.t()
+  @spec put_results_in_round(list(%Scoretaking.Result{} | Ecto.Changeset.t()), %Round{}) ::
+          Ecto.Changeset.t()
   def put_results_in_round(results, round) do
     round |> change() |> put_assoc(:results, results)
   end
@@ -119,12 +121,16 @@ defmodule WcaLive.Scoretaking.Round do
   def finished?(%Round{results: []}), do: false
 
   def finished?(round) do
-    format = Format.get_by_id!(round.format_id)
+    format = Wca.Format.get_by_id!(round.format_id)
 
     unfinished_results =
       round.results
       |> Enum.filter(
-        &(not Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff))
+        &(not Scoretaking.Result.has_expected_attempts?(
+            &1,
+            format.number_of_attempts,
+            round.cutoff
+          ))
       )
       |> length()
 
@@ -139,11 +145,11 @@ defmodule WcaLive.Scoretaking.Round do
   """
   @spec num_entered_results(%Round{}) :: non_neg_integer()
   def num_entered_results(round) do
-    format = Format.get_by_id!(round.format_id)
+    format = Wca.Format.get_by_id!(round.format_id)
 
     Enum.count(
       round.results,
-      &Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff)
+      &Scoretaking.Result.has_expected_attempts?(&1, format.number_of_attempts, round.cutoff)
     )
   end
 

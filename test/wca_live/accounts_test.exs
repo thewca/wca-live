@@ -3,7 +3,8 @@ defmodule WcaLive.AccountsTest do
   import WcaLive.Factory
 
   alias WcaLive.Accounts
-  alias WcaLive.Accounts.{User, OneTimeCode}
+  alias WcaLive.Accounts.User
+  alias WcaLive.Accounts.OneTimeCode
 
   test "import_user/1 creates a user if the wca user id is new" do
     user_attrs = params_for(:user)

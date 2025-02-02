@@ -10,10 +10,12 @@ defmodule WcaLive.Scoretaking do
 
   alias Ecto.Changeset
   alias WcaLive.Repo
-  alias WcaLive.Wca.{Event, Format}
-  alias WcaLive.Competitions.{Person, Registration, Competition}
-  alias WcaLive.Scoretaking.{Round, Result, Ranking, Advancing, RecordTags}
-  alias WcaLive.Accounts.User
+  alias WcaLive.Wca
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
+  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Scoretaking.Result
+  alias WcaLive.Accounts
 
   @doc """
   Gets a single round.
@@ -122,13 +124,13 @@ defmodule WcaLive.Scoretaking do
   @spec enter_results(
           %Round{},
           list(%{id: term(), attempts: list(map()), entered_at: DateTime.t()}),
-          %User{}
+          %Accounts.User{}
         ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t()}
   def enter_results(round, results_attrs, user) do
     Repo.transaction_with(fn ->
       round = Repo.preload(round, [:competition_event, :results])
 
-      format = Format.get_by_id!(round.format_id)
+      format = Wca.Format.get_by_id!(round.format_id)
       event_id = round.competition_event.event_id
       time_limit = round.time_limit
       cutoff = round.cutoff
@@ -165,7 +167,7 @@ defmodule WcaLive.Scoretaking do
   Wraps `enter_results/3`.
   """
   def enter_result_attempt(round, result, attempt_number, attempt_result, user) do
-    format = Format.get_by_id!(round.format_id)
+    format = Wca.Format.get_by_id!(round.format_id)
 
     attempt_attrs = Enum.map(result.attempts, &Map.from_struct/1)
 
@@ -199,9 +201,9 @@ defmodule WcaLive.Scoretaking do
       competition_event = round |> Ecto.assoc(:competition_event) |> Repo.one!()
 
       with {:ok, round} <- bulk_update_ranking(round),
-           {:ok, round} <- Repo.update(Advancing.compute_advancing(round)),
+           {:ok, round} <- Repo.update(Scoretaking.Advancing.compute_advancing(round)),
            {:ok, competition_event} <-
-             Repo.update(RecordTags.compute_record_tags(competition_event)) do
+             Repo.update(Scoretaking.RecordTags.compute_record_tags(competition_event)) do
         %Round{} = round = Enum.find(competition_event.rounds, &(&1.id == round.id))
         {:ok, round}
       end
@@ -213,7 +215,7 @@ defmodule WcaLive.Scoretaking do
     # (in the worst case, all from the same round), so we perform the
     # update as a single query, to avoid a bunch of trips to the db.
 
-    round_changeset = Ranking.compute_ranking(round)
+    round_changeset = Scoretaking.Ranking.compute_ranking(round)
     result_changesets = Changeset.get_assoc(round_changeset, :results)
 
     {result_ids, rankings} =
@@ -325,7 +327,7 @@ defmodule WcaLive.Scoretaking do
         |> Repo.all()
 
       registrations
-      |> Enum.filter(&Registration.accepted?/1)
+      |> Enum.filter(&Competitions.Registration.accepted?/1)
       |> Enum.map(& &1.person_id)
     else
       previous = round |> get_previous_round() |> Repo.preload(:results)
@@ -358,7 +360,7 @@ defmodule WcaLive.Scoretaking do
 
   If someone no longer qualifies as a result, they get removed.
   """
-  @spec add_person_to_round(%Person{}, %Round{}) ::
+  @spec add_person_to_round(%Competitions.Person{}, %Round{}) ::
           {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def add_person_to_round(person, round) do
     round = round |> Repo.preload(:results)
@@ -366,7 +368,9 @@ defmodule WcaLive.Scoretaking do
     if Enum.any?(round.results, &(&1.person_id == person.id)) do
       {:error, "cannot add person as they are already in this round"}
     else
-      %{qualifying: qualifying, revocable: revocable} = Advancing.advancement_candidates(round)
+      %{qualifying: qualifying, revocable: revocable} =
+        Scoretaking.Advancing.advancement_candidates(round)
+
       qualifies? = Enum.any?(qualifying, &(&1.id == person.id))
 
       if not qualifies? do
@@ -393,7 +397,7 @@ defmodule WcaLive.Scoretaking do
 
     * `:replace` - Add the next qualifying person to this round if applicable. Defaults to `false`.
   """
-  @spec remove_person_from_round(%Person{}, %Round{}, keyword()) ::
+  @spec remove_person_from_round(%Competitions.Person{}, %Round{}, keyword()) ::
           {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def remove_person_from_round(person, round, opts \\ []) do
     replace = Keyword.get(opts, :replace, false)
@@ -405,7 +409,7 @@ defmodule WcaLive.Scoretaking do
     if result == nil do
       {:error, "cannot remove person as they are not in this round"}
     else
-      substitutes = Advancing.next_qualifying_to_round(round)
+      substitutes = Scoretaking.Advancing.next_qualifying_to_round(round)
 
       new_results =
         if replace do
@@ -451,7 +455,7 @@ defmodule WcaLive.Scoretaking do
   defp update_round_and_advancing(round_changeset) do
     Repo.transaction_with(fn ->
       with {:ok, round} <- Repo.update(round_changeset),
-           {:ok, round} <- Repo.update(Advancing.compute_advancing(round)),
+           {:ok, round} <- Repo.update(Scoretaking.Advancing.compute_advancing(round)),
            :ok <- compute_previous_round_advancing(round) do
         {:ok, round}
       end
@@ -466,7 +470,7 @@ defmodule WcaLive.Scoretaking do
       |> get_previous_round()
       |> Repo.preload(:results)
 
-    with {:ok, _round} <- Repo.update(Advancing.compute_advancing(previous)) do
+    with {:ok, _round} <- Repo.update(Scoretaking.Advancing.compute_advancing(previous)) do
       :ok
     end
   end
@@ -518,7 +522,7 @@ defmodule WcaLive.Scoretaking do
   @doc """
   Returns a list of records for the given competition.
   """
-  @spec list_competition_records(%Competition{}) :: list(record())
+  @spec list_competition_records(%Competitions.Competition{}) :: list(record())
   def list_competition_records(competition) do
     competition_id = competition.id
     tags = ["WR", "CR", "NR"]
@@ -573,7 +577,7 @@ defmodule WcaLive.Scoretaking do
       event_id = record.result.round.competition_event.event_id
 
       %{record_key: record_key} =
-        RecordTags.tags_with_record_key(person, event_id, record.type)
+        Scoretaking.RecordTags.tags_with_record_key(person, event_id, record.type)
         |> Enum.find(fn %{tag: tag} -> tag == record.tag end)
 
       record_key
@@ -587,7 +591,7 @@ defmodule WcaLive.Scoretaking do
       event_id = record.result.round.competition_event.event_id
       person_name = record.result.person.name
 
-      {record_tag_rank(record.tag), Event.get_rank_by_id!(event_id),
+      {record_tag_rank(record.tag), Wca.Event.get_rank_by_id!(event_id),
        record_type_rank(record.type), record.attempt_result, person_name}
     end)
   end
@@ -614,7 +618,7 @@ defmodule WcaLive.Scoretaking do
   there's still a podium object representing it,
   but the result list is empty.
   """
-  @spec list_podiums(%Competition{}) :: list(podium())
+  @spec list_podiums(%Competitions.Competition{}) :: list(podium())
   def list_podiums(competition) do
     competition_events =
       competition
@@ -623,7 +627,7 @@ defmodule WcaLive.Scoretaking do
       |> Repo.preload(rounds: :results)
 
     competition_events
-    |> Enum.sort_by(&Event.get_rank_by_id!(&1.event_id))
+    |> Enum.sort_by(&Wca.Event.get_rank_by_id!(&1.event_id))
     |> Enum.map(fn competition_event ->
       final_round = Enum.max_by(competition_event.rounds, & &1.number)
 

@@ -1,7 +1,9 @@
 defmodule WcaLiveWeb.CompetitionController do
   use WcaLiveWeb, :controller
 
-  alias WcaLive.{Competitions, Scoretaking, Repo}
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
+  alias WcaLive.Repo
 
   def show_wcif(conn, params) do
     case Competitions.fetch_competition(params["id"]) do

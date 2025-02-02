@@ -6,7 +6,7 @@ defmodule WcaLive.Competitions.Venue do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Competition, Room}
+  alias WcaLive.Competitions
 
   @required_fields [
     :wcif_id,
@@ -26,8 +26,8 @@ defmodule WcaLive.Competitions.Venue do
     field :country_iso2, :string
     field :timezone, :string
 
-    belongs_to :competition, Competition
-    has_many :rooms, Room, on_replace: :delete
+    belongs_to :competition, Competitions.Competition
+    has_many :rooms, Competitions.Room, on_replace: :delete
   end
 
   def changeset(venue, attrs) do

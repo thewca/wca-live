@@ -6,7 +6,8 @@ defmodule WcaLive.Competitions do
   import Ecto.Query, warn: false
 
   alias WcaLive.Repo
-  alias WcaLive.Competitions.{Competition, Person}
+  alias WcaLive.Competitions.Competition
+  alias WcaLive.Competitions.Person
 
   @competition_deletable_after_days 90
 

@@ -6,7 +6,7 @@ defmodule WcaLive.Competitions.Assignment do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Activity, Person}
+  alias WcaLive.Competitions
 
   @required_fields [:assignment_code]
   @optional_fields [:station_number]
@@ -15,8 +15,8 @@ defmodule WcaLive.Competitions.Assignment do
     field :assignment_code, :string
     field :station_number, :integer
 
-    belongs_to :person, Person
-    belongs_to :activity, Activity, on_replace: :nilify
+    belongs_to :person, Competitions.Person
+    belongs_to :activity, Competitions.Activity, on_replace: :nilify
   end
 
   def changeset(assignment, attrs) do

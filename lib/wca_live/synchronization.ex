@@ -14,20 +14,21 @@ defmodule WcaLive.Synchronization do
 
   alias Ecto.Changeset
   alias WcaLive.Repo
-  alias WcaLive.{Wca, Accounts, Synchronization}
-  alias WcaLive.Accounts.User
-  alias WcaLive.Competitions.Competition
-  alias WcaLive.Synchronization.CompetitionBrief
+  alias WcaLive.Wca
+  alias WcaLive.Accounts
+  alias WcaLive.Synchronization
+  alias WcaLive.Competitions
 
   @doc """
   Fetches competition data from the WCA API for the given `wca_id`
   and imports it into the database.
   """
-  @spec import_competition(String.t(), %User{}) :: {:ok, %Competition{}} | {:error, any()}
+  @spec import_competition(String.t(), %Accounts.User{}) ::
+          {:ok, %Competitions.Competition{}} | {:error, any()}
   def import_competition(wca_id, user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, wcif} <- Wca.Api.get_wcif(wca_id, access_token.access_token) do
-      %Competition{}
+      %Competitions.Competition{}
       |> Changeset.change()
       |> Changeset.put_assoc(:imported_by, user)
       |> Synchronization.Import.import_competition(wcif)
@@ -48,8 +49,8 @@ defmodule WcaLive.Synchronization do
   to reflect the same state, so that other applications
   may load the latest data from the WCA API.
   """
-  @spec synchronize_competition(%Competition{}, %User{}) ::
-          {:ok, %Competition{}} | {:error, any()}
+  @spec synchronize_competition(%Competitions.Competition{}, %Accounts.User{}) ::
+          {:ok, %Competitions.Competition{}} | {:error, any()}
   def synchronize_competition(competition, user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token),
@@ -65,8 +66,8 @@ defmodule WcaLive.Synchronization do
   Returns a list of WCA competitions that the given user
   manages on the WCA website and which haven't been imported yet.
   """
-  @spec get_importable_competition_briefs(%User{}) ::
-          {:ok, list(CompetitionBrief.t())} | {:error, any()}
+  @spec get_importable_competition_briefs(%Accounts.User{}) ::
+          {:ok, list(Synchronization.CompetitionBrief.t())} | {:error, any()}
   def get_importable_competition_briefs(user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, data} <-
@@ -74,12 +75,14 @@ defmodule WcaLive.Synchronization do
       competition_briefs =
         data
         |> Enum.filter(fn data -> data["announced_at"] != nil end)
-        |> Enum.map(&CompetitionBrief.from_wca_json/1)
+        |> Enum.map(&Synchronization.CompetitionBrief.from_wca_json/1)
 
       wca_ids = Enum.map(competition_briefs, & &1.wca_id)
 
       imported_wca_ids =
-        Repo.all(from c in Competition, where: c.wca_id in ^wca_ids, select: c.wca_id)
+        Repo.all(
+          from c in Competitions.Competition, where: c.wca_id in ^wca_ids, select: c.wca_id
+        )
 
       importable =
         Enum.filter(competition_briefs, fn competition ->

@@ -7,8 +7,10 @@ defmodule WcaLive.Competitions.Competition do
   import Ecto.Changeset
 
   alias WcaLive.Accounts.User
-  alias WcaLive.Competitions.{Competition, Venue, Person, CompetitionEvent, Activity, StaffMember}
-  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Competitions
+  alias WcaLive.Competitions.Activity
+  alias WcaLive.Competitions.Competition
+  alias WcaLive.Scoretaking
   alias WcaLive.Wcif
 
   @required_fields [
@@ -34,11 +36,11 @@ defmodule WcaLive.Competitions.Competition do
     field :synchronized_at, :utc_datetime
 
     belongs_to :imported_by, User
-    has_many :competition_events, CompetitionEvent, on_replace: :delete
-    has_many :venues, Venue, on_replace: :delete
-    has_many :people, Person, on_replace: :delete
+    has_many :competition_events, Competitions.CompetitionEvent, on_replace: :delete
+    has_many :venues, Competitions.Venue, on_replace: :delete
+    has_many :people, Competitions.Person, on_replace: :delete
 
-    has_many :staff_members, StaffMember, on_replace: :delete
+    has_many :staff_members, Competitions.StaffMember, on_replace: :delete
 
     timestamps()
   end
@@ -91,7 +93,7 @@ defmodule WcaLive.Competitions.Competition do
   *Note: `competition` must have competition events and rounds loaded.*
   """
   @spec find_round_by_activity_code(%Competition{}, String.t() | Wcif.ActivityCode.t()) ::
-          %Round{}
+          %Scoretaking.Round{}
   def find_round_by_activity_code(competition, activity_code) when is_binary(activity_code) do
     find_round_by_activity_code(competition, Wcif.ActivityCode.parse!(activity_code))
   end

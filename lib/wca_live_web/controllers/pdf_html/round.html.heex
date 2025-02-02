@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title><%= @event.name %> - <%= Round.name(@round) %></title>
+    <title><%= @event.name %> - <%= Scoretaking.Round.name(@round) %></title>
     <style>
       body {
         font-family: sans-serif;
@@ -85,7 +85,7 @@
       <%= @round.competition_event.competition.name %>
     </div>
     <div class="subtitle">
-      <%= @event.name %> - <%= Round.name(@round) %>
+      <%= @event.name %> - <%= Scoretaking.Round.name(@round) %>
     </div>
     <table class="results-table">
       <thead>
@@ -113,20 +113,20 @@
           <% attempt_results =
             result.attempts
             |> Enum.map(& &1.result)
-            |> AttemptResult.pad_skipped(@format.number_of_attempts) %>
+            |> Scoretaking.AttemptResult.pad_skipped(@format.number_of_attempts) %>
 
           <tr>
             <td class={["right", result.advancing && "advancing"]}>
               <%= result.ranking %>
             </td>
             <td>
-              <%= Person.latin_name(result.person) %>
+              <%= Competitions.Person.latin_name(result.person) %>
             </td>
             <td>
               <%= country.name %>
             </td>
             <td :for={attempt_result <- attempt_results} class="right">
-              <%= AttemptResult.format(attempt_result, @event.id) %>
+              <%= Scoretaking.AttemptResult.format(attempt_result, @event.id) %>
             </td>
             <%= for stat <- @stats do %>
               <% record_tag = Map.fetch!(result, stat.record_tag_field) %>
@@ -134,7 +134,7 @@
                 <span :if={record_tag in ["WR", "CR", "NR"]} class={["record-tag", record_tag]}>
                   <%= record_tag %>
                 </span>
-                <%= AttemptResult.format(Map.fetch!(result, stat.field), @event.id) %>
+                <%= Scoretaking.AttemptResult.format(Map.fetch!(result, stat.field), @event.id) %>
               </td>
             <% end %>
           </tr>

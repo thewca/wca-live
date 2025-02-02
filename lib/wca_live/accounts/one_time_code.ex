@@ -19,7 +19,7 @@ defmodule WcaLive.Accounts.OneTimeCode do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Accounts.{User, OneTimeCode}
+  alias WcaLive.Accounts
 
   # Configure OTCs to expire in 2 minutes.
   @ttl_sec 2 * 60
@@ -28,7 +28,7 @@ defmodule WcaLive.Accounts.OneTimeCode do
     field :code, :string
     field :expires_at, :utc_datetime
 
-    belongs_to :user, User
+    belongs_to :user, Accounts.User
 
     timestamps(updated_at: false)
   end
@@ -37,14 +37,14 @@ defmodule WcaLive.Accounts.OneTimeCode do
   Returns the changeset for a new OTC with randomly
   generated code and a short expiration time.
   """
-  @spec new_for_user(%User{}) :: Ecto.Changeset.t()
+  @spec new_for_user(%Accounts.User{}) :: Ecto.Changeset.t()
   def new_for_user(user) do
     code = "#{user.id}-#{random_digits(6)}"
 
     expires_at =
       DateTime.utc_now() |> DateTime.truncate(:second) |> DateTime.add(@ttl_sec, :second)
 
-    %OneTimeCode{}
+    %Accounts.OneTimeCode{}
     |> change(
       code: code,
       expires_at: expires_at
@@ -65,7 +65,7 @@ defmodule WcaLive.Accounts.OneTimeCode do
   @doc """
   Returns `true` if `otc` is expired.
   """
-  @spec expired?(%OneTimeCode{}) :: boolean()
+  @spec expired?(%Accounts.OneTimeCode{}) :: boolean()
   def expired?(otc) do
     DateTime.compare(DateTime.utc_now(), otc.expires_at) == :gt
   end

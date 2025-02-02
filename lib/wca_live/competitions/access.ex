@@ -4,17 +4,19 @@ defmodule WcaLive.Competitions.Access do
   """
 
   alias WcaLive.Repo
-  alias WcaLive.Competitions.{StaffMember, Competition}
-  alias WcaLive.Accounts.User
+  alias WcaLive.Competitions
+  alias WcaLive.Accounts
 
   @doc """
   Checks if `user` is allowed to manage `competition` in general,
   kinda like admin in context of this specific competition.
   """
-  @spec can_manage_competition?(%User{}, %Competition{}) :: boolean()
+  @spec can_manage_competition?(%Accounts.User{}, %Competitions.Competition{}) :: boolean()
   def can_manage_competition?(user, competition) do
     competition = Repo.preload(competition, :staff_members)
     staff_member = Enum.find(competition.staff_members, &(&1.user_id == user.id))
-    User.admin?(user) or (staff_member != nil and StaffMember.manager?(staff_member))
+
+    Accounts.User.admin?(user) or
+      (staff_member != nil and Competitions.StaffMember.manager?(staff_member))
   end
 end
