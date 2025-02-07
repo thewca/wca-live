@@ -4,6 +4,7 @@ import { shouldComputeAverage } from "./result";
 export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
+export const NA_VALUE = -3;
 
 export function isComplete(attemptResult) {
   return attemptResult > 0;
@@ -123,9 +124,17 @@ function meanOfX(attemptResults) {
   return mean(attemptResults);
 }
 
+function sumOfX(attemptResults) {
+  if (!attemptResults.every(isComplete)) return DNF_VALUE;
+  return sum(attemptResults);
+}
+
 function mean(values) {
-  const sum = values.reduce((x, y) => x + y, 0);
-  return Math.round(sum / values.length);
+  return Math.round(sum(values) / values.length);
+}
+
+function sum(values) {
+  return values.reduce((x, y) => x + y, 0);
 }
 
 /**
@@ -165,6 +174,32 @@ export function projectedAverage(attemptResults, format) {
       return meanOfX([x, y]);
     }
     return averageOf5(attemptResults);
+  }
+
+  throw new Error("Unexpected format");
+}
+
+export function countingSum(attemptResults, format) {
+  if (attemptResults.length === 0) return Infinity;
+
+  if (format.numberOfAttempts === 3) {
+    return sumOfX(attemptResults);
+  }
+
+  if (format.numberOfAttempts === 5) {
+    if (attemptResults.length < 3) {
+      return sumOfX(attemptResults);
+    }
+    if (attemptResults.length === 3) {
+      const [, x] = attemptResults.slice().sort(compareAttemptResults);
+      return x;
+    }
+    if (attemptResults.length === 4) {
+      const [, x, y] = attemptResults.slice().sort(compareAttemptResults);
+      return sumOfX([x, y]);
+    }
+    const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
+    return sumOfX([x, y, z]);
   }
 
   throw new Error("Unexpected format");
@@ -303,6 +338,7 @@ export function formatAttemptResult(attemptResult, eventId) {
   if (attemptResult === SKIPPED_VALUE) return "";
   if (attemptResult === DNF_VALUE) return "DNF";
   if (attemptResult === DNS_VALUE) return "DNS";
+  if (attemptResult === NA_VALUE) return "N/A";
   if (eventId === "333mbf") return formatMbldAttemptResult(attemptResult);
   if (eventId === "333fm") return formatFmAttemptResult(attemptResult);
   return centisecondsToClockFormat(attemptResult);

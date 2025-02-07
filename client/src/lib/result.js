@@ -1,9 +1,13 @@
 import { orderBy } from "./utils";
 import {
+  countingSum,
   projectedAverage,
   padSkipped,
   toMonotonic,
   isSkipped,
+  isComplete,
+  SKIPPED_VALUE,
+  NA_VALUE,
 } from "./attempt-result";
 
 /**
@@ -11,14 +15,14 @@ import {
  * The first statistic is the one that determines the ranking.
  * This is a common logic used in all result tables/dialogs.
  */
-export function orderedResultStats(eventId, format) {
+export function orderedResultStats(eventId, format, forecastView = null) {
   const { numberOfAttempts, sortBy } = format;
 
   if (!shouldComputeAverage(eventId, numberOfAttempts)) {
     return [{ name: "Best", field: "best", recordTagField: "singleRecordTag" }];
   }
 
-  const stats = [
+  var stats = stats = [
     { name: "Best", field: "best", recordTagField: "singleRecordTag" },
     {
       name: numberOfAttempts === 3 ? "Mean" : "Average",
@@ -26,8 +30,20 @@ export function orderedResultStats(eventId, format) {
       recordTagField: "averageRecordTag",
     },
   ];
-  return sortBy === "best" ? stats : stats.reverse();
+  stats = sortBy === "best" ? stats : stats.reverse();
+  if (forecastView) {
+    stats.push({
+      name: "For 1st",
+      field: "forFirst",
+    })
+    stats.push({
+      name: "For 3rd",
+      field: "forThird",
+    })
+  }
+  return stats;
 }
+
 
 /**
  * Checks if an average should be calculated in case of the given event and format.
@@ -79,6 +95,9 @@ export function resultsForView(results, format, forecastView) {
     return {
       ...result,
       projectedAverage: resultProjectedAverage(result, format),
+      countingSum: countingSum(result.attempts.map((attempt) => attempt.result), format),
+      forFirst: SKIPPED_VALUE,
+      forThird: SKIPPED_VALUE,
     };
   });
 
@@ -135,7 +154,53 @@ export function resultsForView(results, format, forecastView) {
     prevResult = currentResult;
   }
 
+  const firstComplete = isComplete(resultsForView[0].projectedAverage);
+  const thirdComplete = isComplete(resultsForView[2].projectedAverage);
+  if (firstComplete) {
+    for (let i = 1; i < resultsForView.length; i++) {
+      var result = resultsForView[i];
+      if (isSkipped(result.projectedAverage)) {
+        break;
+      }
+      if (isSkipped(result.average)) {
+        result.forFirst = timeNeededToOvertake(result, format, resultsForView[0].projectedAverage, resultsForView[0].best);
+        if (thirdComplete && i > 2) {
+          result.forThird = timeNeededToOvertake(result, format, resultsForView[2].projectedAverage, resultsForView[2].best);
+        }
+      }
+    }
+  }
+
   return resultsForView;
+}
+
+export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
+  // After adding a time, projection is a median
+  if (result.attempts.length === 2 && format.numberOfAttempts === 5) {
+    if (result.best < overtakeAverage) {
+      return overtakeAverage - 1;
+    }
+    else {
+      return NA_VALUE;
+    }
+  }
+
+  // isMean(bool): after the next solve, the projected result will be a mean
+  const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
+  const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
+  const totalNeeded = overtakeAverage * nextCountingSolves;
+  const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
+  var needed = totalNeeded - result.countingSum + roundingBuffer;
+
+  const newBest = Math.min(needed, result.best);
+  // If best is not better, adjust needed to overtake
+  if (newBest >= overtakeBest) {
+    // Win by decreasing average by .01 or by overtaking on single
+    needed = Math.max(needed - nextCountingSolves, overtakeBest - 1);
+  }
+
+  var bestPossibleSolve = isMean ? 1 : result.best;
+  return needed >= bestPossibleSolve ? needed : NA_VALUE;
 }
 
 function resultProjectedAverage(result, format) {
