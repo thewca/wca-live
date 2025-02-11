@@ -211,6 +211,7 @@ export function timeNeededToOvertake(
   const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
   const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
   const totalNeeded = overtakeAverage * nextCountingSolves;
+  // For a mean of 3, .01 can be added to achieve the same rounded result
   const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
   var countingSum = sum(attemptResults);
   if (!isMean) {
@@ -221,6 +222,7 @@ export function timeNeededToOvertake(
   var needed = totalNeeded - countingSum + roundingBuffer;
 
   const newBest = Math.min(needed, result.best);
+  // With the current "needed" value, the averages are tied.
   // If best is not better, adjust needed to overtake
   if (newBest >= overtakeBest) {
     // Win by decreasing average by .01 or by overtaking on single
