@@ -1,6 +1,6 @@
 import { orderBy } from "./utils";
 import {
-  countingSum,
+  sum,
   projectedAverage,
   padSkipped,
   toMonotonic,
@@ -8,6 +8,7 @@ import {
   isComplete,
   SKIPPED_VALUE,
   NA_VALUE,
+  DNF_VALUE,
 } from "./attempt-result";
 
 /**
@@ -71,11 +72,11 @@ export function forecastViewSupported(round) {
     // Only relevant for rounds sorted by average
     round.format.sortBy != "best" &&
     // Fewest moves is currently not supported
-    round.competitionEvent.event.id != "333fm" &&
+    round.competitionEvent.event.id != "333fm" // &&
     // Currently only final rounds are supported. It is the most likely
     // use case and this way we don't need to replicate advancement
     // condition and clinching logic on the client.
-    round.advancementCondition === null
+    // round.advancementCondition === null
   );
 }
 
@@ -95,8 +96,6 @@ export function resultsForView(results, format, forecastView) {
     return {
       ...result,
       projectedAverage: resultProjectedAverage(result, format),
-      // Don't set this for all results here - set lower
-      countingSum: countingSum(result.attempts.map((attempt) => attempt.result), format),
       forFirst: SKIPPED_VALUE,
       forThird: SKIPPED_VALUE,
     };
@@ -128,7 +127,7 @@ export function resultsForView(results, format, forecastView) {
 
     if (
       toMonotonic(currentResult.projectedAverage) ===
-        toMonotonic(prevResult.projectedAverage) &&
+      toMonotonic(prevResult.projectedAverage) &&
       toMonotonic(currentResult.best) === toMonotonic(prevResult.best)
     ) {
       // Rankings tie
@@ -155,32 +154,20 @@ export function resultsForView(results, format, forecastView) {
     prevResult = currentResult;
   }
 
-  const firstComplete = isComplete(resultsForView[0].projectedAverage);
   const secondComplete = resultsForView.length > 1 && isComplete(resultsForView[1].projectedAverage);
-  const thirdComplete = resultsForView.length > 2 && isComplete(resultsForView[2].projectedAverage);
   const fourthComplete = resultsForView.length > 3 && isComplete(resultsForView[3].projectedAverage);
-  if (firstComplete) {
+  if (secondComplete) {
     for (let i = 0; i < resultsForView.length; i++) {
       var result = resultsForView[i];
       if (isSkipped(result.projectedAverage)) {
         break;
       }
       if (isSkipped(result.average)) {
-        if (i == 0) {
-          if (secondComplete) {
-            result.forFirst = timeNeededToOvertake(result, format, resultsForView[1].projectedAverage, resultsForView[1].best);
-          }
-        } else {
-          result.forFirst = timeNeededToOvertake(result, format, resultsForView[0].projectedAverage, resultsForView[0].best);
-        }
-        if (thirdComplete) {
-          if (i < 3) {
-            if (fourthComplete) {
-              result.forThird = timeNeededToOvertake(result, format, resultsForView[3].projectedAverage, resultsForView[3].best);
-            }
-          } else {
-            result.forThird = timeNeededToOvertake(result, format, resultsForView[2].projectedAverage, resultsForView[2].best);
-          }
+        var firstIndex = i == 0 ? 1 : 0;
+        result.forFirst = timeNeededToOvertake(result, format, resultsForView[firstIndex].projectedAverage, resultsForView[firstIndex].best);
+        if (fourthComplete) {
+          var thirdIndex = i < 3 ? 3 : 2;
+          result.forThird = timeNeededToOvertake(result, format, resultsForView[thirdIndex].projectedAverage, resultsForView[thirdIndex].best);
         }
       }
     }
@@ -190,8 +177,9 @@ export function resultsForView(results, format, forecastView) {
 }
 
 export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBest) {
-  // After adding a time, projection is a median
-  if (result.attempts.length === 2 && format.numberOfAttempts === 5) {
+  var attemptResults = result.attempts.map((attempt) => attempt.result);
+  if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
+    // Projection will change from a mean to a median after a time is added
     if (result.best < overtakeAverage) {
       return overtakeAverage - 1;
     }
@@ -200,12 +188,21 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
     }
   }
 
-  // isMean(bool): after the next solve, the projected result will be a mean
+  if (!isComplete(result.projectedAverage)) {
+    // DNF averages cannot overtake
+    return NA_VALUE;
+  }
+
   const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
   const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
   const totalNeeded = overtakeAverage * nextCountingSolves;
   const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
-  var needed = totalNeeded - result.countingSum + roundingBuffer;
+  var countingSum = sum(attemptResults);
+  if (!isMean) {
+    countingSum = countingSum - Math.min(...attemptResults) - Math.max(...attemptResults);
+  }
+
+  var needed = totalNeeded - countingSum + roundingBuffer;
 
   const newBest = Math.min(needed, result.best);
   // If best is not better, adjust needed to overtake
@@ -215,7 +212,14 @@ export function timeNeededToOvertake(result, format, overtakeAverage, overtakeBe
   }
 
   var bestPossibleSolve = isMean ? 1 : result.best;
-  return needed >= bestPossibleSolve ? needed : NA_VALUE;
+  var worstPossibleSolve = isMean ? Infinity : Math.max(...attemptResults);
+  if (needed < bestPossibleSolve) {
+    return NA_VALUE;
+  }
+  if (needed >= worstPossibleSolve) {
+    return DNF_VALUE;
+  }
+  return needed;
 }
 
 function resultProjectedAverage(result, format) {

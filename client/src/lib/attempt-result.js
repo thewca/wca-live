@@ -124,16 +124,11 @@ function meanOfX(attemptResults) {
   return mean(attemptResults);
 }
 
-function sumOfX(attemptResults) {
-  if (!attemptResults.every(isComplete)) return DNF_VALUE;
-  return sum(attemptResults);
-}
-
 function mean(values) {
   return Math.round(sum(values) / values.length);
 }
 
-function sum(values) {
+export function sum(values) {
   return values.reduce((x, y) => x + y, 0);
 }
 
@@ -174,33 +169,6 @@ export function projectedAverage(attemptResults, format) {
       return meanOfX([x, y]);
     }
     return averageOf5(attemptResults);
-  }
-
-  throw new Error("Unexpected format");
-}
-
-// Needs to assume inputs are all valid (remove function sumOfX)
-export function countingSum(attemptResults, format) {
-  if (attemptResults.length === 0) return 0;
-
-  if (format.numberOfAttempts === 3) {
-    return sumOfX(attemptResults);
-  }
-
-  if (format.numberOfAttempts === 5) {
-    if (attemptResults.length < 3) {
-      return sumOfX(attemptResults);
-    }
-    if (attemptResults.length === 3) {
-      const [, x] = attemptResults.slice().sort(compareAttemptResults);
-      return x;
-    }
-    if (attemptResults.length === 4) {
-      const [, x, y] = attemptResults.slice().sort(compareAttemptResults);
-      return sumOfX([x, y]);
-    }
-    const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-    return sumOfX([x, y, z]);
   }
 
   throw new Error("Unexpected format");
