@@ -95,6 +95,7 @@ export function resultsForView(results, format, forecastView) {
     return {
       ...result,
       projectedAverage: resultProjectedAverage(result, format),
+      // Don't set this for all results here - set lower
       countingSum: countingSum(result.attempts.map((attempt) => attempt.result), format),
       forFirst: SKIPPED_VALUE,
       forThird: SKIPPED_VALUE,
@@ -155,17 +156,31 @@ export function resultsForView(results, format, forecastView) {
   }
 
   const firstComplete = isComplete(resultsForView[0].projectedAverage);
-  const thirdComplete = isComplete(resultsForView[2].projectedAverage);
+  const secondComplete = resultsForView.length > 1 && isComplete(resultsForView[1].projectedAverage);
+  const thirdComplete = resultsForView.length > 2 && isComplete(resultsForView[2].projectedAverage);
+  const fourthComplete = resultsForView.length > 3 && isComplete(resultsForView[3].projectedAverage);
   if (firstComplete) {
-    for (let i = 1; i < resultsForView.length; i++) {
+    for (let i = 0; i < resultsForView.length; i++) {
       var result = resultsForView[i];
       if (isSkipped(result.projectedAverage)) {
         break;
       }
       if (isSkipped(result.average)) {
-        result.forFirst = timeNeededToOvertake(result, format, resultsForView[0].projectedAverage, resultsForView[0].best);
-        if (thirdComplete && i > 2) {
-          result.forThird = timeNeededToOvertake(result, format, resultsForView[2].projectedAverage, resultsForView[2].best);
+        if (i == 0) {
+          if (secondComplete) {
+            result.forFirst = timeNeededToOvertake(result, format, resultsForView[1].projectedAverage, resultsForView[1].best);
+          }
+        } else {
+          result.forFirst = timeNeededToOvertake(result, format, resultsForView[0].projectedAverage, resultsForView[0].best);
+        }
+        if (thirdComplete) {
+          if (i < 3) {
+            if (fourthComplete) {
+              result.forThird = timeNeededToOvertake(result, format, resultsForView[3].projectedAverage, resultsForView[3].best);
+            }
+          } else {
+            result.forThird = timeNeededToOvertake(result, format, resultsForView[2].projectedAverage, resultsForView[2].best);
+          }
         }
       }
     }

@@ -179,8 +179,9 @@ export function projectedAverage(attemptResults, format) {
   throw new Error("Unexpected format");
 }
 
+// Needs to assume inputs are all valid (remove function sumOfX)
 export function countingSum(attemptResults, format) {
-  if (attemptResults.length === 0) return Infinity;
+  if (attemptResults.length === 0) return 0;
 
   if (format.numberOfAttempts === 3) {
     return sumOfX(attemptResults);
