@@ -157,7 +157,7 @@ export function resultsForView(results, format, forecastView) {
 
     prevResult = currentResult;
   }
-  
+
   if (resultsForView.length > 1) {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
@@ -183,7 +183,7 @@ export function resultsForView(results, format, forecastView) {
       }
     }
   }
-  
+
   return resultsForView;
 }
 
@@ -191,17 +191,20 @@ function timeNeededToOvertake(result, format, overtakeResult) {
   if (isSkipped(overtakeResult.projectedAverage)) return DNF_VALUE;
 
   let attemptResults = result.attempts.map((attempt) => attempt.result);
-  const resultWorst = attemptResults
-    .slice()
-    .sort(compareAttemptResults)
-    .pop();
+  const resultWorst = attemptResults.slice().sort(compareAttemptResults).pop();
 
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
     // Projection will change from a mean to a median after a time is added
-    if (isComplete(resultWorst) && compareAttemptResults(resultWorst, overtakeResult.projectedAverage) < 0) {
+    if (
+      isComplete(resultWorst) &&
+      compareAttemptResults(resultWorst, overtakeResult.projectedAverage) < 0
+    ) {
       return DNF_VALUE;
     }
-    if (isComplete(result.best) && compareAttemptResults(result.best, overtakeResult.projectedAverage) < 0) {
+    if (
+      isComplete(result.best) &&
+      compareAttemptResults(result.best, overtakeResult.projectedAverage) < 0
+    ) {
       if (isComplete(overtakeResult.projectedAverage)) {
         return overtakeResult.projectedAverage - 1;
       }
