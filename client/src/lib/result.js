@@ -1,12 +1,13 @@
 import { orderBy } from "./utils";
 import {
-  sum,
+  compareAttemptResults,
   projectedAverage,
   padSkipped,
   toMonotonic,
   isSkipped,
   isComplete,
   SKIPPED_VALUE,
+  SUCCESS_VALUE,
   NA_VALUE,
   DNF_VALUE,
 } from "./attempt-result";
@@ -16,21 +17,21 @@ import {
  * The first statistic is the one that determines the ranking.
  * This is a common logic used in all result tables/dialogs.
  */
-export function orderedResultStats(eventId, format, forecastView = null) {
+export function orderedResultStats(eventId, format, forecastView = false) {
   const { numberOfAttempts, sortBy } = format;
 
   if (!shouldComputeAverage(eventId, numberOfAttempts)) {
     return [{ name: "Best", field: "best", recordTagField: "singleRecordTag" }];
   }
 
-  var stats = (stats = [
+  let stats = [
     { name: "Best", field: "best", recordTagField: "singleRecordTag" },
     {
       name: numberOfAttempts === 3 ? "Mean" : "Average",
       field: "average",
       recordTagField: "averageRecordTag",
     },
-  ]);
+  ];
   stats = sortBy === "best" ? stats : stats.reverse();
   if (forecastView) {
     stats.push({
@@ -77,6 +78,10 @@ export function forecastViewSupported(round) {
     // condition and clinching logic on the client.
     round.advancementCondition === null
   );
+}
+
+function sum(values) {
+  return values.reduce((x, y) => x + y, 0);
 }
 
 /**
@@ -152,55 +157,57 @@ export function resultsForView(results, format, forecastView) {
 
     prevResult = currentResult;
   }
-
-  const secondComplete =
-    resultsForView.length > 1 && isComplete(resultsForView[1].projectedAverage);
-  const fourthComplete =
-    resultsForView.length > 3 && isComplete(resultsForView[3].projectedAverage);
-  if (secondComplete) {
+  
+  if (resultsForView.length > 1) {
     for (let i = 0; i < resultsForView.length; i++) {
-      var result = resultsForView[i];
-      if (isSkipped(result.projectedAverage)) {
+      let result = resultsForView[i];
+      if (result.attempts.length === 0) {
+        // From this point forward all results are empty, so we are done
         break;
       }
       if (isSkipped(result.average)) {
-        var firstIndex = i == 0 ? 1 : 0;
+        let firstIndex = i == 0 ? 1 : 0;
         result.forFirst = timeNeededToOvertake(
           result,
           format,
-          resultsForView[firstIndex].projectedAverage,
-          resultsForView[firstIndex].best
+          resultsForView[firstIndex]
         );
-        if (fourthComplete) {
-          var thirdIndex = i < 3 ? 3 : 2;
+        let thirdIndex = i < 3 ? 3 : 2;
+        if (thirdIndex < resultsForView.length) {
           result.forThird = timeNeededToOvertake(
             result,
             format,
-            resultsForView[thirdIndex].projectedAverage,
-            resultsForView[thirdIndex].best
+            resultsForView[thirdIndex]
           );
         }
       }
     }
   }
-
+  
   return resultsForView;
 }
 
-export function timeNeededToOvertake(
-  result,
-  format,
-  overtakeAverage,
-  overtakeBest
-) {
-  var attemptResults = result.attempts.map((attempt) => attempt.result);
+function timeNeededToOvertake(result, format, overtakeResult) {
+  if (isSkipped(overtakeResult.projectedAverage)) return DNF_VALUE;
+
+  let attemptResults = result.attempts.map((attempt) => attempt.result);
+  const resultWorst = attemptResults
+    .slice()
+    .sort(compareAttemptResults)
+    .pop();
+
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
     // Projection will change from a mean to a median after a time is added
-    if (result.best < overtakeAverage) {
-      return overtakeAverage - 1;
-    } else {
-      return NA_VALUE;
+    if (isComplete(resultWorst) && compareAttemptResults(resultWorst, overtakeResult.projectedAverage) < 0) {
+      return DNF_VALUE;
     }
+    if (isComplete(result.best) && compareAttemptResults(result.best, overtakeResult.projectedAverage) < 0) {
+      if (isComplete(overtakeResult.projectedAverage)) {
+        return overtakeResult.projectedAverage - 1;
+      }
+      return SUCCESS_VALUE;
+    }
+    return NA_VALUE;
   }
 
   if (!isComplete(result.projectedAverage)) {
@@ -209,28 +216,38 @@ export function timeNeededToOvertake(
   }
 
   const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
-  const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
-  const totalNeeded = overtakeAverage * nextCountingSolves;
-  // For a mean of 3, .01 can be added to achieve the same rounded result
-  const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
-  var countingSum = sum(attemptResults);
-  if (!isMean) {
-    countingSum =
-      countingSum - Math.min(...attemptResults) - Math.max(...attemptResults);
+
+  if (!isComplete(overtakeResult.projectedAverage)) {
+    if (compareAttemptResults(result.best, overtakeResult.best) < 0) {
+      return DNF_VALUE;
+    }
+    if (!isMean && isComplete(resultWorst)) {
+      return DNF_VALUE;
+    }
+    return SUCCESS_VALUE;
   }
 
-  var needed = totalNeeded - countingSum + roundingBuffer;
+  const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
+  const totalNeeded = overtakeResult.projectedAverage * nextCountingSolves;
+  // For a mean of 3, .01 can be added to achieve the same rounded result
+  const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
+  let countingSum = sum(attemptResults);
+  if (!isMean) {
+    countingSum = countingSum - result.best - resultWorst;
+  }
+
+  let needed = totalNeeded - countingSum + roundingBuffer;
 
   const newBest = Math.min(needed, result.best);
   // With the current "needed" value, the averages are tied.
   // If best is not better, adjust needed to overtake
-  if (newBest >= overtakeBest) {
+  if (newBest >= overtakeResult.best) {
     // Win by decreasing average by .01 or by overtaking on single
-    needed = Math.max(needed - nextCountingSolves, overtakeBest - 1);
+    needed = Math.max(needed - nextCountingSolves, overtakeResult.best - 1);
   }
 
-  var bestPossibleSolve = isMean ? 1 : result.best;
-  var worstPossibleSolve = isMean ? Infinity : Math.max(...attemptResults);
+  let bestPossibleSolve = isMean ? 1 : result.best;
+  let worstPossibleSolve = isMean ? Infinity : resultWorst;
   if (needed < bestPossibleSolve) {
     return NA_VALUE;
   }

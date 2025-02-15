@@ -5,6 +5,7 @@ export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
 export const NA_VALUE = -3;
+export const SUCCESS_VALUE = -4;
 
 export function isComplete(attemptResult) {
   return attemptResult > 0;
@@ -18,7 +19,7 @@ export function toMonotonic(attemptResult) {
   return isComplete(attemptResult) ? attemptResult : Infinity;
 }
 
-function compareAttemptResults(attemptResult1, attemptResult2) {
+export function compareAttemptResults(attemptResult1, attemptResult2) {
   if (!isComplete(attemptResult1) && !isComplete(attemptResult2)) return 0;
   if (!isComplete(attemptResult1) && isComplete(attemptResult2)) return 1;
   if (isComplete(attemptResult1) && !isComplete(attemptResult2)) return -1;
@@ -125,11 +126,8 @@ function meanOfX(attemptResults) {
 }
 
 function mean(values) {
-  return Math.round(sum(values) / values.length);
-}
-
-export function sum(values) {
-  return values.reduce((x, y) => x + y, 0);
+  const sum = values.reduce((x, y) => x + y, 0);
+  return Math.round(sum / values.length);
 }
 
 /**
@@ -308,6 +306,7 @@ export function formatAttemptResult(attemptResult, eventId) {
   if (attemptResult === DNF_VALUE) return "DNF";
   if (attemptResult === DNS_VALUE) return "DNS";
   if (attemptResult === NA_VALUE) return "N/A";
+  if (attemptResult === SUCCESS_VALUE) return "SUCCESS";
   if (eventId === "333mbf") return formatMbldAttemptResult(attemptResult);
   if (eventId === "333fm") return formatFmAttemptResult(attemptResult);
   return centisecondsToClockFormat(attemptResult);
