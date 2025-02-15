@@ -196,13 +196,11 @@ function timeNeededToOvertake(result, format, overtakeResult) {
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
     // Projection will change from a mean to a median after a time is added
     if (
-      isComplete(resultWorst) &&
       compareAttemptResults(resultWorst, overtakeResult.projectedAverage) < 0
     ) {
       return DNF_VALUE;
     }
     if (
-      isComplete(result.best) &&
       compareAttemptResults(result.best, overtakeResult.projectedAverage) < 0
     ) {
       if (isComplete(overtakeResult.projectedAverage)) {
@@ -210,11 +208,6 @@ function timeNeededToOvertake(result, format, overtakeResult) {
       }
       return SUCCESS_VALUE;
     }
-    return NA_VALUE;
-  }
-
-  if (!isComplete(result.projectedAverage)) {
-    // DNF averages cannot overtake
     return NA_VALUE;
   }
 
@@ -228,6 +221,11 @@ function timeNeededToOvertake(result, format, overtakeResult) {
       return DNF_VALUE;
     }
     return SUCCESS_VALUE;
+  }
+
+  if (!isComplete(result.projectedAverage)) {
+    // DNF averages cannot overtake
+    return NA_VALUE;
   }
 
   const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
