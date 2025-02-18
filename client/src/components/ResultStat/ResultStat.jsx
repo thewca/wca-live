@@ -2,7 +2,6 @@ import { Box, Tooltip } from "@mui/material";
 import {
   bestPossibleAverage,
   worstPossibleAverage,
-  formatAttemptResult,
   incompleteMean,
 } from "../../lib/attempt-result";
 import {
