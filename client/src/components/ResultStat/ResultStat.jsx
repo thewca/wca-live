@@ -57,7 +57,9 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
           <Tooltip title="Projected average">
-            <span>{formatAttemptResultForN(result.projectedAverage, eventId)}</span>
+            <span>
+              {formatAttemptResultForN(result.projectedAverage, eventId)}
+            </span>
           </Tooltip>
         </Box>
       );

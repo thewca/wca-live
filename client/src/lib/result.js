@@ -5,10 +5,10 @@ import {
   projectedAverage,
   padSkipped,
   toMonotonic,
-  isSkipped,
   isComplete,
-  SKIPPED_VALUE,
+  isSkipped,
   DNF_VALUE,
+  SKIPPED_VALUE,
 } from "./attempt-result";
 
 const NA_VALUE = -3;
@@ -195,34 +195,49 @@ export function resultsForView(results, format, forecastView) {
   return resultsForView;
 }
 
-function timeNeededToOvertake(result, format, overtakeResult) {
+export function timeNeededToOvertake(result, format, overtakeResult) {
   if (isSkipped(overtakeResult.projectedAverage)) return DNF_VALUE;
 
   let attemptResults = result.attempts.map((attempt) => attempt.result);
   const resultWorst = attemptResults.slice().sort(compareAttemptResults).pop();
+  const bestComparison = compareAttemptResults(
+    result.best,
+    overtakeResult.best
+  );
 
+  // Projection will change from a mean to a median after a time is added
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
-    // Projection will change from a mean to a median after a time is added
-    if (
-      compareAttemptResults(resultWorst, overtakeResult.projectedAverage) < 0
-    ) {
+    let worstVsProjected = compareAttemptResults(
+      resultWorst,
+      overtakeResult.projectedAverage
+    );
+    if (worstVsProjected < 0 || (worstVsProjected == 0 && bestComparison < 0)) {
+      // Worst possible average beats overtake average
       return DNF_VALUE;
     }
-    if (
-      compareAttemptResults(result.best, overtakeResult.projectedAverage) < 0
-    ) {
+    let bestVsProjected = compareAttemptResults(
+      result.best,
+      overtakeResult.projectedAverage
+    );
+    if (bestVsProjected < 0) {
+      // Best possible average beats overtake average
       if (isComplete(overtakeResult.projectedAverage)) {
-        return overtakeResult.projectedAverage - 1;
+        return overtakeResult.projectedAverage - (bestComparison < 0 ? 0 : 1);
       }
       return SUCCESS_VALUE;
     }
+    if (bestVsProjected == 0) {
+      // Best possible average ties overtake average
+      return overtakeResult.best - 1;
+    }
+    // Best possbile average loses to overtake average
     return NA_VALUE;
   }
 
   const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
 
   if (!isComplete(overtakeResult.projectedAverage)) {
-    if (compareAttemptResults(result.best, overtakeResult.best) < 0) {
+    if (bestComparison < 0) {
       return DNF_VALUE;
     }
     if (!isMean && isComplete(resultWorst)) {
