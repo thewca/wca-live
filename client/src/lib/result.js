@@ -1,16 +1,18 @@
 import { orderBy } from "./utils";
 import {
   compareAttemptResults,
+  formatAttemptResult,
   projectedAverage,
   padSkipped,
   toMonotonic,
   isSkipped,
   isComplete,
   SKIPPED_VALUE,
-  SUCCESS_VALUE,
-  NA_VALUE,
   DNF_VALUE,
 } from "./attempt-result";
+
+const NA_VALUE = -3;
+const SUCCESS_VALUE = -4;
 
 /**
  * Returns a list of objects corresponding to result statistics - best and average.
@@ -78,6 +80,12 @@ export function forecastViewSupported(round) {
     // condition and clinching logic on the client.
     round.advancementCondition === null
   );
+}
+
+export function formatAttemptResultForN(attemptResult, eventId) {
+  if (attemptResult === NA_VALUE) return "N/A";
+  if (attemptResult === SUCCESS_VALUE) return "SUCCESS";
+  return formatAttemptResult(attemptResult, eventId);
 }
 
 function sum(values) {
