@@ -207,10 +207,10 @@ export function resultsForView(results, format, forecastView) {
 /**
  * Calculates the time required for input result to overatake
  * overtakeResult, based on the input format.
- * 
+ *
  * Assumes projectedAverage is already computed for both result
  * and overtakeResult
- * 
+ *
  * Handles incomplete and skipped values for overtakeResult
  */
 export function timeNeededToOvertake(result, format, overtakeResult) {
