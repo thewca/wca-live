@@ -345,7 +345,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 } ],
+          attempts: [{ result: 110 }],
         },
         format,
         overtakeResult
@@ -356,7 +356,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 }, { result: 110 } ],
+          attempts: [{ result: 110 }, { result: 110 }],
         },
         format,
         overtakeResult
@@ -368,7 +368,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 } ],
+          attempts: [{ result: 110 }],
         },
         format,
         overtakeResult
@@ -379,7 +379,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 }, { result: 110 } ],
+          attempts: [{ result: 110 }, { result: 110 }],
         },
         format,
         overtakeResult
@@ -392,7 +392,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 }, { result: 110 } ],
+          attempts: [{ result: 110 }, { result: 110 }],
         },
         format,
         overtakeResult
@@ -406,7 +406,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 } ],
+          attempts: [{ result: 110 }],
         },
         format,
         overtakeResult
@@ -422,7 +422,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 10,
           projectedAverage: 110,
-          attempts: [{ result: 10 }, { result: 110 }, { result: 200 } ],
+          attempts: [{ result: 10 }, { result: 110 }, { result: 200 }],
         },
         format,
         overtakeResult
@@ -433,7 +433,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 50,
           projectedAverage: 110,
-          attempts: [{ result: 50 }, { result: 110 }, { result: 200 } ],
+          attempts: [{ result: 50 }, { result: 110 }, { result: 200 }],
         },
         format,
         overtakeResult
@@ -444,7 +444,12 @@ describe("timeNeededToOvertake", () => {
         {
           best: 10,
           projectedAverage: 110,
-          attempts: [{ result: 10 }, { result: 110 }, { result: 110 }, { result: 200 } ],
+          attempts: [
+            { result: 10 },
+            { result: 110 },
+            { result: 110 },
+            { result: 200 },
+          ],
         },
         format,
         overtakeResult
@@ -455,7 +460,12 @@ describe("timeNeededToOvertake", () => {
         {
           best: 50,
           projectedAverage: 110,
-          attempts: [{ result: 50 }, { result: 110 }, { result: 110 }, { result: 200 } ],
+          attempts: [
+            { result: 50 },
+            { result: 110 },
+            { result: 110 },
+            { result: 200 },
+          ],
         },
         format,
         overtakeResult
@@ -466,7 +476,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 110,
           projectedAverage: 110,
-          attempts: [{ result: 110 }, { result: 110 }, { result: 110 } ],
+          attempts: [{ result: 110 }, { result: 110 }, { result: 110 }],
         },
         format,
         overtakeResult
@@ -477,7 +487,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 90,
           projectedAverage: 90,
-          attempts: [{ result: 90 }, { result: 90 }, { result: 90 } ],
+          attempts: [{ result: 90 }, { result: 90 }, { result: 90 }],
         },
         format,
         overtakeResult

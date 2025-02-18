@@ -82,6 +82,10 @@ export function forecastViewSupported(round) {
   );
 }
 
+/**
+ * Wrapper for formatAttemptResult. Also handles values
+ * NA_VALUE and SUCCESS_VALUE
+ */
 export function formatAttemptResultForN(attemptResult, eventId) {
   if (attemptResult === NA_VALUE) return "N/A";
   if (attemptResult === SUCCESS_VALUE) return "SUCCESS";
@@ -99,6 +103,8 @@ function sum(values) {
  *
  *  * `projectedAverage` - average projection based on the current
  *    attempts, if any
+ *  * `forFirst` - time needed to overtake 1st place
+ *  * `forThird` - time needed to overtake 3rd place
  *
  */
 export function resultsForView(results, format, forecastView) {
@@ -174,12 +180,15 @@ export function resultsForView(results, format, forecastView) {
         break;
       }
       if (isSkipped(result.average)) {
+        // For current 1st place, calculate time needed to stay in first,
+        // by comparing with second place
         let firstIndex = i == 0 ? 1 : 0;
         result.forFirst = timeNeededToOvertake(
           result,
           format,
           resultsForView[firstIndex]
         );
+        // Same as 1st, compare against 4th place for current 3rd place.
         let thirdIndex = i < 3 ? 3 : 2;
         if (thirdIndex < resultsForView.length) {
           result.forThird = timeNeededToOvertake(
@@ -195,6 +204,15 @@ export function resultsForView(results, format, forecastView) {
   return resultsForView;
 }
 
+/**
+ * Calculates the time required for input result to overatake
+ * overtakeResult, based on the input format.
+ * 
+ * Assumes projectedAverage is already computed for both result
+ * and overtakeResult
+ * 
+ * Handles incomplete and skipped values for overtakeResult
+ */
 export function timeNeededToOvertake(result, format, overtakeResult) {
   if (isSkipped(overtakeResult.projectedAverage)) return DNF_VALUE;
 
@@ -238,11 +256,14 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
 
   if (!isComplete(overtakeResult.projectedAverage)) {
     if (bestComparison < 0) {
+      // Always wins on best
       return DNF_VALUE;
     }
     if (!isMean && isComplete(resultWorst)) {
+      // Next result will always be complete
       return DNF_VALUE;
     }
+    // Any success will beat an incomplete result
     return SUCCESS_VALUE;
   }
 
