@@ -218,10 +218,8 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
 
   let attemptResults = result.attempts.map((attempt) => attempt.result);
   const resultWorst = attemptResults.slice().sort(compareAttemptResults).pop();
-  const bestComparison = compareAttemptResults(
-    result.best,
-    overtakeResult.best
-  );
+  const betterBest =
+    compareAttemptResults(result.best, overtakeResult.best) < 0;
 
   // Projection will change from a mean to a median after a time is added
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
@@ -229,7 +227,7 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
       resultWorst,
       overtakeResult.projectedAverage
     );
-    if (worstVsProjected < 0 || (worstVsProjected == 0 && bestComparison < 0)) {
+    if (worstVsProjected < 0 || (worstVsProjected == 0 && betterBest)) {
       // Worst possible average beats overtake average
       return DNF_VALUE;
     }
@@ -240,13 +238,15 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
     if (bestVsProjected < 0) {
       // Best possible average beats overtake average
       if (isComplete(overtakeResult.projectedAverage)) {
-        return overtakeResult.projectedAverage - (bestComparison < 0 ? 0 : 1);
+        return overtakeResult.projectedAverage - (betterBest ? 0 : 1);
       }
       return SUCCESS_VALUE;
     }
     if (bestVsProjected == 0) {
       // Best possible average ties overtake average
-      return overtakeResult.best - 1;
+      return isComplete(overtakeResult.best)
+        ? overtakeResult.best - 1
+        : SUCCESS_VALUE;
     }
     // Best possbile average loses to overtake average
     return NA_VALUE;
@@ -255,9 +255,15 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
   const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
 
   if (!isComplete(overtakeResult.projectedAverage)) {
-    if (bestComparison < 0) {
-      // Always wins on best
+    if (betterBest) {
+      // Already wins on best
       return DNF_VALUE;
+    }
+    if (!isComplete(result.projectedAverage)) {
+      // Both results incomplete. Overtake on best
+      return isComplete(overtakeResult.best)
+        ? overtakeResult.best - 1
+        : SUCCESS_VALUE;
     }
     if (!isMean && isComplete(resultWorst)) {
       // Next result will always be complete
@@ -272,10 +278,14 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
     return NA_VALUE;
   }
 
+  // At this point, projectedAverage and best are complete for both
+  // result and overtakeResult
   const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
   const totalNeeded = overtakeResult.projectedAverage * nextCountingSolves;
   // For a mean of 3, .01 can be added to achieve the same rounded result
   const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
+  // All counting solves are guaranteed to be complete. resultWorst might
+  // be incomplete for averages but this is removed.
   let countingSum = sum(attemptResults);
   if (!isMean) {
     countingSum = countingSum - result.best - resultWorst;
@@ -292,7 +302,8 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
   }
 
   let bestPossibleSolve = isMean ? 1 : result.best;
-  let worstPossibleSolve = isMean ? Infinity : resultWorst;
+  let worstPossibleSolve =
+    isMean || !isComplete(resultWorst) ? Infinity : resultWorst;
   if (needed < bestPossibleSolve) {
     return NA_VALUE;
   }

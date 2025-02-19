@@ -1,3 +1,4 @@
+import { projectedAverage } from "../attempt-result";
 import {
   formatAttemptResultForN,
   resultsForView,
@@ -279,10 +280,14 @@ describe("timeNeededToOvertake", () => {
     expect(
       timeNeededToOvertake(result, format, { best: 50, projectedAverage: 50 })
     ).toEqual(-3);
+    result = { attempts: [{ result: -1 }, { result: -1 }], best: -1 };
+    expect(
+      timeNeededToOvertake(result, format, { best: -1, projectedAverage: -1 })
+    ).toEqual(-4);
   });
 
   it("handles incomplete overtake results", () => {
-    const overtakeResult = { best: 50, projectedAverage: -1 };
+    let overtakeResult = { best: 50, projectedAverage: -1 };
     const format = { numberOfAttempts: 5 };
     expect(
       timeNeededToOvertake(
@@ -311,8 +316,36 @@ describe("timeNeededToOvertake", () => {
       timeNeededToOvertake(
         {
           best: 100,
+          projectedAverage: -1,
+          attempts: [
+            { result: 100 },
+            { result: 100 },
+            { result: -1 },
+            { result: -1 },
+          ],
+        },
+        format,
+        overtakeResult
+      )
+    ).toEqual(49);
+    expect(
+      timeNeededToOvertake(
+        {
+          best: 100,
           projectedAverage: 100,
           attempts: [{ result: 100 }],
+        },
+        format,
+        overtakeResult
+      )
+    ).toEqual(-4);
+    overtakeResult = { best: -1, projectedAverage: -1 };
+    expect(
+      timeNeededToOvertake(
+        {
+          best: -1,
+          projectedAverage: -1,
+          attempts: [{ result: -1 }],
         },
         format,
         overtakeResult
@@ -421,7 +454,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 10,
           projectedAverage: 110,
-          attempts: [{ result: 10 }, { result: 110 }, { result: 200 }],
+          attempts: [{ result: 10 }, { result: 110 }, { result: -1 }],
         },
         format,
         overtakeResult
@@ -432,7 +465,7 @@ describe("timeNeededToOvertake", () => {
         {
           best: 50,
           projectedAverage: 110,
-          attempts: [{ result: 50 }, { result: 110 }, { result: 200 }],
+          attempts: [{ result: 50 }, { result: 110 }, { result: -1 }],
         },
         format,
         overtakeResult
