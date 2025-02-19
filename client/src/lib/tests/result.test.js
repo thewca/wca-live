@@ -1,4 +1,3 @@
-import { projectedAverage } from "../attempt-result";
 import {
   formatAttemptResultForN,
   resultsForView,
