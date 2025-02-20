@@ -38,6 +38,7 @@ function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
                 <div>
                   Forecast view:
                   <div>- uses projected average for incomplete results</div>
+                  <div>- shows times necessary to get 1st and 3rd places</div>
                 </div>
               }
               placement="top"
