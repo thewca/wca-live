@@ -1,5 +1,5 @@
 import {
-  formatAttemptResultForN,
+  formatAttemptResultForView,
   resultsForView,
   orderedResultStats,
   timeNeededToOvertake,
@@ -32,11 +32,11 @@ describe("orderedResultStats", () => {
   });
 });
 
-describe("formatAttemptResultForN", () => {
+describe("formatAttemptResultForView", () => {
   it("Handles NA_VALUE and SUCCESS_VALUE", () => {
-    expect(formatAttemptResultForN(-3, "333")).toEqual("N/A");
-    expect(formatAttemptResultForN(-4, "333")).toEqual("SUCCESS");
-    expect(formatAttemptResultForN(-1, "333")).toEqual("DNF");
+    expect(formatAttemptResultForView(-3, "333")).toEqual("N/A");
+    expect(formatAttemptResultForView(-4, "333")).toEqual("SUCCESS");
+    expect(formatAttemptResultForView(-1, "333")).toEqual("DNF");
   });
 });
 
