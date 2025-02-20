@@ -2,10 +2,12 @@ import { Box, Tooltip } from "@mui/material";
 import {
   bestPossibleAverage,
   worstPossibleAverage,
-  formatAttemptResult,
   incompleteMean,
 } from "../../lib/attempt-result";
-import { shouldComputeAverage } from "../../lib/result";
+import {
+  shouldComputeAverage,
+  formatAttemptResultForView,
+} from "../../lib/result";
 
 function ResultStat({ result, field, eventId, format, forecastView }) {
   if (
@@ -22,7 +24,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
             <>
               <Tooltip title="Projected average">
                 <span>
-                  {formatAttemptResult(result.projectedAverage, eventId)}
+                  {formatAttemptResultForView(result.projectedAverage, eventId)}
                 </span>
               </Tooltip>
               {" ("}
@@ -30,7 +32,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
           )}
           <Tooltip title="Best possible average">
             <span>
-              {formatAttemptResult(
+              {formatAttemptResultForView(
                 bestPossibleAverage(attemptResults),
                 eventId
               )}
@@ -39,7 +41,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
           {" / "}
           <Tooltip title="Worst possible average">
             <span>
-              {formatAttemptResult(
+              {formatAttemptResultForView(
                 worstPossibleAverage(attemptResults),
                 eventId
               )}
@@ -54,7 +56,9 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
       return (
         <Box component="span" sx={{ opacity: 0.5 }}>
           <Tooltip title="Projected average">
-            <span>{formatAttemptResult(result.projectedAverage, eventId)}</span>
+            <span>
+              {formatAttemptResultForView(result.projectedAverage, eventId)}
+            </span>
           </Tooltip>
         </Box>
       );
@@ -65,7 +69,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
         <Box component="span" sx={{ opacity: 0.5 }}>
           <Tooltip title="Mean after 2 solves">
             <span>
-              {formatAttemptResult(
+              {formatAttemptResultForView(
                 incompleteMean(attemptResults, eventId),
                 eventId
               )}
@@ -76,7 +80,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
     }
   }
 
-  return formatAttemptResult(result[field], eventId);
+  return formatAttemptResultForView(result[field], eventId);
 }
 
 export default ResultStat;

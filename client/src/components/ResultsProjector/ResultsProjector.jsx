@@ -87,7 +87,7 @@ function ResultsProjector({
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
-  const stats = orderedResultStats(eventId, format);
+  const stats = orderedResultStats(eventId, format, forecastView);
   const nonemptyResults = resultsForView(results, format, forecastView).filter(
     (result) => result.attempts.length > 0
   );

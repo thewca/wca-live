@@ -17,7 +17,7 @@ export function toMonotonic(attemptResult) {
   return isComplete(attemptResult) ? attemptResult : Infinity;
 }
 
-function compareAttemptResults(attemptResult1, attemptResult2) {
+export function compareAttemptResults(attemptResult1, attemptResult2) {
   if (!isComplete(attemptResult1) && !isComplete(attemptResult2)) return 0;
   if (!isComplete(attemptResult1) && isComplete(attemptResult2)) return 1;
   if (isComplete(attemptResult1) && !isComplete(attemptResult2)) return -1;

@@ -1,24 +1,32 @@
 import { orderBy } from "./utils";
 import {
+  compareAttemptResults,
+  formatAttemptResult,
   projectedAverage,
   padSkipped,
   toMonotonic,
+  isComplete,
   isSkipped,
+  DNF_VALUE,
+  SKIPPED_VALUE,
 } from "./attempt-result";
+
+const NA_VALUE = -3;
+const SUCCESS_VALUE = -4;
 
 /**
  * Returns a list of objects corresponding to result statistics - best and average.
  * The first statistic is the one that determines the ranking.
  * This is a common logic used in all result tables/dialogs.
  */
-export function orderedResultStats(eventId, format) {
+export function orderedResultStats(eventId, format, forecastView = false) {
   const { numberOfAttempts, sortBy } = format;
 
   if (!shouldComputeAverage(eventId, numberOfAttempts)) {
     return [{ name: "Best", field: "best", recordTagField: "singleRecordTag" }];
   }
 
-  const stats = [
+  let stats = [
     { name: "Best", field: "best", recordTagField: "singleRecordTag" },
     {
       name: numberOfAttempts === 3 ? "Mean" : "Average",
@@ -26,7 +34,18 @@ export function orderedResultStats(eventId, format) {
       recordTagField: "averageRecordTag",
     },
   ];
-  return sortBy === "best" ? stats : stats.reverse();
+  stats = sortBy === "best" ? stats : stats.reverse();
+  if (forecastView) {
+    stats.push({
+      name: "For 1st",
+      field: "forFirst",
+    });
+    stats.push({
+      name: "For 3rd",
+      field: "forThird",
+    });
+  }
+  return stats;
 }
 
 /**
@@ -64,12 +83,28 @@ export function forecastViewSupported(round) {
 }
 
 /**
+ * Wrapper for formatAttemptResult. Also handles values
+ * NA_VALUE and SUCCESS_VALUE
+ */
+export function formatAttemptResultForView(attemptResult, eventId) {
+  if (attemptResult === NA_VALUE) return "N/A";
+  if (attemptResult === SUCCESS_VALUE) return "SUCCESS";
+  return formatAttemptResult(attemptResult, eventId);
+}
+
+function sum(values) {
+  return values.reduce((x, y) => x + y, 0);
+}
+
+/**
  * Returns results, optionally adding extra fields.
  *
  * When the forecast view is enabled, adds the following fields:
  *
  *  * `projectedAverage` - average projection based on the current
  *    attempts, if any
+ *  * `forFirst` - time needed to overtake 1st place
+ *  * `forThird` - time needed to overtake 3rd place
  *
  */
 export function resultsForView(results, format, forecastView) {
@@ -79,6 +114,8 @@ export function resultsForView(results, format, forecastView) {
     return {
       ...result,
       projectedAverage: resultProjectedAverage(result, format),
+      forFirst: SKIPPED_VALUE,
+      forThird: SKIPPED_VALUE,
     };
   });
 
@@ -135,7 +172,145 @@ export function resultsForView(results, format, forecastView) {
     prevResult = currentResult;
   }
 
+  if (resultsForView.length > 1) {
+    for (let i = 0; i < resultsForView.length; i++) {
+      let result = resultsForView[i];
+      if (result.attempts.length === 0) {
+        // From this point forward all results are empty, so we are done
+        break;
+      }
+      if (isSkipped(result.average)) {
+        // For current 1st place, calculate time needed to stay in first,
+        // by comparing with second place
+        let firstIndex = i == 0 ? 1 : 0;
+        result.forFirst = timeNeededToOvertake(
+          result,
+          format,
+          resultsForView[firstIndex]
+        );
+        // Same as 1st, compare against 4th place for current 3rd place.
+        let thirdIndex = i < 3 ? 3 : 2;
+        if (thirdIndex < resultsForView.length) {
+          result.forThird = timeNeededToOvertake(
+            result,
+            format,
+            resultsForView[thirdIndex]
+          );
+        }
+      }
+    }
+  }
+
   return resultsForView;
+}
+
+/**
+ * Calculates the time required for input result to overatake
+ * overtakeResult, based on the input format.
+ *
+ * Assumes projectedAverage is already computed for both result
+ * and overtakeResult
+ *
+ * Handles incomplete and skipped values for overtakeResult
+ */
+export function timeNeededToOvertake(result, format, overtakeResult) {
+  if (isSkipped(overtakeResult.projectedAverage)) return DNF_VALUE;
+
+  let attemptResults = result.attempts.map((attempt) => attempt.result);
+  const resultWorst = attemptResults.slice().sort(compareAttemptResults).pop();
+  const betterBest =
+    compareAttemptResults(result.best, overtakeResult.best) < 0;
+
+  // Projection will change from a mean to a median after a time is added
+  if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
+    let worstVsProjected = compareAttemptResults(
+      resultWorst,
+      overtakeResult.projectedAverage
+    );
+    if (worstVsProjected < 0 || (worstVsProjected == 0 && betterBest)) {
+      // Worst possible average beats overtake average
+      return DNF_VALUE;
+    }
+    let bestVsProjected = compareAttemptResults(
+      result.best,
+      overtakeResult.projectedAverage
+    );
+    if (bestVsProjected < 0) {
+      // Best possible average beats overtake average
+      if (isComplete(overtakeResult.projectedAverage)) {
+        return overtakeResult.projectedAverage - (betterBest ? 0 : 1);
+      }
+      return SUCCESS_VALUE;
+    }
+    if (bestVsProjected == 0) {
+      // Best possible average ties overtake average
+      return isComplete(overtakeResult.best)
+        ? overtakeResult.best - 1
+        : SUCCESS_VALUE;
+    }
+    // Best possbile average loses to overtake average
+    return NA_VALUE;
+  }
+
+  const isMean = format.numberOfAttempts === 3 || result.attempts.length < 2;
+
+  if (!isComplete(overtakeResult.projectedAverage)) {
+    if (betterBest) {
+      // Already wins on best
+      return DNF_VALUE;
+    }
+    if (!isComplete(result.projectedAverage)) {
+      // Both results incomplete. Overtake on best
+      return isComplete(overtakeResult.best)
+        ? overtakeResult.best - 1
+        : SUCCESS_VALUE;
+    }
+    if (!isMean && isComplete(resultWorst)) {
+      // Next result will always be complete
+      return DNF_VALUE;
+    }
+    // Any success will beat an incomplete result
+    return SUCCESS_VALUE;
+  }
+
+  if (!isComplete(result.projectedAverage)) {
+    // DNF averages cannot overtake
+    return NA_VALUE;
+  }
+
+  // At this point, projectedAverage and best are complete for both
+  // result and overtakeResult
+  const nextCountingSolves = result.attempts.length + (isMean ? 1 : -1);
+  const totalNeeded = overtakeResult.projectedAverage * nextCountingSolves;
+  // For a mean of 3, .01 can be added to achieve the same rounded result
+  const roundingBuffer = nextCountingSolves === 3 ? 1 : 0;
+  // All counting solves are guaranteed to be complete. resultWorst might
+  // be incomplete for averages but this is removed.
+  let countingSum = sum(attemptResults);
+  if (!isMean) {
+    countingSum = countingSum - result.best - resultWorst;
+  }
+
+  let needed = totalNeeded - countingSum + roundingBuffer;
+
+  const newBest = Math.min(needed, result.best);
+  // With the current "needed" value, the averages are tied.
+  // If best is not better, adjust needed to overtake
+  if (newBest >= overtakeResult.best) {
+    // Win by decreasing average by .01 or by overtaking on single
+    needed = Math.max(needed - nextCountingSolves, overtakeResult.best - 1);
+  }
+
+  let bestPossibleSolve = isMean ? 1 : result.best;
+  let worstPossibleSolve =
+    isMean || !isComplete(resultWorst) ? Infinity : resultWorst;
+  if (needed < bestPossibleSolve) {
+    return NA_VALUE;
+  }
+  if (needed >= worstPossibleSolve) {
+    return DNF_VALUE;
+  }
+  return needed;
 }
 
 function resultProjectedAverage(result, format) {

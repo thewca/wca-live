@@ -62,7 +62,7 @@ const RoundResultsTable = memo(
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
-    const stats = orderedResultStats(eventId, format);
+    const stats = orderedResultStats(eventId, format, forecastView);
 
     const viewResults = resultsForView(results, format, forecastView);
     return (
