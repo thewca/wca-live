@@ -17,6 +17,6 @@ export default defineConfig({
     },
     // Uncomment when running using Docker on Windows.
     // See https://github.com/vitejs/vite/issues/1153#issuecomment-785467271
-    watch: { usePolling: true },
+    // watch: { usePolling: true },
   },
 });
