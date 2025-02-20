@@ -254,32 +254,40 @@ describe("timeNeededToOvertake", () => {
     );
   });
 
-  it("handles results turning from a mean to an average", () => {
+  it("handles projected average turning from a mean to an average", () => {
     const format = { numberOfAttempts: 5 };
     let result = { attempts: [{ result: 99 }, { result: 100 }], best: 99 };
+    // Worst possible average beats overtake average
     expect(
       timeNeededToOvertake(result, format, { best: 10, projectedAverage: 101 })
     ).toEqual(-1);
+    // Worst possible average ties overtake average, wins on best
     expect(
       timeNeededToOvertake(result, format, { best: 100, projectedAverage: 100 })
     ).toEqual(-1);
     result = { attempts: [{ result: 100 }, { result: -1 }], best: 100 };
+    // Best possible average beats overtake average, loses on best
     expect(
       timeNeededToOvertake(result, format, { best: 100, projectedAverage: 110 })
     ).toEqual(109);
+    // Best possible average beats overtake average, wins on best
     expect(
       timeNeededToOvertake(result, format, { best: 101, projectedAverage: 110 })
     ).toEqual(110);
+    // Best possible average beats overtake average, overtake average incomplete
     expect(
       timeNeededToOvertake(result, format, { best: 50, projectedAverage: -1 })
     ).toEqual(-4);
+    // Best possible average ties overtake average
     expect(
       timeNeededToOvertake(result, format, { best: 50, projectedAverage: 100 })
     ).toEqual(49);
+    // Best possible average loses to overtake average
     expect(
       timeNeededToOvertake(result, format, { best: 50, projectedAverage: 50 })
     ).toEqual(-3);
     result = { attempts: [{ result: -1 }, { result: -1 }], best: -1 };
+    // Best possible average ties overtake average, overtake average incomplete
     expect(
       timeNeededToOvertake(result, format, { best: -1, projectedAverage: -1 })
     ).toEqual(-4);
@@ -288,6 +296,7 @@ describe("timeNeededToOvertake", () => {
   it("handles incomplete overtake results", () => {
     let overtakeResult = { best: 50, projectedAverage: -1 };
     const format = { numberOfAttempts: 5 };
+    // Result wins on best
     expect(
       timeNeededToOvertake(
         { best: 49, projectedAverage: 49, attempts: [{ result: 49 }] },
@@ -295,6 +304,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(-1);
+    // Worst possible average is complete
     expect(
       timeNeededToOvertake(
         {
@@ -311,6 +321,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(-1);
+    // Both projected averages incomplete, win on best
     expect(
       timeNeededToOvertake(
         {
@@ -327,6 +338,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(49);
+    // Any success will beat an incomplete result
     expect(
       timeNeededToOvertake(
         {
@@ -339,6 +351,7 @@ describe("timeNeededToOvertake", () => {
       )
     ).toEqual(-4);
     overtakeResult = { best: -1, projectedAverage: -1 };
+    // Both projected averages and bests incomplete, win on best
     expect(
       timeNeededToOvertake(
         {
@@ -371,6 +384,7 @@ describe("timeNeededToOvertake", () => {
   it("handles overtake for mean", () => {
     let overtakeResult = { best: 100, projectedAverage: 100 };
     let format = { numberOfAttempts: 3 };
+    // Tie average, win on best
     expect(
       timeNeededToOvertake(
         {
@@ -382,6 +396,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(90);
+    // Tie average, win on best (with rounding buffer)
     expect(
       timeNeededToOvertake(
         {
@@ -394,6 +409,7 @@ describe("timeNeededToOvertake", () => {
       )
     ).toEqual(81);
     overtakeResult = { best: 50, projectedAverage: 100 };
+    // Win on average, lose on best
     expect(
       timeNeededToOvertake(
         {
@@ -405,6 +421,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(88);
+    // Win on average, lose on best (with rounding buffer)
     expect(
       timeNeededToOvertake(
         {
@@ -418,6 +435,7 @@ describe("timeNeededToOvertake", () => {
     ).toEqual(78);
 
     overtakeResult = { best: 80, projectedAverage: 100 };
+    // Tie on average, win on best (incremented by 1)
     expect(
       timeNeededToOvertake(
         {
@@ -432,6 +450,7 @@ describe("timeNeededToOvertake", () => {
 
     format = { numberOfAttempts: 5 };
     overtakeResult = { best: 100, projectedAverage: 100 };
+    // Validate 5 attemps with 1 result is treated as a mean
     expect(
       timeNeededToOvertake(
         {
@@ -448,6 +467,7 @@ describe("timeNeededToOvertake", () => {
   it("handles overtake for average", () => {
     let overtakeResult = { best: 50, projectedAverage: 100 };
     const format = { numberOfAttempts: 5 };
+    // Tie average, win on best (including worst solve DNF)
     expect(
       timeNeededToOvertake(
         {
@@ -459,6 +479,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(90);
+    // Win average, tie on best (including worst solve DNF)
     expect(
       timeNeededToOvertake(
         {
@@ -470,6 +491,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(88);
+    // Tie average, win on best (with rounding buffer)
     expect(
       timeNeededToOvertake(
         {
@@ -486,6 +508,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(81);
+    // Win average, tie on best (with rounding buffer)
     expect(
       timeNeededToOvertake(
         {
@@ -502,6 +525,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(78);
+    // Best possible average is slower than overtake projected average
     expect(
       timeNeededToOvertake(
         {
@@ -513,6 +537,7 @@ describe("timeNeededToOvertake", () => {
         overtakeResult
       )
     ).toEqual(-3);
+    // Worst possible average is faster than overtake projected average
     expect(
       timeNeededToOvertake(
         {

@@ -86,7 +86,7 @@ export function forecastViewSupported(round) {
  * Wrapper for formatAttemptResult. Also handles values
  * NA_VALUE and SUCCESS_VALUE
  */
-export function formatAttemptResultForN(attemptResult, eventId) {
+export function formatAttemptResultForView(attemptResult, eventId) {
   if (attemptResult === NA_VALUE) return "N/A";
   if (attemptResult === SUCCESS_VALUE) return "SUCCESS";
   return formatAttemptResult(attemptResult, eventId);

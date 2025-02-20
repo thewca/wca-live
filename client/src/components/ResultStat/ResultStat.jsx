@@ -6,7 +6,7 @@ import {
 } from "../../lib/attempt-result";
 import {
   shouldComputeAverage,
-  formatAttemptResultForN,
+  formatAttemptResultForView,
 } from "../../lib/result";
 
 function ResultStat({ result, field, eventId, format, forecastView }) {
@@ -24,7 +24,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
             <>
               <Tooltip title="Projected average">
                 <span>
-                  {formatAttemptResultForN(result.projectedAverage, eventId)}
+                  {formatAttemptResultForView(result.projectedAverage, eventId)}
                 </span>
               </Tooltip>
               {" ("}
@@ -32,7 +32,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
           )}
           <Tooltip title="Best possible average">
             <span>
-              {formatAttemptResultForN(
+              {formatAttemptResultForView(
                 bestPossibleAverage(attemptResults),
                 eventId
               )}
@@ -41,7 +41,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
           {" / "}
           <Tooltip title="Worst possible average">
             <span>
-              {formatAttemptResultForN(
+              {formatAttemptResultForView(
                 worstPossibleAverage(attemptResults),
                 eventId
               )}
@@ -57,7 +57,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
         <Box component="span" sx={{ opacity: 0.5 }}>
           <Tooltip title="Projected average">
             <span>
-              {formatAttemptResultForN(result.projectedAverage, eventId)}
+              {formatAttemptResultForView(result.projectedAverage, eventId)}
             </span>
           </Tooltip>
         </Box>
@@ -69,7 +69,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
         <Box component="span" sx={{ opacity: 0.5 }}>
           <Tooltip title="Mean after 2 solves">
             <span>
-              {formatAttemptResultForN(
+              {formatAttemptResultForView(
                 incompleteMean(attemptResults, eventId),
                 eventId
               )}
@@ -80,7 +80,7 @@ function ResultStat({ result, field, eventId, format, forecastView }) {
     }
   }
 
-  return formatAttemptResultForN(result[field], eventId);
+  return formatAttemptResultForView(result[field], eventId);
 }
 
 export default ResultStat;
