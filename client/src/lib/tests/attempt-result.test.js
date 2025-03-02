@@ -84,9 +84,9 @@ describe("average", () => {
     expect(average([400, 500, 900], "333")).toEqual(600);
   });
 
-  it("truncates averages over 10 minutes to seconds", () => {
+  it("rounds averages over 10 minutes to seconds", () => {
     expect(average([60041, 60041, 60041], "333")).toEqual(60000);
-    expect(average([60051, 60051, 60051], "333")).toEqual(60000);
+    expect(average([60051, 60051, 60051], "333")).toEqual(60100);
   });
 
   it("returns correct average for 3x3x3 Fewest Moves", () => {
@@ -266,7 +266,7 @@ describe("autocompleteFmAttemptResult", () => {
 });
 
 describe("autocompleteTimeAttemptResult", () => {
-  test("truncates averages over 10 minutes to seconds", () => {
+  test("truncates values over 10 minutes to seconds", () => {
     expect(autocompleteTimeAttemptResult(60041)).toEqual(60000);
     expect(autocompleteTimeAttemptResult(60051)).toEqual(60000);
   });
