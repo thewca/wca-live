@@ -96,14 +96,21 @@ export function average(attemptResults, eventId) {
 
   switch (attemptResults.length) {
     case 3:
-      return truncateOver10Mins(meanOfX(attemptResults));
+      return roundOver10Mins(meanOfX(attemptResults));
     case 5:
-      return truncateOver10Mins(averageOf5(attemptResults));
+      return roundOver10Mins(averageOf5(attemptResults));
     default:
       throw new Error(
         `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
       );
   }
+}
+
+/* See: https://www.worldcubeassociation.org/regulations/#9f2 */
+function roundOver10Mins(value) {
+  if (!isComplete(value)) return value;
+  if (value <= 10 * 6000) return value;
+  return Math.round(value / 100) * 100;
 }
 
 /* See: https://www.worldcubeassociation.org/regulations/#9f2 */
@@ -189,7 +196,7 @@ export function bestPossibleAverage(attemptResults) {
 
   const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
   const mean = meanOfX([x, y, z]);
-  return truncateOver10Mins(mean);
+  return roundOver10Mins(mean);
 }
 
 /**
@@ -211,7 +218,7 @@ export function worstPossibleAverage(attemptResults) {
 
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
   const mean = meanOfX([x, y, z]);
-  return truncateOver10Mins(mean);
+  return roundOver10Mins(mean);
 }
 
 /**
@@ -231,7 +238,7 @@ export function incompleteMean(attemptResults, eventId) {
     return mean(scaled);
   }
 
-  return truncateOver10Mins(mean(attemptResults));
+  return roundOver10Mins(mean(attemptResults));
 }
 
 /**
