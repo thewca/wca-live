@@ -73,6 +73,8 @@ export function forecastViewSupported(round) {
   return (
     // Only relevant for rounds sorted by average
     round.format.sortBy != "best" &&
+    // Only relevant for incomplete rounds
+    !round.finished &&
     // Fewest moves is currently not supported
     round.competitionEvent.event.id != "333fm" &&
     // Currently only final rounds are supported. It is the most likely
