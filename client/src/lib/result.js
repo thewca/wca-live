@@ -185,7 +185,7 @@ export function resultsForView(
   }
 
   // Default to podium (top 3) if no advancement condition
-  let advancementIndex = advancementCondition.level ?? 3;
+  let advancementIndex = advancementCondition?.level ?? 3;
   if (resultsForView.length > 1) {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
@@ -203,13 +203,13 @@ export function resultsForView(
           resultsForView[firstIndex]
         );
         // Same as 1st, compare against (i+1)th place for current ith place.
-        let thirdIndex =
+        let advIndex =
           i < advancementIndex ? advancementIndex : advancementIndex - 1;
-        if (thirdIndex < resultsForView.length) {
+        if (advIndex < resultsForView.length) {
           result.forAdvance = timeNeededToOvertake(
             result,
             format,
-            resultsForView[thirdIndex]
+            resultsForView[advIndex]
           );
         }
       }
