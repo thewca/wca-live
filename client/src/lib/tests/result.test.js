@@ -301,7 +301,12 @@ describe("viewResults", () => {
         average: 0,
       },
     ];
-    const viewResults = resultsForView(results, format, true, advancementCondition);
+    const viewResults = resultsForView(
+      results,
+      format,
+      true,
+      advancementCondition
+    );
     expect(viewResults[0]).toMatchObject({
       forAdvance: 104,
     });
