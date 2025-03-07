@@ -192,7 +192,7 @@ describe("viewResults", () => {
     });
   });
 
-  it("deesn't set forFirst/forThird for fewest moves", () => {
+  it("deesn't set forFirst/forAdvance for fewest moves", () => {
     const event333fm = "333fm";
     const format = { numberOfAttempts: 3 };
     const results = [
@@ -212,11 +212,11 @@ describe("viewResults", () => {
     const viewResults = resultsForView(results, event333fm, format, true);
     expect(viewResults[0]).toMatchObject({
       forFirst: 0,
-      forThird: 0,
+      forAdvance: 0,
     });
     expect(viewResults[1]).toMatchObject({
       forFirst: 0,
-      forThird: 0,
+      forAdvance: 0,
     });
   });
 
@@ -279,6 +279,7 @@ describe("viewResults", () => {
   });
 
   it("sets for advance based on times needed to advance", () => {
+    const event333 = "333";
     const advancementCondition = { level: 2 };
     const format = { numberOfAttempts: 3 };
     const results = [
@@ -303,6 +304,7 @@ describe("viewResults", () => {
     ];
     const viewResults = resultsForView(
       results,
+      event333,
       format,
       true,
       advancementCondition
