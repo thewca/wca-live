@@ -109,7 +109,7 @@ function sum(values) {
  *  * `projectedAverage` - average projection based on the current
  *    attempts, if any
  *  * `forFirst` - time needed to overtake 1st place
- *  * `forAdvance` - time needed to overtake 3rd place
+ *  * `forAdvance` - time needed to advance
  *
  */
 export function resultsForView(
