@@ -35,7 +35,7 @@ export function orderedResultStats(eventId, format, forecastView = false) {
     },
   ];
   stats = sortBy === "best" ? stats : stats.reverse();
-  if (forecastView) {
+  if (forecastView && eventId != "333fm") {
     stats.push({
       name: "For 1st",
       field: "forFirst",
@@ -75,8 +75,6 @@ export function forecastViewSupported(round) {
     round.format.sortBy != "best" &&
     // Only relevant for incomplete rounds
     !round.finished &&
-    // Fewest moves is currently not supported
-    round.competitionEvent.event.id != "333fm" &&
     // Currently only final rounds are supported. It is the most likely
     // use case and this way we don't need to replicate advancement
     // condition and clinching logic on the client.
@@ -109,13 +107,13 @@ function sum(values) {
  *  * `forThird` - time needed to overtake 3rd place
  *
  */
-export function resultsForView(results, format, forecastView) {
+export function resultsForView(results, eventId, format, forecastView) {
   if (results.length == 0 || !forecastView) return results;
 
   let resultsForView = results.map((result) => {
     return {
       ...result,
-      projectedAverage: resultProjectedAverage(result, format),
+      projectedAverage: resultProjectedAverage(result, eventId, format),
       forFirst: SKIPPED_VALUE,
       forThird: SKIPPED_VALUE,
     };
@@ -174,7 +172,7 @@ export function resultsForView(results, format, forecastView) {
     prevResult = currentResult;
   }
 
-  if (resultsForView.length > 1) {
+  if (resultsForView.length > 1 && eventId != "333fm") {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
       if (result.attempts.length === 0) {
@@ -315,11 +313,11 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
   return needed;
 }
 
-function resultProjectedAverage(result, format) {
+function resultProjectedAverage(result, eventId, format) {
   if (!isSkipped(result.average)) {
     return result.average;
   }
 
   const attemptResults = result.attempts.map((attempt) => attempt.result);
-  return projectedAverage(attemptResults, format);
+  return projectedAverage(attemptResults, eventId, format);
 }

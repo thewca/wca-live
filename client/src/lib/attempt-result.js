@@ -152,8 +152,14 @@ function mean(values) {
  * When all result attempts are present, the return value is the same
  * as the usual average.
  */
-export function projectedAverage(attemptResults, format) {
+export function projectedAverage(attemptResults, eventId, format) {
   if (attemptResults.length === 0) return SKIPPED_VALUE;
+
+  if (eventId === "333fm") {
+    if (!attemptResults.every(isComplete)) return DNF_VALUE;
+    const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
+    return mean(scaled);
+  }
 
   if (format.numberOfAttempts === 3) {
     return meanOfX(attemptResults);
