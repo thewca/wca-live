@@ -96,6 +96,7 @@ function ResultsProjector({
   );
   const nonemptyResults = resultsForView(
     results,
+    eventId,
     format,
     forecastView,
     advancementCondition

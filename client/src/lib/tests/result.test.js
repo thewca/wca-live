@@ -49,7 +49,8 @@ describe("viewResults", () => {
         attempts: [{ result: 1000 }, { result: 1000 }, { result: 1000 }],
       },
     ];
-    expect(resultsForView(results, null, false)).toEqual(results);
+    const event333 = "333";
+    expect(resultsForView(results, event333, null, false)).toEqual(results);
   });
 
   it("computes projected average on all results", () => {
@@ -71,8 +72,9 @@ describe("viewResults", () => {
         average: 0,
       },
     ];
+    const event333 = "333";
 
-    const viewResults = resultsForView(results, format, true);
+    const viewResults = resultsForView(results, event333, format, true);
     expect(viewResults[0].projectedAverage).toEqual(1100);
     expect(viewResults[1].projectedAverage).toEqual(1400);
     expect(viewResults[2].projectedAverage).toEqual(2100);
@@ -131,8 +133,9 @@ describe("viewResults", () => {
         advancingQuestionable: false,
       },
     ];
+    const event333 = "333";
 
-    const viewResults = resultsForView(results, format, true);
+    const viewResults = resultsForView(results, event333, format, true);
     expect(viewResults[0]).toMatchObject({
       ranking: 1,
       attempts: [{ result: 10 }, { result: 10 }, { result: 10 }],
@@ -189,6 +192,34 @@ describe("viewResults", () => {
     });
   });
 
+  it("deesn't set forFirst/forThird for fewest moves", () => {
+    const event333fm = "333fm";
+    const format = { numberOfAttempts: 3 };
+    const results = [
+      {
+        ranking: 1,
+        attempts: [{ result: 20 }],
+        best: 20,
+        average: 0,
+      },
+      {
+        ranking: 2,
+        attempts: [{ result: 20 }],
+        best: 20,
+        average: 0,
+      },
+    ];
+    const viewResults = resultsForView(results, event333fm, format, true);
+    expect(viewResults[0]).toMatchObject({
+      forFirst: 0,
+      forThird: 0,
+    });
+    expect(viewResults[1]).toMatchObject({
+      forFirst: 0,
+      forThird: 0,
+    });
+  });
+
   it("sets forFirst/forAdvance based on times needed to achieve 1st/3rd", () => {
     const format = { numberOfAttempts: 3 };
     const results = [
@@ -223,7 +254,8 @@ describe("viewResults", () => {
         average: 104,
       },
     ];
-    const viewResults = resultsForView(results, format, true, null);
+    const event333 = "333";
+    const viewResults = resultsForView(results, event333, format, true, null);
     expect(viewResults[0]).toMatchObject({
       forFirst: 102,
       forAdvance: 106,

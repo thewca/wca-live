@@ -72,6 +72,7 @@ const RoundResultsTable = memo(
 
     const viewResults = resultsForView(
       results,
+      eventId,
       format,
       forecastView,
       advancementCondition

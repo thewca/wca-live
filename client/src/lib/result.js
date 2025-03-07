@@ -40,7 +40,7 @@ export function orderedResultStats(
     },
   ];
   stats = sortBy === "best" ? stats : stats.reverse();
-  if (forecastView) {
+  if (forecastView && eventId != "333fm") {
     stats.push({
       name: "For 1st",
       field: "forFirst",
@@ -80,8 +80,6 @@ export function forecastViewSupported(round) {
   return (
     // Only relevant for rounds sorted by average
     round.format.sortBy != "best" &&
-    // Fewest moves is currently not supported
-    round.competitionEvent.event.id != "333fm" &&
     // Only final rounds or rounds with a ranking based
     // advancement condition are supported
     (round.advancementCondition === null ||
@@ -116,6 +114,7 @@ function sum(values) {
  */
 export function resultsForView(
   results,
+  eventId,
   format,
   forecastView,
   advancementCondition
@@ -125,7 +124,7 @@ export function resultsForView(
   let resultsForView = results.map((result) => {
     return {
       ...result,
-      projectedAverage: resultProjectedAverage(result, format),
+      projectedAverage: resultProjectedAverage(result, eventId, format),
       forFirst: SKIPPED_VALUE,
       forAdvance: SKIPPED_VALUE,
     };
@@ -186,7 +185,7 @@ export function resultsForView(
 
   // Default to podium (top 3) if no advancement condition
   let advancementIndex = advancementCondition?.level ?? 3;
-  if (resultsForView.length > 1) {
+  if (resultsForView.length > 1 && eventId != "333fm") {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
       if (result.attempts.length === 0) {
@@ -328,11 +327,11 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
   return needed;
 }
 
-function resultProjectedAverage(result, format) {
+function resultProjectedAverage(result, eventId, format) {
   if (!isSkipped(result.average)) {
     return result.average;
   }
 
   const attemptResults = result.attempts.map((attempt) => attempt.result);
-  return projectedAverage(attemptResults, format);
+  return projectedAverage(attemptResults, eventId, format);
 }
