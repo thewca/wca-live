@@ -170,7 +170,7 @@ export function resultsForView(results, eventId, format, forecastView) {
     prevResult = currentResult;
   }
 
-  if (resultsForView.length > 1) {
+  if (resultsForView.length > 1 && eventId != "333fm") {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
       if (result.attempts.length === 0) {
