@@ -64,7 +64,7 @@ const RoundResultsTable = memo(
 
     const stats = orderedResultStats(eventId, format, forecastView);
 
-    const viewResults = resultsForView(results, format, forecastView);
+    const viewResults = resultsForView(results, eventId, format, forecastView);
     return (
       <Paper>
         <Table size="small">
