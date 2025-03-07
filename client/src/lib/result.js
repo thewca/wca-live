@@ -73,6 +73,8 @@ export function forecastViewSupported(round) {
   return (
     // Only relevant for rounds sorted by average
     round.format.sortBy != "best" &&
+    // Only relevant for incomplete rounds
+    !round.finished &&
     // Currently only final rounds are supported. It is the most likely
     // use case and this way we don't need to replicate advancement
     // condition and clinching logic on the client.
