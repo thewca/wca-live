@@ -58,13 +58,24 @@ const RoundResultsTable = memo(
     competitionId,
     onResultClick,
     forecastView,
+    advancementCondition,
   }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
-    const stats = orderedResultStats(eventId, format, forecastView);
+    const stats = orderedResultStats(
+      eventId,
+      format,
+      forecastView,
+      advancementCondition
+    );
 
-    const viewResults = resultsForView(results, format, forecastView);
+    const viewResults = resultsForView(
+      results,
+      format,
+      forecastView,
+      advancementCondition
+    );
     return (
       <Paper>
         <Table size="small">

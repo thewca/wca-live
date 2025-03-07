@@ -11,6 +11,7 @@ function RoundResults({
   eventId,
   competitionId,
   forecastView,
+  advancementCondition
 }) {
   const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -42,6 +43,7 @@ function RoundResults({
             competitionId={competitionId}
             onResultClick={handleResultClick}
             forecastView={forecastView}
+            advancementCondition={advancementCondition}
           />
         </Grid>
         {!showAll && (

@@ -19,7 +19,12 @@ const SUCCESS_VALUE = -4;
  * The first statistic is the one that determines the ranking.
  * This is a common logic used in all result tables/dialogs.
  */
-export function orderedResultStats(eventId, format, forecastView = false) {
+export function orderedResultStats(
+  eventId,
+  format,
+  forecastView = false,
+  advancementCondition = null
+) {
   const { numberOfAttempts, sortBy } = format;
 
   if (!shouldComputeAverage(eventId, numberOfAttempts)) {
@@ -41,8 +46,10 @@ export function orderedResultStats(eventId, format, forecastView = false) {
       field: "forFirst",
     });
     stats.push({
-      name: "For 3rd",
-      field: "forThird",
+      name: advancementCondition
+        ? "Adv. [" + advancementCondition.level + "]"
+        : "For 3rd",
+      field: "forAdvance",
     });
   }
   return stats;
@@ -75,10 +82,10 @@ export function forecastViewSupported(round) {
     round.format.sortBy != "best" &&
     // Fewest moves is currently not supported
     round.competitionEvent.event.id != "333fm" &&
-    // Currently only final rounds are supported. It is the most likely
-    // use case and this way we don't need to replicate advancement
-    // condition and clinching logic on the client.
-    round.advancementCondition === null
+    // Only final rounds or rounds with a ranking based
+    // advancement condition are supported
+    (round.advancementCondition === null ||
+      round.advancementCondition.type === "ranking")
   );
 }
 
@@ -104,10 +111,15 @@ function sum(values) {
  *  * `projectedAverage` - average projection based on the current
  *    attempts, if any
  *  * `forFirst` - time needed to overtake 1st place
- *  * `forThird` - time needed to overtake 3rd place
+ *  * `forAdvance` - time needed to overtake 3rd place
  *
  */
-export function resultsForView(results, format, forecastView) {
+export function resultsForView(
+  results,
+  format,
+  forecastView,
+  advancementCondition
+) {
   if (results.length == 0 || !forecastView) return results;
 
   let resultsForView = results.map((result) => {
@@ -115,7 +127,7 @@ export function resultsForView(results, format, forecastView) {
       ...result,
       projectedAverage: resultProjectedAverage(result, format),
       forFirst: SKIPPED_VALUE,
-      forThird: SKIPPED_VALUE,
+      forAdvance: SKIPPED_VALUE,
     };
   });
 
@@ -172,6 +184,8 @@ export function resultsForView(results, format, forecastView) {
     prevResult = currentResult;
   }
 
+  // Default to podium (top 3) if no advancement condition
+  let advancementIndex = advancementCondition.level ?? 3;
   if (resultsForView.length > 1) {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
@@ -188,10 +202,11 @@ export function resultsForView(results, format, forecastView) {
           format,
           resultsForView[firstIndex]
         );
-        // Same as 1st, compare against 4th place for current 3rd place.
-        let thirdIndex = i < 3 ? 3 : 2;
+        // Same as 1st, compare against (i+1)th place for current ith place.
+        let thirdIndex =
+          i < advancementIndex ? advancementIndex : advancementIndex - 1;
         if (thirdIndex < resultsForView.length) {
-          result.forThird = timeNeededToOvertake(
+          result.forAdvance = timeNeededToOvertake(
             result,
             format,
             resultsForView[thirdIndex]
