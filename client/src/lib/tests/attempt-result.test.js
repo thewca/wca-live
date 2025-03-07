@@ -640,17 +640,21 @@ describe("projectedAverage", () => {
   it("returns median when format is average of 5 and there are 3 or 4 attempts", () => {
     const format = { numberOfAttempts: 5 };
     expect(projectedAverage([100, 101, 102], event333, format)).toEqual(101);
-    expect(projectedAverage([100, 101, 103, 104], event333, format)).toEqual(102);
+    expect(projectedAverage([100, 101, 103, 104], event333, format)).toEqual(
+      102
+    );
   });
 
   it("returns average of 5 when format is average of 5 and there are 5 attempts", () => {
     const format = { numberOfAttempts: 5 };
-    expect(projectedAverage([100, 101, 102, 103, 200], event333, format)).toEqual(102);
+    expect(
+      projectedAverage([100, 101, 102, 103, 200], event333, format)
+    ).toEqual(102);
   });
 
   it("returns scaled mean when event is 333 fewest moves", () => {
     const format = { numberOfAttempts: 5 };
-    const event333fm = "333fm"
+    const event333fm = "333fm";
     expect(projectedAverage([20], event333fm, format)).toEqual(2000);
     expect(projectedAverage([20, 21], event333fm, format)).toEqual(2050);
     expect(projectedAverage([20, 20, 21], event333fm, format)).toEqual(2033);

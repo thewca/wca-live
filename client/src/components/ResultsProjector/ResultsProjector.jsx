@@ -88,9 +88,12 @@ function ResultsProjector({
   const [topResultIndex, setTopResultIndex] = useState(0);
 
   const stats = orderedResultStats(eventId, format, forecastView);
-  const nonemptyResults = resultsForView(results, eventId, format, forecastView).filter(
-    (result) => result.attempts.length > 0
-  );
+  const nonemptyResults = resultsForView(
+    results,
+    eventId,
+    format,
+    forecastView
+  ).filter((result) => result.attempts.length > 0);
 
   useEffect(() => {
     if (status === STATUS.SHOWN) {

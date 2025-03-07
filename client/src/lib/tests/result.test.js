@@ -41,7 +41,6 @@ describe("formatAttemptResultForView", () => {
 });
 
 describe("viewResults", () => {
-  const event333 = "333;"
   it("returns unaltered results if forecastView is not enabled", () => {
     const results = [
       {
@@ -50,6 +49,7 @@ describe("viewResults", () => {
         attempts: [{ result: 1000 }, { result: 1000 }, { result: 1000 }],
       },
     ];
+    const event333 = "333";
     expect(resultsForView(results, event333, null, false)).toEqual(results);
   });
 
@@ -72,6 +72,7 @@ describe("viewResults", () => {
         average: 0,
       },
     ];
+    const event333 = "333";
 
     const viewResults = resultsForView(results, event333, format, true);
     expect(viewResults[0].projectedAverage).toEqual(1100);
@@ -132,6 +133,7 @@ describe("viewResults", () => {
         advancingQuestionable: false,
       },
     ];
+    const event333 = "333";
 
     const viewResults = resultsForView(results, event333, format, true);
     expect(viewResults[0]).toMatchObject({
@@ -252,6 +254,7 @@ describe("viewResults", () => {
         average: 104,
       },
     ];
+    const event333 = "333";
     const viewResults = resultsForView(results, event333, format, true);
     expect(viewResults[0]).toMatchObject({
       forFirst: 102,
