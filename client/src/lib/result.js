@@ -42,13 +42,13 @@ export function orderedResultStats(
   stats = sortBy === "best" ? stats : stats.reverse();
   if (forecastView && eventId != "333fm") {
     stats.push({
-      name: "For 1st",
+      name: "For 1",
       field: "forFirst",
     });
     stats.push({
       name: advancementCondition
-        ? "Adv. [" + advancementCondition.level + "]"
-        : "For 3rd",
+        ? "For " + advancementCondition.level
+        : "For 3",
       field: "forAdvance",
     });
   }
@@ -184,7 +184,7 @@ export function resultsForView(
   }
 
   // Default to podium (top 3) if no advancement condition
-  let advancementIndex = advancementCondition?.level ?? 3;
+  let advancementRanking = advancementCondition?.level ?? 3;
   if (resultsForView.length > 1 && eventId != "333fm") {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
@@ -202,13 +202,13 @@ export function resultsForView(
           resultsForView[firstIndex]
         );
         // Same as 1st, compare against (i+1)th place for current ith place.
-        let advIndex =
-          i < advancementIndex ? advancementIndex : advancementIndex - 1;
-        if (advIndex < resultsForView.length) {
+        let advancementIndex =
+          i < advancementRanking ? advancementRanking : advancementRanking - 1;
+        if (advancementIndex < resultsForView.length) {
           result.forAdvance = timeNeededToOvertake(
             result,
             format,
-            resultsForView[advIndex]
+            resultsForView[advancementIndex]
           );
         }
       }
