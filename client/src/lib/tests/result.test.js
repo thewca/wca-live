@@ -26,8 +26,8 @@ describe("orderedResultStats", () => {
     expect(orderedResultStats(eventId, format, true)).toMatchObject([
       averageStat,
       bestStat,
-      { name: "For 1st", field: "forFirst" },
-      { name: "For 3rd", field: "forAdvance" },
+      { name: "For 1", field: "forFirst" },
+      { name: "For 3", field: "forAdvance" },
     ]);
   });
 });
