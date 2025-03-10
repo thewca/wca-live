@@ -6,7 +6,7 @@ import {
 } from "../result";
 
 describe("orderedResultStats", () => {
-  it("returns 'forFirst' and 'forThird' when forecase view is enabled", () => {
+  it("returns 'forFirst' and 'forAdvance' when forecase view is enabled", () => {
     const eventId = "333";
     const format = { numberOfAttempts: 5, sortBy: "average" };
     const bestStat = {
@@ -26,8 +26,8 @@ describe("orderedResultStats", () => {
     expect(orderedResultStats(eventId, format, true)).toMatchObject([
       averageStat,
       bestStat,
-      { name: "For 1st", field: "forFirst" },
-      { name: "For 3rd", field: "forThird" },
+      { name: "For 1", field: "forFirst" },
+      { name: "For 3", field: "forAdvance" },
     ]);
   });
 });
@@ -192,7 +192,7 @@ describe("viewResults", () => {
     });
   });
 
-  it("deesn't set forFirst/forThird for fewest moves", () => {
+  it("deesn't set forFirst/forAdvance for fewest moves", () => {
     const event333fm = "333fm";
     const format = { numberOfAttempts: 3 };
     const results = [
@@ -212,15 +212,15 @@ describe("viewResults", () => {
     const viewResults = resultsForView(results, event333fm, format, true);
     expect(viewResults[0]).toMatchObject({
       forFirst: 0,
-      forThird: 0,
+      forAdvance: 0,
     });
     expect(viewResults[1]).toMatchObject({
       forFirst: 0,
-      forThird: 0,
+      forAdvance: 0,
     });
   });
 
-  it("sets forFirst/forThird based on times needed to achieve 1st/3rd", () => {
+  it("sets forFirst/forAdvance based on times needed to achieve 1st/3rd", () => {
     const format = { numberOfAttempts: 3 };
     const results = [
       {
@@ -255,26 +255,68 @@ describe("viewResults", () => {
       },
     ];
     const event333 = "333";
-    const viewResults = resultsForView(results, event333, format, true);
+    const viewResults = resultsForView(results, event333, format, true, null);
     expect(viewResults[0]).toMatchObject({
       forFirst: 102,
-      forThird: 106,
+      forAdvance: 106,
     });
     expect(viewResults[1]).toMatchObject({
       forFirst: 99,
-      forThird: 105,
+      forAdvance: 105,
     });
     expect(viewResults[2]).toMatchObject({
       forFirst: 98,
-      forThird: 104,
+      forAdvance: 104,
     });
     expect(viewResults[3]).toMatchObject({
       forFirst: 97,
-      forThird: 101,
+      forAdvance: 101,
     });
     expect(viewResults[4]).toMatchObject({
       forFirst: 0,
-      forThird: 0,
+      forAdvance: 0,
+    });
+  });
+
+  it("sets for advance based on times needed to advance", () => {
+    const event333 = "333";
+    const advancementCondition = { level: 2 };
+    const format = { numberOfAttempts: 3 };
+    const results = [
+      {
+        ranking: 1,
+        attempts: [{ result: 100 }],
+        best: 100,
+        average: 0,
+      },
+      {
+        ranking: 2,
+        attempts: [{ result: 101 }],
+        best: 101,
+        average: 0,
+      },
+      {
+        ranking: 3,
+        attempts: [{ result: 102 }],
+        best: 102,
+        average: 0,
+      },
+    ];
+    const viewResults = resultsForView(
+      results,
+      event333,
+      format,
+      true,
+      advancementCondition
+    );
+    expect(viewResults[0]).toMatchObject({
+      forAdvance: 104,
+    });
+    expect(viewResults[1]).toMatchObject({
+      forAdvance: 103,
+    });
+    expect(viewResults[2]).toMatchObject({
+      forAdvance: 100,
     });
   });
 });
