@@ -39,11 +39,13 @@ describe("forecastViewSupported", () => {
       false
     );
   });
+
   it("returns false for finished rounds", () => {
     expect(
       forecastViewSupported({ format: { sortBy: "average" }, finished: true })
     ).toEqual(false);
   });
+
   it("returns true for finals and 'ranking' advancement type", () => {
     expect(
       forecastViewSupported({
@@ -54,6 +56,7 @@ describe("forecastViewSupported", () => {
         advancementCondition: null,
       })
     ).toEqual(true);
+
     expect(
       forecastViewSupported({
         format: {
@@ -63,6 +66,7 @@ describe("forecastViewSupported", () => {
         advancementCondition: { type: "ranking" },
       })
     ).toEqual(true);
+
     expect(
       forecastViewSupported({
         format: {
