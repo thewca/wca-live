@@ -80,6 +80,8 @@ export function forecastViewSupported(round) {
   return (
     // Only relevant for rounds sorted by average
     round.format.sortBy != "best" &&
+    // Only relevant for incomplete rounds
+    !round.finished &&
     // Only final rounds or rounds with a ranking based
     // advancement condition are supported
     (round.advancementCondition === null ||

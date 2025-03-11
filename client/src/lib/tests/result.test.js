@@ -1,4 +1,5 @@
 import {
+  forecastViewSupported,
   formatAttemptResultForView,
   resultsForView,
   orderedResultStats,
@@ -29,6 +30,52 @@ describe("orderedResultStats", () => {
       { name: "For 1", field: "forFirst" },
       { name: "For 3", field: "forAdvance" },
     ]);
+  });
+});
+
+describe("forecastViewSupported", () => {
+  it("returns false for rounds sorted by best", () => {
+    expect(forecastViewSupported({ format: { sortBy: "best" } })).toEqual(
+      false
+    );
+  });
+
+  it("returns false for finished rounds", () => {
+    expect(
+      forecastViewSupported({ format: { sortBy: "average" }, finished: true })
+    ).toEqual(false);
+  });
+
+  it("returns true for finals and 'ranking' advancement type", () => {
+    expect(
+      forecastViewSupported({
+        format: {
+          sortBy: "average",
+        },
+        finished: false,
+        advancementCondition: null,
+      })
+    ).toEqual(true);
+
+    expect(
+      forecastViewSupported({
+        format: {
+          sortBy: "average",
+        },
+        finished: false,
+        advancementCondition: { type: "ranking" },
+      })
+    ).toEqual(true);
+
+    expect(
+      forecastViewSupported({
+        format: {
+          sortBy: "average",
+        },
+        finished: false,
+        advancementCondition: { type: "limit" },
+      })
+    ).toEqual(false);
   });
 });
 
