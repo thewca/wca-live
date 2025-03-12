@@ -18,9 +18,16 @@ function RoundResultDialog({
   format,
   eventId,
   competitionId,
+  forecastView,
+  advancementCondition,
   onClose,
 }) {
-  const stats = orderedResultStats(eventId, format);
+  const stats = orderedResultStats(
+    eventId,
+    format,
+    forecastView,
+    advancementCondition
+  );
 
   return (
     <Dialog open={!!result} fullWidth={true} onClose={onClose}>

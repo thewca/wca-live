@@ -66,7 +66,8 @@ const RoundResultsTable = memo(
     const stats = orderedResultStats(
       eventId,
       format,
-      forecastView,
+      // Only show forecast view stat columns on wider screens
+      forecastView && smScreen,
       advancementCondition
     );
 
