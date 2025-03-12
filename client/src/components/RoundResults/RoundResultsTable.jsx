@@ -71,13 +71,6 @@ const RoundResultsTable = memo(
       advancementCondition
     );
 
-    const viewResults = resultsForView(
-      results,
-      eventId,
-      format,
-      forecastView,
-      advancementCondition
-    );
     return (
       <Paper>
         <Table size="small">
@@ -105,7 +98,7 @@ const RoundResultsTable = memo(
             </TableRow>
           </TableHead>
           <TableBody>
-            {viewResults.map((result) => (
+            {results.map((result) => (
               <TableRow
                 key={result.id}
                 hover

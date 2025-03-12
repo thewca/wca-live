@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { Button, Grid, useMediaQuery } from "@mui/material";
 import RoundResultsTable from "./RoundResultsTable";
 import RoundResultDialog from "./RoundResultDialog";
+import { resultsForView } from "../../lib/result";
 
 const DEFAULT_VISIBLE_RESULTS = 100;
 
@@ -24,13 +25,25 @@ function RoundResults({
     setSelectedResult(result);
   }, []);
 
+  const viewResults = useMemo(
+    () =>
+      resultsForView(
+        results,
+        eventId,
+        format,
+        forecastView,
+        advancementCondition
+      ),
+    [results, eventId, format, forecastView, advancementCondition]
+  );
+
   const visibleResults = useMemo(() => {
     if (showAll) {
-      return results;
+      return viewResults;
     } else {
-      return results.slice(0, DEFAULT_VISIBLE_RESULTS);
+      return viewResults.slice(0, DEFAULT_VISIBLE_RESULTS);
     }
-  }, [results, showAll]);
+  }, [viewResults, showAll]);
 
   return (
     <>
