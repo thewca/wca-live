@@ -24,34 +24,36 @@ function RoundToolbar({ round, competitionId, forecastView, setForecastView }) {
         </Typography>
       </Grid>
       <Grid item style={{ flexGrow: 1 }} />
+      <Grid item>
+        {forecastView ? (
+          <Tooltip title="Default view" placement="top">
+            <IconButton onClick={() => setForecastView(false)} size="large">
+              <TimelineIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip
+            title={
+              <div>
+                Forecast view:
+                <div>- uses projected average for incomplete results</div>
+                <div>- shows times necessary to get 1st and 3rd places</div>
+              </div>
+            }
+            placement="top"
+          >
+            <IconButton
+              onClick={() => setForecastView(true)}
+              size="large"
+              disabled={!forecastViewSupported(round)}
+            >
+              <InsightsIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Grid>
       {mdScreen && (
         <Grid item>
-          {forecastView ? (
-            <Tooltip title="Default view" placement="top">
-              <IconButton onClick={() => setForecastView(false)} size="large">
-                <TimelineIcon />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip
-              title={
-                <div>
-                  Forecast view:
-                  <div>- uses projected average for incomplete results</div>
-                  <div>- shows times necessary to get 1st and 3rd places</div>
-                </div>
-              }
-              placement="top"
-            >
-              <IconButton
-                onClick={() => setForecastView(true)}
-                size="large"
-                disabled={!forecastViewSupported(round)}
-              >
-                <InsightsIcon />
-              </IconButton>
-            </Tooltip>
-          )}
           <Tooltip title="PDF" placement="top">
             <IconButton
               component="a"
