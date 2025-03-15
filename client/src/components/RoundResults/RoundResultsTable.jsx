@@ -14,11 +14,7 @@ import { green } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
 import { times } from "../../lib/utils";
 import { formatAttemptResult } from "../../lib/attempt-result";
-import {
-  resultsForView,
-  orderedResultStats,
-  paddedAttemptResults,
-} from "../../lib/result";
+import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
