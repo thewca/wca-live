@@ -161,7 +161,6 @@ const RoundResultsTable = memo(
                         result={result}
                         field={field}
                         eventId={eventId}
-                        format={format}
                         forecastView={forecastView}
                       />
                     </RecordTagBadge>

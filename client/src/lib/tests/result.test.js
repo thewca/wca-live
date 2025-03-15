@@ -7,26 +7,68 @@ import {
 } from "../result";
 
 describe("orderedResultStats", () => {
-  it("returns 'forFirst' and 'forAdvance' when forecase view is enabled", () => {
+  it("returns best and average when average is applicable", () => {
     const eventId = "333";
     const format = { numberOfAttempts: 5, sortBy: "average" };
-    const bestStat = {
-      name: "Best",
-      field: "best",
-      recordTagField: "singleRecordTag",
-    };
-    const averageStat = {
-      name: "Average",
-      field: "average",
-      recordTagField: "averageRecordTag",
-    };
     expect(orderedResultStats(eventId, format, false)).toMatchObject([
-      averageStat,
-      bestStat,
+      {
+        name: "Average",
+        field: "average",
+        recordTagField: "averageRecordTag",
+      },
+      {
+        name: "Best",
+        field: "best",
+        recordTagField: "singleRecordTag",
+      },
     ]);
-    expect(orderedResultStats(eventId, format, true)).toMatchObject([
-      averageStat,
-      bestStat,
+  });
+
+  it("returns only best wen there is no average", () => {
+    const eventId = "333mbf";
+    const format = { numberOfAttempts: 2, sortBy: "best" };
+    expect(orderedResultStats(eventId, format, false)).toMatchObject([
+      {
+        name: "Best",
+        field: "best",
+        recordTagField: "singleRecordTag",
+      },
+    ]);
+  });
+
+  it("returns extra columns when forecase view is enabled", () => {
+    const eventId = "333";
+
+    const formatAo5 = { numberOfAttempts: 5, sortBy: "average" };
+    expect(orderedResultStats(eventId, formatAo5, true)).toMatchObject([
+      {
+        name: "Average",
+        field: "average",
+        recordTagField: "averageRecordTag",
+      },
+      {
+        name: "Best",
+        field: "best",
+        recordTagField: "singleRecordTag",
+      },
+      { name: "BPA", field: "bestPossibleAverage" },
+      { name: "WPA", field: "worstPossibleAverage" },
+      { name: "For 1", field: "forFirst" },
+      { name: "For 3", field: "forAdvance" },
+    ]);
+
+    const formatMo3 = { numberOfAttempts: 3, sortBy: "average" };
+    expect(orderedResultStats(eventId, formatMo3, true)).toMatchObject([
+      {
+        name: "Mean",
+        field: "average",
+        recordTagField: "averageRecordTag",
+      },
+      {
+        name: "Best",
+        field: "best",
+        recordTagField: "singleRecordTag",
+      },
       { name: "For 1", field: "forFirst" },
       { name: "For 3", field: "forAdvance" },
     ]);
@@ -35,14 +77,22 @@ describe("orderedResultStats", () => {
 
 describe("forecastViewSupported", () => {
   it("returns false for rounds sorted by best", () => {
-    expect(forecastViewSupported({ format: { sortBy: "best" } })).toEqual(
-      false
-    );
+    expect(
+      forecastViewSupported({
+        format: { sortBy: "best" },
+        finished: false,
+        advancementCondition: null,
+      })
+    ).toEqual(false);
   });
 
   it("returns false for finished rounds", () => {
     expect(
-      forecastViewSupported({ format: { sortBy: "average" }, finished: true })
+      forecastViewSupported({
+        format: { sortBy: "average" },
+        finished: true,
+        advancementCondition: null,
+      })
     ).toEqual(false);
   });
 
@@ -87,7 +137,7 @@ describe("formatAttemptResultForView", () => {
   });
 });
 
-describe("viewResults", () => {
+describe("resultsForView", () => {
   it("returns unaltered results if forecastView is not enabled", () => {
     const results = [
       {
@@ -364,6 +414,55 @@ describe("viewResults", () => {
     });
     expect(viewResults[2]).toMatchObject({
       forAdvance: 100,
+    });
+  });
+
+  it("sets bestPossibleAverage and worstPossibleAverage after 4 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    const results = [
+      {
+        ranking: 1,
+        attempts: [{ result: 100 }, { result: 200 }, { result: 300 }],
+        best: 100,
+        average: 0,
+      },
+      {
+        ranking: 2,
+        attempts: [
+          { result: 100 },
+          { result: 200 },
+          { result: 300 },
+          { result: 400 },
+        ],
+        best: 100,
+        average: 0,
+      },
+      {
+        ranking: 3,
+        attempts: [
+          { result: 100 },
+          { result: 200 },
+          { result: 300 },
+          { result: 400 },
+          { result: 500 },
+        ],
+        best: 100,
+        average: 300,
+      },
+    ];
+    const event333 = "333";
+    const viewResults = resultsForView(results, event333, format, true, null);
+    expect(viewResults[0]).toMatchObject({
+      bestPossibleAverage: 0,
+      worstPossibleAverage: 0,
+    });
+    expect(viewResults[1]).toMatchObject({
+      bestPossibleAverage: 200,
+      worstPossibleAverage: 300,
+    });
+    expect(viewResults[2]).toMatchObject({
+      bestPossibleAverage: 0,
+      worstPossibleAverage: 0,
     });
   });
 });

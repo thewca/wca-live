@@ -9,6 +9,8 @@ import {
   isSkipped,
   DNF_VALUE,
   SKIPPED_VALUE,
+  bestPossibleAverage,
+  worstPossibleAverage,
 } from "./attempt-result";
 
 const NA_VALUE = -3;
@@ -40,11 +42,14 @@ export function orderedResultStats(
     },
   ];
   stats = sortBy === "best" ? stats : stats.reverse();
+
+  if (forecastView && numberOfAttempts === 5) {
+    stats.push({ name: "BPA", field: "bestPossibleAverage" });
+    stats.push({ name: "WPA", field: "worstPossibleAverage" });
+  }
+
   if (forecastView && eventId != "333fm") {
-    stats.push({
-      name: "For 1",
-      field: "forFirst",
-    });
+    stats.push({ name: "For 1", field: "forFirst" });
     stats.push({
       name: advancementCondition
         ? "For " + advancementCondition.level
@@ -108,10 +113,12 @@ function sum(values) {
  *
  * When the forecast view is enabled, adds the following fields:
  *
- *  * `projectedAverage` - average projection based on the current
- *    attempts, if any
- *  * `forFirst` - time needed to overtake 1st place
- *  * `forAdvance` - time needed to advance
+ *   * `projectedAverage` - average projection based on the current
+ *     attempts, if any
+ *   * `forFirst` - time needed to overtake 1st place
+ *   * `forAdvance` - time needed to advance
+ *   * `bestPossibleAverage` - best possible averge of 5 after 4 solves
+ *   * `worstPossibleAverage` - worst possible averge of 5 after 4 solves
  *
  */
 export function resultsForView(
@@ -129,6 +136,8 @@ export function resultsForView(
       projectedAverage: resultProjectedAverage(result, eventId, format),
       forFirst: SKIPPED_VALUE,
       forAdvance: SKIPPED_VALUE,
+      bestPossibleAverage: resultBestPossibleAverage(result, format),
+      worstPossibleAverage: resultWorstPossibleAverage(result, format),
     };
   });
 
@@ -336,4 +345,22 @@ function resultProjectedAverage(result, eventId, format) {
 
   const attemptResults = result.attempts.map((attempt) => attempt.result);
   return projectedAverage(attemptResults, eventId, format);
+}
+
+function resultBestPossibleAverage(result, format) {
+  if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
+    const attemptResults = result.attempts.map((attempt) => attempt.result);
+    return bestPossibleAverage(attemptResults);
+  } else {
+    return SKIPPED_VALUE;
+  }
+}
+
+function resultWorstPossibleAverage(result, format) {
+  if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
+    const attemptResults = result.attempts.map((attempt) => attempt.result);
+    return worstPossibleAverage(attemptResults);
+  } else {
+    return SKIPPED_VALUE;
+  }
 }

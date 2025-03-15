@@ -166,7 +166,6 @@ const AdminResultsTable = memo(
                       result={result}
                       field={field}
                       eventId={eventId}
-                      format={format}
                       forecastView={false}
                     />
                   </RecordTagBadge>

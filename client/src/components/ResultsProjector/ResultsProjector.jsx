@@ -256,7 +256,6 @@ function ResultsProjector({
                             result={result}
                             field={field}
                             eventId={eventId}
-                            format={format}
                             forecastView={forecastView}
                           />
                         </RecordTagBadge>

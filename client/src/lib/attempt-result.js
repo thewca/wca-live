@@ -228,26 +228,6 @@ export function worstPossibleAverage(attemptResults) {
 }
 
 /**
- * Calculates mean of 2 for the given attempt results.
- */
-export function incompleteMean(attemptResults, eventId) {
-  if (attemptResults.length !== 2) {
-    throw new Error(
-      `Invalid number of attempt results, expected 2, got ${attemptResults.length}.`
-    );
-  }
-
-  if (!attemptResults.every(isComplete)) return DNF_VALUE;
-
-  if (eventId === "333fm") {
-    const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
-    return mean(scaled);
-  }
-
-  return roundOver10Mins(mean(attemptResults));
-}
-
-/**
  * Returns an object representation of the given MBLD attempt result.
  *
  * @example

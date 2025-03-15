@@ -14,7 +14,6 @@ import {
   applyCutoff,
   isWorldRecord,
   worstPossibleAverage,
-  incompleteMean,
   DNF_VALUE,
   DNS_VALUE,
   projectedAverage,
@@ -606,18 +605,6 @@ describe("bestPossibleAverage", () => {
   it("calculates average of 5 assuming best attempt result", () => {
     const attemptResults = [3642, 3102, 3001, 2992];
     expect(bestPossibleAverage(attemptResults)).toEqual(3032);
-  });
-});
-
-describe("incompleteMean", () => {
-  it("returns -1 if any attempt result is DNF", () => {
-    const attemptResults = [21, -1];
-    expect(incompleteMean(attemptResults, "333fm")).toEqual(-1);
-  });
-
-  it("calculates mean of 2", () => {
-    const attemptResults = [21, 23];
-    expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
   });
 });
 
