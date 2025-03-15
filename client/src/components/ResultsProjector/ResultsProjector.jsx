@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import { green } from "@mui/material/colors";
 import { alpha } from "@mui/material/styles";
+import PauseIcon from "@mui/icons-material/Pause";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
@@ -63,6 +65,7 @@ const STATUS = {
   SHOWING: Symbol("showing"),
   SHOWN: Symbol("shown"),
   HIDING: Symbol("hiding"),
+  PAUSED: Symbol("paused"),
 };
 
 const DURATION = {
@@ -103,6 +106,9 @@ function ResultsProjector({
   ).filter((result) => result.attempts.length > 0);
 
   useEffect(() => {
+    if (status === STATUS.PAUSED) {
+      return;
+    }
     if (status === STATUS.SHOWN) {
       if (nonemptyResults.length > getNumberOfRows()) {
         const timeout = setTimeout(() => {
@@ -152,6 +158,23 @@ function ResultsProjector({
               {title}
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
+            {status === STATUS.PAUSED ? (
+              <IconButton
+                color="inherit"
+                onClick={() => setStatus(STATUS.HIDING)}
+                size="large"
+              >
+                <PlayArrowIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                color="inherit"
+                onClick={() => setStatus(STATUS.PAUSED)}
+                size="large"
+              >
+                <PauseIcon />
+              </IconButton>
+            )}
             <IconButton
               color="inherit"
               component={Link}
@@ -202,7 +225,9 @@ function ResultsProjector({
                       ? { transitionDelay: `${index * 150}ms` }
                       : {}
                   }
-                  in={[STATUS.SHOWING, STATUS.SHOWN].includes(status)}
+                  in={[STATUS.SHOWING, STATUS.SHOWN, STATUS.PAUSED].includes(
+                    status
+                  )}
                   key={result.person.id}
                 >
                   <TableRow
