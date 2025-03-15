@@ -377,7 +377,7 @@ describe("resultsForView", () => {
 
   it("sets for advance based on times needed to advance", () => {
     const event333 = "333";
-    const advancementCondition = { level: 2 };
+    const advancementCondition = { type: "ranking", level: 2 };
     const format = { numberOfAttempts: 3 };
     const results = [
       {

@@ -151,8 +151,8 @@ export function resultsForView(
     return resultsForView;
   }
 
-  // Forecast view only supported for final rounds - advancing count hardcoded as 3
-  const advancingCount = 3;
+  // Default to podium (top 3) if no advancement condition
+  const advancementRanking = advancementCondition?.level ?? 3;
 
   resultsForView[0].ranking = 1;
   let prevResult = resultsForView[0];
@@ -182,7 +182,7 @@ export function resultsForView(
     // A clinched result must still be clinched in the projected ranking,
     // so we keep advancing state as is
     if (!isClinched) {
-      if (currentResult.ranking <= advancingCount) {
+      if (currentResult.ranking <= advancementRanking) {
         currentResult.advancing = true;
         currentResult.advancingQuestionable = true;
       } else {
@@ -194,8 +194,6 @@ export function resultsForView(
     prevResult = currentResult;
   }
 
-  // Default to podium (top 3) if no advancement condition
-  let advancementRanking = advancementCondition?.level ?? 3;
   if (resultsForView.length > 1 && eventId != "333fm") {
     for (let i = 0; i < resultsForView.length; i++) {
       let result = resultsForView[i];
