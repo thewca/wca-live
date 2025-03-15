@@ -86,7 +86,7 @@ function CompetitionHome() {
   const active = flatMap(competition.competitionEvents, (competitionEvent) =>
     competitionEvent.rounds
       .filter((round) => round.active)
-      .map((round) => [competitionEvent, round])
+      .map((round) => [competitionEvent, round]),
   );
 
   return (

@@ -14,34 +14,34 @@ function Schedule({ venues, competitionEvents, competitionId }) {
   const activities = venues
     .flatMap((venue) => venue.rooms)
     .flatMap((room) =>
-      room.activities.map((activity) => ({ ...activity, room }))
+      room.activities.map((activity) => ({ ...activity, room })),
     )
     .filter(
       (activity) =>
         parseActivityCode(activity.activityCode).type === "official" &&
         // Ignore activities that don't have corresponding event/round data
         // (e.g. if a round is removed, but still in the schedule).
-        eventRoundForActivityCode(competitionEvents, activity.activityCode)
+        eventRoundForActivityCode(competitionEvents, activity.activityCode),
     );
 
   const sortedActivities = orderBy(
     activities,
-    (activity) => activity.startTime
+    (activity) => activity.startTime,
   );
 
   const dates = uniq(
-    sortedActivities.map((activity) => toLocalDateString(activity.startTime))
+    sortedActivities.map((activity) => toLocalDateString(activity.startTime)),
   );
 
   const [selectedDate, setSelectedDate] = useState(closestDateString(dates));
 
   const selectedDateActivities = sortedActivities.filter(
-    (activity) => toLocalDateString(activity.startTime) === selectedDate
+    (activity) => toLocalDateString(activity.startTime) === selectedDate,
   );
 
   const activitiesByActivityCode = groupBy(
     selectedDateActivities,
-    (activity) => activity.activityCode
+    (activity) => activity.activityCode,
   );
 
   return (
@@ -70,7 +70,7 @@ function Schedule({ venues, competitionEvents, competitionId }) {
                 competitionId={competitionId}
               />
             </Grid>
-          )
+          ),
         )}
       </Grid>
     </>

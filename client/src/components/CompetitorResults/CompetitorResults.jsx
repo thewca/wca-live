@@ -10,14 +10,14 @@ function CompetitorResults({ results, competitionId }) {
   const [selectedResult, setSelectedResult] = useState(null);
 
   const nonemptyResults = results.filter(
-    (result) => result.attempts.length > 0
+    (result) => result.attempts.length > 0,
   );
   const resultsByEventName = groupBy(
     orderBy(nonemptyResults, [
       (result) => result.round.competitionEvent.event.rank,
       (result) => result.round.number,
     ]),
-    (result) => result.round.competitionEvent.event.name
+    (result) => result.round.competitionEvent.event.name,
   );
 
   return (

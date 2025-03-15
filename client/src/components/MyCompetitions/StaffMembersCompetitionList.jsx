@@ -40,7 +40,7 @@ function StaffMembersCompetitionList({ title, staffMembers }) {
                 primary={competition.name}
                 secondary={formatDateRange(
                   competition.startDate,
-                  competition.endDate
+                  competition.endDate,
                 )}
               />
               <Box sx={{ display: "flex" }}>

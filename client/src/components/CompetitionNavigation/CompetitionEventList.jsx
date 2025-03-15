@@ -17,7 +17,7 @@ function CompetitionEventList({ competitionEvents, competitionId }) {
 
   function handleCompetitionEventClick(event, competitionEvent) {
     setSelectedId(
-      selectedId === competitionEvent.id ? null : competitionEvent.id
+      selectedId === competitionEvent.id ? null : competitionEvent.id,
     );
     // Prevent swipeable drawer from closing when event gets selected.
     event.stopPropagation();

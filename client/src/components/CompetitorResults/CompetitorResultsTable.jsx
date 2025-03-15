@@ -45,7 +45,7 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
   const stats = orderedResultStats(event.id, format);
 
   const numberOfAttempts = Math.max(
-    ...results.map((result) => result.round.format.numberOfAttempts)
+    ...results.map((result) => result.round.format.numberOfAttempts),
   );
 
   return (
@@ -109,7 +109,7 @@ function CompetitorResultsTable({ results, competitionId, onResultClick }) {
                     <TableCell key={index} align="right">
                       {formatAttemptResult(attemptResult, event.id)}
                     </TableCell>
-                  )
+                  ),
                 )}
               {stats.map(({ name, field, recordTagField }, index) => (
                 <TableCell

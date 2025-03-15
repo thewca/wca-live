@@ -36,7 +36,7 @@ function RecordList({ title, records }) {
                   <Box component="span" sx={{ fontWeight: 600 }}>
                     {`${formatAttemptResult(
                       record.attemptResult,
-                      record.result.round.competitionEvent.event.id
+                      record.result.round.competitionEvent.event.id,
                     )}`}
                   </Box>
                 </span>

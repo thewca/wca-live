@@ -7,7 +7,7 @@ export default function useKeyNavigation(containerRef) {
     function handleKeyDown(event) {
       if (
         !["ArrowUp", "ArrowDown", "Enter", "Tab", "Escape", " "].includes(
-          event.key
+          event.key,
         ) &&
         !["NumpadAdd", "NumpadSubtract"].includes(event.code)
       ) {
@@ -20,7 +20,7 @@ export default function useKeyNavigation(containerRef) {
       }
 
       const autocompleteOpen = Boolean(
-        container.querySelector('.MuiAutocomplete-root[aria-expanded="true"]')
+        container.querySelector('.MuiAutocomplete-root[aria-expanded="true"]'),
       );
       if (
         ["ArrowUp", "ArrowDown", "Enter"].includes(event.key) &&
@@ -60,7 +60,7 @@ export default function useKeyNavigation(containerRef) {
             bubbles: true,
             cancelable: true,
             key: "Enter",
-          })
+          }),
         );
         return;
       }
@@ -128,7 +128,7 @@ export default function useKeyNavigation(containerRef) {
 
 function getInputs(container) {
   return Array.from(container.querySelectorAll("input, button")).filter(
-    (input) => !input.disabled
+    (input) => !input.disabled,
   );
 }
 

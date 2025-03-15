@@ -45,11 +45,11 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
       },
       onCompleted: handleClose,
       onError: apolloErrorHandler,
-    }
+    },
   );
 
   const noShowResults = results.filter(
-    (result) => result.attempts.length === 0
+    (result) => result.attempts.length === 0,
   );
 
   function onResultsChange(results) {

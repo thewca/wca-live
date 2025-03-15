@@ -16,7 +16,7 @@ import FlagIcon from "../FlagIcon/FlagIcon";
 function searchCompetitors(competitors, search) {
   const searchParts = search.toLowerCase().split(/\s+/);
   return competitors.filter((competitor) =>
-    searchParts.every((part) => competitor.name.toLowerCase().includes(part))
+    searchParts.every((part) => competitor.name.toLowerCase().includes(part)),
   );
 }
 
@@ -24,7 +24,7 @@ function CompetitorList({ competitors, competitionId }) {
   const [search, setSearch] = useState("");
 
   const filteredCompetitors = searchCompetitors(competitors, search).sort(
-    (a, b) => a.name.localeCompare(b.name)
+    (a, b) => a.name.localeCompare(b.name),
   );
 
   return (

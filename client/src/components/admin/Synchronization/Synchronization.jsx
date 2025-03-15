@@ -102,7 +102,7 @@ function Synchronization() {
             <ListItemButton
               component="a"
               href={wcaUrl(
-                `/competitions/${competition.wcaId}/registrations/add`
+                `/competitions/${competition.wcaId}/registrations/add`,
               )}
               target="_blank"
               rel="noopener noreferrer"

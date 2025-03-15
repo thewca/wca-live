@@ -8,7 +8,7 @@ const root = createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 // See https://create-react-app.dev/docs/making-a-progressive-web-app

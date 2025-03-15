@@ -47,7 +47,7 @@ function AdminAccess({ competition }) {
         },
       },
       onError: apolloErrorHandler,
-    }
+    },
   );
 
   function handleUserSearch(user) {

@@ -29,7 +29,7 @@ function ImportableCompetitionListItem({ competition }) {
         navigate(`/admin/competitions/${competition.id}`);
       },
       onError: apolloErrorHandler,
-    }
+    },
   );
 
   function handleClick() {

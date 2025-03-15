@@ -1,6 +1,6 @@
 export function signOut() {
   return fetch("/auth/sign-out", { method: "DELETE" }).then((response) =>
-    response.json()
+    response.json(),
   );
 }
 

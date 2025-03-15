@@ -56,10 +56,10 @@ function AdminCompetitors() {
       competitionEvent.rounds.some((round) =>
         round.results.some(
           (result) =>
-            result.person.id === competitor.id && result.attempts.length > 0
-        )
-      )
-    )
+            result.person.id === competitor.id && result.attempts.length > 0,
+        ),
+      ),
+    ),
   ).length;
 
   return (

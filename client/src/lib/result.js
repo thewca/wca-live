@@ -25,7 +25,7 @@ export function orderedResultStats(
   eventId,
   format,
   forecastView = false,
-  advancementCondition = null
+  advancementCondition = null,
 ) {
   const { numberOfAttempts, sortBy } = format;
 
@@ -126,7 +126,7 @@ export function resultsForView(
   eventId,
   format,
   forecastView,
-  advancementCondition
+  advancementCondition,
 ) {
   if (results.length == 0 || !forecastView) return results;
 
@@ -210,7 +210,7 @@ export function resultsForView(
         result.forFirst = timeNeededToOvertake(
           result,
           format,
-          resultsForView[firstIndex]
+          resultsForView[firstIndex],
         );
         // Same as 1st, compare against (i+1)th place for current ith place.
         let advancementIndex =
@@ -219,7 +219,7 @@ export function resultsForView(
           result.forAdvance = timeNeededToOvertake(
             result,
             format,
-            resultsForView[advancementIndex]
+            resultsForView[advancementIndex],
           );
         }
       }
@@ -250,7 +250,7 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
     let worstVsProjected = compareAttemptResults(
       resultWorst,
-      overtakeResult.projectedAverage
+      overtakeResult.projectedAverage,
     );
     if (worstVsProjected < 0 || (worstVsProjected == 0 && betterBest)) {
       // Worst possible average beats overtake average
@@ -258,7 +258,7 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
     }
     let bestVsProjected = compareAttemptResults(
       result.best,
-      overtakeResult.projectedAverage
+      overtakeResult.projectedAverage,
     );
     if (bestVsProjected < 0) {
       // Best possible average beats overtake average

@@ -18,7 +18,7 @@ function RoundResults({
 
   const [selectedResult, setSelectedResult] = useState(null);
   const [showAll, setShowAll] = useState(
-    results.length <= DEFAULT_VISIBLE_RESULTS
+    results.length <= DEFAULT_VISIBLE_RESULTS,
   );
 
   const handleResultClick = useCallback((result) => {
@@ -32,9 +32,9 @@ function RoundResults({
         eventId,
         format,
         forecastView,
-        advancementCondition
+        advancementCondition,
       ),
-    [results, eventId, format, forecastView, advancementCondition]
+    [results, eventId, format, forecastView, advancementCondition],
   );
 
   const visibleResults = useMemo(() => {

@@ -64,7 +64,7 @@ const RoundResultsTable = memo(
       format,
       // Only show forecast view stat columns on wider screens
       forecastView && smScreen,
-      advancementCondition
+      advancementCondition,
     );
 
     return (
@@ -141,7 +141,7 @@ const RoundResultsTable = memo(
                       <TableCell key={index} align="right" sx={styles.cell}>
                         {formatAttemptResult(attemptResult, eventId)}
                       </TableCell>
-                    )
+                    ),
                   )}
                 {stats.map(({ name, field, recordTagField }, index) => (
                   <TableCell
@@ -168,7 +168,7 @@ const RoundResultsTable = memo(
         </Table>
       </Paper>
     );
-  }
+  },
 );
 
 RoundResultsTable.displayName = "RoundResultsTable";

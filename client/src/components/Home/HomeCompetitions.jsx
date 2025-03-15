@@ -4,7 +4,7 @@ import CompetitionList from "../CompetitionList/CompetitionList";
 
 function HomeCompetitions({ past, inProgress, upcoming }) {
   const [tabValue, setTabValue] = useState(
-    inProgress.length > 0 ? "inProgress" : "upcoming"
+    inProgress.length > 0 ? "inProgress" : "upcoming",
   );
   const competitions = { past, inProgress, upcoming }[tabValue];
 

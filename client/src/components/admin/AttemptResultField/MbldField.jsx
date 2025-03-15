@@ -14,7 +14,7 @@ import {
 function MbldField({ value, onChange, disabled, label, TextFieldProps = {} }) {
   const [prevValue, setPrevValue] = useState(value);
   const [decodedDraftValue, setDecodedDraftValue] = useState(
-    decodeMbldAttemptResult(value)
+    decodeMbldAttemptResult(value),
   );
 
   // Sync draft value when the upstream value changes. See AttemptResultField for detailed description.

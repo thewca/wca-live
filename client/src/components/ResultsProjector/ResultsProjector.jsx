@@ -95,14 +95,14 @@ function ResultsProjector({
     eventId,
     format,
     forecastView,
-    advancementCondition
+    advancementCondition,
   );
   const nonemptyResults = resultsForView(
     results,
     eventId,
     format,
     forecastView,
-    advancementCondition
+    advancementCondition,
   ).filter((result) => result.attempts.length > 0);
 
   useEffect(() => {
@@ -226,7 +226,7 @@ function ResultsProjector({
                       : {}
                   }
                   in={[STATUS.SHOWING, STATUS.SHOWN, STATUS.PAUSED].includes(
-                    status
+                    status,
                   )}
                   key={result.person.id}
                 >
@@ -262,7 +262,7 @@ function ResultsProjector({
                         <TableCell key={index} align="right" sx={styles.cell}>
                           {formatAttemptResult(attemptResult, eventId)}
                         </TableCell>
-                      )
+                      ),
                     )}
                     {stats.map(({ name, field, recordTagField }, index) => (
                       <TableCell

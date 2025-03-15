@@ -53,7 +53,7 @@ describe("formatTimeLimit", () => {
       cumulativeRoundWcifIds: ["444bf-r1", "555bf-r1"],
     };
     expect(formatTimeLimit(timeLimit, "444bf")).toEqual(
-      "1:30:00.00 total for 444bf-r1, 555bf-r1"
+      "1:30:00.00 total for 444bf-r1, 555bf-r1",
     );
   });
 });

@@ -27,7 +27,7 @@ function RoundResultDialog({
     eventId,
     format,
     forecastView,
-    advancementCondition
+    advancementCondition,
   );
 
   return (
@@ -63,7 +63,7 @@ function RoundResultDialog({
                     <Typography variant="body2">
                       {result.attempts
                         .map((attempt) =>
-                          formatAttemptResult(attempt.result, eventId)
+                          formatAttemptResult(attempt.result, eventId),
                         )
                         .join(", ")}
                     </Typography>

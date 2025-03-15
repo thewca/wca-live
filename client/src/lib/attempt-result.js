@@ -29,7 +29,7 @@ export function compareAttemptResults(attemptResult1, attemptResult2) {
  */
 export function padSkipped(attemptResults, numberOfAttempts) {
   return times(numberOfAttempts, (index) =>
-    index < attemptResults.length ? attemptResults[index] : SKIPPED_VALUE
+    index < attemptResults.length ? attemptResults[index] : SKIPPED_VALUE,
   );
 }
 
@@ -89,7 +89,7 @@ export function average(attemptResults, eventId) {
         return averageOf5(scaled);
       default:
         throw new Error(
-          `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
+          `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`,
         );
     }
   }
@@ -101,7 +101,7 @@ export function average(attemptResults, eventId) {
       return roundOver10Mins(averageOf5(attemptResults));
     default:
       throw new Error(
-        `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
+        `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`,
       );
   }
 }
@@ -196,7 +196,7 @@ export function projectedAverage(attemptResults, eventId, format) {
 export function bestPossibleAverage(attemptResults) {
   if (attemptResults.length !== 4) {
     throw new Error(
-      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`
+      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`,
     );
   }
 
@@ -218,7 +218,7 @@ export function bestPossibleAverage(attemptResults) {
 export function worstPossibleAverage(attemptResults) {
   if (attemptResults.length !== 4) {
     throw new Error(
-      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`
+      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`,
     );
   }
 
@@ -255,7 +255,7 @@ export function encodeMbldAttemptResult({ solved, attempted, centiseconds }) {
   const missed = attempted - solved;
   const points = solved - missed;
   const seconds = Math.floor(
-    (centiseconds || 9999900) / 100
+    (centiseconds || 9999900) / 100,
   ); /* 99999 seconds is used for unknown time. */
   return (99 - points) * 1e7 + seconds * 1e2 + missed;
 }
@@ -275,7 +275,7 @@ export function mbldAttemptResultToPoints(attemptResult) {
 export function centisecondsToClockFormat(centiseconds) {
   if (!Number.isFinite(centiseconds)) {
     throw new Error(
-      `Invalid centiseconds, expected positive number, got ${centiseconds}.`
+      `Invalid centiseconds, expected positive number, got ${centiseconds}.`,
     );
   }
   return new Date(centiseconds * 10)
@@ -377,11 +377,11 @@ export function isWorldRecord(
   attemptResult,
   eventId,
   type,
-  officialWorldRecords = []
+  officialWorldRecords = [],
 ) {
   const wr =
     officialWorldRecords.find(
-      (wr) => wr.type === type && wr.event.id === eventId
+      (wr) => wr.type === type && wr.event.id === eventId,
     ) || null;
 
   return (
@@ -398,7 +398,7 @@ export function isWorldRecord(
 export function attemptResultsWarning(
   attemptResults,
   eventId,
-  officialWorldRecords = []
+  officialWorldRecords = [],
 ) {
   const skippedGapIndex =
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
@@ -416,7 +416,7 @@ export function attemptResultsWarning(
       bestSingle,
       eventId,
       "single",
-      officialWorldRecords
+      officialWorldRecords,
     );
     if (newWorldRecordSingle) {
       return {
@@ -434,7 +434,7 @@ export function attemptResultsWarning(
         average(attemptResults, eventId),
         eventId,
         "average",
-        officialWorldRecords
+        officialWorldRecords,
       );
 
       if (newWorldRecordAverage) {
@@ -493,7 +493,7 @@ export function applyTimeLimit(attemptResults, timeLimit) {
   if (timeLimit === null) return attemptResults;
   if (timeLimit.cumulativeRoundWcifIds.length === 0) {
     return attemptResults.map((attemptResult) =>
-      attemptResult >= timeLimit.centiseconds ? DNF_VALUE : attemptResult
+      attemptResult >= timeLimit.centiseconds ? DNF_VALUE : attemptResult,
     );
   } else {
     // Note: for now cross-round cumulative time limits are handled
@@ -507,7 +507,7 @@ export function applyTimeLimit(attemptResults, timeLimit) {
             : attemptResult;
         return [updatedAttemptResults.concat(updatedAttemptResult), updatedSum];
       },
-      [[], 0]
+      [[], 0],
     );
     return updatedAttemptResults;
   }
@@ -522,7 +522,7 @@ export function applyCutoff(attemptResults, cutoff) {
   }
 
   return attemptResults.map((attemptResult, index) =>
-    index < cutoff.numberOfAttempts ? attemptResult : SKIPPED_VALUE
+    index < cutoff.numberOfAttempts ? attemptResult : SKIPPED_VALUE,
   );
 }
 
@@ -542,6 +542,6 @@ function checkForDnsFollowedByValidResult(attemptResults) {
   if (dnsIndex === -1) return false;
   return attemptResults.some(
     (attempt, index) =>
-      index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE
+      index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE,
   );
 }

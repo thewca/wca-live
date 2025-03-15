@@ -25,7 +25,7 @@ function ScheduleCard({
   const { attemptNumber } = parseActivityCode(activityCode);
   const { event, round } = eventRoundForActivityCode(
     competitionEvents,
-    activityCode
+    activityCode,
   );
   const title = attemptNumber
     ? `${event.name} - ${round.name} (Attempt ${attemptNumber})`
@@ -36,7 +36,7 @@ function ScheduleCard({
   const duration = parseISO(endTime) - parseISO(startTime);
   const distanceFromStart = new Date() - parseISO(startTime);
   const progressPercentage = Math.round(
-    (clamp(distanceFromStart, 0, duration) / duration) * 100
+    (clamp(distanceFromStart, 0, duration) / duration) * 100,
   );
 
   return (

@@ -52,7 +52,7 @@ function setStoredBatchResults(roundId, results) {
   if (results.length > 0) {
     localStorage.setItem(
       `wca-live:batch-results:${roundId}`,
-      JSON.stringify(results)
+      JSON.stringify(results),
     );
   } else {
     localStorage.removeItem(`wca-live:batch-results:${roundId}`);
@@ -69,7 +69,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [competitorToQuit, setCompetitorToQuit] = useState(null);
 
   const [batchResults, setBatchResults] = useState(() =>
-    getStoreBatchResults(round.id)
+    getStoreBatchResults(round.id),
   );
   const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
   const formContainerRef = useRef(null);
@@ -148,7 +148,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   }, []);
 
   const next = round.competitionEvent.rounds.find(
-    (other) => other.number === round.number + 1
+    (other) => other.number === round.number + 1,
   );
   const nextOpen = next && next.open;
 
@@ -156,7 +156,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     if (nextOpen) {
       const snackbarId = enqueueSnackbar(
         "The next round has already been open, any changes won't affect it!",
-        { variant: "info" }
+        { variant: "info" },
       );
 
       return () => closeSnackbar(snackbarId);

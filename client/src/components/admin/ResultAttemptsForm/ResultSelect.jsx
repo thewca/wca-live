@@ -29,11 +29,11 @@ function ResultSelect({
         onChange(
           multiple
             ? value.map((person) =>
-                results.find((result) => result.person.id === person.id)
+                results.find((result) => result.person.id === person.id),
               )
             : value
               ? results.find((result) => result.person.id === value.id)
-              : null
+              : null,
         );
       }}
       TextFieldProps={TextFieldProps}

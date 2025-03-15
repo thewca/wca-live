@@ -50,7 +50,7 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
 
   const [getNextQualifying, { data, loading, error }] = useLazyQuery(
     NEXT_QUALIFYING_QUERY,
-    { variables: { roundId } }
+    { variables: { roundId } },
   );
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const QuitCompetitorDialog = ({ open, onClose, competitor, roundId }) => {
       },
       onCompleted: onClose,
       onError: apolloErrorHandler,
-    }
+    },
   );
 
   return (

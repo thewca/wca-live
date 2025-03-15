@@ -12,7 +12,7 @@ export function parseActivityCode(activityCode) {
     };
   } else {
     const match = activityCode.match(
-      /^(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?$/
+      /^(\w+)(?:-r(\d+))?(?:-g(\d+))?(?:-a(\d+))?$/,
     );
     if (!match) {
       throw new Error(`Invalid activity code: '${activityCode}'.`);

@@ -11,14 +11,14 @@ import ClearRoundButton from "./ClearRoundButton";
 
 function roundOpenable(round, competitionEvent) {
   const previous = competitionEvent.rounds.find(
-    (other) => other.number === round.number - 1
+    (other) => other.number === round.number - 1,
   );
   return !round.open && (!previous || previous.open);
 }
 
 function roundClearable(round, competitionEvent) {
   const next = competitionEvent.rounds.find(
-    (other) => other.number === round.number + 1
+    (other) => other.number === round.number + 1,
   );
   return round.open && (!next || !next.open);
 }

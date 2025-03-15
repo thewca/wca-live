@@ -44,7 +44,7 @@ export function orderBy(arr, fns, orders = []) {
         acc = orders[i] === "desc" ? -result : result;
       }
       return acc;
-    }, 0)
+    }, 0),
   );
 }
 
@@ -54,7 +54,7 @@ export function partition(arr, fn) {
       acc[fn(val, i, arr) ? 0 : 1].push(val);
       return acc;
     },
-    [[], []]
+    [[], []],
   );
 }
 

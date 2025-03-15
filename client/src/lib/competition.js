@@ -35,7 +35,7 @@ export function competitionCountries(competition) {
   const countries = competition.venues.map((venue) => venue.country);
   const iso2s = uniq(countries.map((country) => country.iso2));
   return iso2s.map((iso2) =>
-    countries.find((country) => country.iso2 === iso2)
+    countries.find((country) => country.iso2 === iso2),
   );
 }
 
@@ -45,11 +45,11 @@ export function competitionCountries(competition) {
 export function eventRoundForActivityCode(competitionEvents, activityCode) {
   const { eventId, roundNumber } = parseActivityCode(activityCode);
   const competitionEvent = competitionEvents.find(
-    ({ event }) => event.id === eventId
+    ({ event }) => event.id === eventId,
   );
   if (!competitionEvent) return null;
   const round = competitionEvent.rounds.find(
-    (round) => round.number === roundNumber
+    (round) => round.number === roundNumber,
   );
   if (!round) return null;
   return { event: competitionEvent.event, round };
@@ -63,7 +63,7 @@ export async function nearestCompetition(competitions) {
 
   return minBy(competitions, (competition) => {
     const distances = competition.venues.map((venue) =>
-      distanceKm(latitude, longitude, venue.latitude, venue.longitude)
+      distanceKm(latitude, longitude, venue.latitude, venue.longitude),
     );
     return Math.min(...distances);
   });

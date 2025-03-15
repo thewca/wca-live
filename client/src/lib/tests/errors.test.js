@@ -23,7 +23,7 @@ describe("apolloErrorToMessage", () => {
       ],
     };
     expect(apolloErrorToMessage(error)).toEqual(
-      "There is no more tea. The value is invalid."
+      "There is no more tea. The value is invalid.",
     );
   });
 });

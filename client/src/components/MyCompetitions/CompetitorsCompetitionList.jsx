@@ -35,7 +35,7 @@ function CompetitorsCompetitionList({ title, competitors }) {
                 primary={competition.name}
                 secondary={formatDateRange(
                   competition.startDate,
-                  competition.endDate
+                  competition.endDate,
                 )}
               />
             </ListItemButton>
