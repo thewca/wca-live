@@ -43,11 +43,6 @@ export function orderedResultStats(
   ];
   stats = sortBy === "best" ? stats : stats.reverse();
 
-  if (forecastView && numberOfAttempts === 5) {
-    stats.push({ name: "BPA", field: "bestPossibleAverage" });
-    stats.push({ name: "WPA", field: "worstPossibleAverage" });
-  }
-
   if (forecastView && eventId != "333fm") {
     stats.push({ name: "For 1", field: "forFirst" });
     stats.push({
@@ -57,6 +52,12 @@ export function orderedResultStats(
       field: "forAdvance",
     });
   }
+
+  if (forecastView && numberOfAttempts === 5) {
+    stats.push({ name: "BPA", field: "bestPossibleAverage" });
+    stats.push({ name: "WPA", field: "worstPossibleAverage" });
+  }
+
   return stats;
 }
 
