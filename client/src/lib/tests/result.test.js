@@ -51,10 +51,10 @@ describe("orderedResultStats", () => {
         field: "best",
         recordTagField: "singleRecordTag",
       },
-      { name: "BPA", field: "bestPossibleAverage" },
-      { name: "WPA", field: "worstPossibleAverage" },
       { name: "For 1", field: "forFirst" },
       { name: "For 3", field: "forAdvance" },
+      { name: "BPA", field: "bestPossibleAverage" },
+      { name: "WPA", field: "worstPossibleAverage" },
     ]);
 
     const formatMo3 = { numberOfAttempts: 3, sortBy: "average" };
