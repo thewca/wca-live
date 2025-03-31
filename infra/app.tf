@@ -79,6 +79,14 @@ locals {
     {
       name  = "WCA_OAUTH_CLIENT_SECRET"
       value = "${var.wca_oauth_client_secret}"
+    },
+    {
+      name  = "NEW_RELIC_APP_NAME"
+      value = "${var.new_relic_app_name}"
+    },
+    {
+      name  = "NEW_RELIC_LICENSE_KEY"
+      value = "${var.new_relic_license_key}"
     }
   ]
 }

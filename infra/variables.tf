@@ -69,3 +69,15 @@ variable "wca_oauth_client_secret" {
   description = "The host for generating absolute URLs in the application"
   sensitive   = true
 }
+
+variable "new_relic_app_name" {
+  type        = string
+  description = "New Relic application name"
+  default     = "World Cube Association live"
+}
+
+variable "new_relic_license_key" {
+  type        = string
+  description = "New Relic license key"
+  sensitive   = true
+}

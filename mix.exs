@@ -42,6 +42,7 @@ defmodule WcaLive.MixProject do
       {:cors_plug, "~> 3.0"},
       {:pdf_generator, "~> 0.6"},
       {:dns_cluster, "~> 0.1.3"},
+      {:new_relic_agent, "~> 1.0"},
       {:ex_machina, "~> 2.4", only: [:test, :dev]}
     ]
   end
