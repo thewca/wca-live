@@ -59,7 +59,9 @@ describe("orderedResultStats", () => {
 
     const formatMo3 = { numberOfAttempts: 3, sortBy: "average" };
     const advancementCondition = { level: 10 };
-    expect(orderedResultStats(eventId, formatMo3, true)).toMatchObject([
+    expect(
+      orderedResultStats(eventId, formatMo3, true, advancementCondition)
+    ).toMatchObject([
       {
         name: "Mean",
         field: "average",
