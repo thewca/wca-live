@@ -407,7 +407,7 @@ describe("resultsForView", () => {
       event333,
       format,
       true,
-      advancementCondition
+      advancementCondition,
     );
     expect(viewResults[0]).toMatchObject({
       forAdvance: 104,
