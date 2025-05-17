@@ -16,6 +16,29 @@ import {
 const NA_VALUE = -3;
 const SUCCESS_VALUE = -4;
 
+const english_ordinal_rules = new Intl.PluralRules("en", { type: "ordinal" });
+const suffixes = {
+  one: "st",
+  two: "nd",
+  few: "rd",
+  other: "th",
+};
+
+/**
+ * Returns the number with its suffix appended.
+ *
+ * 1 => 1st
+ * 2 => 2nd
+ * 3 => 3rd
+ * 4 => 4th
+ * etc.
+ */
+function numberWithSuffix(number) {
+  const category = english_ordinal_rules.select(number);
+  const suffix = suffixes[category];
+  return number + suffix;
+}
+
 /**
  * Returns a list of objects corresponding to result statistics - best and average.
  * The first statistic is the one that determines the ranking.
@@ -25,7 +48,7 @@ export function orderedResultStats(
   eventId,
   format,
   forecastView = false,
-  advancementCondition = null,
+  advancementCondition = null
 ) {
   const { numberOfAttempts, sortBy } = format;
 
@@ -44,11 +67,13 @@ export function orderedResultStats(
   stats = sortBy === "best" ? stats : stats.reverse();
 
   if (forecastView && eventId != "333fm") {
-    stats.push({ name: "For 1", field: "forFirst" });
+    stats.push({ name: "For 1st", field: "forFirst" });
     stats.push({
-      name: advancementCondition
-        ? "For " + advancementCondition.level
-        : "For 3",
+      name:
+        "For " +
+        (advancementCondition
+          ? numberWithSuffix(advancementCondition.level)
+          : numberWithSuffix(3)),
       field: "forAdvance",
     });
   }
@@ -127,7 +152,7 @@ export function resultsForView(
   eventId,
   format,
   forecastView,
-  advancementCondition,
+  advancementCondition
 ) {
   if (results.length == 0 || !forecastView) return results;
 
@@ -209,7 +234,7 @@ export function resultsForView(
         result.forFirst = timeNeededToOvertake(
           result,
           format,
-          resultsForView[firstIndex],
+          resultsForView[firstIndex]
         );
         // Same as 1st, compare against (i+1)th place for current ith place.
         let advancementIndex =
@@ -218,7 +243,7 @@ export function resultsForView(
           result.forAdvance = timeNeededToOvertake(
             result,
             format,
-            resultsForView[advancementIndex],
+            resultsForView[advancementIndex]
           );
         }
       }
@@ -249,7 +274,7 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
   if (attemptResults.length === 2 && format.numberOfAttempts === 5) {
     let worstVsProjected = compareAttemptResults(
       resultWorst,
-      overtakeResult.projectedAverage,
+      overtakeResult.projectedAverage
     );
     if (worstVsProjected < 0 || (worstVsProjected == 0 && betterBest)) {
       // Worst possible average beats overtake average
@@ -257,7 +282,7 @@ export function timeNeededToOvertake(result, format, overtakeResult) {
     }
     let bestVsProjected = compareAttemptResults(
       result.best,
-      overtakeResult.projectedAverage,
+      overtakeResult.projectedAverage
     );
     if (bestVsProjected < 0) {
       // Best possible average beats overtake average

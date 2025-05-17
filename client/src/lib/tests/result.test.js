@@ -51,13 +51,14 @@ describe("orderedResultStats", () => {
         field: "best",
         recordTagField: "singleRecordTag",
       },
-      { name: "For 1", field: "forFirst" },
-      { name: "For 3", field: "forAdvance" },
+      { name: "For 1st", field: "forFirst" },
+      { name: "For 3rd", field: "forAdvance" },
       { name: "BPA", field: "bestPossibleAverage" },
       { name: "WPA", field: "worstPossibleAverage" },
     ]);
 
     const formatMo3 = { numberOfAttempts: 3, sortBy: "average" };
+    const advancementCondition = { level: 10 };
     expect(orderedResultStats(eventId, formatMo3, true)).toMatchObject([
       {
         name: "Mean",
@@ -69,8 +70,8 @@ describe("orderedResultStats", () => {
         field: "best",
         recordTagField: "singleRecordTag",
       },
-      { name: "For 1", field: "forFirst" },
-      { name: "For 3", field: "forAdvance" },
+      { name: "For 1st", field: "forFirst" },
+      { name: "For 10th", field: "forAdvance" },
     ]);
   });
 });
@@ -82,7 +83,7 @@ describe("forecastViewSupported", () => {
         format: { sortBy: "best" },
         finished: false,
         advancementCondition: null,
-      }),
+      })
     ).toEqual(false);
   });
 
@@ -92,7 +93,7 @@ describe("forecastViewSupported", () => {
         format: { sortBy: "average" },
         finished: true,
         advancementCondition: null,
-      }),
+      })
     ).toEqual(false);
   });
 
@@ -104,7 +105,7 @@ describe("forecastViewSupported", () => {
         },
         finished: false,
         advancementCondition: null,
-      }),
+      })
     ).toEqual(true);
 
     expect(
@@ -114,7 +115,7 @@ describe("forecastViewSupported", () => {
         },
         finished: false,
         advancementCondition: { type: "ranking" },
-      }),
+      })
     ).toEqual(true);
 
     expect(
@@ -124,7 +125,7 @@ describe("forecastViewSupported", () => {
         },
         finished: false,
         advancementCondition: { type: "limit" },
-      }),
+      })
     ).toEqual(false);
   });
 });
@@ -404,7 +405,7 @@ describe("resultsForView", () => {
       event333,
       format,
       true,
-      advancementCondition,
+      advancementCondition
     );
     expect(viewResults[0]).toMatchObject({
       forAdvance: 104,
@@ -470,7 +471,7 @@ describe("resultsForView", () => {
 describe("timeNeededToOvertake", () => {
   it("returns DNF if overtake result is skipped", () => {
     expect(timeNeededToOvertake(null, null, { projectedAverage: 0 })).toEqual(
-      -1,
+      -1
     );
   });
 
@@ -480,14 +481,14 @@ describe("timeNeededToOvertake", () => {
 
     // Worst possible average beats overtake average
     expect(
-      timeNeededToOvertake(result, format, { best: 10, projectedAverage: 101 }),
+      timeNeededToOvertake(result, format, { best: 10, projectedAverage: 101 })
     ).toEqual(-1);
     // Worst possible average ties overtake average, wins on best
     expect(
       timeNeededToOvertake(result, format, {
         best: 100,
         projectedAverage: 100,
-      }),
+      })
     ).toEqual(-1);
 
     result = { attempts: [{ result: 100 }, { result: -1 }], best: 100 };
@@ -497,33 +498,33 @@ describe("timeNeededToOvertake", () => {
       timeNeededToOvertake(result, format, {
         best: 100,
         projectedAverage: 110,
-      }),
+      })
     ).toEqual(109);
     // Best possible average beats overtake average, wins on best
     expect(
       timeNeededToOvertake(result, format, {
         best: 101,
         projectedAverage: 110,
-      }),
+      })
     ).toEqual(110);
     // Best possible average beats overtake average, overtake average incomplete
     expect(
-      timeNeededToOvertake(result, format, { best: 50, projectedAverage: -1 }),
+      timeNeededToOvertake(result, format, { best: 50, projectedAverage: -1 })
     ).toEqual(-4);
     // Best possible average ties overtake average
     expect(
-      timeNeededToOvertake(result, format, { best: 50, projectedAverage: 100 }),
+      timeNeededToOvertake(result, format, { best: 50, projectedAverage: 100 })
     ).toEqual(49);
     // Best possible average loses to overtake average
     expect(
-      timeNeededToOvertake(result, format, { best: 50, projectedAverage: 50 }),
+      timeNeededToOvertake(result, format, { best: 50, projectedAverage: 50 })
     ).toEqual(-3);
 
     result = { attempts: [{ result: -1 }, { result: -1 }], best: -1 };
 
     // Best possible average ties overtake average, overtake average incomplete
     expect(
-      timeNeededToOvertake(result, format, { best: -1, projectedAverage: -1 }),
+      timeNeededToOvertake(result, format, { best: -1, projectedAverage: -1 })
     ).toEqual(-4);
   });
 
@@ -536,8 +537,8 @@ describe("timeNeededToOvertake", () => {
       timeNeededToOvertake(
         { best: 49, projectedAverage: 49, attempts: [{ result: 49 }] },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-1);
     // Worst possible average is complete
     expect(
@@ -553,8 +554,8 @@ describe("timeNeededToOvertake", () => {
           ],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-1);
     // Both projected averages incomplete, win on best
     expect(
@@ -570,8 +571,8 @@ describe("timeNeededToOvertake", () => {
           ],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(49);
     // Any success will beat an incomplete result
     expect(
@@ -582,8 +583,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 100 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-4);
 
     overtakeResult = { best: -1, projectedAverage: -1 };
@@ -597,8 +598,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: -1 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-4);
   });
 
@@ -614,8 +615,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 50 }, { result: -1 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-3);
   });
 
@@ -632,8 +633,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(90);
     // Tie average, win on best (with rounding buffer)
     expect(
@@ -644,8 +645,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }, { result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(81);
 
     overtakeResult = { best: 50, projectedAverage: 100 };
@@ -659,8 +660,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(88);
     // Win on average, lose on best (with rounding buffer)
     expect(
@@ -671,8 +672,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }, { result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(78);
 
     overtakeResult = { best: 80, projectedAverage: 100 };
@@ -686,8 +687,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }, { result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(79);
 
     format = { numberOfAttempts: 5 };
@@ -702,8 +703,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(90);
   });
 
@@ -720,8 +721,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 10 }, { result: 110 }, { result: -1 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(90);
     // Win average, tie on best (including worst solve DNF)
     expect(
@@ -732,8 +733,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 50 }, { result: 110 }, { result: -1 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(88);
     // Tie average, win on best (with rounding buffer)
     expect(
@@ -749,8 +750,8 @@ describe("timeNeededToOvertake", () => {
           ],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(81);
     // Win average, tie on best (with rounding buffer)
     expect(
@@ -766,8 +767,8 @@ describe("timeNeededToOvertake", () => {
           ],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(78);
     // Best possible average is slower than overtake projected average
     expect(
@@ -778,8 +779,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 110 }, { result: 110 }, { result: 110 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-3);
     // Worst possible average is faster than overtake projected average
     expect(
@@ -790,8 +791,8 @@ describe("timeNeededToOvertake", () => {
           attempts: [{ result: 90 }, { result: 90 }, { result: 90 }],
         },
         format,
-        overtakeResult,
-      ),
+        overtakeResult
+      )
     ).toEqual(-1);
   });
 });
