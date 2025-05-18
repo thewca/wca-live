@@ -16,6 +16,29 @@ import {
 const NA_VALUE = -3;
 const SUCCESS_VALUE = -4;
 
+const english_ordinal_rules = new Intl.PluralRules("en", { type: "ordinal" });
+const suffixes = {
+  one: "st",
+  two: "nd",
+  few: "rd",
+  other: "th",
+};
+
+/**
+ * Returns the number with its suffix appended.
+ *
+ * 1 => 1st
+ * 2 => 2nd
+ * 3 => 3rd
+ * 4 => 4th
+ * etc.
+ */
+function numberWithSuffix(number) {
+  const category = english_ordinal_rules.select(number);
+  const suffix = suffixes[category];
+  return number + suffix;
+}
+
 /**
  * Returns a list of objects corresponding to result statistics - best and average.
  * The first statistic is the one that determines the ranking.
@@ -44,11 +67,13 @@ export function orderedResultStats(
   stats = sortBy === "best" ? stats : stats.reverse();
 
   if (forecastView && eventId != "333fm") {
-    stats.push({ name: "For 1", field: "forFirst" });
+    stats.push({ name: "For 1st", field: "forFirst" });
     stats.push({
-      name: advancementCondition
-        ? "For " + advancementCondition.level
-        : "For 3",
+      name:
+        "For " +
+        (advancementCondition
+          ? numberWithSuffix(advancementCondition.level)
+          : numberWithSuffix(3)),
       field: "forAdvance",
     });
   }

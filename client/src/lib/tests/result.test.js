@@ -51,14 +51,17 @@ describe("orderedResultStats", () => {
         field: "best",
         recordTagField: "singleRecordTag",
       },
-      { name: "For 1", field: "forFirst" },
-      { name: "For 3", field: "forAdvance" },
+      { name: "For 1st", field: "forFirst" },
+      { name: "For 3rd", field: "forAdvance" },
       { name: "BPA", field: "bestPossibleAverage" },
       { name: "WPA", field: "worstPossibleAverage" },
     ]);
 
     const formatMo3 = { numberOfAttempts: 3, sortBy: "average" };
-    expect(orderedResultStats(eventId, formatMo3, true)).toMatchObject([
+    const advancementCondition = { level: 10 };
+    expect(
+      orderedResultStats(eventId, formatMo3, true, advancementCondition),
+    ).toMatchObject([
       {
         name: "Mean",
         field: "average",
@@ -69,8 +72,8 @@ describe("orderedResultStats", () => {
         field: "best",
         recordTagField: "singleRecordTag",
       },
-      { name: "For 1", field: "forFirst" },
-      { name: "For 3", field: "forAdvance" },
+      { name: "For 1st", field: "forFirst" },
+      { name: "For 10th", field: "forAdvance" },
     ]);
   });
 });
