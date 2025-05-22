@@ -70,6 +70,7 @@ const STATUS = {
 
 const DURATION = {
   SHOWN: 10 * 1000,
+  FORECAST_SHOWN: 20 * 1000,
   SHOWING: 1000,
   HIDING: 1000,
 };
@@ -111,9 +112,12 @@ function ResultsProjector({
     }
     if (status === STATUS.SHOWN) {
       if (nonemptyResults.length > getNumberOfRows()) {
-        const timeout = setTimeout(() => {
-          setStatus(STATUS.HIDING);
-        }, DURATION.SHOWN);
+        const timeout = setTimeout(
+          () => {
+            setStatus(STATUS.HIDING);
+          },
+          forecastView ? DURATION.FORECAST_SHOWN : DURATION.SHOWN
+        );
         return () => clearTimeout(timeout);
       } else {
         return;
@@ -130,7 +134,11 @@ function ResultsProjector({
         setStatus(STATUS.SHOWING);
         setTopResultIndex((topResultIndex) => {
           const newIndex = topResultIndex + getNumberOfRows();
-          return newIndex >= nonemptyResults.length ? 0 : newIndex;
+          const maxIndex =
+            forecastView && advancementCondition
+              ? advancementCondition.level * 2
+              : nonemptyResults.length;
+          return newIndex >= maxIndex ? 0 : newIndex;
         });
       }, DURATION.HIDING);
       return () => clearTimeout(timeout);
@@ -222,7 +230,7 @@ function ResultsProjector({
                   timeout={{ enter: DURATION.SHOWING, exit: DURATION.HIDING }}
                   style={
                     status === STATUS.SHOWING
-                      ? { transitionDelay: `${index * 150}ms` }
+                      ? { transitionDelay: `${index * (forecastView ? 50 : 150)}ms` }
                       : {}
                   }
                   in={[STATUS.SHOWING, STATUS.SHOWN, STATUS.PAUSED].includes(
