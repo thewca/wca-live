@@ -134,17 +134,18 @@ function ResultsProjector({
         setStatus(STATUS.SHOWING);
         setTopResultIndex((topResultIndex) => {
           const newIndex = topResultIndex + getNumberOfRows();
-          const maxIndex =
-            forecastView && advancementCondition
-              ? advancementCondition.level * 2
-              : nonemptyResults.length;
-          return newIndex >= maxIndex ? 0 : newIndex;
+          return newIndex > nonemptyResults.length ||
+            (forecastView &&
+              !nonemptyResults[topResultIndex].advancing &&
+              !nonemptyResults[newIndex].advancing)
+            ? o
+            : newIndex;
         });
       }, DURATION.HIDING);
       return () => clearTimeout(timeout);
     }
     throw new Error(`Unrecognized status: ${status}`);
-  }, [status, nonemptyResults.length]);
+  }, [status, nonemptyResults, forecastView]);
 
   return (
     <Dialog
