@@ -116,7 +116,7 @@ function ResultsProjector({
           () => {
             setStatus(STATUS.HIDING);
           },
-          forecastView ? DURATION.FORECAST_SHOWN : DURATION.SHOWN
+          forecastView ? DURATION.FORECAST_SHOWN : DURATION.SHOWN,
         );
         return () => clearTimeout(timeout);
       } else {
@@ -230,7 +230,9 @@ function ResultsProjector({
                   timeout={{ enter: DURATION.SHOWING, exit: DURATION.HIDING }}
                   style={
                     status === STATUS.SHOWING
-                      ? { transitionDelay: `${index * (forecastView ? 50 : 150)}ms` }
+                      ? { 
+                          transitionDelay: `${index * (forecastView ? 50 : 150)}ms`,
+                        }
                       : {}
                   }
                   in={[STATUS.SHOWING, STATUS.SHOWN, STATUS.PAUSED].includes(
