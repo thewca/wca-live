@@ -230,7 +230,7 @@ function ResultsProjector({
                   timeout={{ enter: DURATION.SHOWING, exit: DURATION.HIDING }}
                   style={
                     status === STATUS.SHOWING
-                      ? { 
+                      ? {
                           transitionDelay: `${index * (forecastView ? 50 : 150)}ms`,
                         }
                       : {}
