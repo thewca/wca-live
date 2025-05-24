@@ -138,7 +138,7 @@ function ResultsProjector({
             (forecastView &&
               !nonemptyResults[topResultIndex].advancing &&
               !nonemptyResults[newIndex].advancing)
-            ? o
+            ? 0
             : newIndex;
         });
       }, DURATION.HIDING);
