@@ -105,8 +105,14 @@ function ResultsProjector({
     forecastView,
     advancementCondition,
   ).filter((result) => result.attempts.length > 0);
+ 
+  let nonemptyResultsRef = nonemptyResults;
+  useEffect(() => {
+    nonemptyResultsRef = nonemptyResults;
+  }, [nonemptyResults]);
 
   useEffect(() => {
+    const nonemptyResults = nonemptyResultsRef;
     if (status === STATUS.PAUSED) {
       return;
     }
@@ -135,6 +141,9 @@ function ResultsProjector({
         setTopResultIndex((topResultIndex) => {
           const newIndex = topResultIndex + getNumberOfRows();
           return newIndex > nonemptyResults.length ||
+            // When forecast view is enabled, the focus is usually on the advancing
+            // results, so we only show a single page of non-advancing results and
+            // roll back to the first page afterwards.
             (forecastView &&
               !nonemptyResults[topResultIndex].advancing &&
               !nonemptyResults[newIndex].advancing)
@@ -145,7 +154,7 @@ function ResultsProjector({
       return () => clearTimeout(timeout);
     }
     throw new Error(`Unrecognized status: ${status}`);
-  }, [status, nonemptyResults, forecastView]);
+  }, [status, forecastView]);
 
   return (
     <Dialog
