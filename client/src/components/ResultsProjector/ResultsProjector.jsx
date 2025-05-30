@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   AppBar,
@@ -106,13 +106,13 @@ function ResultsProjector({
     advancementCondition,
   ).filter((result) => result.attempts.length > 0);
 
-  let nonemptyResultsRef = nonemptyResults;
+  const nonemptyResultsRef = useRef(nonemptyResults);
   useEffect(() => {
-    nonemptyResultsRef = nonemptyResults;
-  }, [nonemptyResults]);
+    nonemptyResultsRef.current = nonemptyResults;
+  });
 
   useEffect(() => {
-    const nonemptyResults = nonemptyResultsRef;
+    const nonemptyResults = nonemptyResultsRef.current;
     if (status === STATUS.PAUSED) {
       return;
     }
