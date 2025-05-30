@@ -105,7 +105,7 @@ function ResultsProjector({
     forecastView,
     advancementCondition,
   ).filter((result) => result.attempts.length > 0);
- 
+
   let nonemptyResultsRef = nonemptyResults;
   useEffect(() => {
     nonemptyResultsRef = nonemptyResults;
