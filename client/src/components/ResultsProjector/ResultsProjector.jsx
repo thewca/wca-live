@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   AppBar,
@@ -70,6 +70,7 @@ const STATUS = {
 
 const DURATION = {
   SHOWN: 10 * 1000,
+  FORECAST_SHOWN: 20 * 1000,
   SHOWING: 1000,
   HIDING: 1000,
 };
@@ -105,15 +106,24 @@ function ResultsProjector({
     advancementCondition,
   ).filter((result) => result.attempts.length > 0);
 
+  const nonemptyResultsRef = useRef(nonemptyResults);
   useEffect(() => {
+    nonemptyResultsRef.current = nonemptyResults;
+  });
+
+  useEffect(() => {
+    const nonemptyResults = nonemptyResultsRef.current;
     if (status === STATUS.PAUSED) {
       return;
     }
     if (status === STATUS.SHOWN) {
       if (nonemptyResults.length > getNumberOfRows()) {
-        const timeout = setTimeout(() => {
-          setStatus(STATUS.HIDING);
-        }, DURATION.SHOWN);
+        const timeout = setTimeout(
+          () => {
+            setStatus(STATUS.HIDING);
+          },
+          forecastView ? DURATION.FORECAST_SHOWN : DURATION.SHOWN,
+        );
         return () => clearTimeout(timeout);
       } else {
         return;
@@ -130,13 +140,21 @@ function ResultsProjector({
         setStatus(STATUS.SHOWING);
         setTopResultIndex((topResultIndex) => {
           const newIndex = topResultIndex + getNumberOfRows();
-          return newIndex >= nonemptyResults.length ? 0 : newIndex;
+          return newIndex > nonemptyResults.length ||
+            // When forecast view is enabled, the focus is usually on the advancing
+            // results, so we only show a single page of non-advancing results and
+            // roll back to the first page afterwards.
+            (forecastView &&
+              !nonemptyResults[topResultIndex].advancing &&
+              !nonemptyResults[newIndex].advancing)
+            ? 0
+            : newIndex;
         });
       }, DURATION.HIDING);
       return () => clearTimeout(timeout);
     }
     throw new Error(`Unrecognized status: ${status}`);
-  }, [status, nonemptyResults.length]);
+  }, [status, forecastView]);
 
   return (
     <Dialog
@@ -222,7 +240,9 @@ function ResultsProjector({
                   timeout={{ enter: DURATION.SHOWING, exit: DURATION.HIDING }}
                   style={
                     status === STATUS.SHOWING
-                      ? { transitionDelay: `${index * 150}ms` }
+                      ? {
+                          transitionDelay: `${index * (forecastView ? 50 : 150)}ms`,
+                        }
                       : {}
                   }
                   in={[STATUS.SHOWING, STATUS.SHOWN, STATUS.PAUSED].includes(
