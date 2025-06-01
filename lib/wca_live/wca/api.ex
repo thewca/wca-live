@@ -94,7 +94,7 @@ defmodule WcaLive.Wca.Api do
   end
 
   defp with_long_timeout(req) do
-    Req.merge(req, receive_timeout: 120_000)
+    Req.merge(req, receive_timeout: 300_000)
   end
 
   defp request(req, opts) do
