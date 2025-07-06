@@ -40,8 +40,23 @@ const ENTER_RESULTS = gql`
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
-// Persist batch results in local storage, in case people navigate
-// or refresh the page
+const IS_BATCH_MODE_KEY = `wca-live:is-batch-mode`;
+/**
+ * Persist whether batch mode is toggled on, in case people navigate
+ * or refresh the page
+ */
+function getStoreIsBatchMode() {
+  return localStorage.getItem(IS_BATCH_MODE_KEY);
+}
+
+function setStoreIsBatchMode(isBatchMode) {
+  localStorage.setItem(IS_BATCH_MODE_KEY, isBatchMode)
+}
+
+/**
+ * Persist batch results in local storage, in case people navigate
+ * or refresh the page
+ */
 
 function getStoreBatchResults(roundId) {
   const json = localStorage.getItem(`wca-live:batch-results:${roundId}`);
@@ -71,7 +86,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [batchResults, setBatchResults] = useState(() =>
     getStoreBatchResults(round.id),
   );
-  const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
+  const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0 || getStoreIsBatchMode());
   const formContainerRef = useRef(null);
 
   const [enterResults, { loading }] = useMutation(ENTER_RESULTS, {
@@ -189,7 +204,10 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
               control={
                 <Checkbox
                   checked={isBatchMode}
-                  onChange={(event) => setIsBatchMode(event.target.checked)}
+                  onChange={(event) => {
+                    setIsBatchMode(event.target.checked);
+                    setStoreIsBatchMode(event.target.checked);
+                  }}
                   disabled={batchResults.length > 0}
                 />
               }
