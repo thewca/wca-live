@@ -399,6 +399,7 @@ export function attemptResultsWarning(
   attemptResults,
   eventId,
   officialWorldRecords = [],
+  results = [],
 ) {
   const skippedGapIndex =
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
@@ -482,6 +483,21 @@ export function attemptResultsWarning(
         };
       }
     }
+
+    // Check whether this result is a duplicate of existing results in the same round.
+    // Excludes FMC and all-DNF results since ties are common.
+    // TODO: Does NOT check the in-progress batch, if any.
+    if (["333fm"].indexOf(eventId) === -1) {
+      const matches = findAllMatchingResults(attemptResults, results);
+      if (matches.length > 0) {
+        const matchesString = matches.map((match) => `${match.person.name} (${match.person.id})`).join(", ");
+        return {
+          description: `The result you're trying to submit matches all results for
+            the following competitor${matches.length > 1 ? "s" : ""}: ${matchesString}.
+            Please check that the results are accurate.`,
+        };
+      }
+    }
   }
   return null;
 }
@@ -544,4 +560,34 @@ function checkForDnsFollowedByValidResult(attemptResults) {
     (attempt, index) =>
       index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE,
   );
+}
+
+/**
+ * Check whether an attempt matches an existing attempt exactly.
+ */
+function findAllMatchingResults(attemptResults, results) {
+  const matches = results.filter(
+    (result) => {
+      if (result.attempts.length !== attemptResults.length) {
+        return false;
+      }
+
+      let numDnfResults = 0;
+      for (let i = 0; i < result.attempts.length; i++) {
+        if (result.attempts[i].result !== attemptResults[i]) {
+          return false;
+        }
+        if (result.attempts[i].result === DNF_VALUE) {
+          numDnfResults++;
+        }
+      }
+      // Exclude all-DNF results since ties are common
+      if (numDnfResults === result.attempts.length) {
+        return false;
+      }
+
+      return true;
+    }
+  )
+  return matches;
 }

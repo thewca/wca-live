@@ -100,6 +100,7 @@ function ResultAttemptsForm({
       attemptResults,
       eventId,
       officialWorldRecords,
+      results
     );
 
     if (submissionWarning) {
