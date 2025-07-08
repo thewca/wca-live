@@ -153,7 +153,7 @@ const AdminResultsTable = memo(
                   <TableCell key={index} align="right">
                     {formatAttemptResult(attemptResult, eventId)}
                   </TableCell>
-                )
+                ),
               )}
               {stats.map(({ name, field, recordTagField }, index) => (
                 <TableCell
@@ -176,7 +176,7 @@ const AdminResultsTable = memo(
         </TableBody>
       </Table>
     );
-  }
+  },
 );
 
 AdminResultsTable.displayName = "AdminResultsTable";

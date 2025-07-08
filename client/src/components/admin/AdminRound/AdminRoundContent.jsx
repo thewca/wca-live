@@ -52,7 +52,7 @@ function setStoredBatchResults(roundId, results) {
   if (results.length > 0) {
     localStorage.setItem(
       `wca-live:batch-results:${roundId}`,
-      JSON.stringify(results)
+      JSON.stringify(results),
     );
   } else {
     localStorage.removeItem(`wca-live:batch-results:${roundId}`);
@@ -69,7 +69,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [competitorToQuit, setCompetitorToQuit] = useState(null);
 
   const [batchResults, setBatchResults] = useState(() =>
-    getStoreBatchResults(round.id)
+    getStoreBatchResults(round.id),
   );
   const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
   const formContainerRef = useRef(null);
@@ -148,7 +148,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   }, []);
 
   const next = round.competitionEvent.rounds.find(
-    (other) => other.number === round.number + 1
+    (other) => other.number === round.number + 1,
   );
   const nextOpen = next && next.open;
 
@@ -156,7 +156,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     if (nextOpen) {
       const snackbarId = enqueueSnackbar(
         "The next round has already been open, any changes won't affect it!",
-        { variant: "info" }
+        { variant: "info" },
       );
 
       return () => closeSnackbar(snackbarId);
@@ -169,14 +169,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
 
   return (
     <>
-      <Grid
-        container
-        direction="row"
-        spacing={2}
-        sx={{
-          overflowX: "hidden",
-        }}
-      >
+      <Grid container direction="row" spacing={2}>
         <Grid item xs={12} md={3} ref={formContainerRef}>
           <ResultAttemptsForm
             result={editedResult}
@@ -241,16 +234,13 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
           <Grid item>
             <AdminRoundToolbar round={round} competitionId={competitionId} />
           </Grid>
-          <Grid item>
+          <Grid item sx={{ width: "100%" }}>
             <TableContainer
               component={Paper}
               sx={{
                 pr: 0.5 /* A bit of space for record tags. */,
-                overflowX: "scroll",
-                width: {
-                  xs: "calc(100vw - 3em)", // Full width on small screens
-                  md: "100%", // Full width on medium and larger screens
-                },
+                overflowX: "auto",
+                width: "100%",
               }}
             >
               <AdminResultsTable

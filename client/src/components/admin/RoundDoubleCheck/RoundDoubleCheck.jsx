@@ -107,7 +107,7 @@ function RoundDoubleCheck() {
         rightButtonRef.current.focus();
       },
       onError: apolloErrorHandler,
-    }
+    },
   );
 
   const handlers = useSwipeable({
@@ -129,7 +129,7 @@ function RoundDoubleCheck() {
 
   const results = orderBy(
     round.results,
-    (result) => -parseISO(result.enteredAt)
+    (result) => -parseISO(result.enteredAt),
   );
 
   function handleResultChange(result) {
@@ -157,7 +157,7 @@ function RoundDoubleCheck() {
   }
 
   const progressPercentage = Math.round(
-    ((resultIndex + 1) / results.length) * 100
+    ((resultIndex + 1) / results.length) * 100,
   );
 
   return (

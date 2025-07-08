@@ -11,7 +11,7 @@ import { appUrl } from "../../../lib/urls";
 
 function roundDescription(round) {
   const enteredResults = round.results.filter(
-    (result) => result.attempts.length > 0
+    (result) => result.attempts.length > 0,
   );
   return `${enteredResults.length} of ${round.results.length} entered`;
 }
