@@ -170,7 +170,9 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   return (
     <>
       <Grid container direction="row" spacing={2}>
-        <Grid item xs={12} md={3} ref={formContainerRef}>
+        <Grid 
+          sx={isBatchMode ? {backgroundColor: "rgba(238, 210, 2, 0.2)"} : {}}
+          item xs={12} md={3} ref={formContainerRef}>
           <ResultAttemptsForm
             result={editedResult}
             results={round.results}
