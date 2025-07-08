@@ -41,12 +41,15 @@ const ENTER_RESULTS = gql`
 `;
 
 const IS_BATCH_MODE_KEY = `wca-live:is-batch-mode`;
+
 /**
  * Persist whether batch mode is toggled on, in case people navigate
  * or refresh the page
+ * @returns {boolean}
  */
 function getStoreIsBatchMode() {
-  return localStorage.getItem(IS_BATCH_MODE_KEY);
+  const json = localStorage.getItem(IS_BATCH_MODE_KEY);
+  return json ? JSON.parse(json) : false;
 }
 
 function setStoreIsBatchMode(isBatchMode) {
@@ -57,7 +60,6 @@ function setStoreIsBatchMode(isBatchMode) {
  * Persist batch results in local storage, in case people navigate
  * or refresh the page
  */
-
 function getStoreBatchResults(roundId) {
   const json = localStorage.getItem(`wca-live:batch-results:${roundId}`);
   return json ? JSON.parse(json) : [];
@@ -87,7 +89,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     getStoreBatchResults(round.id),
   );
   const [isBatchMode, setIsBatchMode] = useState(
-    batchResults.length > 0 || getStoreIsBatchMode(),
+    () => batchResults.length > 0 || getStoreIsBatchMode(),
   );
   const formContainerRef = useRef(null);
 
