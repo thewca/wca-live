@@ -169,10 +169,18 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
 
   return (
     <>
-      <Grid container direction="row" spacing={2}>
-        <Grid 
-          sx={isBatchMode ? {backgroundColor: "rgba(238, 210, 2, 0.2)"} : {}}
-          item xs={12} md={3} ref={formContainerRef}>
+      <Grid sx={{ marginLeft: "-8px" }} container direction="row" spacing={2}>
+        <Grid
+          sx={{
+            paddingLeft: "8px",
+            paddingRight: "8px",
+            backgroundColor: isBatchMode ? "rgba(238, 210, 2, 0.2)" : "",
+          }}
+          item
+          xs={12}
+          md={3}
+          ref={formContainerRef}
+        >
           <ResultAttemptsForm
             result={editedResult}
             results={round.results}
@@ -232,7 +240,18 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
             )}
           </Box>
         </Grid>
-        <Grid item xs={12} md={9} container direction="column" spacing={1}>
+        <Grid
+          sx={{
+            paddingLeft: "8px",
+            paddingRight: "8px",
+          }}
+          item
+          xs={12}
+          md={9}
+          container
+          direction="column"
+          spacing={1}
+        >
           <Grid item>
             <AdminRoundToolbar round={round} competitionId={competitionId} />
           </Grid>
