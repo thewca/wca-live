@@ -174,6 +174,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
           <ResultAttemptsForm
             result={editedResult}
             results={round.results}
+            batchResults={batchResults}
             onResultChange={setEditedResult}
             eventId={round.competitionEvent.event.id}
             format={round.format}

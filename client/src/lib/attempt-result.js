@@ -490,7 +490,10 @@ export function attemptResultsWarning(
     if (["333fm"].indexOf(eventId) === -1) {
       const matches = findAllMatchingResults(attemptResults, results);
       if (matches.length > 0) {
-        const matchesString = matches.map((match) => `${match.person.name} (${match.person.id})`).join(", ");
+        // Batch entries don't have `person` attributes, just `id`
+        const matchesString = matches.map((match) => 
+          `${match.person ? match.person.name : "[batched competitor]"} (${match.id})`
+        ).join(", ");
         return {
           description: `The result you're trying to submit matches all results for
             the following competitor${matches.length > 1 ? "s" : ""}: ${matchesString}.
@@ -566,15 +569,17 @@ function checkForDnsFollowedByValidResult(attemptResults) {
  * Check whether an attempt matches an existing attempt exactly.
  */
 function findAllMatchingResults(attemptResults, results) {
+  const filteredAttemptResults = trimTrailingSkipped(attemptResults);
+
   const matches = results.filter(
     (result) => {
-      if (result.attempts.length !== attemptResults.length) {
+      if (result.attempts.length !== filteredAttemptResults.length) {
         return false;
       }
 
       let numDnfResults = 0;
       for (let i = 0; i < result.attempts.length; i++) {
-        if (result.attempts[i].result !== attemptResults[i]) {
+        if (result.attempts[i].result !== filteredAttemptResults[i]) {
           return false;
         }
         if (result.attempts[i].result === DNF_VALUE) {
