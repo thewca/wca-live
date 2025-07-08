@@ -540,10 +540,19 @@ describe("attemptResultsWarning", () => {
   it("complains about exact duplicate results", () => {
     const attemptResults = [500, 600, 700, 800, 900];
     const existingResults = [
-      {attempts: [{result: 500}, {result: 600}, {result: 700}, {result: 800}, {result: 900}], person: {id: 2, name: "Person 2"}}
+      {
+        attempts: [
+          { result: 500 },
+          { result: 600 },
+          { result: 700 },
+          { result: 800 },
+          { result: 900 },
+        ],
+        person: { id: 2, name: "Person 2" },
+      },
     ];
     expect(
-      attemptResultsWarning(attemptResults, "333", [], existingResults)
+      attemptResultsWarning(attemptResults, "333", [], existingResults),
     ).toMatchObject({
       description: `The result you're trying to submit matches all results for
             the following competitor: Person 2 (2).
@@ -554,20 +563,32 @@ describe("attemptResultsWarning", () => {
   it("does not check for duplicates in FMC", () => {
     const attemptResults = [25, 26];
     const existingResults = [
-      {attempts: [{result: 25}, {result: 26}], person: {id: 2, name: "Person 2"}}
+      {
+        attempts: [{ result: 25 }, { result: 26 }],
+        person: { id: 2, name: "Person 2" },
+      },
     ];
     expect(
-      attemptResultsWarning(attemptResults, "333fm", [], existingResults)
+      attemptResultsWarning(attemptResults, "333fm", [], existingResults),
     ).toEqual(null);
   });
 
   it("does not warn about all-DNF duplicates", () => {
     const attemptResults = [-1, -1, -1, -1, -1];
     const existingResults = [
-      {attempts: [{result: -1}, {result: -1}, {result: -1}, {result: -1}, {result: -1}], person: {id: 2, name: "Person 2"}}
+      {
+        attempts: [
+          { result: -1 },
+          { result: -1 },
+          { result: -1 },
+          { result: -1 },
+          { result: -1 },
+        ],
+        person: { id: 2, name: "Person 2" },
+      },
     ];
     expect(
-      attemptResultsWarning(attemptResults, "333fm", [], existingResults)
+      attemptResultsWarning(attemptResults, "333fm", [], existingResults),
     ).toEqual(null);
   });
 });

@@ -92,7 +92,7 @@ function ResultAttemptsForm({
       const attempts = trimTrailingSkipped(attemptResults).map((result) => ({
         result,
       }));
-      onSubmit(attempts);
+      onSubmit(attempts, result.person);
     });
   }
 
@@ -101,7 +101,7 @@ function ResultAttemptsForm({
       attemptResults,
       eventId,
       officialWorldRecords,
-      [...results, ...batchResults]
+      [...results, ...batchResults],
     );
 
     if (submissionWarning) {

@@ -86,11 +86,11 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     onError: apolloErrorHandler,
   });
 
-  function handleResultAttemptsSubmit(attempts) {
+  function handleResultAttemptsSubmit(attempts, person) {
     if (isBatchMode) {
       setBatchResults([
         ...batchResults.filter((result) => result.id !== editedResult.id),
-        { id: editedResult.id, attempts, enteredAt: nowISOString() },
+        { id: editedResult.id, attempts, person, enteredAt: nowISOString() },
       ]);
       setEditedResult(null);
     } else {
