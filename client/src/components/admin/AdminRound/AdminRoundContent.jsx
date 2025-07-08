@@ -50,7 +50,7 @@ function getStoreIsBatchMode() {
 }
 
 function setStoreIsBatchMode(isBatchMode) {
-  localStorage.setItem(IS_BATCH_MODE_KEY, isBatchMode)
+  localStorage.setItem(IS_BATCH_MODE_KEY, isBatchMode);
 }
 
 /**
@@ -86,7 +86,9 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [batchResults, setBatchResults] = useState(() =>
     getStoreBatchResults(round.id),
   );
-  const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0 || getStoreIsBatchMode());
+  const [isBatchMode, setIsBatchMode] = useState(
+    batchResults.length > 0 || getStoreIsBatchMode(),
+  );
   const formContainerRef = useRef(null);
 
   const [enterResults, { loading }] = useMutation(ENTER_RESULTS, {
