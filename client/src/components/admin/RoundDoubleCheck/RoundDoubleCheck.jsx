@@ -106,7 +106,7 @@ function RoundDoubleCheck() {
         rightButtonRef.current.focus();
       },
       onError: apolloErrorHandler,
-    },
+    }
   );
 
   if (loading && !data) return <Loading />;
@@ -115,7 +115,7 @@ function RoundDoubleCheck() {
 
   const results = orderBy(
     round.results,
-    (result) => -parseISO(result.enteredAt),
+    (result) => -parseISO(result.enteredAt)
   );
 
   function handleResultChange(result) {
@@ -143,7 +143,7 @@ function RoundDoubleCheck() {
   }
 
   const progressPercentage = Math.round(
-    ((resultIndex + 1) / results.length) * 100,
+    ((resultIndex + 1) / results.length) * 100
   );
 
   return (
@@ -156,7 +156,13 @@ function RoundDoubleCheck() {
       <Typography variant="subtitle1" align="right">
         {resultIndex + 1} of {results.length}
       </Typography>
-      <Grid container direction="row" alignItems="center" spacing={2}>
+      <Grid
+        container
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        spacing={2}
+      >
         <Grid item md sx={{ textAlign: "center" }}>
           <IconButton
             ref={leftButtonRef}
