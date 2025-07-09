@@ -53,7 +53,7 @@ function getStoreIsBatchMode() {
 }
 
 function setStoreIsBatchMode(isBatchMode) {
-  localStorage.setItem(IS_BATCH_MODE_KEY, isBatchMode);
+  localStorage.setItem(IS_BATCH_MODE_KEY, JSON.stringify(isBatchMode));
 }
 
 /**
