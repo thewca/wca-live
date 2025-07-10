@@ -40,10 +40,11 @@ function StaffMembersTable({ staffMembers, onChange }) {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Name</TableCell>
+            <TableCell sx={{ width: "100%" }}>Name</TableCell>
             {rolesData.map(({ role, name }) => (
               <TableCell key={role}>{name}</TableCell>
             ))}
+            <TableCell>Entered results</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -62,6 +63,9 @@ function StaffMembersTable({ staffMembers, onChange }) {
                   />
                 </TableCell>
               ))}
+              <TableCell align="center">
+                {staffMember.enteredResultsCount}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

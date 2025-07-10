@@ -2,7 +2,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
   use Absinthe.Schema.Notation
 
   import Absinthe.Resolution.Helpers
+  import Ecto.Query
   alias WcaLiveWeb.Resolvers
+  alias WcaLive.Repo
+  alias WcaLive.Scoretaking.Result
 
   object :competitions_queries do
     field :competitions, non_null(list_of(non_null(:competition))) do
@@ -235,6 +238,16 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
 
     field :competition, non_null(:competition) do
       resolve dataloader(:db)
+    end
+
+    field :entered_results_count, non_null(:integer) do
+      resolve fn staff_member, _, _ ->
+        count =
+          from(r in Result, where: r.entered_by_id == ^staff_member.user_id)
+          |> Repo.aggregate(:count, :id)
+
+        {:ok, count}
+      end
     end
   end
 
