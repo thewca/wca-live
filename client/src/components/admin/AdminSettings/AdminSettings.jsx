@@ -16,6 +16,7 @@ const COMPETITION_QUERY = gql`
           id
           name
         }
+        enteredResultsCount
         roles
       }
     }
