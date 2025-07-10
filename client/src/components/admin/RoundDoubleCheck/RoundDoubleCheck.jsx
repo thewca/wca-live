@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { useSwipeable } from "react-swipeable";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { Grid, IconButton, LinearProgress, Typography } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -109,6 +110,19 @@ function RoundDoubleCheck() {
     },
   );
 
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (resultIndex < data.round.results.length - 1) {
+        updateResultIndex(resultIndex + 1);
+      }
+    },
+    onSwipedRight: () => {
+      if (resultIndex > 0) {
+        updateResultIndex(resultIndex - 1);
+      }
+    },
+  });
+
   if (loading && !data) return <Loading />;
   if (error) return <Error error={error} />;
   const { round, officialWorldRecords } = data;
@@ -156,7 +170,14 @@ function RoundDoubleCheck() {
       <Typography variant="subtitle1" align="right">
         {resultIndex + 1} of {results.length}
       </Typography>
-      <Grid container direction="row" alignItems="center" spacing={2}>
+      <Grid
+        container
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        spacing={2}
+        {...handlers}
+      >
         <Grid item md sx={{ textAlign: "center" }}>
           <IconButton
             ref={leftButtonRef}

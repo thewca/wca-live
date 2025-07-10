@@ -256,10 +256,14 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
           <Grid item>
             <AdminRoundToolbar round={round} competitionId={competitionId} />
           </Grid>
-          <Grid item sx={{ maxWidth: "100%" }}>
+          <Grid item sx={{ width: "100%" }}>
             <TableContainer
               component={Paper}
-              sx={{ pr: 0.5 /* A bit of space for record tags. */ }}
+              sx={{
+                pr: 0.5 /* A bit of space for record tags. */,
+                overflowX: "auto",
+                width: "100%",
+              }}
             >
               <AdminResultsTable
                 results={round.results}

@@ -30,6 +30,7 @@
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.0.2",
+    "react-swipeable": "^7.0.2",
     "react-timeago": "^7.1.0",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6",
