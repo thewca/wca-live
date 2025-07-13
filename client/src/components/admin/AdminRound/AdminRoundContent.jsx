@@ -59,6 +59,23 @@ function setStoredBatchResults(roundId, results) {
   }
 }
 
+/**
+ * Combine results and batchResults to produce a temporary results-like array
+ * that has all batchResults changes applied.  This allows us to display a
+ * warning if a result is being entered which matches a batched result exactly.
+ */
+function combineResultsAndBatchResults(results, batchResults) {
+  const combinedResults = [...results];
+  batchResults.forEach((batchedResult) => {
+    const i = combinedResults.findIndex((res) => res.id === batchedResult.id);
+    combinedResults[i] = {
+      ...combinedResults[i],
+      attempts: batchedResult.attempts,
+    };
+  });
+  return combinedResults;
+}
+
 function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const confirm = useConfirm();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -72,6 +89,9 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     getStoreBatchResults(round.id),
   );
   const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
+  const [combinedResults, setCombinedResults] = useState(() =>
+    combineResultsAndBatchResults(round.results, batchResults),
+  );
   const formContainerRef = useRef(null);
 
   const [enterResults, { loading }] = useMutation(ENTER_RESULTS, {
@@ -86,11 +106,11 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     onError: apolloErrorHandler,
   });
 
-  function handleResultAttemptsSubmit(attempts, person) {
+  function handleResultAttemptsSubmit(attempts) {
     if (isBatchMode) {
       setBatchResults([
         ...batchResults.filter((result) => result.id !== editedResult.id),
-        { id: editedResult.id, attempts, person, enteredAt: nowISOString() },
+        { id: editedResult.id, attempts, enteredAt: nowISOString() },
       ]);
       setEditedResult(null);
     } else {
@@ -165,6 +185,9 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
 
   useEffect(() => {
     setStoredBatchResults(round.id, batchResults);
+    setCombinedResults(
+      combineResultsAndBatchResults(round.results, batchResults),
+    );
   }, [round.id, batchResults]);
 
   return (
@@ -174,7 +197,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
           <ResultAttemptsForm
             result={editedResult}
             results={round.results}
-            batchResults={batchResults}
+            combinedResults={combinedResults}
             onResultChange={setEditedResult}
             eventId={round.competitionEvent.event.id}
             format={round.format}

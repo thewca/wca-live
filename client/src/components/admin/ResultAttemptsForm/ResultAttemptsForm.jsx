@@ -25,7 +25,7 @@ import {
 function ResultAttemptsForm({
   result,
   results,
-  batchResults,
+  combinedResults, // combined results and batchResults array
   onResultChange,
   eventId,
   format,
@@ -101,7 +101,7 @@ function ResultAttemptsForm({
       attemptResults,
       eventId,
       officialWorldRecords,
-      [...results, ...batchResults],
+      combinedResults,
     );
 
     if (submissionWarning) {
