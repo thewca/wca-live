@@ -588,7 +588,7 @@ describe("attemptResultsWarning", () => {
       },
     ];
     expect(
-      attemptResultsWarning(attemptResults, "333fm", [], existingResults),
+      attemptResultsWarning(attemptResults, "333", [], existingResults),
     ).toEqual(null);
   });
 });

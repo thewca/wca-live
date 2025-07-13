@@ -486,8 +486,7 @@ export function attemptResultsWarning(
 
     // Check whether this result is a duplicate of existing results in the same round.
     // Excludes FMC and all-DNF results since ties are common.
-    // TODO: Does NOT check the in-progress batch, if any.
-    if (["333fm"].indexOf(eventId) === -1) {
+    if (eventId !== "333fm" && completeAttempts.length > 0) {
       const matches = findAllMatchingResults(attemptResults, results);
       if (matches.length > 0) {
         const matchesString = matches
@@ -574,22 +573,13 @@ function findAllMatchingResults(attemptResults, results) {
     if (result.attempts.length !== filteredAttemptResults.length) {
       return false;
     }
-
-    let numDnfResults = 0;
     for (let i = 0; i < result.attempts.length; i++) {
       if (result.attempts[i].result !== filteredAttemptResults[i]) {
         return false;
       }
-      if (result.attempts[i].result === DNF_VALUE) {
-        numDnfResults++;
-      }
     }
-    // Exclude all-DNF results since ties are common
-    if (numDnfResults === result.attempts.length) {
-      return false;
-    }
-
     return true;
   });
+
   return matches;
 }
