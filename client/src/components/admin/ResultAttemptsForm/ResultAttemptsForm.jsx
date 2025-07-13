@@ -97,11 +97,16 @@ function ResultAttemptsForm({
   }
 
   function confirmSubmission() {
+    // We don't want to show a duplicate warning if the user is submitting
+    // already-entered results for the correct competitor.  This is often used
+    // as a quick way to refresh data without refreshing the whole page.
+    const resultsToCheck = combinedResults.filter((res) => res.id !== result.id);
+
     const submissionWarning = attemptResultsWarning(
       attemptResults,
       eventId,
       officialWorldRecords,
-      combinedResults,
+      resultsToCheck,
     );
 
     if (submissionWarning) {
