@@ -52,10 +52,10 @@ resource "aws_db_instance" "this" {
   identifier        = var.name_prefix
   allocated_storage = 20
   storage_type      = "gp2"
-  instance_class    = "db.t3.medium"
+  instance_class    = "db.t4g.medium"
 
   engine                      = "postgres"
-  engine_version              = "16.3"
+  engine_version              = "16.8"
   auto_minor_version_upgrade  = true
   db_name                     = var.db_name
   username                    = var.db_username
