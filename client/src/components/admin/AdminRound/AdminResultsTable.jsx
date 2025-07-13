@@ -9,8 +9,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
-import { green } from "@mui/material/colors";
-import { alpha } from "@mui/material/styles";
+import { yellow, green } from "@mui/material/colors";
 import { times } from "../../../lib/utils";
 import { formatAttemptResult } from "../../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../../lib/result";
@@ -27,8 +26,8 @@ const styles = {
     backgroundColor: green["A400"],
   },
   advancingQuestionable: {
-    color: (theme) => theme.palette.getContrastText(alpha(green["A400"], 0.5)),
-    backgroundColor: alpha(green["A400"], 0.5),
+    color: (theme) => theme.palette.getContrastText(yellow["200"]),
+    backgroundColor: yellow["200"],
   },
 };
 
