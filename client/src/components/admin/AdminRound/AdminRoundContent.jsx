@@ -207,7 +207,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     setCombinedResults(
       combineResultsAndBatchResults(round.results, batchResults),
     );
-  }, [round.id, batchResults]);
+  }, [round, batchResults]);
 
   return (
     <>
