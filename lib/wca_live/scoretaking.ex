@@ -11,7 +11,7 @@ defmodule WcaLive.Scoretaking do
   alias Ecto.{Changeset, Multi}
   alias WcaLive.Repo
   alias WcaLive.Wca.{Event, Format}
-  alias WcaLive.Competitions.{Person, Registration, Competition}
+  alias WcaLive.Competitions.{Person, Registration, Competition, StaffMember}
   alias WcaLive.Scoretaking.{Round, Result, Ranking, Advancing, RecordTags}
   alias WcaLive.Accounts.User
 
@@ -594,5 +594,22 @@ defmodule WcaLive.Scoretaking do
 
       %{round: final_round, results: podium_results}
     end)
+  end
+
+  @doc """
+  Returns the number of results entered by the given staff member at
+  the corresponding competition.
+  """
+  @spec entered_results_count(%StaffMember{}) :: integer()
+  def entered_results_count(%StaffMember{} = staff_member) do
+    from(result in Result,
+      join: round in assoc(result, :round),
+      join: competition_event in assoc(round, :competition_event),
+      join: competition in assoc(competition_event, :competition),
+      where:
+        competition.id == ^staff_member.competition_id and
+          result.entered_by_id == ^staff_member.user_id
+    )
+    |> Repo.aggregate(:count)
   end
 end
