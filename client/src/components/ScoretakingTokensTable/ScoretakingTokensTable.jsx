@@ -39,7 +39,7 @@ function ScoretakingTokensTable({
     {
       onError: apolloErrorHandler,
       refetchQueries: [activeScoretakingTokensQuery],
-    }
+    },
   );
 
   function handleDelete(scoretakingToken) {
@@ -57,7 +57,7 @@ function ScoretakingTokensTable({
   const sortedScoretakingTokens = orderBy(
     scoretakingTokens,
     (token) => [token.insertedAt],
-    ["desc"]
+    ["desc"],
   );
 
   return (

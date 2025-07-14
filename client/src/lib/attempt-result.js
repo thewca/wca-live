@@ -5,15 +5,19 @@ export const SKIPPED_VALUE = 0;
 export const DNF_VALUE = -1;
 export const DNS_VALUE = -2;
 
-function isComplete(attemptResult) {
+export function isComplete(attemptResult) {
   return attemptResult > 0;
 }
 
-function isSkipped(attemptResult) {
+export function isSkipped(attemptResult) {
   return attemptResult === SKIPPED_VALUE;
 }
 
-function compareAttemptResults(attemptResult1, attemptResult2) {
+export function toMonotonic(attemptResult) {
+  return isComplete(attemptResult) ? attemptResult : Infinity;
+}
+
+export function compareAttemptResults(attemptResult1, attemptResult2) {
   if (!isComplete(attemptResult1) && !isComplete(attemptResult2)) return 0;
   if (!isComplete(attemptResult1) && isComplete(attemptResult2)) return 1;
   if (isComplete(attemptResult1) && !isComplete(attemptResult2)) return -1;
@@ -25,7 +29,7 @@ function compareAttemptResults(attemptResult1, attemptResult2) {
  */
 export function padSkipped(attemptResults, numberOfAttempts) {
   return times(numberOfAttempts, (index) =>
-    index < attemptResults.length ? attemptResults[index] : SKIPPED_VALUE
+    index < attemptResults.length ? attemptResults[index] : SKIPPED_VALUE,
   );
 }
 
@@ -80,24 +84,24 @@ export function average(attemptResults, eventId) {
     const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
     switch (attemptResults.length) {
       case 3:
-        return meanOf3(scaled);
+        return meanOfX(scaled);
       case 5:
         return averageOf5(scaled);
       default:
         throw new Error(
-          `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
+          `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`,
         );
     }
   }
 
   switch (attemptResults.length) {
     case 3:
-      return roundOver10Mins(meanOf3(attemptResults));
+      return roundOver10Mins(meanOfX(attemptResults));
     case 5:
       return roundOver10Mins(averageOf5(attemptResults));
     default:
       throw new Error(
-        `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`
+        `Invalid number of attempt results, expected 3 or 5, got ${attemptResults.length}.`,
       );
   }
 }
@@ -109,12 +113,19 @@ function roundOver10Mins(value) {
   return Math.round(value / 100) * 100;
 }
 
-function averageOf5(attemptResults) {
-  const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  return meanOf3([x, y, z]);
+/* See: https://www.worldcubeassociation.org/regulations/#9f2 */
+function truncateOver10Mins(value) {
+  if (!isComplete(value)) return value;
+  if (value <= 10 * 6000) return value;
+  return Math.floor(value / 100) * 100;
 }
 
-function meanOf3(attemptResults) {
+function averageOf5(attemptResults) {
+  const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
+  return meanOfX([x, y, z]);
+}
+
+function meanOfX(attemptResults) {
   if (!attemptResults.every(isComplete)) return DNF_VALUE;
   return mean(attemptResults);
 }
@@ -122,6 +133,54 @@ function meanOf3(attemptResults) {
 function mean(values) {
   const sum = values.reduce((x, y) => x + y, 0);
   return Math.round(sum / values.length);
+}
+
+/**
+ * Returns projected average.
+ *
+ * Note that contrarily to other functions in this module, this
+ * function expects a non-padded and incomplete list of attempt
+ * results (without trailing skipped values).
+ *
+ * Projections are defined as follows:
+ *
+ *   - mo3 events: mean of current solves
+ *   - ao5 events:
+ *     - 1-2 solves: mean of current solves
+ *     - 3-4 solves: median of current solves
+ *
+ * When all result attempts are present, the return value is the same
+ * as the usual average.
+ */
+export function projectedAverage(attemptResults, eventId, format) {
+  if (attemptResults.length === 0) return SKIPPED_VALUE;
+
+  if (eventId === "333fm") {
+    if (!attemptResults.every(isComplete)) return DNF_VALUE;
+    const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
+    return mean(scaled);
+  }
+
+  if (format.numberOfAttempts === 3) {
+    return meanOfX(attemptResults);
+  }
+
+  if (format.numberOfAttempts === 5) {
+    if (attemptResults.length < 3) {
+      return meanOfX(attemptResults);
+    }
+    if (attemptResults.length === 3) {
+      const [, x] = attemptResults.slice().sort(compareAttemptResults);
+      return x;
+    }
+    if (attemptResults.length === 4) {
+      const [, x, y] = attemptResults.slice().sort(compareAttemptResults);
+      return meanOfX([x, y]);
+    }
+    return averageOf5(attemptResults);
+  }
+
+  throw new Error("Unexpected format");
 }
 
 /**
@@ -137,12 +196,12 @@ function mean(values) {
 export function bestPossibleAverage(attemptResults) {
   if (attemptResults.length !== 4) {
     throw new Error(
-      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`
+      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`,
     );
   }
 
   const [x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return roundOver10Mins(mean);
 }
 
@@ -159,33 +218,13 @@ export function bestPossibleAverage(attemptResults) {
 export function worstPossibleAverage(attemptResults) {
   if (attemptResults.length !== 4) {
     throw new Error(
-      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`
+      `Invalid number of attempt results, expected 4, got ${attemptResults.length}.`,
     );
   }
 
   const [, x, y, z] = attemptResults.slice().sort(compareAttemptResults);
-  const mean = meanOf3([x, y, z]);
+  const mean = meanOfX([x, y, z]);
   return roundOver10Mins(mean);
-}
-
-/**
- * Calculates mean of 2 for the given attempt results.
- */
-export function incompleteMean(attemptResults, eventId) {
-  if (attemptResults.length !== 2) {
-    throw new Error(
-      `Invalid number of attempt results, expected 2, got ${attemptResults.length}.`
-    );
-  }
-
-  if (!attemptResults.every(isComplete)) return DNF_VALUE;
-
-  if (eventId === "333fm") {
-    const scaled = attemptResults.map((attemptResult) => attemptResult * 100);
-    return mean(scaled);
-  }
-
-  return roundOver10Mins(mean(attemptResults));
 }
 
 /**
@@ -215,8 +254,8 @@ export function encodeMbldAttemptResult({ solved, attempted, centiseconds }) {
   if (centiseconds <= 0) return centiseconds;
   const missed = attempted - solved;
   const points = solved - missed;
-  const seconds = Math.round(
-    (centiseconds || 9999900) / 100
+  const seconds = Math.floor(
+    (centiseconds || 9999900) / 100,
   ); /* 99999 seconds is used for unknown time. */
   return (99 - points) * 1e7 + seconds * 1e2 + missed;
 }
@@ -236,7 +275,7 @@ export function mbldAttemptResultToPoints(attemptResult) {
 export function centisecondsToClockFormat(centiseconds) {
   if (!Number.isFinite(centiseconds)) {
     throw new Error(
-      `Invalid centiseconds, expected positive number, got ${centiseconds}.`
+      `Invalid centiseconds, expected positive number, got ${centiseconds}.`,
     );
   }
   return new Date(centiseconds * 10)
@@ -327,7 +366,7 @@ export function autocompleteFmAttemptResult(moves) {
  */
 export function autocompleteTimeAttemptResult(time) {
   // See https://www.worldcubeassociation.org/regulations/#9f2
-  return roundOver10Mins(time);
+  return truncateOver10Mins(time);
 }
 
 /**
@@ -338,11 +377,11 @@ export function isWorldRecord(
   attemptResult,
   eventId,
   type,
-  officialWorldRecords = []
+  officialWorldRecords = [],
 ) {
   const wr =
     officialWorldRecords.find(
-      (wr) => wr.type === type && wr.event.id === eventId
+      (wr) => wr.type === type && wr.event.id === eventId,
     ) || null;
 
   return (
@@ -359,14 +398,16 @@ export function isWorldRecord(
 export function attemptResultsWarning(
   attemptResults,
   eventId,
-  officialWorldRecords = []
+  officialWorldRecords = [],
 ) {
   const skippedGapIndex =
     trimTrailingSkipped(attemptResults).indexOf(SKIPPED_VALUE);
   if (skippedGapIndex !== -1) {
-    return `You've omitted attempt ${
-      skippedGapIndex + 1
-    }. Make sure it's intentional.`;
+    return {
+      description: `You've omitted attempt ${
+        skippedGapIndex + 1
+      }. Make sure it's intentional.`,
+    };
   }
   const completeAttempts = attemptResults.filter(isComplete);
   if (completeAttempts.length > 0) {
@@ -375,14 +416,17 @@ export function attemptResultsWarning(
       bestSingle,
       eventId,
       "single",
-      officialWorldRecords
+      officialWorldRecords,
     );
     if (newWorldRecordSingle) {
-      return `
-          The result you're trying to submit includes a new world record single
+      return {
+        description: `The result you're trying to submit includes a new world record single
           (${formatAttemptResult(bestSingle, eventId)}).
-          Please check that the results are accurate.
-        `;
+          Please check that you are entering results for the right event and that all
+          the entered attempts are accurate. Type "world record" below to confirm that
+          you are confident that it is indeed a world record result.`,
+        confirmationKeyword: "world record",
+      };
     }
 
     if (shouldComputeAverage(eventId, attemptResults.length)) {
@@ -390,22 +434,25 @@ export function attemptResultsWarning(
         average(attemptResults, eventId),
         eventId,
         "average",
-        officialWorldRecords
+        officialWorldRecords,
       );
 
       if (newWorldRecordAverage) {
-        return `
-          The result you're trying to submit is a new world record average
-          (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
-          Please check that the results are accurate.
-        `;
+        return {
+          description: `The result you're trying to submit is a new world record average
+            (${formatAttemptResult(average(attemptResults, eventId), eventId)}).
+            Please check that you are entering results for the right event and that all
+            the entered attempts are accurate. Type "world record" below to confirm that
+            you are confident that it is indeed a world record result.`,
+          confirmationKeyword: "world record",
+        };
       }
     }
 
     if (checkForDnsFollowedByValidResult(attemptResults)) {
-      return `
-        There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.
-      `;
+      return {
+        description: `There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.`,
+      };
     }
 
     if (eventId === "333mbf") {
@@ -414,25 +461,25 @@ export function attemptResultsWarning(
         return attempt > 0 && centiseconds / attempted < 30 * 100;
       });
       if (lowTimeIndex !== -1) {
-        return `
-        The result you're trying to submit seems to be impossible:
-        attempt ${lowTimeIndex + 1} is done in
-        less than 30 seconds per cube tried.
-        If you want to enter minutes, don't forget to add two zeros
-        for centiseconds at the end of the score.
-      `;
+        return {
+          description: `The result you're trying to submit seems to be impossible:
+            attempt ${lowTimeIndex + 1} is done in
+            less than 30 seconds per cube tried.
+            If you want to enter minutes, don't forget to add two zeros
+            for centiseconds at the end of the score.`,
+        };
       }
     } else {
       const worstSingle = Math.max(...completeAttempts);
       const inconsistent = worstSingle > bestSingle * 4;
       if (inconsistent) {
-        return `
-          The result you're trying to submit seem to be inconsistent.
-          There's a big difference between the best single
-          (${formatAttemptResult(bestSingle, eventId)}) and the worst single
-          (${formatAttemptResult(worstSingle, eventId)}).
-          Please check that the results are accurate.
-        `;
+        return {
+          description: `The result you're trying to submit seem to be inconsistent.
+            There's a big difference between the best single
+            (${formatAttemptResult(bestSingle, eventId)}) and the worst single
+            (${formatAttemptResult(worstSingle, eventId)}).
+            Please check that the results are accurate.`,
+        };
       }
     }
   }
@@ -446,7 +493,7 @@ export function applyTimeLimit(attemptResults, timeLimit) {
   if (timeLimit === null) return attemptResults;
   if (timeLimit.cumulativeRoundWcifIds.length === 0) {
     return attemptResults.map((attemptResult) =>
-      attemptResult >= timeLimit.centiseconds ? DNF_VALUE : attemptResult
+      attemptResult >= timeLimit.centiseconds ? DNF_VALUE : attemptResult,
     );
   } else {
     // Note: for now cross-round cumulative time limits are handled
@@ -460,7 +507,7 @@ export function applyTimeLimit(attemptResults, timeLimit) {
             : attemptResult;
         return [updatedAttemptResults.concat(updatedAttemptResult), updatedSum];
       },
-      [[], 0]
+      [[], 0],
     );
     return updatedAttemptResults;
   }
@@ -475,7 +522,7 @@ export function applyCutoff(attemptResults, cutoff) {
   }
 
   return attemptResults.map((attemptResult, index) =>
-    index < cutoff.numberOfAttempts ? attemptResult : SKIPPED_VALUE
+    index < cutoff.numberOfAttempts ? attemptResult : SKIPPED_VALUE,
   );
 }
 
@@ -495,6 +542,6 @@ function checkForDnsFollowedByValidResult(attemptResults) {
   if (dnsIndex === -1) return false;
   return attemptResults.some(
     (attempt, index) =>
-      index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE
+      index > dnsIndex && attempt !== SKIPPED_VALUE && attempt !== DNS_VALUE,
   );
 }

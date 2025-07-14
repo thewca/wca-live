@@ -40,9 +40,26 @@ const ENTER_RESULTS = gql`
   ${ADMIN_ROUND_RESULT_FRAGMENT}
 `;
 
-// Persist batch results in local storage, in case people navigate
-// or refresh the page
+const IS_BATCH_MODE_KEY = `wca-live:is-batch-mode`;
 
+/**
+ * Persist whether batch mode is toggled on, in case people navigate
+ * or refresh the page
+ * @returns {boolean}
+ */
+function getStoreIsBatchMode() {
+  const json = localStorage.getItem(IS_BATCH_MODE_KEY);
+  return json ? JSON.parse(json) : false;
+}
+
+function setStoreIsBatchMode(isBatchMode) {
+  localStorage.setItem(IS_BATCH_MODE_KEY, JSON.stringify(isBatchMode));
+}
+
+/**
+ * Persist batch results in local storage, in case people navigate
+ * or refresh the page
+ */
 function getStoreBatchResults(roundId) {
   const json = localStorage.getItem(`wca-live:batch-results:${roundId}`);
   return json ? JSON.parse(json) : [];
@@ -52,7 +69,7 @@ function setStoredBatchResults(roundId, results) {
   if (results.length > 0) {
     localStorage.setItem(
       `wca-live:batch-results:${roundId}`,
-      JSON.stringify(results)
+      JSON.stringify(results),
     );
   } else {
     localStorage.removeItem(`wca-live:batch-results:${roundId}`);
@@ -69,9 +86,11 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   const [competitorToQuit, setCompetitorToQuit] = useState(null);
 
   const [batchResults, setBatchResults] = useState(() =>
-    getStoreBatchResults(round.id)
+    getStoreBatchResults(round.id),
   );
-  const [isBatchMode, setIsBatchMode] = useState(batchResults.length > 0);
+  const [isBatchMode, setIsBatchMode] = useState(
+    () => batchResults.length > 0 || getStoreIsBatchMode(),
+  );
   const formContainerRef = useRef(null);
 
   const [enterResults, { loading }] = useMutation(ENTER_RESULTS, {
@@ -148,7 +167,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
   }, []);
 
   const next = round.competitionEvent.rounds.find(
-    (other) => other.number === round.number + 1
+    (other) => other.number === round.number + 1,
   );
   const nextOpen = next && next.open;
 
@@ -156,7 +175,7 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
     if (nextOpen) {
       const snackbarId = enqueueSnackbar(
         "The next round has already been open, any changes won't affect it!",
-        { variant: "info" }
+        { variant: "info" },
       );
 
       return () => closeSnackbar(snackbarId);
@@ -189,7 +208,10 @@ function AdminRoundContent({ round, competitionId, officialWorldRecords }) {
               control={
                 <Checkbox
                   checked={isBatchMode}
-                  onChange={(event) => setIsBatchMode(event.target.checked)}
+                  onChange={(event) => {
+                    setIsBatchMode(event.target.checked);
+                    setStoreIsBatchMode(event.target.checked);
+                  }}
                   disabled={batchResults.length > 0}
                 />
               }

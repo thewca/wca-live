@@ -136,7 +136,7 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     %{id: id3} =
       insert(:result, round: round1, ranking: 3, best: 1200, average: 1200, advancing: false)
 
-    # We have two incomplete results, both with BPA 1150, so id2 is
+    # We have two incomplete results, with BPA 1150 and 1151, so id2 is
     # already guaranteed to advance either way, but id3 is questionable
 
     %{id: id4} =
@@ -157,14 +157,14 @@ defmodule WcaLive.Scoretaking.AdvancingTest do
     %{id: id5} =
       insert(:result,
         round: round1,
-        ranking: 4,
-        best: 1100,
-        average: 1250,
+        ranking: 5,
+        best: 1101,
+        average: 1251,
         attempts: [
-          build(:attempt, result: 1400),
-          build(:attempt, result: 1200),
-          build(:attempt, result: 1150),
-          build(:attempt, result: 1100)
+          build(:attempt, result: 1401),
+          build(:attempt, result: 1201),
+          build(:attempt, result: 1151),
+          build(:attempt, result: 1101)
         ],
         advancing: false
       )

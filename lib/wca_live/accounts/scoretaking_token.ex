@@ -8,8 +8,9 @@ defmodule WcaLive.Accounts.ScoretakingToken do
 
   import Ecto.Query
 
-  alias WcaLive.{Accounts, Competitions}
+  alias WcaLive.Accounts
   alias WcaLive.Accounts.ScoretakingToken
+  alias WcaLive.Competitions
 
   @rand_size 32
 

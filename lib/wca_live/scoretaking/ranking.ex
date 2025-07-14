@@ -5,17 +5,17 @@ defmodule WcaLive.Scoretaking.Ranking do
 
   alias Ecto.Changeset
   alias WcaLive.Repo
-  alias WcaLive.Wca.Format
-  alias WcaLive.Scoretaking.{Round, AttemptResult}
+  alias WcaLive.Wca
+  alias WcaLive.Scoretaking
 
   @doc """
   Calculates the `ranking` attribute on `round` results
   and returns a changeset including the changes.
   """
-  @spec compute_ranking(%Round{}) :: Ecto.Changeset.t(%Round{})
+  @spec compute_ranking(%Scoretaking.Round{}) :: Ecto.Changeset.t(%Scoretaking.Round{})
   def compute_ranking(round) do
     round = round |> Repo.preload(:results)
-    format = Format.get_by_id!(round.format_id)
+    format = Wca.Format.get_by_id!(round.format_id)
 
     {empty, nonempty} = Enum.split_with(round.results, &(&1.attempts == []))
 
@@ -41,15 +41,16 @@ defmodule WcaLive.Scoretaking.Ranking do
     |> Enum.map(fn {result, ranking} ->
       Changeset.change(result, ranking: ranking)
     end)
-    |> Round.put_results_in_round(round)
+    |> Scoretaking.Round.put_results_in_round(round)
   end
 
   defp result_to_monotnic(result, :best = _sort_by) do
-    AttemptResult.to_monotonic(result.best)
+    Scoretaking.AttemptResult.to_monotonic(result.best)
   end
 
   defp result_to_monotnic(result, :average = _sort_by) do
-    {AttemptResult.to_monotonic(result.average), AttemptResult.to_monotonic(result.best)}
+    {Scoretaking.AttemptResult.to_monotonic(result.average),
+     Scoretaking.AttemptResult.to_monotonic(result.best)}
   end
 
   defp results_equal?(result1, result2, sort_by) do

@@ -12,15 +12,23 @@ import {
 import { formatAttemptResult } from "../../lib/attempt-result";
 import { orderedResultStats } from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
+import ResultStat from "../ResultStat/ResultStat";
 
 function RoundResultDialog({
   result,
   format,
   eventId,
   competitionId,
+  forecastView,
+  advancementCondition,
   onClose,
 }) {
-  const stats = orderedResultStats(eventId, format);
+  const stats = orderedResultStats(
+    eventId,
+    format,
+    forecastView,
+    advancementCondition,
+  );
 
   return (
     <Dialog open={!!result} fullWidth={true} onClose={onClose}>
@@ -55,7 +63,7 @@ function RoundResultDialog({
                     <Typography variant="body2">
                       {result.attempts
                         .map((attempt) =>
-                          formatAttemptResult(attempt.result, eventId)
+                          formatAttemptResult(attempt.result, eventId),
                         )
                         .join(", ")}
                     </Typography>
@@ -65,7 +73,12 @@ function RoundResultDialog({
                       <Typography variant="subtitle2">{name}</Typography>
                       <Typography variant="body2">
                         <RecordTagBadge recordTag={result[recordTagField]}>
-                          {formatAttemptResult(result[field], eventId)}
+                          <ResultStat
+                            result={result}
+                            field={field}
+                            eventId={eventId}
+                            forecastView={forecastView}
+                          />
                         </RecordTagBadge>
                       </Typography>
                     </Grid>

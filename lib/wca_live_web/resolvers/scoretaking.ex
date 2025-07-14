@@ -1,11 +1,11 @@
 defmodule WcaLiveWeb.Resolvers.Scoretaking do
   alias WcaLive.Scoretaking
-  alias WcaLive.Wca.{Format, Event}
+  alias WcaLive.Wca
 
   # Rounds
 
   def round_format(%{format_id: format_id}, _args, _resolution) do
-    {:ok, Format.get_by_id!(format_id)}
+    {:ok, Wca.Format.get_by_id!(format_id)}
   end
 
   def round_name(round, _args, _resolution) do
@@ -22,6 +22,14 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
 
   def round_finished(round, _args, _resolution) do
     {:ok, Scoretaking.Round.finished?(round)}
+  end
+
+  def round_num_entered_results(round, _args, _resolution) do
+    {:ok, Scoretaking.Round.num_entered_results(round)}
+  end
+
+  def round_num_results(round, _args, _resolution) do
+    {:ok, length(round.results)}
   end
 
   def round_active(round, _args, _resolution) do
@@ -54,6 +62,6 @@ defmodule WcaLiveWeb.Resolvers.Scoretaking do
   end
 
   def record_event(%{event_id: event_id}, _args, _resolution) do
-    {:ok, Event.get_by_id!(event_id)}
+    {:ok, Wca.Event.get_by_id!(event_id)}
   end
 end

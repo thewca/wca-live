@@ -42,4 +42,31 @@ defmodule WcaLive.Repo do
       _ -> raise "expected one or no items, got many items #{inspect(query)}"
     end
   end
+
+  @doc """
+  Similar to `transaction/2`, except it automatically rolls back the
+  transaction if the function returns an error.
+  """
+  @spec transaction_with(
+          (-> {:ok, term()} | {:error, term()}),
+          keyword()
+        ) :: {:ok, term()} | {:error, term()}
+  def transaction_with(fun, options \\ []) when is_function(fun, 0) and is_list(options) do
+    transaction(
+      fn ->
+        case fun.() do
+          {:ok, result} ->
+            result
+
+          {:error, reason} ->
+            rollback(reason)
+
+          other ->
+            raise ArgumentError,
+                  "expected to return {:ok, _} or {:error, _}, got: #{inspect(other)}"
+        end
+      end,
+      options
+    )
+  end
 end

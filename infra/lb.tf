@@ -56,8 +56,10 @@ resource "aws_lb" "this" {
   subnets            = aws_subnet.public[*].id
   ip_address_type    = "ipv4"
 
-  # Note that we use WebSocket connections, but they send heartbeat every 30s
-  idle_timeout = 60
+  # Note that we use WebSocket connections, but they send heartbeat every 30s.
+  # We use an even larger timeout, because synchronization requests can take
+  # a while for larger competitions.
+  idle_timeout = 240
 }
 
 resource "aws_lb_target_group" "this" {

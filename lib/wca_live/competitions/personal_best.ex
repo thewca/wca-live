@@ -6,7 +6,7 @@ defmodule WcaLive.Competitions.PersonalBest do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.Person
+  alias WcaLive.Competitions
 
   @required_fields [
     :event_id,
@@ -26,7 +26,7 @@ defmodule WcaLive.Competitions.PersonalBest do
     field :continental_ranking, :integer
     field :national_ranking, :integer
 
-    belongs_to :person, Person
+    belongs_to :person, Competitions.Person
   end
 
   def changeset(personal_best, attrs) do

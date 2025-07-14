@@ -58,7 +58,7 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
 
   const [getAdvancementCandidates, { data, loading, error }] = useLazyQuery(
     ADVANCEMENT_CANDIDATES_QUERY,
-    { variables: { roundId } }
+    { variables: { roundId } },
   );
 
   useEffect(() => {
@@ -79,7 +79,7 @@ function AddCompetitorDialog({ open, onClose, roundId }) {
       },
       onCompleted: handleClose,
       onError: apolloErrorHandler,
-    }
+    },
   );
 
   function handleClose() {

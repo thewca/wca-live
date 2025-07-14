@@ -17,6 +17,6 @@ export default function useApolloErrorHandler() {
       const message = apolloErrorToMessage(error);
       enqueueSnackbar(message, { variant: "error" });
     },
-    [enqueueSnackbar]
+    [enqueueSnackbar],
   );
 }

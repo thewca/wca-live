@@ -10,11 +10,11 @@ import {
 export function formatDateRange(startString, endString) {
   const [startDay, startMonth, startYear] = format(
     parseISO(startString),
-    "d MMM yyyy"
+    "d MMM yyyy",
   ).split(" ");
   const [endDay, endMonth, endYear] = format(
     parseISO(endString),
-    "d MMM yyyy"
+    "d MMM yyyy",
   ).split(" ");
 
   if (startString === endString) {
@@ -61,7 +61,7 @@ export function getTimezone() {
 export function closestDateString(dateStrings) {
   const closestIndex = closestIndexTo(
     startOfToday(),
-    dateStrings.map(parseISO)
+    dateStrings.map(parseISO),
   );
   return dateStrings[closestIndex];
 }

@@ -41,8 +41,9 @@ defmodule WcaLive.MixProject do
       {:dataloader, "~> 2.0"},
       {:cors_plug, "~> 3.0"},
       {:pdf_generator, "~> 0.6"},
-      {:libcluster, "~> 3.3"},
-      {:ex_machina, "~> 2.4", only: :test}
+      {:dns_cluster, "~> 0.1.3"},
+      {:new_relic_agent, "~> 1.0"},
+      {:ex_machina, "~> 2.4", only: [:test, :dev]}
     ]
   end
 

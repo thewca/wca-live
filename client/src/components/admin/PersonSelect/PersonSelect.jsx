@@ -10,27 +10,35 @@ function searchPersons(persons, search) {
   const normalizedSearch = search.trim().toLowerCase();
   if (!normalizedSearch) return persons;
   const matchingId = persons.find(
-    (person) => person.registrantId === toInt(normalizedSearch)
+    (person) => person.registrantId === toInt(normalizedSearch),
   );
   if (matchingId) return [matchingId];
   const matchingNameStart = persons.filter((person) =>
-    person.name.toLowerCase().startsWith(normalizedSearch)
+    person.name.toLowerCase().startsWith(normalizedSearch),
   );
   const matchingName = persons.filter((person) =>
-    person.name.toLowerCase().includes(normalizedSearch)
+    person.name.toLowerCase().includes(normalizedSearch),
   );
   return uniq([...matchingNameStart, ...matchingName]).slice(0, 5);
 }
 
-function PersonSelect({ persons, value, onChange, TextFieldProps = {} }) {
+function PersonSelect({
+  persons,
+  value,
+  onChange,
+  multiple = false,
+  TextFieldProps = {},
+}) {
   function handleChange(event, value, reason) {
-    if (reason === "selectOption") {
+    if (reason === "selectOption" || reason === "removeOption") {
       onChange(value);
     }
   }
 
   return (
     <Autocomplete
+      multiple={multiple}
+      disableCloseOnSelect={multiple}
       options={persons}
       getOptionLabel={personToLabel}
       value={value}

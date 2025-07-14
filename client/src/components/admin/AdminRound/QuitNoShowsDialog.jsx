@@ -2,23 +2,17 @@ import { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
 import {
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Grid,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
 } from "@mui/material";
 import { ADMIN_ROUND_RESULT_FRAGMENT } from "./fragments";
 import useApolloErrorHandler from "../../../hooks/useApolloErrorHandler";
-import { orderBy, toggleElement } from "../../../lib/utils";
+import ResultSelect from "../ResultAttemptsForm/ResultSelect";
 
 const REMOVE_NO_SHOWS_FROM_ROUND_MUTATION = gql`
   mutation RemoveNoShowsFromRound($input: RemoveNoShowsFromRoundInput!) {
@@ -38,7 +32,7 @@ const REMOVE_NO_SHOWS_FROM_ROUND_MUTATION = gql`
 function QuitNoShowsDialog({ open, onClose, roundId, results }) {
   const apolloErrorHandler = useApolloErrorHandler();
 
-  const [selectedPersonIds, setSelectedPersonIds] = useState([]);
+  const [selectedResults, setSelectedResults] = useState([]);
 
   const [removeNoShowsFromRound, { loading: mutationLoading }] = useMutation(
     REMOVE_NO_SHOWS_FROM_ROUND_MUTATION,
@@ -46,25 +40,24 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
       variables: {
         input: {
           roundId,
-          personIds: selectedPersonIds,
+          personIds: selectedResults.map((result) => result.person.id),
         },
       },
       onCompleted: handleClose,
       onError: apolloErrorHandler,
-    }
+    },
   );
 
-  const noShowResults = orderBy(
-    results.filter((result) => result.attempts.length === 0),
-    (result) => result.person.name
+  const noShowResults = results.filter(
+    (result) => result.attempts.length === 0,
   );
 
-  function onResultClick(result) {
-    setSelectedPersonIds(toggleElement(selectedPersonIds, result.person.id));
+  function onResultsChange(results) {
+    setSelectedResults(results);
   }
 
   function handleClose() {
-    setSelectedPersonIds([]);
+    setSelectedResults([]);
     onClose();
   }
 
@@ -81,33 +74,19 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
               </DialogContentText>
             </Grid>
             <Grid item>
-              <List
-                dense
-                sx={{
-                  overflowY: "auto",
-                  maxHeight: 600,
+              <ResultSelect
+                multiple
+                results={noShowResults}
+                value={selectedResults}
+                onChange={(result) => onResultsChange(result)}
+                TextFieldProps={{
+                  autoFocus: true,
+                  fullWidth: true,
+                  variant: "outlined",
                 }}
-              >
-                {noShowResults.map((result) => (
-                  <ListItem key={result.id}>
-                    <ListItemButton dense onClick={() => onResultClick(result)}>
-                      <ListItemIcon>
-                        <Checkbox
-                          edge="start"
-                          checked={selectedPersonIds.includes(result.person.id)}
-                          tabIndex={-1}
-                          disableRipple
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={`${result.person.name} (${result.person.registrantId})`}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
+              />
               <Typography variant="caption">
-                {selectedPersonIds.length} of {noShowResults.length} selected
+                {selectedResults.length} of {noShowResults.length} selected
               </Typography>
             </Grid>
           </Grid>
@@ -120,7 +99,7 @@ function QuitNoShowsDialog({ open, onClose, roundId, results }) {
         <Button
           onClick={() => removeNoShowsFromRound()}
           color="primary"
-          disabled={selectedPersonIds.length === 0 || mutationLoading}
+          disabled={selectedResults.length === 0 || mutationLoading}
         >
           Quit
         </Button>

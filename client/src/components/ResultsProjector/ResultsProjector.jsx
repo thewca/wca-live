@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   AppBar,
@@ -15,13 +15,18 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { green } from "@mui/material/colors";
-import { alpha } from "@mui/material/styles";
+import { yellow, green } from "@mui/material/colors";
+import PauseIcon from "@mui/icons-material/Pause";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
 import FlagIcon from "../FlagIcon/FlagIcon";
 import { times } from "../../lib/utils";
 import { formatAttemptResult } from "../../lib/attempt-result";
-import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
+import {
+  resultsForView,
+  orderedResultStats,
+  paddedAttemptResults,
+} from "../../lib/result";
 import RecordTagBadge from "../RecordTagBadge/RecordTagBadge";
 import ResultStat from "../ResultStat/ResultStat";
 
@@ -42,8 +47,8 @@ const styles = {
     backgroundColor: green["A400"],
   },
   advancingQuestionable: {
-    color: (theme) => theme.palette.getContrastText(alpha(green["A400"], 0.5)),
-    backgroundColor: alpha(green["A400"], 0.5),
+    color: (theme) => theme.palette.getContrastText(yellow["200"]),
+    backgroundColor: yellow["200"],
   },
   name: {
     width: "22%",
@@ -59,10 +64,12 @@ const STATUS = {
   SHOWING: Symbol("showing"),
   SHOWN: Symbol("shown"),
   HIDING: Symbol("hiding"),
+  PAUSED: Symbol("paused"),
 };
 
 const DURATION = {
   SHOWN: 10 * 1000,
+  FORECAST_SHOWN: 20 * 1000,
   SHOWING: 1000,
   HIDING: 1000,
 };
@@ -72,22 +79,50 @@ function getNumberOfRows() {
   return Math.floor((window.innerHeight - 64 - 56) / 67);
 }
 
-function ResultsProjector({ results, format, eventId, title, exitUrl }) {
+function ResultsProjector({
+  results,
+  format,
+  eventId,
+  title,
+  exitUrl,
+  forecastView,
+  advancementCondition,
+}) {
   const [status, setStatus] = useState(STATUS.SHOWING);
   const [topResultIndex, setTopResultIndex] = useState(0);
 
-  const stats = orderedResultStats(eventId, format);
-
-  const nonemptyResults = results.filter(
-    (result) => result.attempts.length > 0
+  const stats = orderedResultStats(
+    eventId,
+    format,
+    forecastView,
+    advancementCondition,
   );
+  const nonemptyResults = resultsForView(
+    results,
+    eventId,
+    format,
+    forecastView,
+    advancementCondition,
+  ).filter((result) => result.attempts.length > 0);
+
+  const nonemptyResultsRef = useRef(nonemptyResults);
+  useEffect(() => {
+    nonemptyResultsRef.current = nonemptyResults;
+  });
 
   useEffect(() => {
+    const nonemptyResults = nonemptyResultsRef.current;
+    if (status === STATUS.PAUSED) {
+      return;
+    }
     if (status === STATUS.SHOWN) {
       if (nonemptyResults.length > getNumberOfRows()) {
-        const timeout = setTimeout(() => {
-          setStatus(STATUS.HIDING);
-        }, DURATION.SHOWN);
+        const timeout = setTimeout(
+          () => {
+            setStatus(STATUS.HIDING);
+          },
+          forecastView ? DURATION.FORECAST_SHOWN : DURATION.SHOWN,
+        );
         return () => clearTimeout(timeout);
       } else {
         return;
@@ -104,13 +139,21 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
         setStatus(STATUS.SHOWING);
         setTopResultIndex((topResultIndex) => {
           const newIndex = topResultIndex + getNumberOfRows();
-          return newIndex >= nonemptyResults.length ? 0 : newIndex;
+          return newIndex > nonemptyResults.length ||
+            // When forecast view is enabled, the focus is usually on the advancing
+            // results, so we only show a single page of non-advancing results and
+            // roll back to the first page afterwards.
+            (forecastView &&
+              !nonemptyResults[topResultIndex].advancing &&
+              !nonemptyResults[newIndex].advancing)
+            ? 0
+            : newIndex;
         });
       }, DURATION.HIDING);
       return () => clearTimeout(timeout);
     }
     throw new Error(`Unrecognized status: ${status}`);
-  }, [status, nonemptyResults.length]);
+  }, [status, forecastView]);
 
   return (
     <Dialog
@@ -132,6 +175,23 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
               {title}
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
+            {status === STATUS.PAUSED ? (
+              <IconButton
+                color="inherit"
+                onClick={() => setStatus(STATUS.HIDING)}
+                size="large"
+              >
+                <PlayArrowIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                color="inherit"
+                onClick={() => setStatus(STATUS.PAUSED)}
+                size="large"
+              >
+                <PauseIcon />
+              </IconButton>
+            )}
             <IconButton
               color="inherit"
               component={Link}
@@ -179,10 +239,14 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                   timeout={{ enter: DURATION.SHOWING, exit: DURATION.HIDING }}
                   style={
                     status === STATUS.SHOWING
-                      ? { transitionDelay: `${index * 150}ms` }
+                      ? {
+                          transitionDelay: `${index * (forecastView ? 50 : 150)}ms`,
+                        }
                       : {}
                   }
-                  in={[STATUS.SHOWING, STATUS.SHOWN].includes(status)}
+                  in={[STATUS.SHOWING, STATUS.SHOWN, STATUS.PAUSED].includes(
+                    status,
+                  )}
                   key={result.person.id}
                 >
                   <TableRow
@@ -217,7 +281,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                         <TableCell key={index} align="right" sx={styles.cell}>
                           {formatAttemptResult(attemptResult, eventId)}
                         </TableCell>
-                      )
+                      ),
                     )}
                     {stats.map(({ name, field, recordTagField }, index) => (
                       <TableCell
@@ -236,7 +300,7 @@ function ResultsProjector({ results, format, eventId, title, exitUrl }) {
                             result={result}
                             field={field}
                             eventId={eventId}
-                            format={format}
+                            forecastView={forecastView}
                           />
                         </RecordTagBadge>
                       </TableCell>

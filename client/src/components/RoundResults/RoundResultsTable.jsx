@@ -10,8 +10,7 @@ import {
   Paper,
   useMediaQuery,
 } from "@mui/material";
-import { green } from "@mui/material/colors";
-import { alpha } from "@mui/material/styles";
+import { yellow, green } from "@mui/material/colors";
 import { times } from "../../lib/utils";
 import { formatAttemptResult } from "../../lib/attempt-result";
 import { orderedResultStats, paddedAttemptResults } from "../../lib/result";
@@ -35,8 +34,8 @@ const styles = {
     backgroundColor: green["A400"],
   },
   advancingQuestionable: {
-    color: (theme) => theme.palette.getContrastText(alpha(green["A400"], 0.5)),
-    backgroundColor: alpha(green["A400"], 0.5),
+    color: (theme) => theme.palette.getContrastText(yellow["200"]),
+    backgroundColor: yellow["200"],
   },
   name: {
     textOverflow: "ellipsis",
@@ -47,11 +46,25 @@ const styles = {
 };
 
 const RoundResultsTable = memo(
-  ({ results, format, eventId, competitionId, onResultClick }) => {
+  ({
+    results,
+    format,
+    eventId,
+    competitionId,
+    onResultClick,
+    forecastView,
+    advancementCondition,
+  }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
-    const stats = orderedResultStats(eventId, format);
+    const stats = orderedResultStats(
+      eventId,
+      format,
+      // Only show forecast view stat columns on wider screens
+      forecastView && smScreen,
+      advancementCondition,
+    );
 
     return (
       <Paper>
@@ -127,7 +140,7 @@ const RoundResultsTable = memo(
                       <TableCell key={index} align="right" sx={styles.cell}>
                         {formatAttemptResult(attemptResult, eventId)}
                       </TableCell>
-                    )
+                    ),
                   )}
                 {stats.map(({ name, field, recordTagField }, index) => (
                   <TableCell
@@ -143,7 +156,7 @@ const RoundResultsTable = memo(
                         result={result}
                         field={field}
                         eventId={eventId}
-                        format={format}
+                        forecastView={forecastView}
                       />
                     </RecordTagBadge>
                   </TableCell>
@@ -154,7 +167,7 @@ const RoundResultsTable = memo(
         </Table>
       </Paper>
     );
-  }
+  },
 );
 
 RoundResultsTable.displayName = "RoundResultsTable";

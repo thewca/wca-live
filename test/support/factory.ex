@@ -1,7 +1,9 @@
 defmodule WcaLive.Factory do
   use ExMachina.Ecto, repo: WcaLive.Repo
 
-  alias WcaLive.{Accounts, Competitions, Scoretaking}
+  alias WcaLive.Accounts
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
 
   def user_factory do
     %Accounts.User{

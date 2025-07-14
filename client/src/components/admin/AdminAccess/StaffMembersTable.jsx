@@ -30,8 +30,8 @@ function StaffMembersTable({ staffMembers, onChange }) {
       staffMembers.map((other) =>
         other === staffMember
           ? { ...other, roles: toggleElement(other.roles, role) }
-          : other
-      )
+          : other,
+      ),
     );
   }
 

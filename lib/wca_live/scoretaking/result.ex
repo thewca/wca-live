@@ -10,10 +10,12 @@ defmodule WcaLive.Scoretaking.Result do
   import Ecto.Changeset
   import Ecto.Query, warn: false
 
-  alias WcaLive.Accounts.User
-  alias WcaLive.Competitions.Person
-  alias WcaLive.Scoretaking.{Round, Attempt, AttemptResult, Result, Cutoff}
-  alias WcaLive.Wca.Format
+  alias WcaLive.Accounts
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
+  alias WcaLive.Scoretaking.Result
+  alias WcaLive.Scoretaking.AttemptResult
+  alias WcaLive.Wca
 
   @required_fields []
   @optional_fields []
@@ -28,11 +30,11 @@ defmodule WcaLive.Scoretaking.Result do
     field :advancing_questionable, :boolean, default: false
     field :entered_at, :utc_datetime
 
-    embeds_many :attempts, Attempt, on_replace: :delete
+    embeds_many :attempts, Scoretaking.Attempt, on_replace: :delete
 
-    belongs_to :person, Person
-    belongs_to :round, Round
-    belongs_to :entered_by, User
+    belongs_to :person, Competitions.Person
+    belongs_to :round, Scoretaking.Round
+    belongs_to :entered_by, Accounts.User
 
     timestamps()
   end
@@ -187,7 +189,7 @@ defmodule WcaLive.Scoretaking.Result do
   @doc """
   Checks if `result` satisfies `cutoff` and is eligible for further attempts.
   """
-  @spec meets_cutoff?(%Result{}, %Cutoff{}) :: boolean()
+  @spec meets_cutoff?(%Result{}, %Scoretaking.Cutoff{}) :: boolean()
   def meets_cutoff?(_result, nil), do: true
 
   def meets_cutoff?(result, cutoff) do
@@ -201,7 +203,7 @@ defmodule WcaLive.Scoretaking.Result do
   @doc """
   Checks if `result` has all the attempts it's expected to have.
   """
-  @spec has_expected_attempts?(%Result{}, pos_integer(), %Cutoff{}) :: boolean()
+  @spec has_expected_attempts?(%Result{}, pos_integer(), %Scoretaking.Cutoff{}) :: boolean()
   def has_expected_attempts?(result, max_attempts, cutoff) do
     if meets_cutoff?(result, cutoff) do
       length(result.attempts) == max_attempts
@@ -215,7 +217,7 @@ defmodule WcaLive.Scoretaking.Result do
 
   If the result is incomplete, we assume the best-case scenario.
   """
-  @spec max_expected_attempts(%Result{}, pos_integer(), %Cutoff{}) :: pos_integer()
+  @spec max_expected_attempts(%Result{}, pos_integer(), %Scoretaking.Cutoff{}) :: pos_integer()
   def max_expected_attempts(result, max_attempts, cutoff) do
     if meets_cutoff?(result, cutoff) do
       max_attempts
@@ -239,7 +241,7 @@ defmodule WcaLive.Scoretaking.Result do
   Returns a list of result stats (i.e. best and average)
   ordered by significancy.
   """
-  @spec ordered_result_stats(String.t(), %Format{}) ::
+  @spec ordered_result_stats(String.t(), %Wca.Format{}) ::
           list(%{
             name: String.t(),
             field: atom(),

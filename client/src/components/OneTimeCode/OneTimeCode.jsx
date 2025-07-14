@@ -27,7 +27,7 @@ function OneTimeCode() {
     {
       onError: apolloErrorHandler,
       onCompleted: () => setDialogOpen(true),
-    }
+    },
   );
 
   const oneTimeCode = data ? data.generateOneTimeCode.oneTimeCode : null;

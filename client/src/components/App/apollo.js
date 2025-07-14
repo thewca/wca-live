@@ -16,7 +16,7 @@ import { createAbsintheSocketLink } from "@absinthe/socket-apollo-link";
 const baseHttpLink = new HttpLink(
   import.meta.env.PROD
     ? { uri: "/api", credentials: "same-origin" }
-    : { uri: "http://localhost:4000/api", credentials: "include" }
+    : { uri: "http://localhost:4000/api", credentials: "include" },
 );
 
 const retryLink = new RetryLink({
@@ -38,7 +38,7 @@ const httpLink = import.meta.env.PROD
 const phoenixSocket = new PhoenixSocket(
   import.meta.env.PROD
     ? `wss://${window.location.host}/socket`
-    : "ws://localhost:4000/socket"
+    : "ws://localhost:4000/socket",
 );
 
 // Wrap the Phoenix socket in an AbsintheSocket.
@@ -58,7 +58,7 @@ const link = split(
     );
   },
   wsLink,
-  httpLink
+  httpLink,
 );
 
 const cache = new InMemoryCache({

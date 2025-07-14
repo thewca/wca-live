@@ -21,7 +21,7 @@ const styles = {
   litePr: {
     color: (theme) =>
       theme.palette.getContrastText(
-        theme.palette.mode === "dark" ? grey[800] : grey[200]
+        theme.palette.mode === "dark" ? grey[800] : grey[200],
       ),
     backgroundColor: (theme) =>
       theme.palette.mode === "dark" ? grey[800] : grey[200],

@@ -16,7 +16,7 @@ export function getLocationEstimate() {
         resolve({ latitude, longitude });
       },
       reject,
-      options
+      options,
     );
   });
 }

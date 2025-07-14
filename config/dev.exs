@@ -21,8 +21,13 @@ config :wca_live, WcaLiveWeb.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [
-    # Start Vite with a wrapper to avoid leaving zombie processes
-    "#{Path.expand("../client/wrapper.sh", __DIR__)}": [
+    # Start Vite with a wrapper to avoid leaving zombie processes.
+    # Note that when developing with Docker we the script is mounted
+    # in the container, and invoking it directly doesn't work on
+    # Windows (the mounted file does not appear as executable). To
+    # work around that, we invoke sh explicitly.
+    sh: [
+      Path.expand("../client/wrapper.sh", __DIR__),
       "npm",
       "run",
       "dev",

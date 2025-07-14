@@ -50,6 +50,7 @@ function CompetitionSearch({ value = null, onChange, TextFieldProps = {} }) {
       forcePopupIcon={false}
       disableClearable={true}
       renderInput={(params) => <TextField {...params} {...TextFieldProps} />}
+      filterOptions={(options) => options}
     />
   );
 }

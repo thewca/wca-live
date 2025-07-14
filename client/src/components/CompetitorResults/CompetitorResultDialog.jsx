@@ -47,15 +47,15 @@ function CompetitorResultDialog({ result, competitionId, onClose }) {
                         .map((attempt) =>
                           formatAttemptResult(
                             attempt.result,
-                            result.round.competitionEvent.event.id
-                          )
+                            result.round.competitionEvent.event.id,
+                          ),
                         )
                         .join(", ")}
                     </Typography>
                   </Grid>
                   {orderedResultStats(
                     result.round.competitionEvent.event.id,
-                    result.round.format
+                    result.round.format,
                   ).map(({ name, field, recordTagField }) => (
                     <Grid item key={name}>
                       <Typography variant="subtitle2">{name}</Typography>
@@ -63,7 +63,7 @@ function CompetitorResultDialog({ result, competitionId, onClose }) {
                         <RecordTagBadge recordTag={result[recordTagField]}>
                           {formatAttemptResult(
                             result[field],
-                            result.round.competitionEvent.event.id
+                            result.round.competitionEvent.event.id,
                           )}
                         </RecordTagBadge>
                       </Typography>

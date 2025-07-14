@@ -50,7 +50,7 @@ export function ThemeProvider({ children }) {
   const preferredThemeType = prefersDarkMode ? "dark" : "light";
   const storedThemeType = useMemo(getStoredThemeType, []);
   const [themeType, setThemeType] = useState(
-    storedThemeType || preferredThemeType
+    storedThemeType || preferredThemeType,
   );
 
   const toggleTheme = useCallback(() => {

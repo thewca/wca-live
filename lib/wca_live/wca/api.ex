@@ -76,9 +76,12 @@ defmodule WcaLive.Wca.Api do
   """
   @spec get_records() :: {:ok, any()} | {:error, String.t()}
   def get_records() do
+    # We increase the timeout, because this request may take a while
+    # if not cached (in particular on staging).
+
     build_req()
     |> Req.merge(Keyword.get(config(), :records_req_options, []))
-    |> request(url: "/records")
+    |> request(url: "/records", receive_timeout: 40_000)
   end
 
   defp build_req() do
@@ -91,7 +94,7 @@ defmodule WcaLive.Wca.Api do
   end
 
   defp with_long_timeout(req) do
-    Req.merge(req, receive_timeout: 120_000)
+    Req.merge(req, receive_timeout: 300_000)
   end
 
   defp request(req, opts) do

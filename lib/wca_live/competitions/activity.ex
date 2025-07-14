@@ -6,8 +6,8 @@ defmodule WcaLive.Competitions.Activity do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Competitions.{Room, Activity, Assignment}
-  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
 
   @required_fields [:wcif_id, :name, :activity_code, :start_time, :end_time]
   @optional_fields []
@@ -23,12 +23,16 @@ defmodule WcaLive.Competitions.Activity do
     # child activities, so it's a tree-like structure and to represent
     # it in a relational database each object holds and id of the room/activity above.
     # An activity belongs either to room or to parent activity, not both.
-    belongs_to :room, Room
-    belongs_to :parent_activity, Activity
-    has_many :child_activities, Activity, foreign_key: :parent_activity_id, on_replace: :delete
-    has_many :assignments, Assignment
+    belongs_to :room, Competitions.Room
+    belongs_to :parent_activity, Competitions.Activity
 
-    belongs_to :round, Round, on_replace: :nilify
+    has_many :child_activities, Competitions.Activity,
+      foreign_key: :parent_activity_id,
+      on_replace: :delete
+
+    has_many :assignments, Competitions.Assignment
+
+    belongs_to :round, Scoretaking.Round, on_replace: :nilify
   end
 
   def changeset(activity, attrs) do

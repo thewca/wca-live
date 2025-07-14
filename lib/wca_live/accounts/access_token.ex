@@ -9,9 +9,10 @@ defmodule WcaLive.Accounts.AccessToken do
   """
 
   use WcaLive.Schema
+
   import Ecto.Changeset
 
-  alias WcaLive.Accounts.{User, AccessToken}
+  alias WcaLive.Accounts
 
   @required_fields [:access_token, :refresh_token, :expires_at]
   @optional_fields []
@@ -21,7 +22,7 @@ defmodule WcaLive.Accounts.AccessToken do
     field :expires_at, :utc_datetime
     field :refresh_token, :string
 
-    belongs_to :user, User
+    belongs_to :user, Accounts.User
   end
 
   def changeset(access_token, attrs) do
@@ -33,7 +34,7 @@ defmodule WcaLive.Accounts.AccessToken do
   @doc """
   Returns `true` if the `access_token` expires in 2 minutes.
   """
-  @spec expires_soon?(%AccessToken{}) :: boolean()
+  @spec expires_soon?(%Accounts.AccessToken{}) :: boolean()
   def expires_soon?(access_token) do
     DateTime.diff(access_token.expires_at, DateTime.utc_now(), :second) <= 2 * 60
   end

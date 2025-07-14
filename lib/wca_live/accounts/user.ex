@@ -6,8 +6,8 @@ defmodule WcaLive.Accounts.User do
   use WcaLive.Schema
   import Ecto.Changeset
 
-  alias WcaLive.Accounts.{AccessToken, OneTimeCode, User}
-  alias WcaLive.Competitions.{StaffMember, Person}
+  alias WcaLive.Accounts
+  alias WcaLive.Competitions
 
   @admin_teams ["wrt", "wst"]
 
@@ -24,11 +24,11 @@ defmodule WcaLive.Accounts.User do
     field :avatar_thumb_url, :string
     field :wca_teams, {:array, :string}, default: []
 
-    has_one :access_token, AccessToken, on_replace: :update
-    has_one :one_time_code, OneTimeCode, on_replace: :delete
+    has_one :access_token, Accounts.AccessToken, on_replace: :update
+    has_one :one_time_code, Accounts.OneTimeCode, on_replace: :delete
 
-    has_many :staff_members, StaffMember
-    has_many :people, Person, foreign_key: :wca_id, references: :wca_id
+    has_many :staff_members, Competitions.StaffMember
+    has_many :people, Competitions.Person, foreign_key: :wca_id, references: :wca_id
 
     timestamps()
   end
@@ -43,7 +43,7 @@ defmodule WcaLive.Accounts.User do
   Returns `true` if `user` has admin rights based
   on the WCA teams they belong to.
   """
-  @spec admin?(%User{}) :: boolean()
+  @spec admin?(%Accounts.User{}) :: boolean()
   def admin?(user) do
     Enum.any?(user.wca_teams, fn team -> team in @admin_teams end)
   end

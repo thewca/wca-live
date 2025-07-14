@@ -1,7 +1,8 @@
 defmodule WcaLiveWeb.LinkController do
   use WcaLiveWeb, :controller
 
-  alias WcaLive.{Competitions, Scoretaking}
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
 
   def competition(conn, %{"wca_id" => wca_id}) do
     competition = Competitions.get_competition_by_wca_id!(wca_id)

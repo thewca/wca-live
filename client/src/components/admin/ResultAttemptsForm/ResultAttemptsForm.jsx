@@ -53,7 +53,7 @@ function ResultAttemptsForm({
     setAttemptResults(
       result
         ? paddedAttemptResults(result, numberOfAttempts)
-        : defaultAttemptResults
+        : defaultAttemptResults,
     );
   }, [result, numberOfAttempts, defaultAttemptResults]);
 
@@ -82,7 +82,7 @@ function ResultAttemptsForm({
   function handleAttemptResultChange(index, value) {
     const newAttemptResults = setAt(attemptResults, index, value);
     setAttemptResults(
-      applyCutoff(applyTimeLimit(newAttemptResults, timeLimit), cutoff)
+      applyCutoff(applyTimeLimit(newAttemptResults, timeLimit), cutoff),
     );
   }
 
@@ -99,13 +99,17 @@ function ResultAttemptsForm({
     const submissionWarning = attemptResultsWarning(
       attemptResults,
       eventId,
-      officialWorldRecords
+      officialWorldRecords,
     );
 
     if (submissionWarning) {
       return confirm({
-        description: submissionWarning,
+        ...submissionWarning,
         confirmationText: "Submit",
+        confirmationKeywordTextFieldProps: {
+          sx: { mt: 2 },
+          autoComplete: "off",
+        },
       });
     } else {
       return Promise.resolve();

@@ -50,7 +50,7 @@ function sortByCompetitionDateDesc(list) {
   return orderBy(
     list,
     [(item) => item.competition.startDate, (item) => item.competition.endDate],
-    ["desc", "desc"]
+    ["desc", "desc"],
   );
 }
 

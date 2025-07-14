@@ -3,7 +3,7 @@ defmodule WcaLive.Accounts.UserToken do
 
   import Ecto.Query
 
-  alias WcaLive.Accounts.UserToken
+  alias WcaLive.Accounts
 
   @rand_size 32
 
@@ -12,7 +12,7 @@ defmodule WcaLive.Accounts.UserToken do
   schema "user_tokens" do
     field :token, :string
     field :context, :string
-    belongs_to :user, WcaLive.Accounts.User
+    belongs_to :user, Accounts.User
 
     timestamps(updated_at: false)
   end
@@ -32,7 +32,7 @@ defmodule WcaLive.Accounts.UserToken do
   """
   def build_session_token(user) do
     token = :crypto.strong_rand_bytes(@rand_size) |> Base.url_encode64(padding: false)
-    %UserToken{token: token, context: "session", user_id: user.id}
+    %Accounts.UserToken{token: token, context: "session", user_id: user.id}
   end
 
   @doc """
@@ -54,6 +54,6 @@ defmodule WcaLive.Accounts.UserToken do
   context.
   """
   def token_and_context_query(token, context) do
-    from(UserToken, where: [token: ^token, context: ^context])
+    from(Accounts.UserToken, where: [token: ^token, context: ^context])
   end
 end

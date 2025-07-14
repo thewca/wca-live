@@ -30,8 +30,8 @@ function searchCompetitors(competitors, search) {
     const parts = search.toLowerCase().split(/\s+/);
     return parts.every((part) =>
       matchAgainst.some(
-        (phrase) => phrase && phrase.toLowerCase().includes(part)
-      )
+        (phrase) => phrase && phrase.toLowerCase().includes(part),
+      ),
     );
   });
 }
@@ -66,7 +66,7 @@ const AdminCompetitorsTable = memo(
 
     const displayedCompetitors = filteredCompetitors.slice(
       page * rowsPerPage,
-      page * rowsPerPage + rowsPerPage
+      page * rowsPerPage + rowsPerPage,
     );
 
     return (
@@ -126,7 +126,7 @@ const AdminCompetitorsTable = memo(
                   </TableCell>
                   {competitionEvents.map((competitionEvent) => {
                     const result = competitionEvent.rounds[0].results.find(
-                      (result) => result.person.id === person.id
+                      (result) => result.person.id === person.id,
                     );
                     return (
                       <TableCell
@@ -174,7 +174,7 @@ const AdminCompetitorsTable = memo(
         />
       </Paper>
     );
-  }
+  },
 );
 
 AdminCompetitorsTable.displayName = "AdminCompetitorsTable";

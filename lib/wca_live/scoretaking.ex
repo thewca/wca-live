@@ -8,12 +8,15 @@ defmodule WcaLive.Scoretaking do
 
   import Ecto.Query, warn: false
 
-  alias Ecto.{Changeset, Multi}
+  alias Ecto.Changeset
   alias WcaLive.Repo
-  alias WcaLive.Wca.{Event, Format}
-  alias WcaLive.Competitions.{Person, Registration, Competition, StaffMember}
-  alias WcaLive.Scoretaking.{Round, Result, Ranking, Advancing, RecordTags}
-  alias WcaLive.Accounts.User
+  alias WcaLive.Wca
+  alias WcaLive.Competitions
+  alias WcaLive.Competitions.StaffMember
+  alias WcaLive.Scoretaking
+  alias WcaLive.Scoretaking.Round
+  alias WcaLive.Scoretaking.Result
+  alias WcaLive.Accounts
 
   @doc """
   Gets a single round.
@@ -122,41 +125,41 @@ defmodule WcaLive.Scoretaking do
   @spec enter_results(
           %Round{},
           list(%{id: term(), attempts: list(map()), entered_at: DateTime.t()}),
-          %User{}
-        ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t()}
+          %Accounts.User{}
+        ) :: {:ok, %Round{}} | {:error, Ecto.Changeset.t() | String.t()}
   def enter_results(round, results_attrs, user) do
-    round = Repo.preload(round, [:competition_event, :results])
+    Repo.transaction_with(fn ->
+      round = Repo.preload(round, [:competition_event, :results])
 
-    format = Format.get_by_id!(round.format_id)
-    event_id = round.competition_event.event_id
-    time_limit = round.time_limit
-    cutoff = round.cutoff
+      format = Wca.Format.get_by_id!(round.format_id)
+      event_id = round.competition_event.event_id
+      time_limit = round.time_limit
+      cutoff = round.cutoff
 
-    results_with_attrs =
-      for attrs <- results_attrs,
-          result = Enum.find(round.results, &(&1.id == attrs.id)),
-          do: {result, attrs.attempts, attrs.entered_at}
+      results_with_attrs =
+        for attrs <- results_attrs,
+            result = Enum.find(round.results, &(&1.id == attrs.id)),
+            do: {result, attrs.attempts, attrs.entered_at}
 
-    results_multi =
-      Enum.reduce(results_with_attrs, Multi.new(), fn {result, attempts, entered_at}, multi ->
-        Multi.update(multi, {:updated_result, result.id}, fn _changes ->
+      result_update_result =
+        Enum.reduce_while(results_with_attrs, :ok, fn {result, attempts, entered_at}, :ok ->
           result
           |> Result.changeset(%{attempts: attempts}, event_id, format, time_limit, cutoff)
           |> Changeset.put_change(:entered_by_id, user.id)
           |> Changeset.put_change(:entered_at, DateTime.truncate(entered_at, :second))
+          |> Repo.update()
+          |> case do
+            {:ok, _result} -> {:cont, :ok}
+            {:error, reason} -> {:halt, {:error, reason}}
+          end
         end)
-      end)
 
-    results_multi
-    |> Multi.merge(fn _ ->
-      round = Repo.preload(round, :results, force: true)
-      process_round_after_results_change(round)
+      with :ok <- result_update_result,
+           round <- Repo.preload(round, :results, force: true),
+           {:ok, round} <- process_round_after_results_change(round) do
+        {:ok, round}
+      end
     end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, _} -> {:ok, get_round!(round.id)}
-      {:error, _, reason, _} -> {:error, reason}
-    end
   end
 
   @doc """
@@ -165,7 +168,7 @@ defmodule WcaLive.Scoretaking do
   Wraps `enter_results/3`.
   """
   def enter_result_attempt(round, result, attempt_number, attempt_result, user) do
-    format = Format.get_by_id!(round.format_id)
+    format = Wca.Format.get_by_id!(round.format_id)
 
     attempt_attrs = Enum.map(result.attempts, &Map.from_struct/1)
 
@@ -194,20 +197,59 @@ defmodule WcaLive.Scoretaking do
   end
 
   # Updates attributes (`ranking`, `advancing` and record tags) of the given round results.
-  @spec process_round_after_results_change(%Round{}) :: Ecto.Multi.t()
   defp process_round_after_results_change(round) do
-    Multi.new()
-    |> Multi.update(:compute_ranking, fn _ ->
-      Ranking.compute_ranking(round)
-    end)
-    |> Multi.update(:compute_advancing, fn %{compute_ranking: round} ->
-      # Note: advancement usually depends on ranking, that's why we compute it first.
-      Advancing.compute_advancing(round)
-    end)
-    |> Multi.update(:compute_record_tags, fn %{compute_advancing: round} ->
+    Repo.transaction_with(fn ->
       competition_event = round |> Ecto.assoc(:competition_event) |> Repo.one!()
-      RecordTags.compute_record_tags(competition_event)
+
+      with {:ok, round} <- bulk_update_ranking(round),
+           {:ok, round} <- Repo.update(Scoretaking.Advancing.compute_advancing(round)),
+           {:ok, competition_event} <-
+             Repo.update(Scoretaking.RecordTags.compute_record_tags(competition_event)) do
+        %Round{} = round = Enum.find(competition_event.rounds, &(&1.id == round.id))
+        {:ok, round}
+      end
     end)
+  end
+
+  defp bulk_update_ranking(round) do
+    # Entering a single result can alter the ranking of many results
+    # (in the worst case, all from the same round), so we perform the
+    # update as a single query, to avoid a bunch of trips to the db.
+
+    round_changeset = Scoretaking.Ranking.compute_ranking(round)
+    result_changesets = Changeset.get_assoc(round_changeset, :results)
+
+    {result_ids, rankings} =
+      Enum.unzip(
+        for changeset <- result_changesets,
+            Changeset.changed?(changeset, :ranking),
+            do: {Changeset.get_field(changeset, :id), Changeset.get_field(changeset, :ranking)}
+      )
+
+    num_changed = length(result_ids)
+    changed_round = Changeset.apply_changes(round_changeset)
+
+    if num_changed == 0 do
+      {:ok, changed_round}
+    else
+      Repo.update_all(
+        from(result in Result,
+          join:
+            rankings in fragment(
+              "SELECT * FROM unnest(?::bigint[], ?::integer[]) AS rankings(result_id, ranking)",
+              ^result_ids,
+              ^rankings
+            ),
+          on: result.id == rankings.result_id,
+          update: [set: [ranking: rankings.ranking, updated_at: ^DateTime.utc_now(:second)]]
+        ),
+        []
+      )
+      |> case do
+        {^num_changed, nil} -> {:ok, changed_round}
+        _other -> {:error, "failed to bulk update rankings"}
+      end
+    end
   end
 
   @doc """
@@ -224,36 +266,38 @@ defmodule WcaLive.Scoretaking do
     if Round.open?(round) do
       {:error, "cannot open this round as it is already open"}
     else
-      Multi.new()
-      |> Multi.run(:finish_previous, fn _repo, _changes ->
-        if round.number > 1 do
-          previous = get_previous_round(round) |> Repo.preload(:results)
-          finish_round(previous)
-        else
-          {:ok, nil}
+      Repo.transaction_with(fn ->
+        with :ok <- finish_previous_round(round),
+             {:ok, round} <- create_empty_results(round) do
+          {:ok, round}
         end
       end)
-      |> Multi.run(:create_results, fn _repo, _changes ->
-        create_empty_results(round)
-      end)
-      |> Repo.transaction()
-      |> case do
-        {:ok, %{create_results: round}} -> {:ok, round}
-        {:error, _, reason, _} -> {:error, reason}
-      end
+    end
+  end
+
+  defp finish_previous_round(%{number: 1}), do: :ok
+
+  defp finish_previous_round(round) do
+    previous = get_previous_round(round)
+
+    with {:ok, _round} <- finish_round(previous) do
+      :ok
     end
   end
 
   # Finishes `round` by removing empty results, so that the next round may be opened.
   defp finish_round(round) do
+    round = Repo.preload(round, :results)
+
     actual_results = Enum.reject(round.results, &Result.empty?/1)
 
     if length(actual_results) < 8 do
       # See: https://www.worldcubeassociation.org/regulations/#9m3
       {:error, "rounds with less than 8 competitors cannot have a subsequent round"}
     else
-      # Note: we remove empty results, so we need to recompute advancing results,
-      # because an advancement condition may depend on the total number of results (i.e. "percent" type).
+      # Note: we remove empty results, so we need to recompute advancing
+      # results, because an advancement condition may depend on the total
+      # number of results (i.e. "percent" type).
 
       actual_results
       |> Round.put_results_in_round(round)
@@ -284,7 +328,7 @@ defmodule WcaLive.Scoretaking do
         |> Repo.all()
 
       registrations
-      |> Enum.filter(&Registration.accepted?/1)
+      |> Enum.filter(&Competitions.Registration.accepted?/1)
       |> Enum.map(& &1.person_id)
     else
       previous = round |> get_previous_round() |> Repo.preload(:results)
@@ -317,7 +361,7 @@ defmodule WcaLive.Scoretaking do
 
   If someone no longer qualifies as a result, they get removed.
   """
-  @spec add_person_to_round(%Person{}, %Round{}) ::
+  @spec add_person_to_round(%Competitions.Person{}, %Round{}) ::
           {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def add_person_to_round(person, round) do
     round = round |> Repo.preload(:results)
@@ -325,7 +369,9 @@ defmodule WcaLive.Scoretaking do
     if Enum.any?(round.results, &(&1.person_id == person.id)) do
       {:error, "cannot add person as they are already in this round"}
     else
-      %{qualifying: qualifying, revocable: revocable} = Advancing.advancement_candidates(round)
+      %{qualifying: qualifying, revocable: revocable} =
+        Scoretaking.Advancing.advancement_candidates(round)
+
       qualifies? = Enum.any?(qualifying, &(&1.id == person.id))
 
       if not qualifies? do
@@ -352,7 +398,7 @@ defmodule WcaLive.Scoretaking do
 
     * `:replace` - Add the next qualifying person to this round if applicable. Defaults to `false`.
   """
-  @spec remove_person_from_round(%Person{}, %Round{}, keyword()) ::
+  @spec remove_person_from_round(%Competitions.Person{}, %Round{}, keyword()) ::
           {:ok, %Round{}} | {:error, String.t() | Ecto.Changeset.t()}
   def remove_person_from_round(person, round, opts \\ []) do
     replace = Keyword.get(opts, :replace, false)
@@ -364,7 +410,7 @@ defmodule WcaLive.Scoretaking do
     if result == nil do
       {:error, "cannot remove person as they are not in this round"}
     else
-      substitutes = Advancing.next_qualifying_to_round(round)
+      substitutes = Scoretaking.Advancing.next_qualifying_to_round(round)
 
       new_results =
         if replace do
@@ -408,24 +454,25 @@ defmodule WcaLive.Scoretaking do
   @spec update_round_and_advancing(Ecto.Changeset.t(%Round{})) ::
           {:ok, %Round{}} | {:error, any()}
   defp update_round_and_advancing(round_changeset) do
-    Multi.new()
-    |> Multi.update(:round, round_changeset)
-    |> Multi.update(:compute_advancing, fn %{round: round} ->
-      Advancing.compute_advancing(round)
-    end)
-    |> Multi.run(:compute_previous_advancing, fn _, %{compute_advancing: round} ->
-      previous = get_previous_round(round) |> Repo.preload(:results)
-
-      if previous == nil do
-        {:ok, nil}
-      else
-        previous |> Advancing.compute_advancing() |> Repo.update()
+    Repo.transaction_with(fn ->
+      with {:ok, round} <- Repo.update(round_changeset),
+           {:ok, round} <- Repo.update(Scoretaking.Advancing.compute_advancing(round)),
+           :ok <- compute_previous_round_advancing(round) do
+        {:ok, round}
       end
     end)
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{compute_advancing: round}} -> {:ok, round}
-      {:error, _, reason, _} -> {:error, reason}
+  end
+
+  defp compute_previous_round_advancing(%{number: 1}), do: :ok
+
+  defp compute_previous_round_advancing(round) do
+    previous =
+      round
+      |> get_previous_round()
+      |> Repo.preload(:results)
+
+    with {:ok, _round} <- Repo.update(Scoretaking.Advancing.compute_advancing(previous)) do
+      :ok
     end
   end
 
@@ -476,7 +523,7 @@ defmodule WcaLive.Scoretaking do
   @doc """
   Returns a list of records for the given competition.
   """
-  @spec list_competition_records(%Competition{}) :: list(record())
+  @spec list_competition_records(%Competitions.Competition{}) :: list(record())
   def list_competition_records(competition) do
     competition_id = competition.id
     tags = ["WR", "CR", "NR"]
@@ -531,7 +578,7 @@ defmodule WcaLive.Scoretaking do
       event_id = record.result.round.competition_event.event_id
 
       %{record_key: record_key} =
-        RecordTags.tags_with_record_key(person, event_id, record.type)
+        Scoretaking.RecordTags.tags_with_record_key(person, event_id, record.type)
         |> Enum.find(fn %{tag: tag} -> tag == record.tag end)
 
       record_key
@@ -545,7 +592,7 @@ defmodule WcaLive.Scoretaking do
       event_id = record.result.round.competition_event.event_id
       person_name = record.result.person.name
 
-      {record_tag_rank(record.tag), Event.get_rank_by_id!(event_id),
+      {record_tag_rank(record.tag), Wca.Event.get_rank_by_id!(event_id),
        record_type_rank(record.type), record.attempt_result, person_name}
     end)
   end
@@ -572,7 +619,7 @@ defmodule WcaLive.Scoretaking do
   there's still a podium object representing it,
   but the result list is empty.
   """
-  @spec list_podiums(%Competition{}) :: list(podium())
+  @spec list_podiums(%Competitions.Competition{}) :: list(podium())
   def list_podiums(competition) do
     competition_events =
       competition
@@ -581,7 +628,7 @@ defmodule WcaLive.Scoretaking do
       |> Repo.preload(rounds: :results)
 
     competition_events
-    |> Enum.sort_by(&Event.get_rank_by_id!(&1.event_id))
+    |> Enum.sort_by(&Wca.Event.get_rank_by_id!(&1.event_id))
     |> Enum.map(fn competition_event ->
       final_round = Enum.max_by(competition_event.rounds, & &1.number)
 

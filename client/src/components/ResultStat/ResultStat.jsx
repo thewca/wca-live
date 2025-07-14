@@ -1,61 +1,21 @@
 import { Box, Tooltip } from "@mui/material";
-import {
-  bestPossibleAverage,
-  worstPossibleAverage,
-  formatAttemptResult,
-  incompleteMean,
-} from "../../lib/attempt-result";
-import { shouldComputeAverage } from "../../lib/result";
+import { formatAttemptResultForView } from "../../lib/result";
+import { isSkipped } from "../../lib/attempt-result";
 
-function ResultStat({ result, field, eventId, format }) {
-  if (
-    field === "average" &&
-    result.average === 0 &&
-    shouldComputeAverage(eventId, format.numberOfAttempts)
-  ) {
-    const attemptResults = result.attempts.map((attempt) => attempt.result);
-
-    if (format.numberOfAttempts === 5 && result.attempts.length === 4) {
-      return (
-        <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Best possible average">
-            <span>
-              {formatAttemptResult(
-                bestPossibleAverage(attemptResults),
-                eventId
-              )}
-            </span>
-          </Tooltip>
-          {" / "}
-          <Tooltip title="Worst possible average">
-            <span>
-              {formatAttemptResult(
-                worstPossibleAverage(attemptResults),
-                eventId
-              )}
-            </span>
-          </Tooltip>
-        </Box>
-      );
-    }
-
-    if (format.numberOfAttempts === 3 && result.attempts.length === 2) {
-      return (
-        <Box component="span" sx={{ opacity: 0.5 }}>
-          <Tooltip title="Mean after 2 solves">
-            <span>
-              {formatAttemptResult(
-                incompleteMean(attemptResults, eventId),
-                eventId
-              )}
-            </span>
-          </Tooltip>
-        </Box>
-      );
-    }
+function ResultStat({ result, field, eventId, forecastView }) {
+  if (field === "average" && isSkipped(result.average) && forecastView) {
+    return (
+      <Box component="span" sx={{ opacity: 0.5 }}>
+        <Tooltip title="Projected average">
+          <span>
+            {formatAttemptResultForView(result.projectedAverage, eventId)}
+          </span>
+        </Tooltip>
+      </Box>
+    );
   }
 
-  return formatAttemptResult(result[field], eventId);
+  return formatAttemptResultForView(result[field], eventId);
 }
 
 export default ResultStat;

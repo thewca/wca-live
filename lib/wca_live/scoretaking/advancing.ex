@@ -10,10 +10,10 @@ defmodule WcaLive.Scoretaking.Advancing do
 
   alias Ecto.Changeset
   alias WcaLive.Repo
-  alias WcaLive.Wca.Format
+  alias WcaLive.Wca
+  alias WcaLive.Competitions
   alias WcaLive.Scoretaking
-  alias WcaLive.Scoretaking.{Round, AdvancementCondition, AttemptResult, Result, Ranking}
-  alias WcaLive.Competitions.Person
+  alias WcaLive.Scoretaking.Round
 
   @doc """
   Calculates the `advancing` attribute on `round` results and returns
@@ -61,7 +61,7 @@ defmodule WcaLive.Scoretaking.Advancing do
   Returns a set of result ids in the given round that satisfy advancement
   criteria.
   """
-  @spec qualifying_result_ids(%Round{}) :: list(%Result{})
+  @spec qualifying_result_ids(%Round{}) :: list(%Scoretaking.Result{})
   def qualifying_result_ids(round) do
     round = Repo.preload(round, :results)
 
@@ -78,7 +78,7 @@ defmodule WcaLive.Scoretaking.Advancing do
 
       true ->
         %{results: results, advancement_condition: advancement_condition} = round
-        format = Format.get_by_id!(round.format_id)
+        format = Wca.Format.get_by_id!(round.format_id)
 
         # See: https://www.worldcubeassociation.org/regulations/#9p1
         max_qualifying = floor(length(results) * 0.75)
@@ -111,7 +111,7 @@ defmodule WcaLive.Scoretaking.Advancing do
 
   defp satisfies_advancement_condition?(
          result,
-         %AdvancementCondition{type: "ranking", level: level},
+         %Scoretaking.AdvancementCondition{type: "ranking", level: level},
          _total_results,
          _format
        ) do
@@ -120,7 +120,7 @@ defmodule WcaLive.Scoretaking.Advancing do
 
   defp satisfies_advancement_condition?(
          result,
-         %AdvancementCondition{type: "percent", level: level},
+         %Scoretaking.AdvancementCondition{type: "percent", level: level},
          total_results,
          _format
        ) do
@@ -129,17 +129,17 @@ defmodule WcaLive.Scoretaking.Advancing do
 
   defp satisfies_advancement_condition?(
          result,
-         %AdvancementCondition{type: "attemptResult", level: level},
+         %Scoretaking.AdvancementCondition{type: "attemptResult", level: level},
          _total_results,
          format
        ) do
-    AttemptResult.better?(Map.get(result, format.sort_by), level)
+    Scoretaking.AttemptResult.better?(Map.get(result, format.sort_by), level)
   end
 
   @doc """
   Returns a list of people who would qualify to `round`, if one person quit `round`.
   """
-  @spec next_qualifying_to_round(%Round{}) :: list(%Person{})
+  @spec next_qualifying_to_round(%Round{}) :: list(%Competitions.Person{})
   def next_qualifying_to_round(round) do
     previous = round |> Scoretaking.get_previous_round() |> Repo.preload(results: :person)
 
@@ -213,7 +213,7 @@ defmodule WcaLive.Scoretaking.Advancing do
 
     hypothetical_round =
       %{round | results: hypothetical_results}
-      |> Ranking.compute_ranking()
+      |> Scoretaking.Ranking.compute_ranking()
       |> Ecto.Changeset.apply_changes()
 
     hypothetical_qualifying_ids = qualifying_result_ids(hypothetical_round)
@@ -225,12 +225,16 @@ defmodule WcaLive.Scoretaking.Advancing do
     # Assume best possible attempts for empty (or incomplete) results
     # and see who of the currently entered results would still qualify.
 
-    format = Format.get_by_id!(round.format_id)
+    format = Wca.Format.get_by_id!(round.format_id)
 
     hypothetical_results =
       Enum.map(round.results, fn result ->
         max_expected_attempts =
-          Result.max_expected_attempts(result, format.number_of_attempts, round.cutoff)
+          Scoretaking.Result.max_expected_attempts(
+            result,
+            format.number_of_attempts,
+            round.cutoff
+          )
 
         max_missing_attempts = max_expected_attempts - length(result.attempts)
 
@@ -244,21 +248,32 @@ defmodule WcaLive.Scoretaking.Advancing do
           attrs = %{attempts: attempts}
           event_id = round.competition_event.event_id
 
-          Result.changeset(result, attrs, event_id, format, round.time_limit, round.cutoff)
+          Scoretaking.Result.changeset(
+            result,
+            attrs,
+            event_id,
+            format,
+            round.time_limit,
+            round.cutoff
+          )
           |> Ecto.Changeset.apply_changes()
         end
       end)
 
     hypothetical_round =
       %{round | results: hypothetical_results}
-      |> Ranking.compute_ranking()
+      |> Scoretaking.Ranking.compute_ranking()
       |> Ecto.Changeset.apply_changes()
 
     hypothetical_qualifying_ids = qualifying_result_ids(hypothetical_round)
 
     for result <- round.results,
         # Always mark incomplete results as questionable
-        Result.has_expected_attempts?(result, format.number_of_attempts, round.cutoff),
+        Scoretaking.Result.has_expected_attempts?(
+          result,
+          format.number_of_attempts,
+          round.cutoff
+        ),
         result.id in hypothetical_qualifying_ids,
         into: MapSet.new(),
         do: result.id
@@ -277,8 +292,8 @@ defmodule WcaLive.Scoretaking.Advancing do
 
   """
   @spec advancement_candidates(%Round{}) :: %{
-          qualifying: list(%Person{}),
-          revocable: list(%Person{})
+          qualifying: list(%Competitions.Person{}),
+          revocable: list(%Competitions.Person{})
         }
   def advancement_candidates(round) do
     round = round |> Repo.preload(:results)
@@ -296,7 +311,7 @@ defmodule WcaLive.Scoretaking.Advancing do
 
       qualifying =
         Enum.filter(people, fn person ->
-          Person.competitor?(person) and person.id not in round_person_ids
+          Competitions.Person.competitor?(person) and person.id not in round_person_ids
         end)
 
       %{qualifying: qualifying, revocable: []}

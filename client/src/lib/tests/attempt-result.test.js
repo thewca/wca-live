@@ -14,9 +14,9 @@ import {
   applyCutoff,
   isWorldRecord,
   worstPossibleAverage,
-  incompleteMean,
   DNF_VALUE,
   DNS_VALUE,
+  projectedAverage,
 } from "../attempt-result";
 
 describe("best", () => {
@@ -83,7 +83,7 @@ describe("average", () => {
     expect(average([400, 500, 900], "333")).toEqual(600);
   });
 
-  it("rounds averages over 10 minutes to nearest second", () => {
+  it("rounds averages over 10 minutes to seconds", () => {
     expect(average([60041, 60041, 60041], "333")).toEqual(60000);
     expect(average([60051, 60051, 60051], "333")).toEqual(60100);
   });
@@ -111,7 +111,7 @@ describe("formatAttemptResult", () => {
     expect(formatAttemptResult(150, "333")).toEqual("1.50");
     expect(formatAttemptResult(60 * 100, "333")).toEqual("1:00.00");
     expect(formatAttemptResult(60 * 60 * 100 + 15, "333")).toEqual(
-      "1:00:00.15"
+      "1:00:00.15",
     );
   });
 
@@ -174,13 +174,13 @@ describe("encodeMbldAttemptResult", () => {
     expect(encodeMbldAttemptResult(decoded)).toEqual(900348002);
   });
 
-  test("rounds centiseconds to seconds", () => {
+  test("truncates centiseconds to seconds", () => {
     const decoded = {
       solved: 11,
       attempted: 13,
       centiseconds: 3480 * 100 + 50,
     };
-    expect(encodeMbldAttemptResult(decoded)).toEqual(900348102);
+    expect(encodeMbldAttemptResult(decoded)).toEqual(900348002);
   });
 });
 
@@ -265,9 +265,9 @@ describe("autocompleteFmAttemptResult", () => {
 });
 
 describe("autocompleteTimeAttemptResult", () => {
-  test("rounds averages over 10 minutes to nearest second", () => {
+  test("truncates values over 10 minutes to seconds", () => {
     expect(autocompleteTimeAttemptResult(60041)).toEqual(60000);
-    expect(autocompleteTimeAttemptResult(60051)).toEqual(60100);
+    expect(autocompleteTimeAttemptResult(60051)).toEqual(60000);
   });
 
   test("returns the same value if everything is ok", () => {
@@ -314,7 +314,7 @@ describe("isWorldRecord", () => {
       },
     ];
     expect(isWorldRecord(attemptResult, "333", "average", worldRecords)).toBe(
-      true
+      true,
     );
   });
 
@@ -330,7 +330,7 @@ describe("isWorldRecord", () => {
       },
     ];
     expect(isWorldRecord(attemptResults, "333", "average", worldRecords)).toBe(
-      false
+      false,
     );
   });
 
@@ -346,7 +346,7 @@ describe("isWorldRecord", () => {
       },
     ];
     expect(isWorldRecord(attemptResult, "333", "single", worldRecords)).toBe(
-      true
+      true,
     );
   });
 
@@ -362,7 +362,7 @@ describe("isWorldRecord", () => {
       },
     ];
     expect(isWorldRecord(attemptResults, "333", "single", worldRecords)).toBe(
-      false
+      false,
     );
   });
 
@@ -372,20 +372,30 @@ describe("isWorldRecord", () => {
       // no MBLD average world record
     ];
     expect(
-      isWorldRecord(attemptResults, "333mbf", "average", worldRecords)
+      isWorldRecord(attemptResults, "333mbf", "average", worldRecords),
     ).toBe(false);
   });
 });
 
 describe("attemptResultsWarning", () => {
-  const normalize = (string) => string.replace(/\s+/g, " ");
+  const normalize = (obj) =>
+    Object.entries(obj).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key]: value.replace(/\s+/g, " "),
+      }),
+      {},
+    );
 
   describe("when 3x3x3 Multi-Blind attempt results are given", () => {
     it("returns a warning if an attempt has impossibly low time", () => {
       const attemptResults = [970360001, 970006001];
       expect(
-        normalize(attemptResultsWarning(attemptResults, "333mbf", []))
-      ).toMatch("attempt 2 is done in less than 30 seconds per cube tried");
+        normalize(attemptResultsWarning(attemptResults, "333mbf", [])),
+      ).toMatchObject({
+        description:
+          "The result you're trying to submit seems to be impossible: attempt 2 is done in less than 30 seconds per cube tried. If you want to enter minutes, don't forget to add two zeros for centiseconds at the end of the score.",
+      });
     });
 
     it("returns a warning if an attempt breaks a world record", () => {
@@ -400,18 +410,24 @@ describe("attemptResultsWarning", () => {
         },
       ];
       expect(
-        normalize(attemptResultsWarning(attemptResults, "333mbf", worldRecords))
-      ).toMatch(
-        "The result you're trying to submit includes a new world record single (3/4 1:00). Please check that the results are accurate."
-      );
+        normalize(
+          attemptResultsWarning(attemptResults, "333mbf", worldRecords),
+        ),
+      ).toMatchObject({
+        description: `The result you're trying to submit includes a new world record single (3/4 1:00). Please check that you are entering results for the right event and that all the entered attempts are accurate. Type "world record" below to confirm that you are confident that it is indeed a world record result.`,
+        confirmationKeyword: "world record",
+      });
     });
   });
 
   it("returns a warning if best and worst attempt results are far apart", () => {
     const attemptResults = [500, 1000, 2500];
-    expect(normalize(attemptResultsWarning(attemptResults, "333", []))).toMatch(
-      "There's a big difference between the best single (5.00) and the worst single (25.00)"
-    );
+    expect(
+      normalize(attemptResultsWarning(attemptResults, "333", [])),
+    ).toMatchObject({
+      description:
+        "The result you're trying to submit seem to be inconsistent. There's a big difference between the best single (5.00) and the worst single (25.00). Please check that the results are accurate.",
+    });
   });
 
   it("returns null if attempt results do not look suspicious", () => {
@@ -426,16 +442,17 @@ describe("attemptResultsWarning", () => {
 
   it("warns about DNS followed by a valid attempt result", () => {
     const attemptResults = [2000, DNS_VALUE, 2500, DNF_VALUE, 2000];
-    expect(attemptResultsWarning(attemptResults, "333", [])).toMatch(
-      "There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF."
-    );
+    expect(attemptResultsWarning(attemptResults, "333", [])).toMatchObject({
+      description:
+        "There's at least one DNS followed by a valid result. Please ensure it is indeed a DNS and not a DNF.",
+    });
   });
 
   it("returns a warning if an attempt result is omitted", () => {
     const attemptResults = [1000, 0, 900];
-    expect(attemptResultsWarning(attemptResults, "333")).toMatch(
-      "You've omitted attempt 2"
-    );
+    expect(attemptResultsWarning(attemptResults, "333")).toMatchObject({
+      description: "You've omitted attempt 2. Make sure it's intentional.",
+    });
   });
 
   it("does not treat trailing skipped attempt results as omitted", () => {
@@ -455,10 +472,11 @@ describe("attemptResultsWarning", () => {
       },
     ];
     expect(
-      normalize(attemptResultsWarning(attemptResults, "333", worldRecords))
-    ).toMatch(
-      "The result you're trying to submit includes a new world record single (3.98). Please check that the results are accurate."
-    );
+      normalize(attemptResultsWarning(attemptResults, "333", worldRecords)),
+    ).toMatchObject({
+      description: `The result you're trying to submit includes a new world record single (3.98). Please check that you are entering results for the right event and that all the entered attempts are accurate. Type "world record" below to confirm that you are confident that it is indeed a world record result.`,
+      confirmationKeyword: "world record",
+    });
   });
 
   it("returns a warning if the results break the world record average", () => {
@@ -473,10 +491,11 @@ describe("attemptResultsWarning", () => {
       },
     ];
     expect(
-      normalize(attemptResultsWarning(attemptResults, "333", worldRecords))
-    ).toMatch(
-      "The result you're trying to submit is a new world record average (5.00). Please check that the results are accurate."
-    );
+      normalize(attemptResultsWarning(attemptResults, "333", worldRecords)),
+    ).toMatchObject({
+      description: `The result you're trying to submit is a new world record average (5.00). Please check that you are entering results for the right event and that all the entered attempts are accurate. Type "world record" below to confirm that you are confident that it is indeed a world record result.`,
+      confirmationKeyword: "world record",
+    });
   });
 
   it("does not return a world record warning when average is DNF", () => {
@@ -491,7 +510,7 @@ describe("attemptResultsWarning", () => {
       },
     ];
     expect(attemptResultsWarning(attemptResults, "333", worldRecords)).toEqual(
-      null
+      null,
     );
   });
 
@@ -514,7 +533,7 @@ describe("attemptResultsWarning", () => {
       },
     ];
     expect(
-      attemptResultsWarning(attemptResults, "333fm", worldRecords)
+      attemptResultsWarning(attemptResults, "333fm", worldRecords),
     ).toEqual(null);
   });
 });
@@ -591,14 +610,42 @@ describe("bestPossibleAverage", () => {
   });
 });
 
-describe("incompleteMean", () => {
-  it("returns -1 if any attempt result is DNF", () => {
-    const attemptResults = [21, -1];
-    expect(incompleteMean(attemptResults, "333fm")).toEqual(-1);
+describe("projectedAverage", () => {
+  const event333 = "333";
+  it("returns mean when format is mean of 3", () => {
+    const format = { numberOfAttempts: 3 };
+    expect(projectedAverage([], event333, format)).toEqual(0);
+    expect(projectedAverage([100], event333, format)).toEqual(100);
+    expect(projectedAverage([100, 102], event333, format)).toEqual(101);
+    expect(projectedAverage([100, 101, 102], event333, format)).toEqual(101);
   });
 
-  it("calculates mean of 2", () => {
-    const attemptResults = [21, 23];
-    expect(incompleteMean(attemptResults, "333fm")).toEqual(2200);
+  it("returns mean when format is average of 5 and there are less than 3 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    expect(projectedAverage([100], event333, format)).toEqual(100);
+    expect(projectedAverage([100, 102], event333, format)).toEqual(101);
+  });
+
+  it("returns median when format is average of 5 and there are 3 or 4 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    expect(projectedAverage([100, 101, 102], event333, format)).toEqual(101);
+    expect(projectedAverage([100, 101, 103, 104], event333, format)).toEqual(
+      102,
+    );
+  });
+
+  it("returns average of 5 when format is average of 5 and there are 5 attempts", () => {
+    const format = { numberOfAttempts: 5 };
+    expect(
+      projectedAverage([100, 101, 102, 103, 200], event333, format),
+    ).toEqual(102);
+  });
+
+  it("returns scaled mean when event is 333 fewest moves", () => {
+    const format = { numberOfAttempts: 5 };
+    const event333fm = "333fm";
+    expect(projectedAverage([20], event333fm, format)).toEqual(2000);
+    expect(projectedAverage([20, 21], event333fm, format)).toEqual(2050);
+    expect(projectedAverage([20, 20, 21], event333fm, format)).toEqual(2033);
   });
 });

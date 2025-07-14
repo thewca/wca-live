@@ -6,9 +6,8 @@ defmodule WcaLive.Scoretaking.RecordTags do
   alias Ecto.Changeset
   alias WcaLive.Repo
   alias WcaLive.Wca
-  alias WcaLive.Wca.Country
-  alias WcaLive.Competitions.{CompetitionEvent, Person}
-  alias WcaLive.Scoretaking.{Round, AttemptResult}
+  alias WcaLive.Competitions
+  alias WcaLive.Scoretaking
 
   @doc """
   Calculates single and average record tags on all results
@@ -18,13 +17,14 @@ defmodule WcaLive.Scoretaking.RecordTags do
   so after changing a result it's best to compute the record tags
   for all rounds of the given evnet.
   """
-  @spec compute_record_tags(%CompetitionEvent{}) :: Ecto.Changeset.t(%CompetitionEvent{})
+  @spec compute_record_tags(%Competitions.CompetitionEvent{}) ::
+          Ecto.Changeset.t(%Competitions.CompetitionEvent{})
   def compute_record_tags(competition_event) do
     competition_event =
       competition_event
       |> Repo.preload(rounds: [:competition_event, results: [person: [:personal_bests]]])
 
-    rounds = competition_event.rounds
+    rounds = Enum.sort_by(competition_event.rounds, & &1.number)
     event_id = competition_event.event_id
 
     regional_records = Wca.RecordsStore.get_regional_records_map()
@@ -61,7 +61,7 @@ defmodule WcaLive.Scoretaking.RecordTags do
               average_record_tag: average_record_tag
             )
           end)
-          |> Round.put_results_in_round(round)
+          |> Scoretaking.Round.put_results_in_round(round)
 
         {round_changeset, records}
       end)
@@ -75,10 +75,10 @@ defmodule WcaLive.Scoretaking.RecordTags do
   Returns a list of record tags with the corresponding record identifiers
   specific to the given person (because they depend on person's country).
   """
-  @spec tags_with_record_key(%Person{}, String.t(), :single | :average) ::
+  @spec tags_with_record_key(%Competitions.Person{}, String.t(), :single | :average) ::
           list(%{tag: String.t(), record_key: Wca.Records.record_key()})
   def tags_with_record_key(person, event_id, type) do
-    country = Country.get_by_iso2!(person.country_iso2)
+    country = Wca.Country.get_by_iso2!(person.country_iso2)
 
     [
       %{tag: "WR", record_key: Wca.Records.record_key(event_id, type, "world")},
@@ -105,7 +105,7 @@ defmodule WcaLive.Scoretaking.RecordTags do
 
     single_records =
       results
-      |> Enum.filter(fn result -> AttemptResult.complete?(result.best) end)
+      |> Enum.filter(fn result -> Scoretaking.AttemptResult.complete?(result.best) end)
       |> Enum.flat_map(fn result ->
         tags_with_record_key(result.person, event_id, :single)
         |> Enum.map(fn %{record_key: record_key} -> {record_key, result.best} end)
@@ -115,7 +115,7 @@ defmodule WcaLive.Scoretaking.RecordTags do
 
     average_records =
       results
-      |> Enum.filter(fn result -> AttemptResult.complete?(result.average) end)
+      |> Enum.filter(fn result -> Scoretaking.AttemptResult.complete?(result.average) end)
       |> Enum.flat_map(fn result ->
         tags_with_record_key(result.person, event_id, :average)
         |> Enum.map(fn %{record_key: record_key} -> {record_key, result.average} end)

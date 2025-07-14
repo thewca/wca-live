@@ -67,7 +67,7 @@ function Podiums() {
 
   const [finishedPodiums, nonfinishedPodiums] = partition(
     competition.podiums,
-    (podium) => podium.round.finished
+    (podium) => podium.round.finished,
   );
 
   return (

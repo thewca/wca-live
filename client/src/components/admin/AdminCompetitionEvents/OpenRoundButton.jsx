@@ -9,6 +9,8 @@ const OPEN_ROUND_MUTATION = gql`
       round {
         id
         open
+        numEnteredResults
+        numResults
       }
     }
   }
@@ -25,7 +27,7 @@ function OpenRoundButton({ round, competitionEvent }) {
 
   function handleOpenRoundClick() {
     const previous = competitionEvent.rounds.find(
-      (other) => other.number === round.number - 1
+      (other) => other.number === round.number - 1,
     );
     if (previous && !previous.finished) {
       confirm({
