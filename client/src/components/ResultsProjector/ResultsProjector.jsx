@@ -15,8 +15,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { green } from "@mui/material/colors";
-import { alpha } from "@mui/material/styles";
+import { yellow, green } from "@mui/material/colors";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
@@ -48,8 +47,8 @@ const styles = {
     backgroundColor: green["A400"],
   },
   advancingQuestionable: {
-    color: (theme) => theme.palette.getContrastText(alpha(green["A400"], 0.5)),
-    backgroundColor: alpha(green["A400"], 0.5),
+    color: (theme) => theme.palette.getContrastText(yellow["200"]),
+    backgroundColor: yellow["200"],
   },
   name: {
     width: "22%",
