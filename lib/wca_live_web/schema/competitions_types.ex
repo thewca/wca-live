@@ -236,6 +236,10 @@ defmodule WcaLiveWeb.Schema.CompetitionsTypes do
     field :competition, non_null(:competition) do
       resolve dataloader(:db)
     end
+
+    field :entered_results_count, non_null(:integer) do
+      resolve &Resolvers.Competitions.staff_member_entered_results_count/3
+    end
   end
 
   @desc "A virtual object representing current user access properties."

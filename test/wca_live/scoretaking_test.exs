@@ -877,6 +877,27 @@ defmodule WcaLive.ScoretakingTest do
     assert winning_result.id == podium_result.id
   end
 
+  test "entered_results_count/1 returns results entered by staff member at the competition" do
+    competition = insert(:competition)
+    staff_member1 = insert(:staff_member, competition: competition)
+    staff_member2 = insert(:staff_member, competition: competition)
+
+    competition_event = insert(:competition_event, competition: competition)
+    round = insert(:round, competition_event: competition_event)
+
+    # Results at the given competition
+    insert(:result, round: round, entered_by: staff_member1.user)
+    insert(:result, round: round, entered_by: staff_member1.user)
+    insert(:result, round: round, entered_by: staff_member2.user)
+
+    # Result on another competition entered by the same users
+    insert(:result, entered_by: staff_member1.user)
+    insert(:result, entered_by: staff_member2.user)
+
+    assert Scoretaking.entered_results_count(staff_member1) == 2
+    assert Scoretaking.entered_results_count(staff_member2) == 1
+  end
+
   defp insert_result_x_days_ago(days, attrs) do
     x_days_ago = Date.utc_today() |> Date.add(-days)
 

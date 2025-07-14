@@ -83,4 +83,10 @@ defmodule WcaLiveWeb.Resolvers.Competitions do
   def venue_country(%{country_iso2: iso2}, _args, _resolution) do
     {:ok, Wca.Country.get_by_iso2!(iso2)}
   end
+
+  # Staff members
+
+  def staff_member_entered_results_count(staff_member, _args, _resolution) do
+    {:ok, Scoretaking.entered_results_count(staff_member)}
+  end
 end
