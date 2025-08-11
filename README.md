@@ -149,7 +149,7 @@ your actual WCA account and you sign as the matching staging user.
 If you have access to any future competition on staging, you can import it.
 
 In the dev environment, there is also a test competition with pre-filled results.
-In order to to edit it, you need admin privilages. You can make yourself an admin,
+In order to edit it, you need admin privileges. You can make yourself an admin,
 by running the following command, right after you sign in:
 
 ```elixir
