@@ -23,7 +23,7 @@ const ROUND_QUERY = gql`
         competition {
           access {
             canManage
-          } 
+          }
         }
         event {
           id
