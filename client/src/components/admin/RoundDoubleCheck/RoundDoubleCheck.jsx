@@ -48,6 +48,9 @@ const ROUND_QUERY = gql`
           registrantId
         }
         enteredAt
+        enteredBy {
+          name
+        }
       }
     }
     officialWorldRecords {

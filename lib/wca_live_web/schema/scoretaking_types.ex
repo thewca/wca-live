@@ -130,6 +130,10 @@ defmodule WcaLiveWeb.Schema.ScoretakingTypes do
     end
 
     field :entered_at, :datetime
+
+    field :entered_by, :user do
+      resolve dataloader(:db)
+    end
   end
 
   @desc "A single attempt done by a competitor."
