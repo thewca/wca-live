@@ -20,11 +20,6 @@ const ROUND_QUERY = gql`
       name
       competitionEvent {
         id
-        competition {
-          access {
-            canManage
-          }
-        }
         event {
           id
           name
@@ -208,7 +203,6 @@ function RoundDoubleCheck() {
             disabled={enterLoading}
             onSubmit={handleResultAttemptsSubmit}
             officialWorldRecords={officialWorldRecords}
-            showEnteredBy={round.competitionEvent.competition.access.canManage}
           />
         </Grid>
         <Grid item md sx={{ textAlign: "center" }}>

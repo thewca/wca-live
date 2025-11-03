@@ -34,7 +34,6 @@ function ResultAttemptsForm({
   disabled = false,
   focusOnResultChange = false,
   officialWorldRecords,
-  showEnteredBy = false,
 }) {
   const confirm = useConfirm();
 
@@ -174,11 +173,9 @@ function ResultAttemptsForm({
         )}
       </Grid>
       <Grid item>
-        {showEnteredBy && (
-          <Typography variant="body2" color="textSecondary">
-            {`Updated by: ${result.enteredBy.name}`}
-          </Typography>
-        )}
+        <Typography variant="body2" color="textSecondary">
+          {`Updated by: ${result.enteredBy.name}`}
+        </Typography>
       </Grid>
       <Grid item container alignItems="flex-end">
         <Grid item>
