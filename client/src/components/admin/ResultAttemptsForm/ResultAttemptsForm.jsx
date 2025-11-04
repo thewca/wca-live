@@ -173,9 +173,11 @@ function ResultAttemptsForm({
         )}
       </Grid>
       <Grid item>
-        <Typography variant="body2" color="textSecondary">
-          {`Updated by: ${result.enteredBy.name}`}
-        </Typography>
+        {result?.enteredBy && (
+          <Typography variant="body2" color="textSecondary">
+            {`Updated by: ${result.enteredBy.name}`}
+          </Typography>
+        )}
       </Grid>
       <Grid item container alignItems="flex-end">
         <Grid item>
