@@ -53,7 +53,7 @@ function ResultAttemptsForm({
     setAttemptResults(
       result
         ? paddedAttemptResults(result, numberOfAttempts)
-        : defaultAttemptResults,
+        : defaultAttemptResults
     );
   }, [result, numberOfAttempts, defaultAttemptResults]);
 
@@ -82,7 +82,7 @@ function ResultAttemptsForm({
   function handleAttemptResultChange(index, value) {
     const newAttemptResults = setAt(attemptResults, index, value);
     setAttemptResults(
-      applyCutoff(applyTimeLimit(newAttemptResults, timeLimit), cutoff),
+      applyCutoff(applyTimeLimit(newAttemptResults, timeLimit), cutoff)
     );
   }
 
@@ -99,7 +99,7 @@ function ResultAttemptsForm({
     const submissionWarning = attemptResultsWarning(
       attemptResults,
       eventId,
-      officialWorldRecords,
+      officialWorldRecords
     );
 
     if (submissionWarning) {
@@ -173,9 +173,11 @@ function ResultAttemptsForm({
         )}
       </Grid>
       <Grid item>
-        <Typography variant="body2" color="textSecondary">
-          {`Updated by: ${result.enteredBy.name}`}
-        </Typography>
+        {result?.enteredBy && (
+          <Typography variant="body2" color="textSecondary">
+            {`Updated by: ${result.enteredBy.name}`}
+          </Typography>
+        )}
       </Grid>
       <Grid item container alignItems="flex-end">
         <Grid item>
