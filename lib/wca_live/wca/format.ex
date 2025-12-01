@@ -39,6 +39,13 @@ defmodule WcaLive.Wca.Format do
       sort_by: :best
     },
     %{
+      id: "5",
+      name: "Best of 5",
+      short_name: "Bo5",
+      number_of_attempts: 5,
+      sort_by: :best
+    },
+    %{
       id: "m",
       name: "Mean of 3",
       short_name: "Mo3",
