@@ -217,33 +217,35 @@ function RoundDoubleCheck() {
           </IconButton>
         </Grid>
         <Grid item md={3}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel id="scoretaker-filter-label">
-              Filter Scoretaker
-            </InputLabel>
-            <Select
-              labelId="scoretaker-filter-label"
-              id="scoretaker-filter"
-              value={scoretakerFilter}
-              label="Filter Scoretaker"
-              onChange={(event) => {
-                updateScoretakerFilter(event.target.value);
-                updateResultIndex(0);
-                setTimeout(() => {
-                  rightButtonRef.current.focus();
-                }, 0);
-              }}
-            >
-              <MenuItem value={""}>
-                <em>All</em>
-              </MenuItem>
-              {scoreTakerNames.map((name) => (
-                <MenuItem key={name} value={name}>
-                  {name}
+          {scoreTakerNames.length > 1 && (
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="scoretaker-filter-label">
+                Filter Scoretaker
+              </InputLabel>
+              <Select
+                labelId="scoretaker-filter-label"
+                id="scoretaker-filter"
+                value={scoretakerFilter}
+                label="Filter Scoretaker"
+                onChange={(event) => {
+                  updateScoretakerFilter(event.target.value);
+                  updateResultIndex(0);
+                  setTimeout(() => {
+                    // rightButtonRef.current.focus();
+                  }, 0);
+                }}
+              >
+                <MenuItem value={""}>
+                  <em>All</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                {scoreTakerNames.map((name) => (
+                  <MenuItem key={name} value={name}>
+                    {name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
           <ResultAttemptsForm
             result={results[resultIndex]}
             results={round.results}
