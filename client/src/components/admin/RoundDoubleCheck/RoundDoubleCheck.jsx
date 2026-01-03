@@ -148,7 +148,9 @@ function RoundDoubleCheck() {
 
   const scoreTakerNames = [
     ...round.results.reduce((acc, result) => {
-      acc.add(result.enteredBy.name);
+      if (result.enteredBy?.name) {
+        acc.add(result.enteredBy.name);
+      }
       return acc;
     }, new Set()),
   ].sort((a, b) => a.localeCompare(b));
