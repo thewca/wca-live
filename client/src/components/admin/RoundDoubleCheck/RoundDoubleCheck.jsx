@@ -116,7 +116,7 @@ function RoundDoubleCheck() {
   const filteredResults =
     data?.round.results.filter((result) => {
       if (!scoretakerFilter || scoretakerFilter === "0") return true;
-      return result.enteredBy.name === scoretakerFilter;
+      return result.enteredBy?.name === scoretakerFilter;
     }) || [];
 
   const [enterResults, { error: enterLoading }] = useMutation(
