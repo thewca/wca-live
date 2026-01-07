@@ -58,6 +58,7 @@ const ROUND_QUERY = gql`
         }
         enteredAt
         enteredBy {
+          id
           name
         }
       }
@@ -116,7 +117,7 @@ function RoundDoubleCheck() {
   const unfilteredResults = data?.round.results || [];
   const filteredResults = scoretakerFilter
     ? unfilteredResults.filter((result) => {
-        return result.enteredBy?.name === scoretakerFilter;
+        return result.enteredBy?.id === scoretakerFilter;
       })
     : unfilteredResults;
 
@@ -147,14 +148,14 @@ function RoundDoubleCheck() {
   if (error) return <Error error={error} />;
   const { round, officialWorldRecords } = data;
 
-  const scoreTakerNames = [
-    ...round.results.reduce((acc, result) => {
-      if (result.enteredBy?.name) {
-        acc.add(result.enteredBy.name);
+  const scoretakers = Object.values(
+    round.results.reduce((acc, result) => {
+      if (result.enteredBy) {
+        acc[result.enteredBy.id] = result.enteredBy;
       }
       return acc;
-    }, new Set()),
-  ].sort((a, b) => a.localeCompare(b));
+    }, {}),
+  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const results = orderBy(
     filteredResults,
@@ -218,7 +219,7 @@ function RoundDoubleCheck() {
           </IconButton>
         </Grid>
         <Grid item md={3}>
-          {scoreTakerNames.length > 1 && (
+          {scoretakers.length > 1 && (
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel id="scoretaker-filter-label">
                 Filter Scoretaker
@@ -236,9 +237,9 @@ function RoundDoubleCheck() {
                 <MenuItem value={""}>
                   <em>All</em>
                 </MenuItem>
-                {scoreTakerNames.map((name) => (
-                  <MenuItem key={name} value={name}>
-                    {name}
+                {scoretakers.map((scoretaker) => (
+                  <MenuItem key={scoretaker.id} value={scoretaker.id}>
+                    {scoretaker.name}
                   </MenuItem>
                 ))}
               </Select>
