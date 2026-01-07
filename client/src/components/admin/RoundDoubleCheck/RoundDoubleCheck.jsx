@@ -2,7 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useSwipeable } from "react-swipeable";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import { Grid, IconButton, LinearProgress, Typography } from "@mui/material";
+import {
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Loading from "../../Loading/Loading";
@@ -49,6 +58,7 @@ const ROUND_QUERY = gql`
         }
         enteredAt
         enteredBy {
+          id
           name
         }
       }
@@ -83,6 +93,7 @@ function RoundDoubleCheck() {
   const apolloErrorHandler = useApolloErrorHandler();
   const { roundId } = useParams();
   const [resultIndex, updateResultIndex] = useState(0);
+  const [scoretakerFilter, updateScoretakerFilter] = useState("");
   const leftButtonRef = useRef(null);
   const rightButtonRef = useRef(null);
 
@@ -103,6 +114,13 @@ function RoundDoubleCheck() {
     variables: { id: roundId },
   });
 
+  const unfilteredResults = data?.round.results || [];
+  const filteredResults = scoretakerFilter
+    ? unfilteredResults.filter((result) => {
+        return result.enteredBy?.id === scoretakerFilter;
+      })
+    : unfilteredResults;
+
   const [enterResults, { error: enterLoading }] = useMutation(
     ENTER_RESULT_ATTEMPTS,
     {
@@ -115,7 +133,7 @@ function RoundDoubleCheck() {
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      if (resultIndex < data.round.results.length - 1) {
+      if (resultIndex < filteredResults.length - 1) {
         updateResultIndex(resultIndex + 1);
       }
     },
@@ -130,8 +148,17 @@ function RoundDoubleCheck() {
   if (error) return <Error error={error} />;
   const { round, officialWorldRecords } = data;
 
+  const scoretakers = Object.values(
+    round.results.reduce((acc, result) => {
+      if (result.enteredBy) {
+        acc[result.enteredBy.id] = result.enteredBy;
+      }
+      return acc;
+    }, {}),
+  ).sort((a, b) => a.name.localeCompare(b.name));
+
   const results = orderBy(
-    round.results,
+    filteredResults,
     (result) => -parseISO(result.enteredAt),
   );
 
@@ -192,6 +219,32 @@ function RoundDoubleCheck() {
           </IconButton>
         </Grid>
         <Grid item md={3}>
+          {scoretakers.length > 1 && (
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="scoretaker-filter-label">
+                Filter Scoretaker
+              </InputLabel>
+              <Select
+                labelId="scoretaker-filter-label"
+                id="scoretaker-filter"
+                value={scoretakerFilter}
+                label="Filter Scoretaker"
+                onChange={(event) => {
+                  updateScoretakerFilter(event.target.value);
+                  updateResultIndex(0);
+                }}
+              >
+                <MenuItem value={""}>
+                  <em>All</em>
+                </MenuItem>
+                {scoretakers.map((scoretaker) => (
+                  <MenuItem key={scoretaker.id} value={scoretaker.id}>
+                    {scoretaker.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
           <ResultAttemptsForm
             result={results[resultIndex]}
             results={round.results}
@@ -228,7 +281,10 @@ function RoundDoubleCheck() {
               When doing double-check you can place a scorecard
               next to the form to quickly compare attempt results.
               For optimal experience make sure to always put entered/updated
-              scorecard at the top of the pile.`}
+              scorecard at the top of the pile.
+              If multiple scoretakers are entering results from the same round,
+              they should each have their own pile then you can filter the results
+              by scoretaker when double-checking.`}
           </Typography>
         </Grid>
       </Grid>
