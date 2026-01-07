@@ -113,11 +113,12 @@ function RoundDoubleCheck() {
     variables: { id: roundId },
   });
 
-  const filteredResults =
-    data?.round.results.filter((result) => {
-      if (!scoretakerFilter || scoretakerFilter === "0") return true;
-      return result.enteredBy?.name === scoretakerFilter;
-    }) || [];
+  const unfilteredResults = data?.round.results || [];
+  const filteredResults = scoretakerFilter
+    ? unfilteredResults.filter((result) => {
+        return result.enteredBy?.name === scoretakerFilter;
+      })
+    : unfilteredResults;
 
   const [enterResults, { error: enterLoading }] = useMutation(
     ENTER_RESULT_ATTEMPTS,
