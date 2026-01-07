@@ -230,9 +230,6 @@ function RoundDoubleCheck() {
                 onChange={(event) => {
                   updateScoretakerFilter(event.target.value);
                   updateResultIndex(0);
-                  setTimeout(() => {
-                    // rightButtonRef.current.focus();
-                  }, 0);
                 }}
               >
                 <MenuItem value={""}>
