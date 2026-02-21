@@ -58,6 +58,17 @@ defmodule WcaLive.Wca.Format do
       short_name: "Ao5",
       number_of_attempts: 5,
       sort_by: :average
+    },
+    %{
+      id: "h",
+      name: "Head-to-Head",
+      short_name: "H2H",
+      # Note: the below is not accurate for H2H, but we need to have
+      # any format information to avoid crashing on competitions with
+      # a h2h format present. H2H support will come later as part of
+      # the new system.
+      number_of_attempts: 5,
+      sort_by: :average
     }
   ]
 
