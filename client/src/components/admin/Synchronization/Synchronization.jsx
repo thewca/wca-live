@@ -1,17 +1,22 @@
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Grid,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Stack,
   Typography,
   Paper,
   ListSubheader,
 } from "@mui/material";
 import { Alert } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GroupIcon from "@mui/icons-material/Group";
 import BuildIcon from "@mui/icons-material/Build";
@@ -19,6 +24,7 @@ import TimeAgo from "react-timeago";
 import { parseISO } from "date-fns";
 import Loading from "../../Loading/Loading";
 import Error from "../../Error/Error";
+import ImportResultsButton from "./ImportResultsButton";
 import SynchronizeButton from "./SynchronizeButton";
 import { wcaUrl, groupifierUrl, scramblesMatcherUrl } from "../../../lib/urls";
 
@@ -148,6 +154,32 @@ function Synchronization() {
             </ListItemButton>
           </List>
         </Paper>
+      </Grid>
+      <Grid item>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Advanced
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2} alignItems="flex-start">
+              <Typography>
+                Note: this feature is intended specifically as a fallback for
+                the new WCA Integrated Live Results (ILR), in case you run into
+                a blocking issue with the new system.
+              </Typography>
+              <Typography>
+                Importing or synchronizing a competition does not automatically
+                bring in the results entered in ILR, so here you can do so
+                explicitly. Note that this import only applies to rounds that do
+                not have any results on WCA Live yet, otherwise WCA Live is
+                considered to be the source of truth.
+              </Typography>
+              <ImportResultsButton competitionId={competition.id} />
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
       </Grid>
     </Grid>
   );

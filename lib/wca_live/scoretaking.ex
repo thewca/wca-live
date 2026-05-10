@@ -196,8 +196,10 @@ defmodule WcaLive.Scoretaking do
     enter_results(round, results_attrs, user)
   end
 
-  # Updates attributes (`ranking`, `advancing` and record tags) of the given round results.
-  defp process_round_after_results_change(round) do
+  @doc """
+  Updates attributes (`ranking`, `advancing` and record tags) of the given round results.
+  """
+  def process_round_after_results_change(round) do
     Repo.transaction_with(fn ->
       competition_event = round |> Ecto.assoc(:competition_event) |> Repo.one!()
 

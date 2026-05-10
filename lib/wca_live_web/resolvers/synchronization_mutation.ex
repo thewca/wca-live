@@ -21,4 +21,16 @@ defmodule WcaLiveWeb.Resolvers.SynchronizationMutation do
   end
 
   def synchronize_competition(_parent, _args, _resolution), do: {:error, "not authenticated"}
+
+  def import_results(_parent, %{input: input}, %{context: %{current_user: current_user}}) do
+    with {:ok, competition} <- Competitions.fetch_competition(input.id),
+         true <-
+           Competitions.Access.can_manage_competition?(current_user, competition) ||
+             {:error, "access denied"},
+         {:ok, competition} <- Synchronization.import_results(competition, current_user) do
+      {:ok, %{competition: competition}}
+    end
+  end
+
+  def import_results(_parent, _args, _resolution), do: {:error, "not authenticated"}
 end

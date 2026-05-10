@@ -54,11 +54,55 @@ defmodule WcaLive.Synchronization do
   def synchronize_competition(competition, user) do
     with {:ok, access_token} <- Accounts.get_valid_access_token(user),
          {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token),
+         :ok <- ensure_no_external_results(competition, wcif),
          {:ok, updated_competition} <-
            Synchronization.Import.import_competition(competition, wcif),
          wcif <- Synchronization.Export.export_competition(updated_competition),
          {:ok, _} <- Wca.Api.patch_wcif(wcif, access_token.access_token) do
       {:ok, updated_competition}
+    end
+  end
+
+  # Synchronization sends a PATCH back to the WCA API with the local
+  # results. If a local round has no entered results, but the
+  # corresponding WCIF round has results (entered externally), the
+  # PATCH would overwrite them with empty results, which we want to
+  # safeguard against. So in such case we fail, so the user can use
+  # "Import results" first to bring those results into the local
+  # database.
+  defp ensure_no_external_results(competition, wcif) do
+    competition = Repo.preload(competition, competition_events: [rounds: :results])
+
+    case Synchronization.Import.rounds_missing_results(competition, wcif) do
+      [] ->
+        :ok
+
+      rounds ->
+        labels =
+          rounds
+          |> Enum.map(fn {round, competition_event, _wcif_round} ->
+            "#{competition_event.event_id} round #{round.number}"
+          end)
+          |> Enum.join(", ")
+
+        {:error,
+         "the following rounds have results on the WCA website that are not in the local database: #{labels}." <>
+           " Use \"Advanced > Import results\" to import them before synchronizing."}
+    end
+  end
+
+  @doc """
+  Imports results for competition rounds from the WCA API.
+
+  Fetches the WCIF and for every local round with no entered results
+  it builds and inserts new results based on the WCIF data.
+  """
+  @spec import_results(%Competitions.Competition{}, %Accounts.User{}) ::
+          {:ok, %Competitions.Competition{}} | {:error, any()}
+  def import_results(competition, user) do
+    with {:ok, access_token} <- Accounts.get_valid_access_token(user),
+         {:ok, wcif} <- Wca.Api.get_wcif(competition.wca_id, access_token.access_token) do
+      Synchronization.Import.import_results(competition, wcif, user)
     end
   end
 

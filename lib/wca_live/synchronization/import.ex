@@ -3,6 +3,7 @@ defmodule WcaLive.Synchronization.Import do
   import Ecto.Changeset
 
   alias WcaLive.Repo
+  alias WcaLive.Wca
   alias WcaLive.Wcif
   alias WcaLive.Competitions
   alias WcaLive.Competitions.Competition
@@ -34,6 +35,103 @@ defmodule WcaLive.Synchronization.Import do
       end,
       timeout: @import_transaction_timeout
     )
+  end
+
+  @doc """
+  Imports round results from the given WCIF.
+
+  For every local round that has no entered results and a non-empty
+  list of WCIF results, builds and inserts new results based on the
+  WCIF data and recomputes the round's computable fields.
+  """
+  @spec import_results(%Competition{}, map(), %User{}) ::
+          {:ok, %Competition{}} | {:error, any()}
+  def import_results(competition, wcif, user) do
+    Repo.transaction_with(fn ->
+      competition =
+        Repo.preload(competition, [:people, competition_events: [rounds: :results]])
+
+      entered_at = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      competition
+      |> rounds_missing_results(wcif)
+      |> Enum.reduce_while(
+        {:ok, competition},
+        fn {round, competition_event, wcif_round}, {:ok, _acc} ->
+          case import_round_results(
+                 round,
+                 competition_event,
+                 wcif_round,
+                 competition,
+                 user,
+                 entered_at
+               ) do
+            {:ok, _round} -> {:cont, {:ok, competition}}
+            {:error, reason} -> {:halt, {:error, reason}}
+          end
+        end
+      )
+    end)
+  end
+
+  @doc """
+  Returns round information for every round taht has no results, but
+  whose WCIF round has results.
+  """
+  @spec rounds_missing_results(%Competition{}, map()) ::
+          list({%Scoretaking.Round{}, %Competitions.CompetitionEvent{}, map()})
+  def rounds_missing_results(competition, wcif) do
+    for competition_event <- competition.competition_events,
+        wcif_event = find_wcif_event(wcif, competition_event.event_id),
+        round <- competition_event.rounds,
+        wcif_round = find_wcif_round(wcif_event, competition_event.event_id, round.number),
+        round.results == [],
+        wcif_round["results"] != [],
+        do: {round, competition_event, wcif_round}
+  end
+
+  defp find_wcif_event(wcif, event_id) do
+    Enum.find(wcif["events"], &(&1["id"] == event_id))
+  end
+
+  defp find_wcif_round(wcif_event, event_id, round_number) do
+    wcif_round_id = "#{event_id}-r#{round_number}"
+    Enum.find(wcif_event["rounds"], &(&1["id"] == wcif_round_id))
+  end
+
+  defp import_round_results(round, competition_event, wcif_round, competition, user, entered_at) do
+    format = Wca.Format.get_by_id!(round.format_id)
+    event_id = competition_event.event_id
+
+    result_changesets =
+      for wcif_result <- wcif_round["results"],
+          person = Enum.find(competition.people, &(&1.registrant_id == wcif_result["personId"])) do
+        attempts =
+          Enum.map(wcif_result["attempts"], fn attempt ->
+            %{result: attempt["result"], reconstruction: attempt["reconstruction"]}
+          end)
+
+        %Scoretaking.Result{}
+        |> Scoretaking.Result.changeset(
+          %{attempts: attempts},
+          event_id,
+          format,
+          round.time_limit,
+          round.cutoff
+        )
+        |> put_change(:person_id, person.id)
+        |> put_change(:entered_by_id, user.id)
+        |> put_change(:entered_at, entered_at)
+      end
+
+    with {:ok, round} <-
+           result_changesets
+           |> Scoretaking.Round.put_results_in_round(round)
+           |> Repo.update(),
+         round <- Repo.preload(round, :results, force: true),
+         {:ok, round} <- Scoretaking.process_round_after_results_change(round) do
+      {:ok, round}
+    end
   end
 
   defp insert_new_users(wcif) do
