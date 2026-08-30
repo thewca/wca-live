@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TableSortLabel,
   Paper,
   useMediaQuery,
 } from "@mui/material";
@@ -54,6 +55,8 @@ const RoundResultsTable = memo(
     onResultClick,
     forecastView,
     advancementCondition,
+    sortConfig,
+    onSortChange,
   }) => {
     const smScreen = useMediaQuery((theme) => theme.breakpoints.up("sm"));
     const mdScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
@@ -80,16 +83,44 @@ const RoundResultsTable = memo(
               <TableCell sx={styles.cell}>Name</TableCell>
               {mdScreen && <TableCell sx={styles.cell}>Country</TableCell>}
               {smScreen &&
-                times(format.numberOfAttempts, (index) => (
-                  <TableCell key={index} sx={styles.cell} align="right">
-                    {index + 1}
+                times(format.numberOfAttempts, (index) => {
+                  const isAttemptActive =
+                    sortConfig?.type === "attempt" &&
+                    sortConfig?.index === index;
+                  return (
+                    <TableCell key={index} sx={styles.cell} align="right">
+                      <TableSortLabel
+                        active={isAttemptActive}
+                        direction={
+                          isAttemptActive ? sortConfig.direction : "asc"
+                        }
+                        onClick={() =>
+                          onSortChange &&
+                          onSortChange({ type: "attempt", index })
+                        }
+                      >
+                        {index + 1}
+                      </TableSortLabel>
+                    </TableCell>
+                  );
+                })}
+              {stats.map(({ name, field }) => {
+                const isStatActive =
+                  sortConfig?.type === "stat" && sortConfig?.field === field;
+                return (
+                  <TableCell key={name} sx={styles.cell} align="right">
+                    <TableSortLabel
+                      active={isStatActive}
+                      direction={isStatActive ? sortConfig.direction : "asc"}
+                      onClick={() =>
+                        onSortChange && onSortChange({ type: "stat", field })
+                      }
+                    >
+                      {name}
+                    </TableSortLabel>
                   </TableCell>
-                ))}
-              {stats.map(({ name }) => (
-                <TableCell key={name} sx={styles.cell} align="right">
-                  {name}
-                </TableCell>
-              ))}
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
