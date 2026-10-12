@@ -83,8 +83,9 @@ defmodule WcaLive.Synchronization.Import do
 
   defp validate_supported_wcif(%{"formatVersion" => "2." <> _version} = wcif) do
     error =
-      Enum.find_value(wcif["events"], fn event ->
-        Enum.find_value(event["rounds"], &unsupported_round_message(&1, event["rounds"]))
+      Enum.find_value(wcif["events"], fn
+        %{"id" => "fto"} -> "FTO is not supported by WCA Live"
+        event -> Enum.find_value(event["rounds"], &unsupported_round_message(&1, event["rounds"]))
       end)
 
     if error, do: {:error, error}, else: :ok

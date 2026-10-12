@@ -248,6 +248,19 @@ defmodule WcaLive.Synchronization.ImportTest do
     end
   end
 
+  test "FTO is rejected before importing a competition" do
+    user = insert(:user)
+    [event] = @wcif["events"]
+    [round] = event["rounds"]
+    fto_event = %{event | "id" => "fto", "rounds" => [%{round | "id" => "fto-r1"}]}
+    wcif = %{@wcif | "events" => [event, fto_event]}
+
+    assert {:error, "FTO is not supported by WCA Live"} =
+             Import.import_competition(%Competition{imported_by: user}, wcif)
+
+    refute Repo.exists?(Competition)
+  end
+
   test "linked rounds fail before changing the competition" do
     competition = insert(:competition, wca_id: "WC2019", name: "Original name")
 
