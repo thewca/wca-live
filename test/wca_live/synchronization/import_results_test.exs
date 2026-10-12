@@ -3,6 +3,7 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
   import WcaLive.Factory
 
   alias WcaLive.Synchronization.Import
+  alias WcaLive.Synchronization.Export
   alias WcaLive.Repo
 
   test "import_results/3 imports results for an empty round" do
@@ -17,7 +18,7 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
         wcif_result(7, [3232, 3213, 2323, 2323, 2323])
       ])
 
-    assert {:ok, _competition} = Import.import_results(competition, wcif, user)
+    assert {:ok, competition} = Import.import_results(competition, wcif, user)
 
     [result] = round |> Ecto.assoc(:results) |> Repo.all()
 
@@ -28,6 +29,15 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
     assert result.best == 2323
     assert result.average == 2620
     assert result.ranking == 1
+
+    [event] = Export.export_competition(Repo.reload!(competition))["events"]
+    [exported_round] = event["rounds"]
+    [exported_result] = exported_round["results"]
+
+    assert Enum.map(exported_result["attempts"], & &1["value"]) == [3232, 3213, 2323, 2323, 2323]
+
+    assert exported_result["best"] == 2323
+    assert exported_result["average"] == 2620
   end
 
   test "import_results/3 skips rounds that already have results" do
@@ -106,6 +116,8 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
     person = insert(:person, competition: competition, registrant_id: 7)
 
     wcif = %{
+      "formatVersion" => "2.2",
+      "id" => "TestCompetition",
       "events" => [
         %{
           "id" => "333",
@@ -139,6 +151,8 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
 
   defp build_wcif(event_id, round_number, format_id, results) do
     %{
+      "formatVersion" => "2.2",
+      "id" => "TestCompetition",
       "events" => [
         %{
           "id" => event_id,
@@ -156,7 +170,7 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
 
   defp wcif_result(person_id, attempts) do
     attempt_objects =
-      Enum.map(attempts, fn result -> %{"result" => result, "reconstruction" => nil} end)
+      Enum.map(attempts, fn result -> %{"value" => result, "reconstruction" => nil} end)
 
     %{
       "personId" => person_id,

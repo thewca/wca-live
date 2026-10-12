@@ -4,10 +4,11 @@ defmodule WcaLive.Synchronization.ImportTest do
 
   alias WcaLive.Competitions.Competition
   alias WcaLive.Synchronization.Import
+  alias WcaLive.Synchronization.Export
   alias WcaLive.Repo
 
   @wcif %{
-    "formatVersion" => "1.0",
+    "formatVersion" => "2.2",
     "id" => "WC2019",
     "name" => "WCA World Championship 2019",
     "shortName" => "WCA WC 2019",
@@ -45,7 +46,7 @@ defmodule WcaLive.Synchronization.ImportTest do
         "personalBests" => [
           %{
             "eventId" => "333",
-            "best" => 790,
+            "value" => 790,
             "type" => "single",
             "worldRanking" => 995,
             "continentalRanking" => 105,
@@ -53,7 +54,7 @@ defmodule WcaLive.Synchronization.ImportTest do
           },
           %{
             "eventId" => "333",
-            "best" => 855,
+            "value" => 855,
             "type" => "average",
             "worldRanking" => 590,
             "continentalRanking" => 78,
@@ -75,9 +76,13 @@ defmodule WcaLive.Synchronization.ImportTest do
             },
             "cutoff" => %{
               "numberOfAttempts" => 2,
-              "attemptResult" => 3000
+              "resultValue" => 3000
             },
-            "advancementCondition" => nil,
+            "linkedRounds" => nil,
+            "participationRuleset" => %{
+              "participationSource" => %{"type" => "registrations"},
+              "reservedPlaces" => nil
+            },
             "results" => [],
             "scrambleSetCount" => 4,
             # Ignored until WCA API supports it
@@ -87,10 +92,9 @@ defmodule WcaLive.Synchronization.ImportTest do
         ],
         "competitorLimit" => nil,
         "qualification" => %{
-          "type" => "ranking",
-          "resultType" => "average",
-          "level" => 50,
-          "whenDate" => "2019-07-01"
+          "resultCondition" => %{"type" => "ranking", "scope" => "average", "value" => 50},
+          "latestResultDate" => "2019-07-01",
+          "earliestResultDate" => nil
         },
         "extensions" => []
       }
@@ -155,6 +159,180 @@ defmodule WcaLive.Synchronization.ImportTest do
     assert {:ok, competition} = Import.import_competition(competition, @wcif)
     assert "WC2019" == competition.wca_id
     assert "WCA World Championship 2019" == competition.name
+  end
+
+  for {type, internal_type} <- [
+        {"ranking", "ranking"},
+        {"percent", "percent"},
+        {"resultAchieved", "attemptResult"}
+      ] do
+    test "import/export maps #{type} advancement to the destination round" do
+      [event] = @wcif["events"]
+      [first] = event["rounds"]
+      first = %{first | "format" => "3"}
+
+      second = %{
+        first
+        | "id" => "333-r2",
+          "format" => "a",
+          "cutoff" => nil,
+          "participationRuleset" => %{
+            "participationSource" => %{
+              "type" => "round",
+              "roundId" => "333-r1",
+              "resultCondition" => %{"type" => unquote(type), "scope" => "single", "value" => 50}
+            },
+            "reservedPlaces" => nil
+          }
+      }
+
+      third = %{
+        second
+        | "id" => "333-r3",
+          "participationRuleset" => %{
+            "participationSource" => %{
+              "type" => "round",
+              "roundId" => "333-r2",
+              "resultCondition" => %{"type" => unquote(type), "scope" => "average", "value" => 10}
+            },
+            "reservedPlaces" => nil
+          }
+      }
+
+      # Round ordering in the incoming JSON must not determine advancement.
+      wcif = put_in(@wcif, ["events", Access.at(0), "rounds"], [third, first, second])
+      competition = insert(:competition, wca_id: "WC2019")
+
+      assert {:ok, competition} = Import.import_competition(competition, wcif)
+
+      event =
+        competition |> Ecto.assoc(:competition_events) |> Repo.one!() |> Repo.preload(:rounds)
+
+      [round1, round2, round3] = Enum.sort_by(event.rounds, & &1.number)
+      assert round1.advancement_condition.type == unquote(internal_type)
+      assert round1.advancement_condition.level == 50
+      assert round2.advancement_condition.level == 10
+      assert round3.advancement_condition == nil
+
+      [exported_event] = Export.export_competition(competition)["events"]
+
+      assert exported_event["rounds"] ==
+               [first, second, third] |> Enum.map(&Map.delete(&1, "extensions"))
+    end
+  end
+
+  for {type, value, internal_type} <- [
+        {"ranking", 50, "ranking"},
+        {"resultAchieved", 1000, "attemptResult"},
+        {"resultAchieved", nil, "anyResult"}
+      ] do
+    test "#{internal_type} qualification and dates survive import/export" do
+      competition = insert(:competition, wca_id: "WC2019")
+
+      qualification = %{
+        "resultCondition" => %{
+          "type" => unquote(type),
+          "scope" => "single",
+          "value" => unquote(value)
+        },
+        "latestResultDate" => "2019-07-01",
+        "earliestResultDate" => "2018-01-01"
+      }
+
+      wcif = put_in(@wcif, ["events", Access.at(0), "qualification"], qualification)
+      assert {:ok, competition} = Import.import_competition(competition, wcif)
+      event = competition |> Ecto.assoc(:competition_events) |> Repo.one!()
+      assert event.qualification.type == unquote(internal_type)
+      [exported_event] = Export.export_competition(competition)["events"]
+      assert exported_event["qualification"] == qualification
+    end
+  end
+
+  test "linked rounds fail before changing the competition" do
+    competition = insert(:competition, wca_id: "WC2019", name: "Original name")
+
+    wcif =
+      put_in(@wcif, ["events", Access.at(0), "rounds", Access.at(0), "linkedRounds"], [
+        "333-r1",
+        "333-r2"
+      ])
+
+    assert {:error,
+            "Dual rounds are only supported by the WCA's Integrated Live Results platform"} =
+             Import.import_competition(competition, wcif)
+
+    assert Repo.reload!(competition).name == "Original name"
+  end
+
+  test "linked-round participation sources fail before changing the competition" do
+    competition = insert(:competition, wca_id: "WC2019", name: "Original name")
+
+    wcif =
+      put_in(
+        @wcif,
+        [
+          "events",
+          Access.at(0),
+          "rounds",
+          Access.at(0),
+          "participationRuleset",
+          "participationSource"
+        ],
+        %{
+          "type" => "linkedRounds",
+          "roundIds" => ["333-r1", "333-r2"]
+        }
+      )
+
+    assert {:error,
+            "Dual rounds are only supported by the WCA's Integrated Live Results platform"} =
+             Import.import_competition(competition, wcif)
+
+    assert Repo.reload!(competition).name == "Original name"
+  end
+
+  test "reserved places fail before changing the competition" do
+    competition = insert(:competition, wca_id: "WC2019", name: "Original name")
+
+    wcif =
+      put_in(
+        @wcif,
+        [
+          "events",
+          Access.at(0),
+          "rounds",
+          Access.at(0),
+          "participationRuleset",
+          "reservedPlaces"
+        ],
+        %{
+          "nationalities" => ["GB"],
+          "count" => 3
+        }
+      )
+
+    assert {:error, "Reserved places are not supported by WCA Live (333-r1)"} =
+             Import.import_competition(competition, wcif)
+
+    assert Repo.reload!(competition).name == "Original name"
+  end
+
+  test "registration participation sources are rejected after the first round" do
+    competition = insert(:competition, wca_id: "WC2019", name: "Original name")
+    wcif = put_in(@wcif, ["events", Access.at(0), "rounds", Access.at(0), "id"], "333-r2")
+
+    assert {:error, "Unsupported participation source or result condition in 333-r2"} =
+             Import.import_competition(competition, wcif)
+
+    assert Repo.reload!(competition).name == "Original name"
+  end
+
+  test "WCIF v1 is rejected before changing the competition" do
+    competition = insert(:competition, wca_id: "WC2019", name: "Original name")
+    wcif = %{@wcif | "formatVersion" => "1.0"}
+
+    assert {:error, "expected WCIF version 2"} = Import.import_competition(competition, wcif)
+    assert Repo.reload!(competition).name == "Original name"
   end
 
   test "import_competition/2 imports nested objects into the corresponding associations" do

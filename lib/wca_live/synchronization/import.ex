@@ -24,7 +24,8 @@ defmodule WcaLive.Synchronization.Import do
   def import_competition(competition, wcif) do
     Repo.transaction_with(
       fn ->
-        with {:ok, competition} <- insert_or_update_competition(competition, wcif),
+        with :ok <- validate_supported_wcif(wcif),
+             {:ok, competition} <- insert_or_update_competition(competition, wcif),
              :ok <- insert_new_users(wcif),
              {:ok, competition} <- update_competition_staff_members(competition, wcif),
              {:ok, competition} <- update_competition_events(competition, wcif),
@@ -47,6 +48,12 @@ defmodule WcaLive.Synchronization.Import do
   @spec import_results(%Competition{}, map(), %User{}) ::
           {:ok, %Competition{}} | {:error, any()}
   def import_results(competition, wcif, user) do
+    with :ok <- validate_supported_wcif(wcif) do
+      do_import_results(competition, wcif, user)
+    end
+  end
+
+  defp do_import_results(competition, wcif, user) do
     Repo.transaction_with(fn ->
       competition =
         Repo.preload(competition, [:people, competition_events: [rounds: :results]])
@@ -73,6 +80,55 @@ defmodule WcaLive.Synchronization.Import do
       )
     end)
   end
+
+  defp validate_supported_wcif(%{"formatVersion" => "2." <> _version} = wcif) do
+    error =
+      Enum.find_value(wcif["events"], fn event ->
+        Enum.find_value(event["rounds"], &unsupported_round_message(&1, event["rounds"]))
+      end)
+
+    if error, do: {:error, error}, else: :ok
+  end
+
+  defp validate_supported_wcif(_wcif), do: {:error, "expected WCIF version 2"}
+
+  defp unsupported_round_message(round, rounds) do
+    source = get_in(round, ["participationRuleset", "participationSource"])
+
+    cond do
+      round["linkedRounds"] not in [nil, []] or source["type"] == "linkedRounds" ->
+        "Dual rounds are only supported by the WCA's Integrated Live Results platform"
+
+      get_in(round, ["participationRuleset", "reservedPlaces"]) != nil ->
+        "Reserved places are not supported by WCA Live (#{round["id"]})"
+
+      not supported_source?(source, round, rounds) ->
+        "Unsupported participation source or result condition in #{round["id"]}"
+
+      true ->
+        nil
+    end
+  end
+
+  defp supported_source?(nil, _round, _rounds), do: true
+
+  defp supported_source?(%{"type" => "registrations"}, round, _rounds) do
+    Wcif.ActivityCode.parse!(round["id"]).round_number == 1
+  end
+
+  defp supported_source?(%{"type" => "round"} = source, round, rounds) do
+    %{event_id: event_id, round_number: number} = Wcif.ActivityCode.parse!(round["id"])
+    previous = Enum.find(rounds, &(&1["id"] == source["roundId"]))
+    condition = source["resultCondition"]
+    sort_by = previous && Wca.Format.get_by_id!(previous["format"]).sort_by
+    scope = if sort_by == :best, do: "single", else: "average"
+
+    previous != nil and source["roundId"] == "#{event_id}-r#{number - 1}" and
+      condition["type"] in ["ranking", "percent", "resultAchieved"] and
+      condition["scope"] == scope and is_integer(condition["value"])
+  end
+
+  defp supported_source?(_source, _round, _rounds), do: false
 
   @doc """
   Returns round information for every round taht has no results, but
@@ -108,7 +164,7 @@ defmodule WcaLive.Synchronization.Import do
           person = Enum.find(competition.people, &(&1.registrant_id == wcif_result["personId"])) do
         attempts =
           Enum.map(wcif_result["attempts"], fn attempt ->
-            %{result: attempt["result"], reconstruction: attempt["reconstruction"]}
+            %{result: attempt["value"], reconstruction: attempt["reconstruction"]}
           end)
 
         %Scoretaking.Result{}
@@ -367,7 +423,7 @@ defmodule WcaLive.Synchronization.Import do
     |> Repo.update()
   end
 
-  defp competition_event_changeset(competition_event, wcif_event, competition) do
+  defp competition_event_changeset(competition_event, wcif_event, _competition) do
     competition_event = Repo.preload(competition_event, :rounds)
 
     competition_event
@@ -377,7 +433,7 @@ defmodule WcaLive.Synchronization.Import do
       qualification: wcif_event["qualification"] |> wcif_qualification_to_attrs()
     })
     |> build_assoc(:rounds, wcif_event["rounds"],
-      with: &round_changeset(&1, &2, competition),
+      with: &round_changeset(&1, &2, wcif_event["rounds"]),
       equality: fn round, wcif_round ->
         %{event_id: event_id, round_number: number} = Wcif.ActivityCode.parse!(wcif_round["id"])
         competition_event.event_id == event_id and round.number == number
@@ -388,23 +444,37 @@ defmodule WcaLive.Synchronization.Import do
   defp wcif_qualification_to_attrs(nil), do: nil
 
   defp wcif_qualification_to_attrs(wcif_qualification) do
+    condition = wcif_qualification["resultCondition"]
+
     %{
-      type: wcif_qualification["type"],
-      result_type: wcif_qualification["resultType"],
-      level: wcif_qualification["level"],
-      when_date: wcif_qualification["whenDate"]
+      type: qualification_type(condition),
+      result_type: condition["scope"],
+      level: condition["value"],
+      when_date: wcif_qualification["latestResultDate"],
+      earliest_result_date: wcif_qualification["earliestResultDate"]
     }
   end
 
-  defp round_changeset(round, wcif_round, _competition) do
+  defp qualification_type(%{"type" => "resultAchieved", "value" => nil}), do: "anyResult"
+  defp qualification_type(%{"type" => "resultAchieved"}), do: "attemptResult"
+  defp qualification_type(condition), do: condition["type"]
+
+  defp round_changeset(round, wcif_round, wcif_rounds) do
+    %{event_id: event_id, round_number: number} = Wcif.ActivityCode.parse!(wcif_round["id"])
+
+    next_round =
+      Enum.find(wcif_rounds, &(&1["id"] == "#{event_id}-r#{number + 1}"))
+
+    condition =
+      get_in(next_round, ["participationRuleset", "participationSource", "resultCondition"])
+
     round
     |> Scoretaking.Round.changeset(%{
-      number: wcif_round["id"] |> Wcif.ActivityCode.parse!() |> Map.fetch!(:round_number),
+      number: number,
       format_id: wcif_round["format"],
       time_limit: wcif_round["timeLimit"] |> wcif_time_limit_to_attrs(),
       cutoff: wcif_round["cutoff"] |> wcif_cutoff_to_attrs(),
-      advancement_condition:
-        wcif_round["advancementCondition"] |> wcif_advancement_condition_to_attrs(),
+      advancement_condition: condition |> wcif_advancement_condition_to_attrs(),
       scramble_set_count: wcif_round["scrambleSetCount"]
     })
   end
@@ -422,16 +492,20 @@ defmodule WcaLive.Synchronization.Import do
 
   defp wcif_cutoff_to_attrs(wcif_cutoff) do
     %{
-      attempt_result: wcif_cutoff["attemptResult"],
+      attempt_result: wcif_cutoff["resultValue"],
       number_of_attempts: wcif_cutoff["numberOfAttempts"]
     }
   end
 
   defp wcif_advancement_condition_to_attrs(nil), do: nil
 
+  defp wcif_advancement_condition_to_attrs(%{"type" => "resultAchieved", "value" => value}) do
+    %{level: value, type: "attemptResult"}
+  end
+
   defp wcif_advancement_condition_to_attrs(wcif_advancement_condition) do
     %{
-      level: wcif_advancement_condition["level"],
+      level: wcif_advancement_condition["value"],
       type: wcif_advancement_condition["type"]
     }
   end
@@ -580,7 +654,7 @@ defmodule WcaLive.Synchronization.Import do
     |> Competitions.PersonalBest.changeset(%{
       event_id: wcif_personal_best["eventId"],
       type: wcif_personal_best["type"],
-      best: wcif_personal_best["best"],
+      best: wcif_personal_best["value"],
       world_ranking: wcif_personal_best["worldRanking"],
       continental_ranking: wcif_personal_best["continentalRanking"],
       national_ranking: wcif_personal_best["nationalRanking"]

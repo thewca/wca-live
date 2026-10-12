@@ -37,7 +37,7 @@ defmodule WcaLive.Wca.Api do
     build_req()
     |> with_user_token(access_token)
     |> with_long_timeout()
-    |> request(url: "/competitions/#{competition_wca_id}/wcif")
+    |> request(url: "/competitions/#{competition_wca_id}/wcif/version/2")
   end
 
   @doc """

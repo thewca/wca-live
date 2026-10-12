@@ -44,13 +44,15 @@ given user is a delegate, organizer or another staff member at the given competi
 
 Now to the crucial integration element - data synchronization. At the WCA we developed
 a standardized format for exchanging competition data between tools/systems, it's
-called [WCIF](https://github.com/thewca/wcif/blob/master/specification.md) (WCA Competition Interchange Format)
+called [WCIF](https://github.com/thewca/wcif/blob/latest/specification.md) (WCA Competition Interchange Format)
 and defines a huge JSON object that contains all relevant competition information
 (events, rounds, schedule, competitors, results, etc.). The idea behind it is to
 have a well defined data format and empower developers to build tools working with
 this data (more on that in the [vision](https://github.com/thewca/wcif/blob/master/vision.md)
 document). The WCA website offers endpoints for fetching and saving data in this
-format and that's exactly what WCA Live uses. When a delegate/organizer imports a
+format. WCA Live requests WCIF v2 and exports WCIF 2.2. It supports sequential
+rounds; linked rounds and reserved places are rejected during import because the
+current scoring model cannot represent them. When a delegate/organizer imports a
 competition into the app, we fetch WCIF data for this competition and save all of
 it into the database. Later, competition admins can trigger synchronization, which
 works both ways: gets new data from the WCA website saving changes to the local

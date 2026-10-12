@@ -27,7 +27,7 @@ defmodule WcaLive.Synchronization.Export do
 
   defp competition_to_wcif(competition) do
     %{
-      "formatVersion" => "1.0",
+      "formatVersion" => "2.2",
       "id" => competition.wca_id,
       "name" => competition.name,
       "shortName" => competition.short_name,
@@ -87,7 +87,7 @@ defmodule WcaLive.Synchronization.Export do
     %{
       "eventId" => personal_best.event_id,
       "type" => personal_best.type,
-      "best" => personal_best.best,
+      "value" => personal_best.best,
       "worldRanking" => personal_best.world_ranking,
       "continentalRanking" => personal_best.continental_ranking,
       "nationalRanking" => personal_best.national_ranking
@@ -102,28 +102,39 @@ defmodule WcaLive.Synchronization.Export do
         competition_event.qualification &&
           competition_event.qualification |> qualification_to_wcif(),
       "rounds" =>
-        competition_event.rounds |> Enum.sort_by(& &1.number) |> Enum.map(&round_to_wcif/1)
+        competition_event.rounds
+        |> Enum.sort_by(& &1.number)
+        |> Enum.map(fn round ->
+          previous = Enum.find(competition_event.rounds, &(&1.number == round.number - 1))
+          round_to_wcif(round, previous)
+        end)
     }
   end
 
   defp qualification_to_wcif(qualification) do
     %{
-      "type" => qualification.type,
-      "resultType" => qualification.result_type,
-      "level" => qualification.level,
-      "whenDate" => qualification.when_date |> Date.to_iso8601()
+      "resultCondition" => %{
+        "type" => if(qualification.type == "ranking", do: "ranking", else: "resultAchieved"),
+        "scope" => qualification.result_type,
+        "value" => if(qualification.type == "anyResult", do: nil, else: qualification.level)
+      },
+      "latestResultDate" => qualification.when_date |> Date.to_iso8601(),
+      "earliestResultDate" =>
+        qualification.earliest_result_date && Date.to_iso8601(qualification.earliest_result_date)
     }
   end
 
-  defp round_to_wcif(round) do
+  defp round_to_wcif(round, previous) do
     %{
       "id" => round_wcif_id(round),
+      "linkedRounds" => nil,
       "format" => round.format_id,
       "timeLimit" => round.time_limit && round.time_limit |> time_limit_to_wcif(),
       "cutoff" => round.cutoff && round.cutoff |> cutoff_to_wcif(),
-      "advancementCondition" =>
-        round.advancement_condition &&
-          round.advancement_condition |> advancement_condition_to_wcif(),
+      "participationRuleset" => %{
+        "participationSource" => participation_source_to_wcif(round, previous),
+        "reservedPlaces" => nil
+      },
       "results" => round.results |> Enum.map(&result_to_wcif/1),
       "scrambleSetCount" => round.scramble_set_count
       # "scrambleSets" => [] # ignored for now
@@ -147,15 +158,28 @@ defmodule WcaLive.Synchronization.Export do
 
   defp cutoff_to_wcif(cutoff) do
     %{
-      "attemptResult" => cutoff.attempt_result,
+      "resultValue" => cutoff.attempt_result,
       "numberOfAttempts" => cutoff.number_of_attempts
     }
   end
 
-  defp advancement_condition_to_wcif(advancement_condition) do
+  defp participation_source_to_wcif(%{number: 1}, _previous), do: %{"type" => "registrations"}
+  defp participation_source_to_wcif(_round, nil), do: nil
+  defp participation_source_to_wcif(_round, %{advancement_condition: nil}), do: nil
+
+  defp participation_source_to_wcif(_round, previous) do
+    condition = previous.advancement_condition
+    format = WcaLive.Wca.Format.get_by_id!(previous.format_id)
+
     %{
-      "type" => advancement_condition.type,
-      "level" => advancement_condition.level
+      "type" => "round",
+      "roundId" => round_wcif_id(previous),
+      "resultCondition" => %{
+        "type" =>
+          if(condition.type == "attemptResult", do: "resultAchieved", else: condition.type),
+        "scope" => if(format.sort_by == :best, do: "single", else: "average"),
+        "value" => condition.level
+      }
     }
   end
 
@@ -171,7 +195,7 @@ defmodule WcaLive.Synchronization.Export do
 
   defp attempt_to_wcif(attempt) do
     %{
-      "result" => attempt.result,
+      "value" => attempt.result,
       "reconstruction" => attempt.reconstruction
     }
   end

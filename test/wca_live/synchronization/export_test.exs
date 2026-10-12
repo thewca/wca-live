@@ -5,7 +5,7 @@ defmodule WcaLive.Synchronization.ExportTest do
   alias WcaLive.Synchronization.Export
 
   @wcif %{
-    "formatVersion" => "1.0",
+    "formatVersion" => "2.2",
     "id" => "WC2019",
     "name" => "WCA World Championship 2019",
     "shortName" => "WCA WC 2019",
@@ -42,7 +42,7 @@ defmodule WcaLive.Synchronization.ExportTest do
         "personalBests" => [
           %{
             "eventId" => "333",
-            "best" => 790,
+            "value" => 790,
             "type" => "single",
             "worldRanking" => 995,
             "continentalRanking" => 105,
@@ -64,19 +64,22 @@ defmodule WcaLive.Synchronization.ExportTest do
             },
             "cutoff" => %{
               "numberOfAttempts" => 2,
-              "attemptResult" => 3000
+              "resultValue" => 3000
             },
-            "advancementCondition" => nil,
+            "linkedRounds" => nil,
+            "participationRuleset" => %{
+              "participationSource" => %{"type" => "registrations"},
+              "reservedPlaces" => nil
+            },
             "results" => [],
             "scrambleSetCount" => 4
           }
         ],
         "competitorLimit" => nil,
         "qualification" => %{
-          "type" => "ranking",
-          "resultType" => "average",
-          "level" => 50,
-          "whenDate" => "2019-07-01"
+          "resultCondition" => %{"type" => "ranking", "scope" => "average", "value" => 50},
+          "latestResultDate" => "2019-07-01",
+          "earliestResultDate" => nil
         }
       }
     ],
