@@ -14,7 +14,7 @@ defmodule WcaLiveWeb.CompetitionControllerTest do
       conn = get(conn, "/api/competitions/#{competition.id}/wcif")
 
       body = json_response(conn, 200)
-      assert %{"formatVersion" => "1.0", "id" => "WC2019"} = body
+      assert %{"formatVersion" => "2.2", "id" => "WC2019"} = body
     end
 
     test "returns error when not signed in", %{conn: conn} do
