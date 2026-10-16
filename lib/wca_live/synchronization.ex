@@ -108,7 +108,8 @@ defmodule WcaLive.Synchronization do
 
   @doc """
   Returns a list of WCA competitions that the given user
-  manages on the WCA website and which haven't been imported yet.
+  manages on the WCA website, which use WCA Live as their scoretaking
+  software and which haven't been imported yet.
   """
   @spec get_importable_competition_briefs(%Accounts.User{}) ::
           {:ok, list(Synchronization.CompetitionBrief.t())} | {:error, any()}
@@ -118,7 +119,9 @@ defmodule WcaLive.Synchronization do
            Wca.Api.get_upcoming_manageable_competitions(access_token.access_token) do
       competition_briefs =
         data
-        |> Enum.filter(fn data -> data["announced_at"] != nil end)
+        |> Enum.filter(fn data ->
+          data["announced_at"] != nil and data["scoretaking_software"] == "wca_live"
+        end)
         |> Enum.map(&Synchronization.CompetitionBrief.from_wca_json/1)
 
       wca_ids = Enum.map(competition_briefs, & &1.wca_id)
