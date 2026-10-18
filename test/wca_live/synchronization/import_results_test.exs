@@ -106,6 +106,8 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
     person = insert(:person, competition: competition, registrant_id: 7)
 
     wcif = %{
+      "formatVersion" => "2.2",
+      "id" => "TestCompetition",
       "events" => [
         %{
           "id" => "333",
@@ -139,6 +141,8 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
 
   defp build_wcif(event_id, round_number, format_id, results) do
     %{
+      "formatVersion" => "2.2",
+      "id" => "TestCompetition",
       "events" => [
         %{
           "id" => event_id,
@@ -156,7 +160,7 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
 
   defp wcif_result(person_id, attempts) do
     attempt_objects =
-      Enum.map(attempts, fn result -> %{"result" => result, "reconstruction" => nil} end)
+      Enum.map(attempts, fn result -> %{"value" => result, "reconstruction" => nil} end)
 
     %{
       "personId" => person_id,

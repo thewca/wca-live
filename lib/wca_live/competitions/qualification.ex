@@ -7,7 +7,7 @@ defmodule WcaLive.Competitions.Qualification do
   import Ecto.Changeset
 
   @required_fields [:type, :result_type, :when_date]
-  @optional_fields [:level]
+  @optional_fields [:level, :earliest_result_date]
 
   @primary_key false
   embedded_schema do
@@ -15,6 +15,7 @@ defmodule WcaLive.Competitions.Qualification do
     field :result_type, :string
     field :level, :integer
     field :when_date, :date
+    field :earliest_result_date, :date
   end
 
   def changeset(qualification, attrs) do
