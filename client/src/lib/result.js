@@ -388,3 +388,42 @@ function resultWorstPossibleAverage(result, format) {
     return SKIPPED_VALUE;
   }
 }
+
+/**
+ * Re-sorts results by a specific column (attempt or stat).
+ *
+ * @param {Array} results - Results array
+ * @param {object|null} sortConfig - { type: 'attempt'|'stat', index?: number, field?: string, direction: 'asc'|'desc' }
+ * @returns {Array} - Re-sorted results array
+ */
+export function sortResultsByColumn(results, sortConfig) {
+  if (!sortConfig) return results;
+
+  const { type, index, field, direction = "asc" } = sortConfig;
+
+  function getValue(result) {
+    if (type === "attempt") {
+      return result.attempts[index]
+        ? result.attempts[index].result
+        : SKIPPED_VALUE;
+    }
+    if (type === "stat") {
+      return result[field] ?? SKIPPED_VALUE;
+    }
+    return SKIPPED_VALUE;
+  }
+
+  return results.slice(0).sort((a, b) => {
+    const valA = getValue(a);
+    const valB = getValue(b);
+
+    const comp = compareAttemptResults(valA, valB);
+    if (comp !== 0) {
+      if (isComplete(valA) && !isComplete(valB)) return -1;
+      if (!isComplete(valA) && isComplete(valB)) return 1;
+      return direction === "desc" ? -comp : comp;
+    }
+
+    return (a.ranking ?? Infinity) - (b.ranking ?? Infinity);
+  });
+}
