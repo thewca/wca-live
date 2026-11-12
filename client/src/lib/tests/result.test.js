@@ -4,6 +4,7 @@ import {
   resultsForView,
   orderedResultStats,
   timeNeededToOvertake,
+  sortResultsByColumn,
 } from "../result";
 
 describe("orderedResultStats", () => {
@@ -796,5 +797,85 @@ describe("timeNeededToOvertake", () => {
         overtakeResult,
       ),
     ).toEqual(-1);
+  });
+});
+
+describe("sortResultsByColumn", () => {
+  const r1 = {
+    id: "1",
+    ranking: 1,
+    attempts: [{ result: 25 }, { result: 30 }, { result: 28 }],
+    best: 25,
+    average: 2767,
+  };
+  const r2 = {
+    id: "2",
+    ranking: 2,
+    attempts: [{ result: 22 }, { result: -1 }, { result: 24 }],
+    best: 22,
+    average: -1,
+  };
+  const r3 = {
+    id: "3",
+    ranking: 3,
+    attempts: [{ result: 28 }, { result: 24 }, { result: 26 }],
+    best: 24,
+    average: 2600,
+  };
+
+  const results = [r1, r2, r3];
+
+  it("returns unchanged results if sortConfig is null", () => {
+    expect(sortResultsByColumn(results, null)).toEqual(results);
+  });
+
+  it("sorts by attempt index ascending (best solves first, DNF last)", () => {
+    // Attempt index 0: r1=25, r2=22, r3=28 -> r2(22), r1(25), r3(28)
+    const sorted = sortResultsByColumn(results, {
+      type: "attempt",
+      index: 0,
+      direction: "asc",
+    });
+    expect(sorted.map((r) => r.id)).toEqual(["2", "1", "3"]);
+  });
+
+  it("sorts by attempt index with DNF placing at bottom for complete solves", () => {
+    // Attempt index 1: r1=30, r2=-1 (DNF), r3=24 -> r3(24), r1(30), r2(DNF)
+    const sorted = sortResultsByColumn(results, {
+      type: "attempt",
+      index: 1,
+      direction: "asc",
+    });
+    expect(sorted.map((r) => r.id)).toEqual(["3", "1", "2"]);
+  });
+
+  it("sorts by attempt index descending (worst complete solves first, DNF last)", () => {
+    // Attempt index 0 desc: r1=25, r2=22, r3=28 -> r3(28), r1(25), r2(22)
+    const sorted = sortResultsByColumn(results, {
+      type: "attempt",
+      index: 0,
+      direction: "desc",
+    });
+    expect(sorted.map((r) => r.id)).toEqual(["3", "1", "2"]);
+  });
+
+  it("sorts by stat field ascending", () => {
+    // Stat 'best': r1=25, r2=22, r3=24 -> r2(22), r3(24), r1(25)
+    const sorted = sortResultsByColumn(results, {
+      type: "stat",
+      field: "best",
+      direction: "asc",
+    });
+    expect(sorted.map((r) => r.id)).toEqual(["2", "3", "1"]);
+  });
+
+  it("sorts by stat field descending", () => {
+    // Stat 'average': r1=2767, r2=-1, r3=2600 -> r1(2767), r3(2600), r2(-1)
+    const sorted = sortResultsByColumn(results, {
+      type: "stat",
+      field: "average",
+      direction: "desc",
+    });
+    expect(sorted.map((r) => r.id)).toEqual(["1", "3", "2"]);
   });
 });
