@@ -34,7 +34,7 @@ jobs:
         run: npm test
   test_server:
     name: Server
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MIX_ENV: test
     services:
