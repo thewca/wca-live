@@ -301,10 +301,12 @@ defmodule WcaLive.Synchronization.ImportTest do
     assert fto_round.cutoff.attempt_result == 3000
 
     [person] = competition.people
+
     assert Enum.sort(Enum.map(person.registration.competition_events, & &1.event_id)) == [
              "333",
              "fto"
            ]
+
     assert Enum.all?(person.personal_bests, &(&1.event_id == "fto"))
     assert length(person.personal_bests) == 2
 
