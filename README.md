@@ -143,6 +143,38 @@ docker compose -f docker-compose.dev.yml exec app iex -S mix
 docker compose -f docker-compose.dev.yml exec database psql -U postgres wca_live_dev
 ```
 
+### Local FTO preview
+
+To run a local preview with fictional competitors and results:
+
+```sh
+docker-compose -f docker-compose.preview.yml up -d --build
+docker-compose -f docker-compose.preview.yml logs -f app
+```
+
+Open [localhost:3000](http://localhost:3000). The mock competition contains FTO
+first-round results, a final in progress, and a 3x3x3 round. The app and database
+run in Docker with separate preview volumes. Only localhost can access the app.
+Starting the preview again preserves any results you edit.
+
+The startup log prints a one-time code for the fictional local administrator.
+To generate a fresh code, run:
+
+```sh
+docker-compose -f docker-compose.preview.yml exec app mix run --no-start priv/repo/fto_preview.exs
+```
+
+Choose **Sign in → Use a one-time code** and enter the code within two minutes
+to try scoretaking without a WCA account. The preview script only runs in the
+development environment. All competitors are fictional; avoid synchronizing this
+competition with the WCA website.
+
+To stop the preview while preserving its data:
+
+```sh
+docker-compose -f docker-compose.preview.yml down
+```
+
 ### OAuth during development
 
 In the development environment, instead of interacting with the real WCA server we
