@@ -52,9 +52,11 @@ this data (more on that in the [vision](https://github.com/thewca/wcif/blob/mast
 document). The WCA website offers endpoints for fetching and saving data in this
 format. WCA Live requests WCIF v2 and exports WCIF 2.2. It supports sequential
 rounds; linked rounds and reserved places are rejected during import because the
-current scoring model cannot represent them. When a delegate/organizer imports a
-competition into the app, we fetch WCIF data for this competition and save all of
-it into the database. Later, competition admins can trigger synchronization, which
+current scoring model cannot represent them. Face Turning Octahedron (`fto`) is
+supported for competition import, scoretaking, and results synchronization.
+When a delegate/organizer imports a competition into the app, we fetch WCIF data
+for this competition and save all of it into the database. Later, competition
+admins can trigger synchronization, which
 works both ways: gets new data from the WCA website saving changes to the local
 database, and also sends local changes (like results) to the WCA website. Think of
 the WCA website as the source of truth that many tools read from and save data to.

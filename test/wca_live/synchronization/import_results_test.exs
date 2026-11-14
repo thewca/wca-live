@@ -30,6 +30,42 @@ defmodule WcaLive.Synchronization.ImportResultsTest do
     assert result.ranking == 1
   end
 
+  test "import_results/3 scores and exports FTO results as timed averages of five" do
+    user = insert(:user)
+    competition = insert(:competition)
+    competition_event = insert(:competition_event, competition: competition, event_id: "fto")
+    round = insert(:round, competition_event: competition_event, format_id: "a")
+    person = insert(:person, competition: competition, registrant_id: 7)
+    insert(:person, competition: competition, registrant_id: 8)
+
+    attempts = [3232, 3213, 2323, 2323, -1]
+
+    wcif =
+      build_wcif("fto", 1, "a", [
+        wcif_result(7, attempts),
+        wcif_result(8, [2000, 2000, 2000, 2000, 2000])
+      ])
+
+    assert {:ok, _competition} = Import.import_results(competition, wcif, user)
+
+    results = round |> Ecto.assoc(:results) |> Repo.all()
+    result = Enum.find(results, &(&1.person_id == person.id))
+
+    assert result.best == 2323
+    assert result.average == 2923
+    assert result.ranking == 2
+    assert Enum.map(result.attempts, & &1.result) == attempts
+
+    [event] = WcaLive.Synchronization.Export.export_competition(competition)["events"]
+    assert event["id"] == "fto"
+    [exported_round] = event["rounds"]
+    assert exported_round["id"] == "fto-r1"
+    exported_result = Enum.find(exported_round["results"], &(&1["personId"] == 7))
+    assert exported_result["average"] == 2923
+    assert exported_result["ranking"] == 2
+    assert Enum.map(exported_result["attempts"], & &1["value"]) == attempts
+  end
+
   test "import_results/3 skips rounds that already have results" do
     user = insert(:user)
     competition = insert(:competition)

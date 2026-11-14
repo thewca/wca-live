@@ -212,6 +212,37 @@ defmodule WcaLiveWeb.Schema.CompetitonsTypesTest do
                }
              } == body
     end
+
+    test "includes FTO metadata in event order", %{conn: conn} do
+      competition = insert(:competition)
+
+      for event_id <- ["333ft", "fto", "333mbf", "333"] do
+        insert(:competition_event, competition: competition, event_id: event_id)
+      end
+
+      query = """
+      query Competition($id: ID!) {
+        competition(id: $id) {
+          competitionEvents {
+            event { id name rank }
+          }
+        }
+      }
+      """
+
+      variables = %{"id" => to_gql_id(competition.id)}
+      conn = post(conn, "/api", %{"query" => query, "variables" => variables})
+      body = json_response(conn, 200)
+      events = get_in(body, ["data", "competition", "competitionEvents"])
+
+      assert Enum.map(events, & &1["event"]["id"]) == ["333", "333mbf", "fto", "333ft"]
+
+      assert Enum.at(events, 2)["event"] == %{
+               "id" => "fto",
+               "name" => "Face Turning Octahedron",
+               "rank" => 18
+             }
+    end
   end
 
   describe "query: competition competitors" do
