@@ -284,6 +284,7 @@ defmodule WcaLive.Synchronization.ImportTest do
           "childActivities" => []
         }
       )
+      |> move_to_today()
 
     assert {:ok, competition} =
              Import.import_competition(%Competition{imported_by: user}, wcif)
@@ -313,7 +314,10 @@ defmodule WcaLive.Synchronization.ImportTest do
     [venue] = competition.venues
     [room] = venue.rooms
     [activity] = room.activities
-    assert activity.round.id == fto_round.id
+    assert activity.activity_code == "fto-r1"
+
+    assert Competition.find_round_by_activity_code(competition, activity.activity_code).id ==
+             fto_round.id
 
     exported = WcaLive.Synchronization.Export.export_competition(competition)
     exported_fto = Enum.find(exported["events"], &(&1["id"] == "fto"))
