@@ -257,17 +257,72 @@ defmodule WcaLive.Synchronization.ImportTest do
     end
   end
 
-  test "FTO is rejected before importing a competition" do
+  test "import_competition/2 imports FTO rounds, registrations, personal bests and schedule" do
     user = insert(:user)
     [event] = @wcif["events"]
     [round] = event["rounds"]
     fto_event = %{event | "id" => "fto", "rounds" => [%{round | "id" => "fto-r1"}]}
-    wcif = %{@wcif | "events" => [event, fto_event]}
+    [person] = @wcif["persons"]
 
-    assert {:error, "FTO is not supported by WCA Live"} =
+    fto_person =
+      person
+      |> put_in(["registration", "eventIds"], ["333", "fto"])
+      |> update_in(["personalBests"], fn personal_bests ->
+        Enum.map(personal_bests, &%{&1 | "eventId" => "fto"})
+      end)
+
+    wcif =
+      %{@wcif | "events" => [event, fto_event], "persons" => [fto_person]}
+      |> put_in(
+        ["schedule", "venues", Access.at(0), "rooms", Access.at(0), "activities", Access.at(0)],
+        %{
+          "id" => 1,
+          "name" => "Face Turning Octahedron, Round 1",
+          "activityCode" => "fto-r1",
+          "startTime" => "2019-07-13T05:20:00Z",
+          "endTime" => "2019-07-13T08:00:00Z",
+          "childActivities" => []
+        }
+      )
+      |> move_to_today()
+
+    assert {:ok, competition} =
              Import.import_competition(%Competition{imported_by: user}, wcif)
 
-    refute Repo.exists?(Competition)
+    competition =
+      Repo.preload(competition,
+        competition_events: :rounds,
+        people: [:personal_bests, registration: :competition_events],
+        venues: [rooms: [activities: :round]]
+      )
+
+    fto = Enum.find(competition.competition_events, &(&1.event_id == "fto"))
+    assert [%{number: 1, format_id: "a"} = fto_round] = fto.rounds
+    assert fto_round.time_limit.centiseconds == 18000
+    assert fto_round.cutoff.attempt_result == 3000
+
+    [person] = competition.people
+
+    assert Enum.sort(Enum.map(person.registration.competition_events, & &1.event_id)) == [
+             "333",
+             "fto"
+           ]
+
+    assert Enum.all?(person.personal_bests, &(&1.event_id == "fto"))
+    assert length(person.personal_bests) == 2
+
+    [venue] = competition.venues
+    [room] = venue.rooms
+    [activity] = room.activities
+    assert activity.activity_code == "fto-r1"
+
+    assert Competition.find_round_by_activity_code(competition, activity.activity_code).id ==
+             fto_round.id
+
+    exported = WcaLive.Synchronization.Export.export_competition(competition)
+    exported_fto = Enum.find(exported["events"], &(&1["id"] == "fto"))
+    assert [%{"id" => "fto-r1", "format" => "a"}] = exported_fto["rounds"]
+    assert "fto" in hd(exported["persons"])["registration"]["eventIds"]
   end
 
   test "linked rounds fail before changing the competition" do
